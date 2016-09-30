@@ -15,25 +15,39 @@
  * limitations under the License.
  */
 
-#region Usings
-
-using System;
-
-#endregion
-
 namespace org.GraphDefined.WWCP.OIOIv3_x
 {
 
     /// <summary>
-    /// The current OIOI version.
+    /// The current dynamic status of an OIOI connector.
     /// </summary>
-    public static class Version
+    public enum ConnectorStatusType
     {
 
         /// <summary>
-        /// The current OIOI version.
+        /// The status or connector is unknown.
         /// </summary>
-        public const String Number = "v3.x";
+        Unknown,
+
+        /// <summary>
+        /// The connector is available.
+        /// </summary>
+        Available,
+
+        /// <summary>
+        /// The connector is occupied.
+        /// </summary>
+        Occupied,
+
+        /// <summary>
+        /// The connector is offline.
+        /// </summary>
+        Offline,
+
+        /// <summary>
+        /// The connector is reserved.
+        /// </summary>
+        Reserved
 
     }
 

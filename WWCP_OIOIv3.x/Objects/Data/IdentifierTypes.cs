@@ -15,25 +15,34 @@
  * limitations under the License.
  */
 
-#region Usings
-
-using System;
-
-#endregion
-
 namespace org.GraphDefined.WWCP.OIOIv3_x
 {
 
     /// <summary>
-    /// The current OIOI version.
+    /// OIOI Identifier types.
     /// </summary>
-    public static class Version
+    public enum IdentifierTypes
     {
 
         /// <summary>
-        /// The current OIOI version.
+        /// The identifier type is unknown.
         /// </summary>
-        public const String Number = "v3.x";
+        Unknown,
+
+        /// <summary>
+        /// EVCO Identification.
+        /// </summary>
+        EVCOId,
+
+        /// <summary>
+        /// RFID Identification.
+        /// </summary>
+        RFID,
+
+        /// <summary>
+        /// Username (with password).
+        /// </summary>
+        Username
 
     }
 
