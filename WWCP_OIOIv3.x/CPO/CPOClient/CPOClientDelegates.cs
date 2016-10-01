@@ -90,4 +90,32 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
     #endregion
 
+    #region OnRFIDVerifyRequest/-Response
+
+    /// <summary>
+    /// A delegate called whenever a RFID identification verification will be send upstream.
+    /// </summary>
+    public delegate Task OnRFIDVerifyRequestDelegate (DateTime                                LogTimestamp,
+                                                      DateTime                                RequestTimestamp,
+                                                      CPOClient                               Sender,
+                                                      String                                  SenderId,
+                                                      EventTracking_Id                        EventTrackingId,
+                                                      Auth_Token                              RFIDId,
+                                                      TimeSpan?                               RequestTimeout);
+
+    /// <summary>
+    /// A delegate called whenever a RFID identification verification had been send upstream.
+    /// </summary>
+    public delegate Task OnRFIDVerifyResponseDelegate(DateTime                                LogTimestamp,
+                                                      DateTime                                RequestTimestamp,
+                                                      CPOClient                               Sender,
+                                                      String                                  SenderId,
+                                                      EventTracking_Id                        EventTrackingId,
+                                                      Auth_Token                              RFIDId,
+                                                      TimeSpan?                               RequestTimeout,
+                                                      Result                                  Result,
+                                                      TimeSpan                                Duration);
+
+    #endregion
+
 }

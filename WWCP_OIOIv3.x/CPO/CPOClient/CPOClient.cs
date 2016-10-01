@@ -101,12 +101,12 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         public event ClientRequestLogHandler        OnStationPostHTTPRequest;
 
         /// <summary>
-        /// An event fired whenever a response to a charging station post HTTP request had been received.
+        /// An event fired whenever a HTTP response to a charging station post request had been received.
         /// </summary>
         public event ClientResponseLogHandler       OnStationPostHTTPResponse;
 
         /// <summary>
-        /// An event fired whenever a charging station had been sent upstream.
+        /// An event fired whenever a response to a charging station post request had been received.
         /// </summary>
         public event OnStationPostResponseDelegate  OnStationPostResponse;
 
@@ -125,14 +125,38 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         public event ClientRequestLogHandler                OnConnectorPostStatusHTTPRequest;
 
         /// <summary>
-        /// An event fired whenever a response to a charging connector status post HTTP request had been received.
+        /// An event fired whenever a HTTP response to a charging connector status post HTTP request had been received.
         /// </summary>
         public event ClientResponseLogHandler               OnConnectorPostStatusHTTPResponse;
 
         /// <summary>
-        /// An event fired whenever a charging connector status had been sent upstream.
+        /// An event fired whenever a response to a charging connector status post HTTP request had been received.
         /// </summary>
         public event OnConnectorPostStatusResponseDelegate  OnConnectorPostStatusResponse;
+
+        #endregion
+
+        #region OnRFIDVerifyRequest/-Response
+
+        /// <summary>
+        /// An event fired whenever a request verifying a RFID identification will be send.
+        /// </summary>
+        public event OnRFIDVerifyRequestDelegate   OnRFIDVerifyRequest;
+
+        /// <summary>
+        /// An event fired whenever a HTTP request verifying a RFID identification will be send.
+        /// </summary>
+        public event ClientRequestLogHandler       OnRFIDVerifyHTTPRequest;
+
+        /// <summary>
+        /// An event fired whenever a HTTP response to a RFID identification verification request had been received.
+        /// </summary>
+        public event ClientResponseLogHandler      OnRFIDVerifyHTTPResponse;
+
+        /// <summary>
+        /// An event fired whenever a response to a RFID identification verification request had been received.
+        /// </summary>
+        public event OnRFIDVerifyResponseDelegate  OnRFIDVerifyResponse;
 
         #endregion
 
@@ -140,7 +164,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
         #region Constructor(s)
 
-        #region CPOClient(ClientId, Hostname, APIKey, ..., LoggingContext = EMPClientLogger.DefaultContext, ...)
+        #region CPOClient(ClientId, Hostname, APIKey, ..., LoggingContext = CPOClientLogger.DefaultContext, ...)
 
         /// <summary>
         /// Create a new OIOI CPO Client.
@@ -655,6 +679,180 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
         #endregion
 
+
+        #region RFIDVerify(RFIDId, ...)
+
+        /// <summary>
+        /// Create a new task verifying a RFID identification via the OIOI server.
+        /// </summary>
+        /// <param name="RFIDId">A RFID identification.</param>
+        /// 
+        /// <param name="Timestamp">The optional timestamp of the request.</param>
+        /// <param name="CancellationToken">An optional token to cancel this request.</param>
+        /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
+        /// <param name="RequestTimeout">An optional timeout for this request.</param>
+        public async Task<HTTPResponse<Result>>
+
+            RFIDVerify(Auth_Token          RFIDId,
+
+                       DateTime?           Timestamp          = null,
+                       CancellationToken?  CancellationToken  = null,
+                       EventTracking_Id    EventTrackingId    = null,
+                       TimeSpan?           RequestTimeout     = null)
+
+        {
+
+            #region Initial checks
+
+            if (RFIDId == null)
+                throw new ArgumentNullException(nameof(RFIDId),  "The given RFID identification must not be null!");
+
+
+            if (!Timestamp.HasValue)
+                Timestamp = DateTime.Now;
+
+            if (EventTrackingId == null)
+                EventTrackingId = EventTracking_Id.New;
+
+            if (!RequestTimeout.HasValue)
+                RequestTimeout = this.RequestTimeout;
+
+            HTTPResponse<Result> result = null;
+
+            #endregion
+
+            #region Send OnRFIDVerifyRequest event
+
+            try
+            {
+
+                OnRFIDVerifyRequest?.Invoke(DateTime.Now,
+                                            Timestamp.Value,
+                                            this,
+                                            ClientId,
+                                            EventTrackingId,
+                                            RFIDId,
+                                            RequestTimeout);
+
+            }
+            catch (Exception e)
+            {
+                e.Log(nameof(CPOClient) + "." + nameof(OnRFIDVerifyRequest));
+            }
+
+            #endregion
+
+
+            using (var _JSONClient = new JSONClient(Hostname,
+                                                    RemotePort,
+                                                    HTTPVirtualHost,
+                                                    URIPrefix,
+                                                    RemoteCertificateValidator,
+                                                    ClientCert,
+                                                    UserAgent,
+                                                    DNSClient))
+            {
+
+                result = await _JSONClient.Query(new JObject(
+                                                     new JProperty("rfid-verify", new JObject(
+                                                         new JProperty("rfid", RFIDId.ToString())
+                                                     ))
+                                                 ),
+                                                 HTTPRequestBuilder:   request => request.Set("Authorization", "key=" + APIKey),
+                                                 RequestLogDelegate:   OnRFIDVerifyHTTPRequest,
+                                                 ResponseLogDelegate:  OnRFIDVerifyHTTPResponse,
+                                                 CancellationToken:    CancellationToken,
+                                                 EventTrackingId:      EventTrackingId,
+                                                 RequestTimeout:       RequestTimeout,
+
+                                                 #region OnSuccess
+
+                                                 OnSuccess: JSONResponse => JSONResponse.ConvertContent(jsonobject => Result.Parse(jsonobject)),
+
+                                                 #endregion
+
+                                                 #region OnJSONFault
+
+                                                 OnJSONFault: (timestamp, jsonclient, httpresponse) => {
+
+                                                     SendJSONError(timestamp, this, httpresponse.Content);
+
+                                                     return new HTTPResponse<Result>(httpresponse,
+                                                                                     new Result(500, "JSON Fault!"),
+                                                                                     IsFault: true);
+
+                                                 },
+
+                                                 #endregion
+
+                                                 #region OnHTTPError
+
+                                                 OnHTTPError: (timestamp, soapclient, httpresponse) => {
+
+                                                     SendHTTPError(timestamp, this, httpresponse);
+
+                                                     return new HTTPResponse<Result>(httpresponse,
+                                                                                     new Result(httpresponse.HTTPStatusCode.Code,
+                                                                                                httpresponse.HTTPBody.      ToUTF8String()),
+                                                                                     IsFault: true);
+
+                                                 },
+
+                                                 #endregion
+
+                                                 #region OnException
+
+                                                 OnException: (timestamp, sender, exception) => {
+
+                                                     SendException(timestamp, sender, exception);
+
+                                                     return HTTPResponse<Result>.ExceptionThrown(new Result(500,
+                                                                                                            exception.Message),
+                                                                                                 Exception:  exception);
+
+                                                 }
+
+                                                 #endregion
+
+                                                );
+
+            }
+
+
+            if (result == null)
+                result = HTTPResponse<Result>.OK(new Result(500, "result == null!"));
+
+            #region Send OnRFIDVerifyResponse event
+
+            try
+            {
+
+                OnRFIDVerifyResponse?.Invoke(DateTime.Now,
+                                                      Timestamp.Value,
+                                                      this,
+                                                      ClientId,
+                                                      EventTrackingId,
+                                                      RFIDId,
+                                                      RequestTimeout,
+                                                      result.Content,
+                                                      DateTime.Now - Timestamp.Value);
+
+            }
+            catch (Exception e)
+            {
+                e.Log(nameof(CPOClient) + "." + nameof(OnRFIDVerifyResponse));
+            }
+
+            #endregion
+
+            return result;
+
+        }
+
+        #endregion
+
+
+        // SessionPost
 
     }
 

@@ -60,6 +60,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// Generate a new OIOI communication partner identification
         /// based on the given string.
         /// </summary>
+        /// <param name="Text">The value of the communication partner identification.</param>
         private Partner_Id(String Text)
         {
 
