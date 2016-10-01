@@ -47,8 +47,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IO\JSONExt.cs" />
+    <Compile Include="CPO\CPOClient\CPOClient.cs" />
+    <Compile Include="CPO\CPOClient\CPOClientDelegates.cs" />
+    <Compile Include="CPO\CPOClient\CPOClientLogger.cs" />
+    <Compile Include="Definitions.cs" />
+    <Compile Include="IO\Result.cs" />
     <Compile Include="Objects\Data\Address.cs" />
+    <Compile Include="IO\ResponseCodes.cs" />
+    <Compile Include="Objects\Data\Partner_Id.cs" />
     <Compile Include="Objects\Data\IdentifierTypes.cs" />
     <Compile Include="Objects\User.cs" />
     <Compile Include="Objects\Data\Connector.cs" />
@@ -64,9 +70,7 @@
     <None Include="Errata.md" />
     <None Include="README.md" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="CPO\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\..\Aegir\Aegir\Aegir.csproj">
       <Project>{4d8ffccd-738d-41aa-a527-8cfdfe0a681d}</Project>
