@@ -29,7 +29,7 @@ As every method call is async you have to wait explicitly, use async/await or co
 
 ```csharp
 
-var result = await OIOI.RFIDVerify(Auth_Token.Parse("CAFEBABE");
+var result = await OIOI.RFIDVerify(Auth_Token.Parse("CAFEBABE"));
 
 ```
 
