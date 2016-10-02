@@ -25,13 +25,14 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 
+using Newtonsoft.Json.Linq;
+
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Hermod.DNS;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets.TCP;
-using Newtonsoft.Json.Linq;
 
 #endregion
 
@@ -99,7 +100,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
         #region Events
 
-        #region OnSessionStart(HTTPRequest/-Response)
+        #region OnSessionStart(HTTP)Request/-Response
 
         /// <summary>
         /// An event sent whenever a session start request was received.
@@ -123,7 +124,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
         #endregion
 
-        #region OnSessionStop (HTTPRequest/-Response)
+        #region OnSessionStop (HTTP)Request/-Response
 
         /// <summary>
         /// An event sent whenever a session stop request was received.
@@ -794,10 +795,10 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// <param name="URIPrefix">The URI prefix for all incoming HTTP requests.</param>
         public static CPOServer
 
-            AttachToHTTPAPI(RoamingNetwork  RoamingNetwork,
-                            HTTPServer      HTTPServer,
-                            HTTPHostname    HTTPHostname  = null,
-                            String          URIPrefix     = DefaultURIPrefix)
+            AttachToHTTPAPI(RoamingNetwork                               RoamingNetwork,
+                            HTTPServer<RoamingNetworks, RoamingNetwork>  HTTPServer,
+                            HTTPHostname                                 HTTPHostname  = null,
+                            String                                       URIPrefix     = DefaultURIPrefix)
 
             => new CPOServer(RoamingNetwork,
                              HTTPServer,
@@ -807,7 +808,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         #endregion
 
 
-        #region (private, static) CreateResponse(HTTPRequest, HTTPStatusCode, OIOIResult)
+        #region (private, static) CreateResponse  (HTTPRequest, HTTPStatusCode, OIOIResult)
 
         /// <summary>
         /// Create a new HTTP Response.

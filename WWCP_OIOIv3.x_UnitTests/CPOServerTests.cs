@@ -1,0 +1,130 @@
+﻿/*
+ * Copyright (c) 2016 GraphDefined GmbH
+ * This file is part of WWCP OIOI <https://github.com/OpenChargingCloud/WWCP_OIOI>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#region Usings
+
+using System;
+using System.Linq;
+using System.Threading;
+using System.Reflection;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
+
+using NUnit.Framework;
+using Newtonsoft.Json.Linq;
+
+using org.GraphDefined.Vanaheimr.Illias;
+using org.GraphDefined.Vanaheimr.Hermod;
+using org.GraphDefined.Vanaheimr.Hermod.DNS;
+using org.GraphDefined.Vanaheimr.Hermod.HTTP;
+using org.GraphDefined.Vanaheimr.Hermod.Sockets;
+using org.GraphDefined.Vanaheimr.Hermod.Sockets.TCP;
+
+using org.GraphDefined.WWCP.OIOIv3_x;
+
+#endregion
+
+namespace org.GraphDefined.WWCP.OIOIv3_x.UnitTests
+{
+
+    /// <summary>
+    /// CPO Server Unit Tests.
+    /// </summary>
+    [TestFixture]
+    public class CPOServerTests : ATests
+    {
+
+        #region Data
+
+        private CPOServer               _CPOServer;
+
+        private ChargingStationOperator CSOP01;
+        private ChargingPool            CP01;
+        private ChargingStation         CS01;
+        private EVSE                    EVSE01;
+
+        #endregion
+
+        #region Constructor(s)
+
+        public CPOServerTests()
+        {
+
+            this._CPOServer = CPOServer.AttachToHTTPAPI(_RoamingNetwork, HTTPAPI);
+
+            CSOP01 = _RoamingNetwork.CreateNewChargingStationOperator(ChargingStationOperator_Id.Parse("DE*GEF"),
+                                                                      I18NString.Create(Languages.de, "GraphDefined"),
+                                                                      AdminStatus: ChargingStationOperatorAdminStatusType.Operational);
+
+            CP01   = CSOP01.CreateNewChargingPool(ChargingPool_Id.   Parse("DE*GEF*P123456"));
+            CS01   = CP01.  CreateNewStation     (ChargingStation_Id.Parse("DE*GEF*S123456*A"));
+            EVSE01 = CS01.  CreateNewEVSE        (EVSE_Id.           Parse("DE*GEF*E123456*A*1"));
+
+        }
+
+        #endregion
+
+
+        #region Test_SessionStart_1()
+
+        [Test]
+        public void Test_SessionStart_1()
+        {
+
+            var task0001  = _HTTPClient.Execute(client => client.POST(CPOServer.DefaultURIPrefix,
+                                                                      requestbuilder => {
+                                                                          requestbuilder.Host         = "localhost";
+                                                                          requestbuilder.ContentType  = HTTPContentType.JSON_UTF8;
+                                                                          requestbuilder.Accept.Add(HTTPContentType.JSON_UTF8);
+                                                                          requestbuilder.Content      = JSONObject.Create(
+
+                                                                                                            new JProperty("session-start", new JObject(
+
+                                                                                                                new JProperty("user", new JObject(
+                                                                                                                    new JProperty("identifier-type", "evco-id"),
+                                                                                                                    new JProperty("identifier",      "DE-GDF-123456-7")
+                                                                                                                )),
+
+                                                                                                                new JProperty("connector-id",       EVSE01.Id.ToString()),
+                                                                                                                new JProperty("payment-reference",  "bitcoin")
+
+                                                                                                            ))
+
+                                                                                                        ).ToUTF8Bytes();
+                                                                      }),
+                                                                      Timeout:           Timeout,
+                                                                      CancellationToken: new CancellationTokenSource().Token);
+
+            task0001.Wait(Timeout);
+            var result0001 = task0001.Result;
+
+            Assert.AreEqual(HTTPStatusCode.OK, result0001.HTTPStatusCode);
+            Assert.AreEqual(new JObject(
+                                new JProperty("session-start", new JObject(
+                                    new JProperty("success", true)
+                                ))
+                            ).ToString(),
+                            JArray.Parse(result0001.HTTPBody.ToUTF8String()).ToString());
+
+        }
+
+        #endregion
+
+    }
+
+}
