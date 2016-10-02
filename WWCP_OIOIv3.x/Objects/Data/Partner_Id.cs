@@ -95,7 +95,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// <summary>
         /// Parse the given string as a communication partner identification.
         /// </summary>
-        /// <param name="Text">A text representation of an communication partner identification.</param>
+        /// <param name="Text">A text representation of a communication partner identification.</param>
         /// <param name="PartnerId">The parsed communication partner identification.</param>
         public static Boolean TryParse(String Text, out Partner_Id PartnerId)
         {

@@ -50,10 +50,14 @@
     <Compile Include="CPO\CPOClient\CPOClient.cs" />
     <Compile Include="CPO\CPOClient\CPOClientDelegates.cs" />
     <Compile Include="CPO\CPOClient\CPOClientLogger.cs" />
+    <Compile Include="CPO\CPOServer\CPOServer.cs" />
+    <Compile Include="CPO\CPOServer\CPOServerDelegates.cs" />
     <Compile Include="Definitions.cs" />
+    <Compile Include="IO\ObjectMapper.cs" />
     <Compile Include="IO\Result.cs" />
     <Compile Include="Objects\Data\Address.cs" />
     <Compile Include="IO\ResponseCodes.cs" />
+    <Compile Include="Objects\Data\PaymentReference.cs" />
     <Compile Include="Objects\Data\Partner_Id.cs" />
     <Compile Include="Objects\Data\IdentifierTypes.cs" />
     <Compile Include="Objects\User.cs" />

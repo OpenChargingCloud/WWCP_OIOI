@@ -50,8 +50,10 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// <summary>
         /// Create a new OIOI result.
         /// </summary>
-        public Result(UInt32  Code,
-                      String  Message)
+        /// <param name="Code">The result code.</param>
+        /// <param name="Message">An optional result message.</param>
+        private Result(UInt32  Code,
+                       String  Message  = null)
         {
 
             this.Code     = Code;
@@ -200,6 +202,58 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                    new JProperty("code",     Code),
                    new JProperty("message",  Message)
                );
+
+        #endregion
+
+        #region ToUTF8Bytes()
+
+        /// <summary>
+        /// Return a byte array representation of this object.
+        /// </summary>
+        public Byte[] ToUTF8Bytes()
+
+            => ToJSON().ToUTF8Bytes();
+
+        #endregion
+
+
+        #region (static) Success(Message = null)
+
+        /// <summary>
+        /// Return a successful result having the given optional message.
+        /// </summary>
+        /// <param name="Message">An optional success message.</param>
+        public static Result Success(String Message = null)
+
+            => new Result(0,
+                          Message ?? "Success.");
+
+        #endregion
+
+        #region (static) Error(Code, Message = null)
+
+        /// <summary>
+        /// Return a unsuccessful result having the given optional message.
+        /// </summary>
+        /// <param name="Code">The result code.</param>
+        /// <param name="Message">An optional result message.</param>
+        public static Result Error(UInt32  Code,
+                                   String  Message  = null)
+
+            => new Result(Code,
+                          Message ?? "Error.");
+
+        #endregion
+
+
+        #region (static) UserTokenNotValid
+
+        /// <summary>
+        /// 145 - Authentication failed: User token not valid.
+        /// </summary>
+        public static Result UserTokenNotValid
+
+            => new Result(145, "Authentication failed: User token not valid");
 
         #endregion
 

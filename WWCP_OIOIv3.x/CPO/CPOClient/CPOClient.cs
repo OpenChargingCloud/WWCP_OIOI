@@ -56,6 +56,11 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// </summary>
         public new static readonly IPPort  DefaultRemotePort     = IPPort.Parse(443);
 
+        /// <summary>
+        /// The default HTTP client URI prefix.
+        /// </summary>
+        public const               String  DefaultURIPrefix      = "/api/v3/request";
+
         #endregion
 
         #region Properties
@@ -167,7 +172,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         #region CPOClient(ClientId, Hostname, APIKey, ..., LoggingContext = CPOClientLogger.DefaultContext, ...)
 
         /// <summary>
-        /// Create a new OIOI CPO Client.
+        /// Create a new OIOI CPO Client using the given parameters.
         /// </summary>
         /// <param name="ClientId">A unqiue identification of this client.</param>
         /// <param name="Hostname">The hostname of the remote OIOI service.</param>
@@ -224,7 +229,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
             #endregion
 
             this.APIKey                       = APIKey;
-            this.URIPrefix                    = URIPrefix.IsNotNullOrEmpty() ? URIPrefix : "/api/v3/request";
+            this.URIPrefix                    = URIPrefix.IsNotNullOrEmpty() ? URIPrefix : DefaultURIPrefix;
             this.DefaultPartnerId             = DefaultPartnerId;
 
             this.Logger                       = new CPOClientLogger(this,
@@ -418,7 +423,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                                                      SendJSONError(timestamp, this, httpresponse.Content);
 
                                                      return new HTTPResponse<Result>(httpresponse,
-                                                                                     new Result(500, "JSON Fault!"),
+                                                                                     Result.Error(500, "JSON Fault!"),
                                                                                      IsFault: true);
 
                                                  },
@@ -432,8 +437,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                                                      SendHTTPError(timestamp, this, httpresponse);
 
                                                      return new HTTPResponse<Result>(httpresponse,
-                                                                                     new Result(httpresponse.HTTPStatusCode.Code,
-                                                                                                httpresponse.HTTPBody.      ToUTF8String()),
+                                                                                     Result.Error(httpresponse.HTTPStatusCode.Code,
+                                                                                                  httpresponse.HTTPBody.      ToUTF8String()),
                                                                                      IsFault: true);
 
                                                  },
@@ -446,7 +451,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
                                                      SendException(timestamp, sender, exception);
 
-                                                     return HTTPResponse<Result>.ExceptionThrown(new Result(500,
+                                                     return HTTPResponse<Result>.ExceptionThrown(Result.Error(500,
                                                                                                             exception.Message),
                                                                                                  Exception:  exception);
 
@@ -460,7 +465,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
 
             if (result == null)
-                result = HTTPResponse<Result>.OK(new Result(500, "result == null!"));
+                result = HTTPResponse<Result>.OK(Result.Error(500, "result == null!"));
 
             #region Send OnStationPostResponse event
 
@@ -604,7 +609,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                                                      SendJSONError(timestamp, this, httpresponse.Content);
 
                                                      return new HTTPResponse<Result>(httpresponse,
-                                                                                     new Result(500, "JSON Fault!"),
+                                                                                     Result.Error(500, "JSON Fault!"),
                                                                                      IsFault: true);
 
                                                  },
@@ -618,8 +623,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                                                      SendHTTPError(timestamp, this, httpresponse);
 
                                                      return new HTTPResponse<Result>(httpresponse,
-                                                                                     new Result(httpresponse.HTTPStatusCode.Code,
-                                                                                                httpresponse.HTTPBody.      ToUTF8String()),
+                                                                                     Result.Error(httpresponse.HTTPStatusCode.Code,
+                                                                                                  httpresponse.HTTPBody.      ToUTF8String()),
                                                                                      IsFault: true);
 
                                                  },
@@ -632,7 +637,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
                                                      SendException(timestamp, sender, exception);
 
-                                                     return HTTPResponse<Result>.ExceptionThrown(new Result(500,
+                                                     return HTTPResponse<Result>.ExceptionThrown(Result.Error(500,
                                                                                                             exception.Message),
                                                                                                  Exception:  exception);
 
@@ -646,7 +651,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
 
             if (result == null)
-                result = HTTPResponse<Result>.OK(new Result(500, "result == null!"));
+                result = HTTPResponse<Result>.OK(Result.Error(500, "result == null!"));
 
             #region Send OnConnectorPostStatusResponse event
 
@@ -778,7 +783,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                                                      SendJSONError(timestamp, this, httpresponse.Content);
 
                                                      return new HTTPResponse<Result>(httpresponse,
-                                                                                     new Result(500, "JSON Fault!"),
+                                                                                     Result.Error(500, "JSON Fault!"),
                                                                                      IsFault: true);
 
                                                  },
@@ -792,8 +797,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                                                      SendHTTPError(timestamp, this, httpresponse);
 
                                                      return new HTTPResponse<Result>(httpresponse,
-                                                                                     new Result(httpresponse.HTTPStatusCode.Code,
-                                                                                                httpresponse.HTTPBody.      ToUTF8String()),
+                                                                                     Result.Error(httpresponse.HTTPStatusCode.Code,
+                                                                                                  httpresponse.HTTPBody.      ToUTF8String()),
                                                                                      IsFault: true);
 
                                                  },
@@ -806,7 +811,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
                                                      SendException(timestamp, sender, exception);
 
-                                                     return HTTPResponse<Result>.ExceptionThrown(new Result(500,
+                                                     return HTTPResponse<Result>.ExceptionThrown(Result.Error(500,
                                                                                                             exception.Message),
                                                                                                  Exception:  exception);
 
@@ -820,7 +825,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
 
             if (result == null)
-                result = HTTPResponse<Result>.OK(new Result(500, "result == null!"));
+                result = HTTPResponse<Result>.OK(Result.Error(500, "result == null!"));
 
             #region Send OnRFIDVerifyResponse event
 
