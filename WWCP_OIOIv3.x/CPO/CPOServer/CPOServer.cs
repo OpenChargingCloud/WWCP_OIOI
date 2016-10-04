@@ -74,27 +74,32 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// <summary>
         /// The roaming network of this API.
         /// </summary>
-        public RoamingNetwork  RoamingNetwork   { get; }
+        public RoamingNetwork        RoamingNetwork                 { get; }
 
         /// <summary>
         /// The HTTP server of this API.
         /// </summary>
-        public HTTPServer      HTTPServer       { get; }
+        public HTTPServer            HTTPServer                     { get; }
 
         /// <summary>
         /// The HTTP hostname of this API.
         /// </summary>
-        public HTTPHostname    HTTPHostname     { get; }
+        public HTTPHostname          HTTPHostname                   { get; }
 
         /// <summary>
         /// The common URI prefix of the HTTP server of this API for all incoming requests.
         /// </summary>
-        public String          URIPrefix        { get; }
+        public String                URIPrefix                      { get; }
 
         /// <summary>
         /// The DNS client used by this API.
         /// </summary>
-        public DNSClient       DNSClient        { get; }
+        public DNSClient             DNSClient                      { get; }
+
+        /// <summary>
+        /// An optional default e-mobility provider identification.
+        /// </summary>
+        public eMobilityProvider_Id  DefaultEMobilityProviderId     { get; }
 
         #endregion
 
@@ -103,14 +108,19 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         #region OnSessionStart(HTTP)Request/-Response
 
         /// <summary>
+        /// An event sent whenever a session start HTTP request was received.
+        /// </summary>
+        public event RequestLogHandler               OnSessionStartHTTPRequest;
+
+        /// <summary>
         /// An event sent whenever a session start request was received.
         /// </summary>
         public event OnSessionStartRequestDelegate   OnSessionStartRequest;
 
         /// <summary>
-        /// An event sent whenever a session start HTTP request was received.
+        /// An event sent whenever an EVSE should start charging.
         /// </summary>
-        public event RequestLogHandler               OnSessionStartHTTPRequest;
+        public event OnSessionStartDelegate          OnSessionStart;
 
         /// <summary>
         /// An event sent whenever a HTTP response to a session start request was sent.
@@ -127,14 +137,19 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         #region OnSessionStop (HTTP)Request/-Response
 
         /// <summary>
+        /// An event sent whenever a session stop HTTP request was received.
+        /// </summary>
+        public event RequestLogHandler              OnSessionStopHTTPRequest;
+
+        /// <summary>
         /// An event sent whenever a session stop request was received.
         /// </summary>
         public event OnSessionStopRequestDelegate   OnSessionStopRequest;
 
         /// <summary>
-        /// An event sent whenever a session stop HTTP request was received.
+        /// An event sent whenever an EVSE should stop charging.
         /// </summary>
-        public event RequestLogHandler              OnSessionStopHTTPRequest;
+        public event OnSessionStopDelegate          OnSessionStop;
 
         /// <summary>
         /// An event sent whenever a HTTP response to a session stop request was sent.
@@ -163,6 +178,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// <param name="HTTPPort">An IP port to listen on.</param>
         /// <param name="X509Certificate">Use this X509 certificate for TLS.</param>
         /// <param name="URIPrefix">The URI prefix for all incoming HTTP requests.</param>
+        /// <param name="DefaultEMobilityProviderId">An optional default e-mobility provider identification.</param>
         /// 
         /// <param name="CallingAssemblies">A list of calling assemblies to include e.g. into embedded ressources lookups.</param>
         /// <param name="ServerThreadName">The optional name of the TCP server thread.</param>
@@ -183,6 +199,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                          IPPort                            HTTPPort                          = null,
                          X509Certificate2                  X509Certificate                   = null,
                          String                            URIPrefix                         = DefaultURIPrefix,
+                         eMobilityProvider_Id              DefaultEMobilityProviderId        = null,
 
                          IEnumerable<Assembly>             CallingAssemblies                 = null,
                          String                            ServerThreadName                  = null,
@@ -215,7 +232,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                                   DNSClient ?? new DNSClient(),
                                   false),
                    HTTPHostname,
-                   URIPrefix)
+                   URIPrefix,
+                   DefaultEMobilityProviderId)
 
         {
 
@@ -264,10 +282,12 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// <param name="HTTPServer">An existing HTTP server.</param>
         /// <param name="HTTPHostname">An optional HTTP hostname.</param>
         /// <param name="URIPrefix">The URI prefix for all incoming HTTP requests.</param>
-        private CPOServer(RoamingNetwork  RoamingNetwork,
-                          HTTPServer      HTTPServer,
-                          HTTPHostname    HTTPHostname  = null,
-                          String          URIPrefix     = DefaultURIPrefix)
+        /// <param name="DefaultEMobilityProviderId">An optional default e-mobility provider identification.</param>
+        private CPOServer(RoamingNetwork        RoamingNetwork,
+                          HTTPServer            HTTPServer,
+                          HTTPHostname          HTTPHostname                = null,
+                          String                URIPrefix                   = DefaultURIPrefix,
+                          eMobilityProvider_Id  DefaultEMobilityProviderId  = null)
         {
 
             #region Initial checks
@@ -283,11 +303,12 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
             #endregion
 
-            this.RoamingNetwork  = RoamingNetwork;
-            this.HTTPServer      = HTTPServer;
-            this.HTTPHostname    = HTTPHostname;
-            this.URIPrefix       = URIPrefix.IsNotNullOrEmpty() ? URIPrefix : DefaultURIPrefix;
-            this.DNSClient       = HTTPServer.DNSClient;
+            this.RoamingNetwork              = RoamingNetwork;
+            this.HTTPServer                  = HTTPServer;
+            this.HTTPHostname                = HTTPHostname;
+            this.URIPrefix                   = URIPrefix.IsNotNullOrEmpty() ? URIPrefix : DefaultURIPrefix;
+            this.DNSClient                   = HTTPServer.DNSClient;
+            this.DefaultEMobilityProviderId  = DefaultEMobilityProviderId;
 
             #region / {URIPrefix}
 
@@ -302,9 +323,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                                              JObject       JSONObj;
 
                                              if (!Request.TryParseJObjectRequestBody(out JSONBody, out HTTPResponse))
-                                                 return SendSessionStartResponse(Request,
-                                                                                 HTTPStatusCode.BadRequest,
-                                                                                 Result.Error(140, "Invalid HTTP body!"));
+                                                 return CreateResponse(Request,
+                                                                       HTTPStatusCode.BadRequest,
+                                                                       Result.Error(140, "Invalid HTTP body!"));
 
                                              #region Parse Session Start [Optional]
 
@@ -475,10 +496,37 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                                                  #endregion
 
 
-                                                 var RemoteStartResult = await RoamingNetwork.RemoteStart(ConnectorId,
-                                                                                                          eMAId: eMobilityAccountId);
+                                                 RemoteStartEVSEResult _RemoteStartEVSEResult;
 
-                                                 switch (RemoteStartResult.Result)
+                                                 // Call remote start directly...
+                                                 var OnSessionStartLocal = OnSessionStart;
+                                                 if (OnSessionStartLocal == null)
+                                                     _RemoteStartEVSEResult  = await RoamingNetwork.RemoteStart(EVSEId:             ConnectorId,
+                                                                                                                ProviderId:         DefaultEMobilityProviderId,
+                                                                                                                eMAId:              eMobilityAccountId,
+                                                                                                                Timestamp:          Request.Timestamp,
+                                                                                                                CancellationToken:  Request.CancellationToken,
+                                                                                                                EventTrackingId:    Request.EventTrackingId,
+                                                                                                                RequestTimeout:     TimeSpan.FromSeconds(45));
+
+                                                 // ...or send OnSessionStart event(s)!
+                                                 else
+                                                     _RemoteStartEVSEResult  = (await Task.WhenAll(OnSessionStartLocal.
+                                                                                                       GetInvocationList().
+                                                                                                       Select(subscriber => (subscriber as OnSessionStartDelegate)
+                                                                                                           (DateTime.Now,
+                                                                                                            this,
+                                                                                                            eMobilityAccountId,
+                                                                                                            ConnectorId,
+                                                                                                            PaymentReference,
+                                                                                                            new CancellationTokenSource().Token,
+                                                                                                            EventTracking_Id.New,
+                                                                                                            TimeSpan.FromSeconds(45))))).
+
+                                                                               FirstOrDefault(result => result.Result != RemoteStartEVSEResultType.Unspecified);
+
+
+                                                 switch (_RemoteStartEVSEResult.Result)
                                                  {
 
                                                      #region UnknownOperator
@@ -618,15 +666,15 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
                                                  if (!JSONObj.ParseMandatory("user", out UserJSON))
                                                      return SendSessionStopResponse(Request,
-                                                                                     HTTPStatusCode.BadRequest,
-                                                                                     Result.UserTokenNotValid);
+                                                                                    HTTPStatusCode.BadRequest,
+                                                                                    Result.UserTokenNotValid);
 
                                                  #region Parse 'user/identifier-type'
 
                                                  if (!UserJSON.ParseMandatory("identifier-type", s => s.AsIdentifierTypes(), IdentifierTypes.Unknown, out IdentifierType))
                                                      return SendSessionStopResponse(Request,
-                                                                                     HTTPStatusCode.BadRequest,
-                                                                                     Result.Error(145, "JSON property 'user/identifier-type' missing or invalid!"));
+                                                                                    HTTPStatusCode.BadRequest,
+                                                                                    Result.Error(145, "JSON property 'user/identifier-type' missing or invalid!"));
 
                                                  #endregion
 
@@ -638,14 +686,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                                                      case IdentifierTypes.EVCOId:
                                                          if (!UserJSON.ParseMandatory("identifier", s => eMobilityAccount_Id.Parse(s), out eMobilityAccountId))
                                                              return SendSessionStopResponse(Request,
-                                                                                             HTTPStatusCode.BadRequest,
-                                                                                             Result.Error(145, "JSON property 'user/identifier' missing or invalid!"));
+                                                                                            HTTPStatusCode.BadRequest,
+                                                                                            Result.Error(145, "JSON property 'user/identifier' missing or invalid!"));
                                                          break;
 
                                                      default:
                                                          return SendSessionStopResponse(Request,
-                                                                                         HTTPStatusCode.BadRequest,
-                                                                                         Result.Error(145, "JSON property 'user/identifier' missing or invalid!"));
+                                                                                        HTTPStatusCode.BadRequest,
+                                                                                        Result.Error(145, "JSON property 'user/identifier' missing or invalid!"));
 
                                                  }
 
@@ -659,8 +707,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                                                      case IdentifierTypes.Username:
                                                          if (!UserJSON.ParseOptional("token", out Token))
                                                              return SendSessionStopResponse(Request,
-                                                                                             HTTPStatusCode.BadRequest,
-                                                                                             Result.Error(145, "JSON property 'user/token' invalid!"));
+                                                                                            HTTPStatusCode.BadRequest,
+                                                                                            Result.Error(145, "JSON property 'user/token' invalid!"));
                                                          break;
 
                                                  }
@@ -673,8 +721,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
                                                  if (!JSONObj.ParseMandatory("connector-id", s => EVSE_Id.Parse(s), out ConnectorId))
                                                      return SendSessionStopResponse(Request,
-                                                                                     HTTPStatusCode.BadRequest,
-                                                                                     Result.Error(310, "JSON property 'connector-id' missing or invalid!"));
+                                                                                    HTTPStatusCode.BadRequest,
+                                                                                    Result.Error(310, "JSON property 'connector-id' missing or invalid!"));
 
                                                  #endregion
 
@@ -682,8 +730,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
                                                  if (!JSONObj.ParseMandatory("session-id", s => ChargingSession_Id.Parse(s), out SessionId))
                                                      return SendSessionStopResponse(Request,
-                                                                                     HTTPStatusCode.BadRequest,
-                                                                                     Result.Error(310, "JSON property 'session-id' missing or invalid!"));
+                                                                                    HTTPStatusCode.BadRequest,
+                                                                                    Result.Error(310, "JSON property 'session-id' missing or invalid!"));
 
                                                  #endregion
 
@@ -702,12 +750,39 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                                                  #endregion
 
 
-                                                 var RemoteStoptResult = await RoamingNetwork.RemoteStop(ConnectorId,
-                                                                                                         SessionId,
-                                                                                                         ReservationHandling.Close,
-                                                                                                         eMAId: eMobilityAccountId);
+                                                 RemoteStopEVSEResult _RemoteEVSEStopResult;
 
-                                                 switch (RemoteStoptResult.Result)
+                                                 // Call remote stop directly...
+                                                 var OnSessionStopLocal = OnSessionStop;
+                                                 if (OnSessionStopLocal == null)
+                                                     _RemoteEVSEStopResult  = await RoamingNetwork.RemoteStop(EVSEId:               ConnectorId,
+                                                                                                              SessionId:            SessionId,
+                                                                                                              ReservationHandling:  ReservationHandling.Close,
+                                                                                                              ProviderId:           DefaultEMobilityProviderId,
+                                                                                                              eMAId:                eMobilityAccountId,
+                                                                                                              Timestamp:            Request.Timestamp,
+                                                                                                              CancellationToken:    Request.CancellationToken,
+                                                                                                              EventTrackingId:      Request.EventTrackingId,
+                                                                                                              RequestTimeout:       TimeSpan.FromSeconds(45));
+
+                                                 // ...or send OnSessionStop event(s)!
+                                                 else
+                                                     _RemoteEVSEStopResult  = (await Task.WhenAll(OnSessionStopLocal.
+                                                                                                      GetInvocationList().
+                                                                                                      Select(subscriber => (subscriber as OnSessionStopDelegate)
+                                                                                                          (DateTime.Now,
+                                                                                                           this,
+                                                                                                           ConnectorId,
+                                                                                                           SessionId,
+                                                                                                           eMobilityAccountId,
+                                                                                                           new CancellationTokenSource().Token,
+                                                                                                           EventTracking_Id.New,
+                                                                                                           TimeSpan.FromSeconds(45))))).
+
+                                                                              FirstOrDefault(result => result.Result != RemoteStopEVSEResultType.Unspecified);
+
+
+                                                 switch (_RemoteEVSEStopResult.Result)
                                                  {
 
                                                      #region UnknownOperator
@@ -769,9 +844,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                                              #endregion
 
 
-                                             return SendSessionStartResponse(Request,
-                                                                             HTTPStatusCode.BadRequest,
-                                                                             Result.Error(140, "Unknown JSON in HTTP body!"));
+                                             return CreateResponse(Request,
+                                                                   HTTPStatusCode.BadRequest,
+                                                                   Result.Error(140, "Unknown JSON in HTTP body!"));
 
                                          });
 
@@ -793,17 +868,20 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// <param name="HTTPServer">An existing HTTP server.</param>
         /// <param name="HTTPHostname">An optional HTTP hostname.</param>
         /// <param name="URIPrefix">The URI prefix for all incoming HTTP requests.</param>
+        /// <param name="DefaultEMobilityProviderId">An optional default e-mobility provider identification.</param>
         public static CPOServer
 
             AttachToHTTPAPI(RoamingNetwork                               RoamingNetwork,
                             HTTPServer<RoamingNetworks, RoamingNetwork>  HTTPServer,
-                            HTTPHostname                                 HTTPHostname  = null,
-                            String                                       URIPrefix     = DefaultURIPrefix)
+                            HTTPHostname                                 HTTPHostname                = null,
+                            String                                       URIPrefix                   = DefaultURIPrefix,
+                            eMobilityProvider_Id                         DefaultEMobilityProviderId  = null)
 
             => new CPOServer(RoamingNetwork,
                              HTTPServer,
                              HTTPHostname,
-                             URIPrefix);
+                             URIPrefix,
+                             DefaultEMobilityProviderId);
 
         #endregion
 
