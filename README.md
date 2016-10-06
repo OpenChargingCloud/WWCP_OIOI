@@ -1,5 +1,5 @@
-WWCP OIOI v3.x-Bindings
-=======================
+WWCP OIOI v3.x
+==============
 
 This software will allow the communication between WWCP entities and
 entities implementing the _OIOI Protocol_, which is defined and used
