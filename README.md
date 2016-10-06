@@ -4,7 +4,7 @@ WWCP OIOI v3.x
 This software will allow the communication between WWCP entities and
 entities implementing the _OIOI Protocol_, which is defined and used
 by PlugSurfing GmbH. The focus of this protocol are the communication
-aspects of a e-mobility provider. For more details on this protocol
+aspects of an e-mobility provider. For more details on this protocol
 please visit https://www.plugsurfing.com and http://docs.plugsurfing.com.
 
 ### Your participation
