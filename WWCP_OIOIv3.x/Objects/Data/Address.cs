@@ -48,7 +48,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         public String   StreetNumber   { get; }
 
         /// <summary>
-        /// The city.
+        /// The name of the city.
         /// </summary>
         public String   City           { get; }
 
@@ -58,7 +58,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         public String   ZIP            { get; }
 
         /// <summary>
-        /// The city.
+        /// The country.
         /// </summary>
         public Country  Country        { get; }
 
@@ -71,7 +71,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// </summary>
         /// <param name="Street">The name of the street.</param>
         /// <param name="StreetNumber">The street number.</param>
-        /// <param name="City">The city.</param>
+        /// <param name="City">The name of the city.</param>
         /// <param name="ZIP">The postal code</param>
         /// <param name="Country">The country.</param>
         public Address(String   Street,
@@ -100,7 +100,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         //     "city":           "Berlin",
         //     "zip":            "10243",
         //     "country":        "DE"
-        // },
+        // }
 
         #endregion
 
@@ -185,7 +185,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// Try to parse the given JSON representation of an OIOI Address.
         /// </summary>
         /// <param name="AddressJSON">The JSON to parse.</param>
-        /// <param name="Address">The parsed Address.</param>
+        /// <param name="Address">The parsed address.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static Boolean TryParse(JObject              AddressJSON,
                                        out Address          Address,
