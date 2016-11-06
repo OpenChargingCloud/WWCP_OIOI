@@ -74,32 +74,32 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// <summary>
         /// The roaming network of this API.
         /// </summary>
-        public RoamingNetwork        RoamingNetwork                 { get; }
+        public RoamingNetwork         RoamingNetwork                 { get; }
 
         /// <summary>
         /// The HTTP server of this API.
         /// </summary>
-        public HTTPServer            HTTPServer                     { get; }
+        public HTTPServer             HTTPServer                     { get; }
 
         /// <summary>
         /// The HTTP hostname of this API.
         /// </summary>
-        public HTTPHostname          HTTPHostname                   { get; }
+        public HTTPHostname           HTTPHostname                   { get; }
 
         /// <summary>
         /// The common URI prefix of the HTTP server of this API for all incoming requests.
         /// </summary>
-        public String                URIPrefix                      { get; }
+        public String                 URIPrefix                      { get; }
 
         /// <summary>
         /// The DNS client used by this API.
         /// </summary>
-        public DNSClient             DNSClient                      { get; }
+        public DNSClient              DNSClient                      { get; }
 
         /// <summary>
         /// An optional default e-mobility provider identification.
         /// </summary>
-        public eMobilityProvider_Id  DefaultEMobilityProviderId     { get; }
+        public eMobilityProvider_Id?  DefaultEMobilityProviderId     { get; }
 
         #endregion
 
@@ -199,7 +199,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                          IPPort                            HTTPPort                          = null,
                          X509Certificate2                  X509Certificate                   = null,
                          String                            URIPrefix                         = DefaultURIPrefix,
-                         eMobilityProvider_Id              DefaultEMobilityProviderId        = null,
+                         eMobilityProvider_Id?             DefaultEMobilityProviderId        = null,
 
                          IEnumerable<Assembly>             CallingAssemblies                 = null,
                          String                            ServerThreadName                  = null,
@@ -283,11 +283,11 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// <param name="HTTPHostname">An optional HTTP hostname.</param>
         /// <param name="URIPrefix">The URI prefix for all incoming HTTP requests.</param>
         /// <param name="DefaultEMobilityProviderId">An optional default e-mobility provider identification.</param>
-        private CPOServer(RoamingNetwork        RoamingNetwork,
-                          HTTPServer            HTTPServer,
-                          HTTPHostname          HTTPHostname                = null,
-                          String                URIPrefix                   = DefaultURIPrefix,
-                          eMobilityProvider_Id  DefaultEMobilityProviderId  = null)
+        private CPOServer(RoamingNetwork         RoamingNetwork,
+                          HTTPServer             HTTPServer,
+                          HTTPHostname           HTTPHostname                = null,
+                          String                 URIPrefix                   = DefaultURIPrefix,
+                          eMobilityProvider_Id?  DefaultEMobilityProviderId  = null)
         {
 
             #region Initial checks
@@ -875,7 +875,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                             HTTPServer<RoamingNetworks, RoamingNetwork>  HTTPServer,
                             HTTPHostname                                 HTTPHostname                = null,
                             String                                       URIPrefix                   = DefaultURIPrefix,
-                            eMobilityProvider_Id                         DefaultEMobilityProviderId  = null)
+                            eMobilityProvider_Id?                        DefaultEMobilityProviderId  = null)
 
             => new CPOServer(RoamingNetwork,
                              HTTPServer,
