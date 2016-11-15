@@ -391,7 +391,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                                                  IdentifierTypes      IdentifierType      = IdentifierTypes.Unknown;
                                                  eMobilityAccount_Id  eMobilityAccountId  = null;
                                                  String               Token               = null;
-                                                 EVSE_Id              ConnectorId         = null;
+                                                 EVSE_Id              ConnectorId;
                                                  PaymentReference     PaymentReference    = null;
 
                                                  Result               SessionStartResult  = null;
@@ -645,7 +645,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                                                  IdentifierTypes      IdentifierType      = IdentifierTypes.Unknown;
                                                  eMobilityAccount_Id  eMobilityAccountId  = null;
                                                  String               Token               = null;
-                                                 EVSE_Id              ConnectorId         = null;
+                                                 EVSE_Id              ConnectorId;
                                                  ChargingSession_Id   SessionId           = null;
 
                                                  Result               SessionStopResult   = null;
