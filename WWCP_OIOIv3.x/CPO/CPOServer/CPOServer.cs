@@ -387,15 +387,15 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
                                                  #region Data
 
-                                                 JObject              UserJSON            = null;
-                                                 IdentifierTypes      IdentifierType      = IdentifierTypes.Unknown;
-                                                 eMobilityAccount_Id  eMobilityAccountId  = null;
-                                                 String               Token               = null;
-                                                 EVSE_Id              ConnectorId;
-                                                 PaymentReference     PaymentReference    = null;
+                                                 JObject               UserJSON             = null;
+                                                 IdentifierTypes       IdentifierType       = IdentifierTypes.Unknown;
+                                                 eMobilityAccount_Id   eMobilityAccountId   = default(eMobilityAccount_Id);
+                                                 String                Token                = null;
+                                                 EVSE_Id               ConnectorId;
+                                                 PaymentReference      PaymentReference     = null;
 
-                                                 Result               SessionStartResult  = null;
-                                                 HTTPResponse         _HTTPResponse       = null;
+                                                 Result                SessionStartResult   = null;
+                                                 HTTPResponse          _HTTPResponse        = null;
 
                                                  #endregion
 
@@ -643,7 +643,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
                                                  JObject              UserJSON            = null;
                                                  IdentifierTypes      IdentifierType      = IdentifierTypes.Unknown;
-                                                 eMobilityAccount_Id  eMobilityAccountId  = null;
+                                                 eMobilityAccount_Id  eMobilityAccountId  = default(eMobilityAccount_Id);
                                                  String               Token               = null;
                                                  EVSE_Id              ConnectorId;
                                                  ChargingSession_Id   SessionId           = null;
