@@ -645,8 +645,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                                                  IdentifierTypes      IdentifierType      = IdentifierTypes.Unknown;
                                                  eMobilityAccount_Id  eMobilityAccountId  = default(eMobilityAccount_Id);
                                                  String               Token               = null;
-                                                 EVSE_Id              ConnectorId;
-                                                 ChargingSession_Id   SessionId           = null;
+                                                 EVSE_Id              ConnectorId         = default(EVSE_Id);
+                                                 ChargingSession_Id   SessionId           = default(ChargingSession_Id);
 
                                                  Result               SessionStopResult   = null;
                                                  HTTPResponse         _HTTPResponse       = null;

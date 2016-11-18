@@ -96,8 +96,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                                       CPOServer              Sender,
                                       EventTracking_Id       EventTrackingId,
                                       User                   User,
-                                      EVSE_Id                ConnectorId,
-                                      ChargingSession_Id     SessionId);
+                                      EVSE_Id?               ConnectorId,
+                                      ChargingSession_Id?    SessionId);
 
 
     /// <summary>
@@ -133,8 +133,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                                       CPOServer              Sender,
                                       EventTracking_Id       EventTrackingId,
                                       User                   User,
-                                      EVSE_Id                ConnectorId,
-                                      ChargingSession_Id     SessionId,
+                                      EVSE_Id?               ConnectorId,
+                                      ChargingSession_Id?    SessionId,
                                       Result                 Result,
                                       TimeSpan               Duration);
 
