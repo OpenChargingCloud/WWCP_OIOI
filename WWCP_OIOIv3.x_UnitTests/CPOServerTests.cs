@@ -67,13 +67,13 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.UnitTests
 
             this._CPOServer = CPOServer.AttachToHTTPAPI(_RoamingNetwork, HTTPAPI);
 
-            CSOP01 = _RoamingNetwork.CreateNewChargingStationOperator(ChargingStationOperator_Id.Parse("DE*GEF"),
+            CSOP01 = _RoamingNetwork.CreateChargingStationOperator(ChargingStationOperator_Id.Parse("DE*GEF"),
                                                                       I18NString.Create(Languages.de, "GraphDefined"),
                                                                       AdminStatus: ChargingStationOperatorAdminStatusType.Operational);
 
-            CP01   = CSOP01.CreateNewChargingPool(ChargingPool_Id.   Parse("DE*GEF*P123456"));
-            CS01   = CP01.  CreateNewStation     (ChargingStation_Id.Parse("DE*GEF*S123456*A"));
-            EVSE01 = CS01.  CreateNewEVSE        (EVSE_Id.           Parse("DE*GEF*E123456*A*1"));
+            CP01   = CSOP01.CreateChargingPool   (ChargingPool_Id.   Parse("DE*GEF*P123456"));
+            CS01   = CP01.  CreateChargingStation(ChargingStation_Id.Parse("DE*GEF*S123456*A"));
+            EVSE01 = CS01.  CreateEVSE           (EVSE_Id.           Parse("DE*GEF*E123456*A*1"));
 
         }
 
