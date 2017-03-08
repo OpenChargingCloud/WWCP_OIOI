@@ -27,11 +27,11 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 {
 
     /// <summary>
-    /// The unique identification of an OIOI Partner.
+    /// The unique identification of an OIOI charging station.
     /// </summary>
-    public struct Partner_Id : IId,
-                               IEquatable<Partner_Id>,
-                               IComparable<Partner_Id>
+    public struct Station_Id : IId,
+                               IEquatable<Station_Id>,
+                               IComparable<Station_Id>
 
     {
 
@@ -47,7 +47,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         #region Properties
 
         /// <summary>
-        /// The length of the partner identificator.
+        /// The length of the charging station identificator.
         /// </summary>
         public UInt64 Length
             => (UInt64) InternalId.Length;
@@ -57,11 +57,10 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         #region Constructor(s)
 
         /// <summary>
-        /// Create a new partner identification.
+        /// Create a new charging station identification.
         /// based on the given string.
         /// </summary>
-        /// <param name="Text">The value of the partner identificator.</param>
-        private Partner_Id(String Text)
+        private Station_Id(String Text)
         {
             InternalId = Text;
         }
@@ -72,16 +71,23 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         #region Parse(Text)
 
         /// <summary>
-        /// Parse the given string as a partner identification.
+        /// Parse the given string as a charging station identification.
         /// </summary>
-        /// <param name="Text">A text representation of a partner identification.</param>
-        public static Partner_Id Parse(String Text)
+        /// <param name="Text">A text representation of a charging station identification.</param>
+        public static Station_Id Parse(String Text)
         {
 
-            if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of a partner identification must not be null or empty!");
+            #region Initial checks
 
-            return new Partner_Id(Text.Trim());
+            if (Text != null)
+                Text = Text.Trim();
+
+            if (Text.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(Text), "The given text representation of a charging station identification must not be null or empty!");
+
+            #endregion
+
+            return new Station_Id(Text);
 
         }
 
@@ -90,11 +96,11 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         #region TryParse(Text, out PartnerId)
 
         /// <summary>
-        /// Parse the given string as a partner identification.
+        /// Parse the given string as a charging station identification.
         /// </summary>
-        /// <param name="Text">A text representation of a partner identification.</param>
-        /// <param name="PartnerId">The parsed partner identification.</param>
-        public static Boolean TryParse(String Text, out Partner_Id PartnerId)
+        /// <param name="Text">A text representation of a charging station identification.</param>
+        /// <param name="PartnerId">The parsed charging station identification.</param>
+        public static Boolean TryParse(String Text, out Station_Id PartnerId)
         {
 
             #region Initial checks
@@ -104,7 +110,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
             if (Text.IsNullOrEmpty())
             {
-                PartnerId = default(Partner_Id);
+                PartnerId = default(Station_Id);
                 return false;
             }
 
@@ -113,7 +119,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
             try
             {
 
-                PartnerId = new Partner_Id(Text);
+                PartnerId = new Station_Id(Text);
 
                 return true;
 
@@ -126,7 +132,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 #pragma warning restore RCS1075  // Avoid empty catch clause that catches System.Exception.
             { }
 
-            PartnerId = default(Partner_Id);
+            PartnerId = default(Station_Id);
             return false;
 
         }
@@ -136,11 +142,11 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         #region Clone
 
         /// <summary>
-        /// Clone this partner identification.
+        /// Clone this charging station identification.
         /// </summary>
-        public Partner_Id Clone
+        public Station_Id Clone
 
-            => new Partner_Id(
+            => new Station_Id(
                    new String(InternalId.ToCharArray())
                );
 
@@ -154,10 +160,10 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PartnerId1">A partner identification.</param>
-        /// <param name="PartnerId2">Another partner identification.</param>
+        /// <param name="PartnerId1">A charging station identification.</param>
+        /// <param name="PartnerId2">Another charging station identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator == (Partner_Id PartnerId1, Partner_Id PartnerId2)
+        public static Boolean operator == (Station_Id PartnerId1, Station_Id PartnerId2)
         {
 
             // If both are null, or both are same instance, return true.
@@ -179,10 +185,10 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PartnerId1">A partner identification.</param>
-        /// <param name="PartnerId2">Another partner identification.</param>
+        /// <param name="PartnerId1">A charging station identification.</param>
+        /// <param name="PartnerId2">Another charging station identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator != (Partner_Id PartnerId1, Partner_Id PartnerId2)
+        public static Boolean operator != (Station_Id PartnerId1, Station_Id PartnerId2)
             => !(PartnerId1 == PartnerId2);
 
         #endregion
@@ -192,10 +198,10 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PartnerId1">A partner identification.</param>
-        /// <param name="PartnerId2">Another partner identification.</param>
+        /// <param name="PartnerId1">A charging station identification.</param>
+        /// <param name="PartnerId2">Another charging station identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator < (Partner_Id PartnerId1, Partner_Id PartnerId2)
+        public static Boolean operator < (Station_Id PartnerId1, Station_Id PartnerId2)
         {
 
             if ((Object) PartnerId1 == null)
@@ -212,10 +218,10 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PartnerId1">A partner identification.</param>
-        /// <param name="PartnerId2">Another partner identification.</param>
+        /// <param name="PartnerId1">A charging station identification.</param>
+        /// <param name="PartnerId2">Another charging station identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator <= (Partner_Id PartnerId1, Partner_Id PartnerId2)
+        public static Boolean operator <= (Station_Id PartnerId1, Station_Id PartnerId2)
             => !(PartnerId1 > PartnerId2);
 
         #endregion
@@ -225,10 +231,10 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PartnerId1">A partner identification.</param>
-        /// <param name="PartnerId2">Another partner identification.</param>
+        /// <param name="PartnerId1">A charging station identification.</param>
+        /// <param name="PartnerId2">Another charging station identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator > (Partner_Id PartnerId1, Partner_Id PartnerId2)
+        public static Boolean operator > (Station_Id PartnerId1, Station_Id PartnerId2)
         {
 
             if ((Object) PartnerId1 == null)
@@ -245,10 +251,10 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PartnerId1">A partner identification.</param>
-        /// <param name="PartnerId2">Another partner identification.</param>
+        /// <param name="PartnerId1">A charging station identification.</param>
+        /// <param name="PartnerId2">Another charging station identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator >= (Partner_Id PartnerId1, Partner_Id PartnerId2)
+        public static Boolean operator >= (Station_Id PartnerId1, Station_Id PartnerId2)
             => !(PartnerId1 < PartnerId2);
 
         #endregion
@@ -269,11 +275,11 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
             if (Object == null)
                 throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
 
-            if (!(Object is Partner_Id))
-                throw new ArgumentException("The given object is not a partner identification!",
+            if (!(Object is Station_Id))
+                throw new ArgumentException("The given object is not a charging station identification!",
                                             nameof(Object));
 
-            return CompareTo((Partner_Id) Object);
+            return CompareTo((Station_Id) Object);
 
         }
 
@@ -285,11 +291,11 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// Compares two instances of this object.
         /// </summary>
         /// <param name="PartnerId">An object to compare with.</param>
-        public Int32 CompareTo(Partner_Id PartnerId)
+        public Int32 CompareTo(Station_Id PartnerId)
         {
 
             if ((Object) PartnerId == null)
-                throw new ArgumentNullException(nameof(PartnerId),  "The given partner identification must not be null!");
+                throw new ArgumentNullException(nameof(PartnerId),  "The given charging station identification must not be null!");
 
             // Compare the length of the PartnerIds
             var _Result = this.Length.CompareTo(PartnerId.Length);
@@ -320,10 +326,10 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
             if (Object == null)
                 return false;
 
-            if (!(Object is Partner_Id))
+            if (!(Object is Station_Id))
                 return false;
 
-            return Equals((Partner_Id) Object);
+            return Equals((Station_Id) Object);
 
         }
 
@@ -334,9 +340,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// <summary>
         /// Compares two PartnerIds for equality.
         /// </summary>
-        /// <param name="PartnerId">A partner identification to compare with.</param>
+        /// <param name="PartnerId">A charging station identification to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
-        public Boolean Equals(Partner_Id PartnerId)
+        public Boolean Equals(Station_Id PartnerId)
         {
 
             if ((Object) PartnerId == null)

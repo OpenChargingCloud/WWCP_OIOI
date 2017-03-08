@@ -18,22 +18,22 @@
 #region Usings
 
 using System;
+using System.Collections.Generic;
 
 #endregion
 
 namespace org.GraphDefined.WWCP.OIOIv3_x
 {
 
-    /// <summary>
-    /// The current OIOI version.
-    /// </summary>
-    public static class Version
+    public abstract class ABuilder
     {
 
-        /// <summary>
-        /// The current OIOI version.
-        /// </summary>
-        public const String Number = "v3.x";
+        public Dictionary<String, Object>  CustomData   { get; set; }
+
+        public ABuilder()
+        {
+            this.CustomData = new Dictionary<String, Object>();
+        }
 
     }
 

@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2016 GraphDefined GmbH
+ * Copyright (c) 2016-2017 GraphDefined GmbH
  * This file is part of WWCP OIOI <https://github.com/OpenChargingCloud/WWCP_OIOI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +25,7 @@ using org.GraphDefined.Vanaheimr.Hermod.SOAP;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv3_x
+namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 {
 
     /// <summary>
@@ -35,7 +35,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
     {
 
         /// <summary>
-        /// An OICP CPO client (HTTP/SOAP client) logger.
+        /// An OIOI CPO client (HTTP/SOAP client) logger.
         /// </summary>
         public class CPOClientLogger : HTTPLogger
         {
@@ -45,14 +45,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
             /// <summary>
             /// The default context for this logger.
             /// </summary>
-            public const String DefaultContext = "OICP_CPOClient";
+            public const String DefaultContext = "OIOI_CPOClient";
 
             #endregion
 
             #region Properties
 
             /// <summary>
-            /// The attached OICP CPO client.
+            /// The attached OIOI CPO client.
             /// </summary>
             public CPOClient CPOClient { get; }
 
@@ -63,9 +63,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
             #region CPOClientLogger(CPOClient, Context = DefaultContext, LogFileCreator = null)
 
             /// <summary>
-            /// Create a new OICP CPO client logger using the default logging delegates.
+            /// Create a new OIOI CPO client logger using the default logging delegates.
             /// </summary>
-            /// <param name="CPOClient">A OICP CPO client.</param>
+            /// <param name="CPOClient">A OIOI CPO client.</param>
             /// <param name="Context">A context of this API.</param>
             /// <param name="LogFileCreator">A delegate to create a log file from the given context and log file name.</param>
             public CPOClientLogger(CPOClient                    CPOClient,
@@ -88,9 +88,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
             #region CPOClientLogger(CPOClient, Context, ... Logging delegates ...)
 
             /// <summary>
-            /// Create a new OICP CPO client logger using the given logging delegates.
+            /// Create a new OIOI CPO client logger using the given logging delegates.
             /// </summary>
-            /// <param name="CPOClient">A OICP CPO client.</param>
+            /// <param name="CPOClient">A OIOI CPO client.</param>
             /// <param name="Context">A context of this API.</param>
             /// 
             /// <param name="LogHTTPRequest_toConsole">A delegate to log incoming HTTP requests to console.</param>

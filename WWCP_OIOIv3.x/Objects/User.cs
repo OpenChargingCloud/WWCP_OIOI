@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2016 GraphDefined GmbH
+ * Copyright (c) 2016-2017 GraphDefined GmbH
  * This file is part of WWCP OIOI <https://github.com/OpenChargingCloud/WWCP_OIOI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -370,9 +370,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
             if ((Object) User == null)
                 return false;
 
-            return Identifier.     Equals(User.IdentifierType) &&
-                   IdentifierType. Equals(User.Identifier)     &&
-                   Token.          Equals(User.Token);
+            return Identifier.    Equals(User.IdentifierType) &&
+                   IdentifierType.Equals(User.Identifier);
 
         }
 
@@ -391,9 +390,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
             unchecked
             {
 
-                return Identifier.     GetHashCode() * 17 ^
-                       IdentifierType. GetHashCode() * 11 ^
-                       Token.          GetHashCode();
+                return Identifier.     GetHashCode() * 5 ^
+                       IdentifierType. GetHashCode();
 
             }
         }

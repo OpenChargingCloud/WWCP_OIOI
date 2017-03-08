@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2016 GraphDefined GmbH
+ * Copyright (c) 2016-2017 GraphDefined GmbH
  * This file is part of WWCP OIOI <https://github.com/OpenChargingCloud/WWCP_OIOI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,8 +25,21 @@ using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv3_x
+namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 {
+
+    /// <summary>
+    /// A delegate for filtering charging stations.
+    /// </summary>
+    /// <param name="Station">A OIOI charging station.</param>
+    public delegate Boolean IncludeStationsDelegate       (Station          Station);
+
+    /// <summary>
+    /// A delegate for filtering connector status records.
+    /// </summary>
+    /// <param name="ConnectorStatus">An OIOI connector status.</param>
+    public delegate Boolean IncludeConnectorStatusDelegate(ConnectorStatus  ConnectorStatus);
+
 
     #region OnStationPostRequest/-Response
 
@@ -43,7 +56,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                                                        TimeSpan?                               RequestTimeout);
 
     /// <summary>
-    /// A delegate called whenever a charging station had been send upstream.
+    /// A delegate called whenever a charging station had been sent upstream.
     /// </summary>
     public delegate Task OnStationPostResponseDelegate(DateTime                                LogTimestamp,
                                                        DateTime                                RequestTimestamp,
@@ -53,7 +66,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                                                        Station                                 Station,
                                                        Partner_Id                              PartnerId,
                                                        TimeSpan?                               RequestTimeout,
-                                                       Result                                  Result,
+                                                       Acknowledgement<StationPostRequest>     Result,
                                                        TimeSpan                                Duration);
 
     #endregion
@@ -63,30 +76,28 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
     /// <summary>
     /// A delegate called whenever a charging connector status will be send upstream.
     /// </summary>
-    public delegate Task OnConnectorPostStatusRequestDelegate (DateTime                                LogTimestamp,
-                                                               DateTime                                RequestTimestamp,
-                                                               CPOClient                               Sender,
-                                                               String                                  SenderId,
-                                                               EventTracking_Id                        EventTrackingId,
-                                                               EVSE_Id                                 ConnectorId,
-                                                               ConnectorStatusType                     Status,
-                                                               Partner_Id                              PartnerId,
-                                                               TimeSpan?                               RequestTimeout);
+    public delegate Task OnConnectorPostStatusRequestDelegate (DateTime                                      LogTimestamp,
+                                                               DateTime                                      RequestTimestamp,
+                                                               CPOClient                                     Sender,
+                                                               String                                        SenderId,
+                                                               EventTracking_Id                              EventTrackingId,
+                                                               ConnectorStatus                               ConnectorStatus,
+                                                               Partner_Id                                    PartnerId,
+                                                               TimeSpan?                                     RequestTimeout);
 
     /// <summary>
-    /// A delegate called whenever a charging connector status had been send upstream.
+    /// A delegate called whenever a charging connector status had been sent upstream.
     /// </summary>
-    public delegate Task OnConnectorPostStatusResponseDelegate(DateTime                                LogTimestamp,
-                                                               DateTime                                RequestTimestamp,
-                                                               CPOClient                               Sender,
-                                                               String                                  SenderId,
-                                                               EventTracking_Id                        EventTrackingId,
-                                                               EVSE_Id                                 ConnectorId,
-                                                               ConnectorStatusType                     Status,
-                                                               Partner_Id                              PartnerId,
-                                                               TimeSpan?                               RequestTimeout,
-                                                               Result                                  Result,
-                                                               TimeSpan                                Duration);
+    public delegate Task OnConnectorPostStatusResponseDelegate(DateTime                                      LogTimestamp,
+                                                               DateTime                                      RequestTimestamp,
+                                                               CPOClient                                     Sender,
+                                                               String                                        SenderId,
+                                                               EventTracking_Id                              EventTrackingId,
+                                                               ConnectorStatus                               ConnectorStatus,
+                                                               Partner_Id                                    PartnerId,
+                                                               TimeSpan?                                     RequestTimeout,
+                                                               Acknowledgement<ConnectorPostStatusRequest>   Result,
+                                                               TimeSpan                                      Duration);
 
     #endregion
 
@@ -100,22 +111,51 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                                                       CPOClient                               Sender,
                                                       String                                  SenderId,
                                                       EventTracking_Id                        EventTrackingId,
-                                                      Auth_Token                              RFIDId,
+                                                      RFID_Id                                 RFIDId,
                                                       TimeSpan?                               RequestTimeout);
 
     /// <summary>
-    /// A delegate called whenever a RFID identification verification had been send upstream.
+    /// A delegate called whenever a RFID identification verification had been sent upstream.
     /// </summary>
     public delegate Task OnRFIDVerifyResponseDelegate(DateTime                                LogTimestamp,
                                                       DateTime                                RequestTimestamp,
                                                       CPOClient                               Sender,
                                                       String                                  SenderId,
                                                       EventTracking_Id                        EventTrackingId,
-                                                      Auth_Token                              RFIDId,
+                                                      RFID_Id                                 RFIDId,
                                                       TimeSpan?                               RequestTimeout,
-                                                      Result                                  Result,
+                                                      Acknowledgement<RFIDVerifyRequest>      Result,
                                                       TimeSpan                                Duration);
 
     #endregion
+
+    #region OnSessionPostRequest/-Response
+
+    /// <summary>
+    /// A delegate called whenever a charging session will be send upstream.
+    /// </summary>
+    public delegate Task OnSessionPostRequestDelegate (DateTime                                LogTimestamp,
+                                                       DateTime                                RequestTimestamp,
+                                                       CPOClient                               Sender,
+                                                       String                                  SenderId,
+                                                       EventTracking_Id                        EventTrackingId,
+                                                       Session                                 Session,
+                                                       TimeSpan?                               RequestTimeout);
+
+    /// <summary>
+    /// A delegate called whenever a charging session had been sent upstream.
+    /// </summary>
+    public delegate Task OnSessionPostResponseDelegate(DateTime                                LogTimestamp,
+                                                       DateTime                                RequestTimestamp,
+                                                       CPOClient                               Sender,
+                                                       String                                  SenderId,
+                                                       EventTracking_Id                        EventTrackingId,
+                                                       Session                                 Session,
+                                                       TimeSpan?                               RequestTimeout,
+                                                       SessionPostResponse                     Result,
+                                                       TimeSpan                                Duration);
+
+    #endregion
+
 
 }

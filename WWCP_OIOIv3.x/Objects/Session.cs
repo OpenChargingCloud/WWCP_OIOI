@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2016 GraphDefined GmbH
+ * Copyright (c) 2016-2017 GraphDefined GmbH
  * This file is part of WWCP OIOI <https://github.com/OpenChargingCloud/WWCP_OIOI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -105,14 +105,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
             #region Initial checks
 
-            if (SessionId == null)
-                throw new ArgumentNullException(nameof(SessionId),    "The given unique charging session identification must not be null!");
-
             if (User == null)
                 throw new ArgumentNullException(nameof(User),         "The given user must not be null!");
-
-            if (ConnectorId == null)
-                throw new ArgumentNullException(nameof(ConnectorId),  "The given charging connector identification must not be null!");
 
             #endregion
 
@@ -158,7 +152,6 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         // }
 
         #endregion
-
 
         #region ToJSON()
 
@@ -289,13 +282,11 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
             if ((Object) Session == null)
                 return false;
 
-            return SessionId.         Equals(Session.SessionId)           &&
-                   User.              Equals(Session.User)                &&
-                   ConnectorId.       Equals(Session.ConnectorId)         &&
-                   SessionInterval.   Equals(Session.SessionInterval);
-                   //ChargingInterval.  Equals(Session.ChargingInterval)    &&
-                   //EnergyConsumed.    Equals(Session.EnergyConsumed)      &&
-                   //PartnerIdentifier. Equals(Session.PartnerIdentifier);
+            return SessionId.        Equals(Session.SessionId)       &&
+                   User.             Equals(Session.User)            &&
+                   ConnectorId.      Equals(Session.ConnectorId)     &&
+                   SessionInterval.  Equals(Session.SessionInterval) &&
+                   PartnerIdentifier.Equals(Session.PartnerIdentifier);
 
         }
 
@@ -314,13 +305,11 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
             unchecked
             {
 
-                return SessionId.          GetHashCode() * 79 ^
-                       User.               GetHashCode() * 73 ^
-                       ConnectorId.        GetHashCode() * 67 ^
-                       SessionInterval.    GetHashCode() * 61;
-                       //ChargingInterval.   GetHashCode() * 43 ^
-                       //EnergyConsumed.     GetHashCode() * 71 ^
-                       //PartnerIdentifier.  GetHashCode();
+                return SessionId.        GetHashCode() * 17 ^
+                       User.             GetHashCode() * 13 ^
+                       ConnectorId.      GetHashCode() * 11 ^
+                       SessionInterval.  GetHashCode() *  7 ^
+                       PartnerIdentifier.GetHashCode() *  5;
 
             }
         }

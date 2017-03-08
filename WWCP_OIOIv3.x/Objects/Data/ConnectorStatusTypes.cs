@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2016 GraphDefined GmbH
+ * Copyright (c) 2016-2017 GraphDefined GmbH
  * This file is part of WWCP OIOI <https://github.com/OpenChargingCloud/WWCP_OIOI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +21,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
     /// <summary>
     /// The current dynamic status of an OIOI connector.
     /// </summary>
-    public enum ConnectorStatusType
+    public enum ConnectorStatusTypes
     {
 
         /// <summary>

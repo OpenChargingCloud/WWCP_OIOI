@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2016 GraphDefined GmbH
+ * Copyright (c) 2016-2017 GraphDefined GmbH
  * This file is part of WWCP OIOI <https://github.com/OpenChargingCloud/WWCP_OIOI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,13 +44,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// The unique identification of the charging station.
         /// </summary>
         [Mandatory]
-        public ChargingStation_Id           Id                          { get; }
-
-        /// <summary>
-        /// The related WWCP charging station.
-        /// </summary>
-        [Mandatory]
-        public ChargingStation              ChargingStation             { get; }
+        public Station_Id                   Id                          { get; }
 
         /// <summary>
         /// The name of the charging station.
@@ -187,7 +181,6 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// Create a new OIOI charging station.
         /// </summary>
         /// <param name="Id">The unique identification of the charging station.</param>
-        /// <param name="ChargingStation">The related WWCP charging station.</param>
         /// <param name="Name">The name of the charging station.</param>
         /// <param name="GeoCoordinate">The geo coordinate of the charging station.</param>
         /// <param name="Address">The address of the charging station.</param>
@@ -207,8 +200,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// <param name="IsRoofed">?</param>
         /// <param name="IsPrivate">Whether the charging station is privately owned.</param>
         /// <param name="Deleted">Soft delete this charging station and its related connectors.</param>
-        public Station(ChargingStation_Id          Id,
-                       ChargingStation             ChargingStation,
+        public Station(Station_Id                  Id,
                        String                      Name,
                        GeoCoordinate               GeoCoordinate,
                        Address                     Address,
@@ -233,9 +225,6 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
             #region Initial checks
 
-            if (Id == null)
-                throw new ArgumentNullException(nameof(Id),                   "The given unique charging station identification must not be null!");
-
             if (Name.IsNullOrEmpty())
                 throw new ArgumentNullException(nameof(Name),                 "The given charging station name must not be null or empty!");
 
@@ -257,7 +246,6 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
             #endregion
 
             this.Id                     = Id;
-            this.ChargingStation        = ChargingStation;
             this.Name                   = Name;
             this.GeoCoordinate          = GeoCoordinate;
             this.Address                = Address;

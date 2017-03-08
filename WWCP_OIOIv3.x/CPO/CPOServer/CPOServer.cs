@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2016 GraphDefined GmbH
+ * Copyright (c) 2016-2017 GraphDefined GmbH
  * This file is part of WWCP OIOI <https://github.com/OpenChargingCloud/WWCP_OIOI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,13 +36,13 @@ using org.GraphDefined.Vanaheimr.Hermod.Sockets.TCP;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv3_x
+namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 {
 
     /// <summary>
     /// An OIOI CPO Server.
     /// </summary>
-    public class CPOServer
+    public class CPOServer : HTTPServer
     {
 
         #region Data
@@ -72,11 +72,6 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         #region Properties
 
         /// <summary>
-        /// The roaming network of this API.
-        /// </summary>
-        public RoamingNetwork         RoamingNetwork                 { get; }
-
-        /// <summary>
         /// The HTTP server of this API.
         /// </summary>
         public HTTPServer             HTTPServer                     { get; }
@@ -92,14 +87,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         public String                 URIPrefix                      { get; }
 
         /// <summary>
+        /// The HTTP content type used by this service.
+        /// </summary>
+        public HTTPContentType        ServerContentType              { get;  }
+
+        /// <summary>
         /// The DNS client used by this API.
         /// </summary>
         public DNSClient              DNSClient                      { get; }
-
-        /// <summary>
-        /// An optional default e-mobility provider identification.
-        /// </summary>
-        public eMobilityProvider_Id?  DefaultEMobilityProviderId     { get; }
 
         #endregion
 
@@ -167,18 +162,16 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
         #region Constructor(s)
 
-        #region CPOServer(RoamingNetwork, TCPPort = null, ...)
+        #region CPOServer(TCPPort = null, ...)
 
         /// <summary>
         /// Create a new OIOI CPO Server using the given parameters.
         /// </summary>
-        /// <param name="RoamingNetwork">A roaming network.</param>
         /// <param name="DefaultServerName">The default HTTP servername, used whenever no HTTP Host-header had been given.</param>
         /// <param name="HTTPHostname">An optional HTTP hostname.</param>
         /// <param name="HTTPPort">An IP port to listen on.</param>
         /// <param name="X509Certificate">Use this X509 certificate for TLS.</param>
         /// <param name="URIPrefix">The URI prefix for all incoming HTTP requests.</param>
-        /// <param name="DefaultEMobilityProviderId">An optional default e-mobility provider identification.</param>
         /// 
         /// <param name="CallingAssemblies">A list of calling assemblies to include e.g. into embedded ressources lookups.</param>
         /// <param name="ServerThreadName">The optional name of the TCP server thread.</param>
@@ -193,13 +186,13 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// 
         /// <param name="DNSClient">The DNS client to use.</param>
         /// <param name="Autostart">Start the HTTP server thread immediately (default: no).</param>
-        public CPOServer(RoamingNetwork                    RoamingNetwork,
-                         String                            DefaultServerName                 = DefaultHTTPServerName,
+        public CPOServer(String                            DefaultServerName                 = DefaultHTTPServerName,
                          HTTPHostname                      HTTPHostname                      = null,
                          IPPort                            HTTPPort                          = null,
                          X509Certificate2                  X509Certificate                   = null,
                          String                            URIPrefix                         = DefaultURIPrefix,
-                         eMobilityProvider_Id?             DefaultEMobilityProviderId        = null,
+                         HTTPContentType                   ServerContentType                 = null,
+                         Boolean                           ServerRegisterHTTPRootService     = true,
 
                          IEnumerable<Assembly>             CallingAssemblies                 = null,
                          String                            ServerThreadName                  = null,
@@ -215,8 +208,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                          DNSClient                         DNSClient                         = null,
                          Boolean                           Autostart                         = false)
 
-            : this(RoamingNetwork,
-                   new HTTPServer(HTTPPort ?? DefaultHTTPServerPort,
+            : this(new HTTPServer(HTTPPort ?? DefaultHTTPServerPort,
                                   DefaultServerName.IsNotNullOrEmpty() ? DefaultServerName : DefaultHTTPServerName,
                                   X509Certificate,
                                   CallingAssemblies,
@@ -233,13 +225,16 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                                   false),
                    HTTPHostname,
                    URIPrefix,
-                   DefaultEMobilityProviderId)
+                   ServerContentType,
+                   ServerRegisterHTTPRootService)
 
         {
 
             #region / (HTTPRoot)
 
-            if (URIPrefix != "/")
+            if (ServerRegisterHTTPRootService &&
+                URIPrefix != "/")
+
                 HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                              HTTPMethod.GET,
                                              "/",
@@ -273,27 +268,22 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
         #endregion
 
-        #region (private) CPOServer(RoamingNetwork, HTTPServer, HTTPHostname = null, URIPrefix = DefaultURIPrefix)
+        #region (private) CPOServer(HTTPServer, HTTPHostname = null, URIPrefix = DefaultURIPrefix)
 
         /// <summary>
         /// Create a new OIOI CPO Server using the given parameters.
         /// </summary>
-        /// <param name="RoamingNetwork">A roaming network.</param>
         /// <param name="HTTPServer">An existing HTTP server.</param>
         /// <param name="HTTPHostname">An optional HTTP hostname.</param>
         /// <param name="URIPrefix">The URI prefix for all incoming HTTP requests.</param>
-        /// <param name="DefaultEMobilityProviderId">An optional default e-mobility provider identification.</param>
-        private CPOServer(RoamingNetwork         RoamingNetwork,
-                          HTTPServer             HTTPServer,
-                          HTTPHostname           HTTPHostname                = null,
-                          String                 URIPrefix                   = DefaultURIPrefix,
-                          eMobilityProvider_Id?  DefaultEMobilityProviderId  = null)
+        private CPOServer(HTTPServer       HTTPServer,
+                          HTTPHostname     HTTPHostname                   = null,
+                          String           URIPrefix                      = DefaultURIPrefix,
+                          HTTPContentType  ServerContentType              = null,
+                          Boolean          ServerRegisterHTTPRootService  = true)
         {
 
             #region Initial checks
-
-            if (RoamingNetwork == null)
-                throw new ArgumentNullException(nameof(RoamingNetwork),  "The given roaming network must not be null!");
 
             if (HTTPServer == null)
                 throw new ArgumentNullException(nameof(HTTPServer),      "The given HTTP server must not be null!");
@@ -303,12 +293,11 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
             #endregion
 
-            this.RoamingNetwork              = RoamingNetwork;
-            this.HTTPServer                  = HTTPServer;
-            this.HTTPHostname                = HTTPHostname;
-            this.URIPrefix                   = URIPrefix.IsNotNullOrEmpty() ? URIPrefix : DefaultURIPrefix;
-            this.DNSClient                   = HTTPServer.DNSClient;
-            this.DefaultEMobilityProviderId  = DefaultEMobilityProviderId;
+            this.HTTPServer         = HTTPServer;
+            this.HTTPHostname       = HTTPHostname;
+            this.URIPrefix          = URIPrefix.IsNotNullOrEmpty() ? URIPrefix : DefaultURIPrefix;
+            this.DNSClient          = HTTPServer.DNSClient;
+            this.ServerContentType  = ServerContentType ?? HTTPContentType.JSON_UTF8;
 
             #region / {URIPrefix}
 
@@ -859,29 +848,23 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         #endregion
 
 
-        #region (static) AttachToHTTPAPI(RoamingNetwork, HTTPServer, HTTPHostname = null, URIPrefix = DefaultURIPrefix, ...)
+        #region (static) AttachToHTTPAPI(HTTPServer, HTTPHostname = null, URIPrefix = DefaultURIPrefix, ...)
 
         /// <summary>
         /// Create and attach a OIOI CPO Server to the given HTTP API.
         /// </summary>
-        /// <param name="RoamingNetwork">A roaming network.</param>
         /// <param name="HTTPServer">An existing HTTP server.</param>
         /// <param name="HTTPHostname">An optional HTTP hostname.</param>
         /// <param name="URIPrefix">The URI prefix for all incoming HTTP requests.</param>
-        /// <param name="DefaultEMobilityProviderId">An optional default e-mobility provider identification.</param>
         public static CPOServer
 
-            AttachToHTTPAPI(RoamingNetwork                               RoamingNetwork,
-                            HTTPServer<RoamingNetworks, RoamingNetwork>  HTTPServer,
-                            HTTPHostname                                 HTTPHostname                = null,
-                            String                                       URIPrefix                   = DefaultURIPrefix,
-                            eMobilityProvider_Id?                        DefaultEMobilityProviderId  = null)
+            AttachToHTTPAPI(HTTPServer<RoamingNetworks, RoamingNetwork>  HTTPServer,
+                            HTTPHostname                                 HTTPHostname  = null,
+                            String                                       URIPrefix     = DefaultURIPrefix)
 
-            => new CPOServer(RoamingNetwork,
-                             HTTPServer,
+            => new CPOServer(HTTPServer,
                              HTTPHostname,
-                             URIPrefix,
-                             DefaultEMobilityProviderId);
+                             URIPrefix);
 
         #endregion
 

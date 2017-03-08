@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2016 GraphDefined GmbH
+ * Copyright (c) 2016-2017 GraphDefined GmbH
  * This file is part of WWCP OIOI <https://github.com/OpenChargingCloud/WWCP_OIOI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,9 +38,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         #region Properties
 
         /// <summary>
-        /// The unique EVSE identification of the connector.
+        /// The unique identification of the connector.
         /// </summary>
-        public EVSE_Id         Id        { get; }
+        public Connector_Id    Id        { get; }
 
         /// <summary>
         /// The type of the connector.
@@ -59,10 +59,10 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// <summary>
         /// Create a new OIOI connector.
         /// </summary>
-        /// <param name="Id">The unique EVSE identification of the connector.</param>
+        /// <param name="Id">The unique identification of the connector.</param>
         /// <param name="Name">The type of the connector.</param>
         /// <param name="Speed">The maximum charging speed in kW.</param>
-        public Connector(EVSE_Id         Id,
+        public Connector(Connector_Id    Id,
                          ConnectorTypes  Name,
                          Single          Speed)
         {
@@ -178,7 +178,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
             {
 
                 Connector = new Connector(ConnectorJSON.MapValueOrFail("id",
-                                                                       value => EVSE_Id.Parse(value.Value<String>()),
+                                                                       value => Connector_Id.Parse(value.Value<String>()),
                                                                        "Invalid or missing JSON property 'Id'!"),
 
                                           ConnectorJSON.MapValueOrFail("name",

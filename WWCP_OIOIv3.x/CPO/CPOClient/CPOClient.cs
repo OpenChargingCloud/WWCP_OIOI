@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2016 GraphDefined GmbH
+ * Copyright (c) 2016-2017 GraphDefined GmbH
  * This file is part of WWCP OIOI <https://github.com/OpenChargingCloud/WWCP_OIOI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,7 +36,7 @@ using org.GraphDefined.Vanaheimr.Hermod.SOAP;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv3_x
+namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 {
 
     /// <summary>
@@ -118,7 +118,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
         #endregion
 
-        #region OnConnectorPostStatustRequest/-Response
+        #region OnConnectorPostStatusRequest/-Response
 
         /// <summary>
         /// An event fired whenever a request posting a charging connector status will be send.
@@ -166,6 +166,234 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
         #endregion
 
+        #region OnSessionPostRequest/-Response
+
+        /// <summary>
+        /// An event fired whenever a charging session post request will be send.
+        /// </summary>
+        public event OnSessionPostRequestDelegate   OnSessionPostRequest;
+
+        /// <summary>
+        /// An event fired whenever a HTTP request posting charging session will be send.
+        /// </summary>
+        public event ClientRequestLogHandler        OnSessionPostHTTPRequest;
+
+        /// <summary>
+        /// An event fired whenever a HTTP response to a charging session post request had been received.
+        /// </summary>
+        public event ClientResponseLogHandler       OnSessionPostHTTPResponse;
+
+        /// <summary>
+        /// An event fired whenever a response to a charging session post request had been received.
+        /// </summary>
+        public event OnSessionPostResponseDelegate  OnSessionPostResponse;
+
+        #endregion
+
+        #endregion
+
+        #region Custom request mappers
+
+        #region CustomStationPostRequestMapper
+
+        #region CustomStationPostRequestMapper
+
+        private Func<StationPostRequest, StationPostRequest> _CustomStationPostRequestMapper = _ => _;
+
+        public Func<StationPostRequest, StationPostRequest> CustomStationPostRequestMapper
+        {
+
+            get
+            {
+                return _CustomStationPostRequestMapper;
+            }
+
+            set
+            {
+                if (value != null)
+                    _CustomStationPostRequestMapper = value;
+            }
+
+        }
+
+        #endregion
+
+        #region CustomStationPostJSONRequestMapper
+
+        private Func<StationPostRequest, JObject, JObject> _CustomStationPostJSONRequestMapper = (request, xml) => xml;
+
+        public Func<StationPostRequest, JObject, JObject> CustomStationPostJSONRequestMapper
+        {
+
+            get
+            {
+                return _CustomStationPostJSONRequestMapper;
+            }
+
+            set
+            {
+                if (value != null)
+                    _CustomStationPostJSONRequestMapper = value;
+            }
+
+        }
+
+        #endregion
+
+        public CustomMapperDelegate<Acknowledgement<StationPostRequest>, Acknowledgement<StationPostRequest>.Builder> CustomStationPostResponseMapper { get; set; }
+
+        #endregion
+
+        #region CustomConnectorPostStatusRequestMapper
+
+        #region CustomConnectorPostStatusRequestMapper
+
+        private Func<ConnectorPostStatusRequest, ConnectorPostStatusRequest> _CustomConnectorPostStatusRequestMapper = _ => _;
+
+        public Func<ConnectorPostStatusRequest, ConnectorPostStatusRequest> CustomConnectorPostStatusRequestMapper
+        {
+
+            get
+            {
+                return _CustomConnectorPostStatusRequestMapper;
+            }
+
+            set
+            {
+                if (value != null)
+                    _CustomConnectorPostStatusRequestMapper = value;
+            }
+
+        }
+
+        #endregion
+
+        #region CustomConnectorPostStatusJSONRequestMapper
+
+        private Func<ConnectorPostStatusRequest, JObject, JObject> _CustomConnectorPostStatusJSONRequestMapper = (request, xml) => xml;
+
+        public Func<ConnectorPostStatusRequest, JObject, JObject> CustomConnectorPostStatusJSONRequestMapper
+        {
+
+            get
+            {
+                return _CustomConnectorPostStatusJSONRequestMapper;
+            }
+
+            set
+            {
+                if (value != null)
+                    _CustomConnectorPostStatusJSONRequestMapper = value;
+            }
+
+        }
+
+        #endregion
+
+        public CustomMapperDelegate<Acknowledgement<ConnectorPostStatusRequest>, Acknowledgement<ConnectorPostStatusRequest>.Builder> CustomConnectorPostStatusResponseMapper { get; set; }
+
+        #endregion
+
+        #region CustomRFIDVerifyRequestMapper
+
+        #region CustomRFIDVerifyRequestMapper
+
+        private Func<RFIDVerifyRequest, RFIDVerifyRequest> _CustomRFIDVerifyRequestMapper = _ => _;
+
+        public Func<RFIDVerifyRequest, RFIDVerifyRequest> CustomRFIDVerifyRequestMapper
+        {
+
+            get
+            {
+                return _CustomRFIDVerifyRequestMapper;
+            }
+
+            set
+            {
+                if (value != null)
+                    _CustomRFIDVerifyRequestMapper = value;
+            }
+
+        }
+
+        #endregion
+
+        #region CustomRFIDVerifyJSONRequestMapper
+
+        private Func<RFIDVerifyRequest, JObject, JObject> _CustomRFIDVerifyJSONRequestMapper = (request, xml) => xml;
+
+        public Func<RFIDVerifyRequest, JObject, JObject> CustomRFIDVerifyJSONRequestMapper
+        {
+
+            get
+            {
+                return _CustomRFIDVerifyJSONRequestMapper;
+            }
+
+            set
+            {
+                if (value != null)
+                    _CustomRFIDVerifyJSONRequestMapper = value;
+            }
+
+        }
+
+        #endregion
+
+        public CustomMapperDelegate<Acknowledgement<RFIDVerifyRequest>, Acknowledgement<RFIDVerifyRequest>.Builder> CustomRFIDVerifyResponseMapper { get; set; }
+
+        #endregion
+
+        #region CustomSessionPostRequestMapper
+
+        #region CustomSessionPostRequestMapper
+
+        private Func<SessionPostRequest, SessionPostRequest> _CustomSessionPostRequestMapper = _ => _;
+
+        public Func<SessionPostRequest, SessionPostRequest> CustomSessionPostRequestMapper
+        {
+
+            get
+            {
+                return _CustomSessionPostRequestMapper;
+            }
+
+            set
+            {
+                if (value != null)
+                    _CustomSessionPostRequestMapper = value;
+            }
+
+        }
+
+        #endregion
+
+        #region CustomSessionPostJSONRequestMapper
+
+        private Func<SessionPostRequest, JObject, JObject> _CustomSessionPostJSONRequestMapper = (request, xml) => xml;
+
+        public Func<SessionPostRequest, JObject, JObject> CustomSessionPostJSONRequestMapper
+        {
+
+            get
+            {
+                return _CustomSessionPostJSONRequestMapper;
+            }
+
+            set
+            {
+                if (value != null)
+                    _CustomSessionPostJSONRequestMapper = value;
+            }
+
+        }
+
+        #endregion
+
+        public CustomMapperDelegate<SessionPostResponse, SessionPostResponse.Builder> CustomSessionPostResponseMapper { get; set; }
+
+        #endregion
+
         #endregion
 
         #region Constructor(s)
@@ -198,7 +426,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                          String                               HTTPVirtualHost             = null,
                          String                               HTTPUserAgent               = DefaultHTTPUserAgent,
                          String                               URIPrefix                   = null,
-                         Partner_Id                           DefaultPartnerId            = null,
+                         Partner_Id?                          DefaultPartnerId            = null,
                          TimeSpan?                            RequestTimeout              = null,
                          DNSClient                            DNSClient                   = null,
                          String                               LoggingContext              = CPOClientLogger.DefaultContext,
@@ -231,7 +459,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
             this.APIKey                       = APIKey;
             this.URIPrefix                    = URIPrefix.IsNotNullOrEmpty() ? URIPrefix : DefaultURIPrefix;
-            this.DefaultPartnerId             = DefaultPartnerId;
+            this.DefaultPartnerId             = DefaultPartnerId.HasValue ? DefaultPartnerId.Value : Partner_Id.Parse("1");
 
             this.Logger                       = new CPOClientLogger(this,
                                                                     LoggingContext,
@@ -270,7 +498,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                          X509Certificate                      ClientCert                  = null,
                          String                               HTTPVirtualHost             = null,
                          String                               HTTPUserAgent               = DefaultHTTPUserAgent,
-                         Partner_Id                           DefaultPartnerId            = null,
+                         Partner_Id?                          DefaultPartnerId            = null,
                          TimeSpan?                            RequestTimeout              = null,
                          DNSClient                            DNSClient                   = null)
 
@@ -305,7 +533,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
             this.Logger                       = Logger;
             this.APIKey                       = APIKey;
             this.URIPrefix                    = URIPrefix.IsNotNullOrEmpty() ? URIPrefix : "/api/v3/request";
-            this.DefaultPartnerId             = DefaultPartnerId;
+            this.DefaultPartnerId             = DefaultPartnerId.HasValue ? DefaultPartnerId.Value : Partner_Id.Parse("1");
 
             this.DefaultOperatorNameSelector  = I18N => I18N.FirstText;
 
@@ -316,68 +544,48 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         #endregion
 
 
-        #region StationPost(Station, PartnerId, ...)
+        #region StationPost        (Request, ...)
 
         /// <summary>
-        /// Create a new task posting a charging station onto the OIOI server.
+        /// Upload a charging station onto the OIOI server.
         /// </summary>
-        /// <param name="Station">A charging station.</param>
-        /// <param name="PartnerId">An optional communication partner identification.</param>
-        /// 
-        /// <param name="Timestamp">The optional timestamp of the request.</param>
-        /// <param name="CancellationToken">An optional token to cancel this request.</param>
-        /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
-        /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        public async Task<HTTPResponse<Result>>
+        /// <param name="Request">A StationPost request.</param>
+        public async Task<HTTPResponse<Acknowledgement<StationPostRequest>>>
 
-            StationPost(Station             Station,
-                        Partner_Id          PartnerId          = null,
-
-                        DateTime?           Timestamp          = null,
-                        CancellationToken?  CancellationToken  = null,
-                        EventTracking_Id    EventTrackingId    = null,
-                        TimeSpan?           RequestTimeout     = null)
+            StationPost(StationPostRequest  Request)
 
         {
 
             #region Initial checks
 
-            if (Station == null)
-                throw new ArgumentNullException(nameof(Station),    "The given charging station must not be null!");
+            if (Request == null)
+                throw new ArgumentNullException(nameof(Request), "The given StationPost request must not be null!");
 
-            if (PartnerId == null)
-                PartnerId = DefaultPartnerId;
+            Request = _CustomStationPostRequestMapper(Request);
 
-            if (PartnerId == null)
-                throw new ArgumentNullException(nameof(PartnerId),  "The given communication partner identification must not be null!");
+            if (Request == null)
+                throw new ArgumentNullException(nameof(Request), "The mapped StationPost request must not be null!");
 
 
-            if (!Timestamp.HasValue)
-                Timestamp = DateTime.Now;
-
-            if (EventTrackingId == null)
-                EventTrackingId = EventTracking_Id.New;
-
-            if (!RequestTimeout.HasValue)
-                RequestTimeout = this.RequestTimeout;
-
-            HTTPResponse<Result> result = null;
+            HTTPResponse<Acknowledgement<StationPostRequest>> result = null;
 
             #endregion
 
             #region Send OnStationPostRequest event
 
+            var StartTime = DateTime.Now;
+
             try
             {
 
-                OnStationPostRequest?.Invoke(DateTime.Now,
-                                             Timestamp.Value,
+                OnStationPostRequest?.Invoke(StartTime,
+                                             Request.Timestamp.Value,
                                              this,
                                              ClientId,
-                                             EventTrackingId,
-                                             Station,
-                                             PartnerId,
-                                             RequestTimeout);
+                                             Request.EventTrackingId,
+                                             Request.Station,
+                                             Request.PartnerIdentifier,
+                                             Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout);
 
             }
             catch (Exception e)
@@ -387,6 +595,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
             #endregion
 
+
+            // Notes: It is not allowed to change the connectors of an existing station.
+            //        The station’s connectors’ IDs may not be changed once it is created.
 
             using (var _JSONClient = new JSONClient(Hostname,
                                                     RemotePort,
@@ -398,22 +609,25 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                                                     DNSClient))
             {
 
-                result = await _JSONClient.Query(new JObject(
-                                                     new JProperty("station-post", new JObject(
-                                                         new JProperty("station",             Station.  ToJSON()),
-                                                         new JProperty("partner-identifier",  PartnerId.ToString())
-                                                     ))
-                                                 ),
+                result = await _JSONClient.Query(_CustomStationPostJSONRequestMapper(Request,
+                                                                                     Request.ToJSON()),
                                                  HTTPRequestBuilder:   request => request.Set("Authorization", "key=" + APIKey),
                                                  RequestLogDelegate:   OnStationPostHTTPRequest,
                                                  ResponseLogDelegate:  OnStationPostHTTPResponse,
-                                                 CancellationToken:    CancellationToken,
-                                                 EventTrackingId:      EventTrackingId,
-                                                 RequestTimeout:       RequestTimeout,
+                                                 CancellationToken:    Request.CancellationToken,
+                                                 EventTrackingId:      Request.EventTrackingId,
+                                                 RequestTimeout:       Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout,
 
                                                  #region OnSuccess
 
-                                                 OnSuccess: JSONResponse => JSONResponse.ConvertContent(jsonobject => Result.Parse(jsonobject)),
+                                                 OnSuccess: JSONResponse => JSONResponse.ConvertContent(Request,
+                                                                                                        (request, json, onexception) =>
+                                                                                                        Acknowledgement<StationPostRequest>.Parse(request,
+                                                                                                                                                  json,
+                                                                                                                                                  "station-post",
+                                                                                                                                                  "success",
+                                                                                                                                                  CustomStationPostResponseMapper,
+                                                                                                                                                  onexception)),
 
                                                  #endregion
 
@@ -423,9 +637,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
                                                      SendJSONError(timestamp, this, httpresponse.Content);
 
-                                                     return new HTTPResponse<Result>(httpresponse,
-                                                                                     Result.Error(500, "JSON Fault!"),
-                                                                                     IsFault: true);
+                                                     return new HTTPResponse<Acknowledgement<StationPostRequest>>(httpresponse,
+                                                                                                                  new Acknowledgement<StationPostRequest>(Request, false),
+                                                                                                                  IsFault: true);
 
                                                  },
 
@@ -437,10 +651,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
                                                      SendHTTPError(timestamp, this, httpresponse);
 
-                                                     return new HTTPResponse<Result>(httpresponse,
-                                                                                     Result.Error(httpresponse.HTTPStatusCode.Code,
-                                                                                                  httpresponse.HTTPBody.      ToUTF8String()),
-                                                                                     IsFault: true);
+                                                     return new HTTPResponse<Acknowledgement<StationPostRequest>>(httpresponse,
+                                                                                                                  new Acknowledgement<StationPostRequest>(Request, false),
+                                                                                                                  IsFault: true);
 
                                                  },
 
@@ -452,9 +665,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
                                                      SendException(timestamp, sender, exception);
 
-                                                     return HTTPResponse<Result>.ExceptionThrown(Result.Error(500,
-                                                                                                            exception.Message),
-                                                                                                 Exception:  exception);
+                                                     return HTTPResponse<Acknowledgement<StationPostRequest>>.ExceptionThrown(new Acknowledgement<StationPostRequest>(Request, false),
+                                                                                                                              Exception:  exception);
 
                                                  }
 
@@ -466,23 +678,25 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
 
             if (result == null)
-                result = HTTPResponse<Result>.OK(Result.Error(500, "result == null!"));
+                result = HTTPResponse<Acknowledgement<StationPostRequest>>.OK(new Acknowledgement<StationPostRequest>(Request, false));
 
             #region Send OnStationPostResponse event
+
+            var Endtime = DateTime.Now;
 
             try
             {
 
-                OnStationPostResponse?.Invoke(DateTime.Now,
-                                              Timestamp.Value,
+                OnStationPostResponse?.Invoke(Endtime,
+                                              Request.Timestamp.Value,
                                               this,
                                               ClientId,
-                                              EventTrackingId,
-                                              Station,
-                                              PartnerId,
-                                              RequestTimeout,
+                                              Request.EventTrackingId,
+                                              Request.Station,
+                                              Request.PartnerIdentifier,
+                                              Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout,
                                               result.Content,
-                                              DateTime.Now - Timestamp.Value);
+                                              Endtime - StartTime);
 
             }
             catch (Exception e)
@@ -498,71 +712,48 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
         #endregion
 
-        #region ConnectorPostStatus(ConnectorId, Status, PartnerId, ...)
+        #region ConnectorPostStatus(Request, ...)
 
         /// <summary>
-        /// Create a new task posting the status of a charging connector onto the OIOI server.
+        /// Update the status of a charging connector on the OIOI server.
         /// </summary>
-        /// <param name="ConnectorId">A charging connector identification.</param>
-        /// <param name="Status">The current status of the connector.</param>
-        /// <param name="PartnerId">An optional communication partner identification.</param>
-        /// 
-        /// <param name="Timestamp">The optional timestamp of the request.</param>
-        /// <param name="CancellationToken">An optional token to cancel this request.</param>
-        /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
-        /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        public async Task<HTTPResponse<Result>>
+        /// <param name="Request">A StationPost request.</param>
+        public async Task<HTTPResponse<Acknowledgement<ConnectorPostStatusRequest>>>
 
-            ConnectorPostStatus(EVSE_Id              ConnectorId,
-                                ConnectorStatusType  Status,
-                                Partner_Id           PartnerId          = null,
-
-                                DateTime?            Timestamp          = null,
-                                CancellationToken?   CancellationToken  = null,
-                                EventTracking_Id     EventTrackingId    = null,
-                                TimeSpan?            RequestTimeout     = null)
+            ConnectorPostStatus(ConnectorPostStatusRequest Request)
 
         {
 
             #region Initial checks
 
-            if (ConnectorId == null)
-                throw new ArgumentNullException(nameof(ConnectorId),  "The given charging station must not be null!");
+            if (Request == null)
+                throw new ArgumentNullException(nameof(Request), "The given ConnectorPostStatus request must not be null!");
 
-            if (PartnerId == null)
-                PartnerId = DefaultPartnerId;
+            Request = _CustomConnectorPostStatusRequestMapper(Request);
 
-            if (PartnerId == null)
-                throw new ArgumentNullException(nameof(PartnerId),    "The given communication partner identification must not be null!");
+            if (Request == null)
+                throw new ArgumentNullException(nameof(Request), "The mapped ConnectorPostStatus request must not be null!");
 
 
-            if (!Timestamp.HasValue)
-                Timestamp = DateTime.Now;
-
-            if (EventTrackingId == null)
-                EventTrackingId = EventTracking_Id.New;
-
-            if (!RequestTimeout.HasValue)
-                RequestTimeout = this.RequestTimeout;
-
-            HTTPResponse<Result> result = null;
+            HTTPResponse<Acknowledgement<ConnectorPostStatusRequest>> result = null;
 
             #endregion
 
             #region Send OnConnectorPostStatusRequest event
 
+            var StartTime = DateTime.Now;
+
             try
             {
 
-                OnConnectorPostStatusRequest?.Invoke(DateTime.Now,
-                                                     Timestamp.Value,
+                OnConnectorPostStatusRequest?.Invoke(StartTime,
+                                                     Request.Timestamp.Value,
                                                      this,
                                                      ClientId,
-                                                     EventTrackingId,
-                                                     ConnectorId,
-                                                     Status,
-                                                     PartnerId,
-                                                     RequestTimeout);
+                                                     Request.EventTrackingId,
+                                                     Request.Status,
+                                                     Request.PartnerIdentifier,
+                                                     Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout);
 
             }
             catch (Exception e)
@@ -583,23 +774,25 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                                                     DNSClient))
             {
 
-                result = await _JSONClient.Query(new JObject(
-                                                     new JProperty("connector-post-status", new JObject(
-                                                         new JProperty("connector-id",        ConnectorId.ToString()),
-                                                         new JProperty("partner-identifier",  PartnerId.ToString()),
-                                                         new JProperty("status",              Status.ToString())
-                                                     ))
-                                                 ),
+                result = await _JSONClient.Query(_CustomConnectorPostStatusJSONRequestMapper(Request,
+                                                                                             Request.ToJSON()),
                                                  HTTPRequestBuilder:   request => request.Set("Authorization", "key=" + APIKey),
                                                  RequestLogDelegate:   OnStationPostHTTPRequest,
                                                  ResponseLogDelegate:  OnStationPostHTTPResponse,
-                                                 CancellationToken:    CancellationToken,
-                                                 EventTrackingId:      EventTrackingId,
-                                                 RequestTimeout:       RequestTimeout,
+                                                 CancellationToken:    Request.CancellationToken,
+                                                 EventTrackingId:      Request.EventTrackingId,
+                                                 RequestTimeout:       Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout,
 
                                                  #region OnSuccess
 
-                                                 OnSuccess: JSONResponse => JSONResponse.ConvertContent(jsonobject => Result.Parse(jsonobject)),
+                                                 OnSuccess: JSONResponse => JSONResponse.ConvertContent(Request,
+                                                                                                        (request, json, onexception) =>
+                                                                                                        Acknowledgement<ConnectorPostStatusRequest>.Parse(request,
+                                                                                                                                                          json,
+                                                                                                                                                          "connector-post-status",
+                                                                                                                                                          "success",
+                                                                                                                                                          CustomConnectorPostStatusResponseMapper,
+                                                                                                                                                          onexception)),
 
                                                  #endregion
 
@@ -609,9 +802,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
                                                      SendJSONError(timestamp, this, httpresponse.Content);
 
-                                                     return new HTTPResponse<Result>(httpresponse,
-                                                                                     Result.Error(500, "JSON Fault!"),
-                                                                                     IsFault: true);
+                                                     return new HTTPResponse<Acknowledgement<ConnectorPostStatusRequest>>(httpresponse,
+                                                                                                                          new Acknowledgement<ConnectorPostStatusRequest>(Request, false),
+                                                                                                                          IsFault: true);
 
                                                  },
 
@@ -621,12 +814,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
                                                  OnHTTPError: (timestamp, soapclient, httpresponse) => {
 
+                                                     // 404 The connector or the status were not found
+                                                     // 422 The connector could not be identified uniquely
+
                                                      SendHTTPError(timestamp, this, httpresponse);
 
-                                                     return new HTTPResponse<Result>(httpresponse,
-                                                                                     Result.Error(httpresponse.HTTPStatusCode.Code,
-                                                                                                  httpresponse.HTTPBody.      ToUTF8String()),
-                                                                                     IsFault: true);
+                                                     return new HTTPResponse<Acknowledgement<ConnectorPostStatusRequest>>(httpresponse,
+                                                                                                                          new Acknowledgement<ConnectorPostStatusRequest>(Request, false),
+                                                                                                                          IsFault: true);
 
                                                  },
 
@@ -638,9 +833,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
                                                      SendException(timestamp, sender, exception);
 
-                                                     return HTTPResponse<Result>.ExceptionThrown(Result.Error(500,
-                                                                                                            exception.Message),
-                                                                                                 Exception:  exception);
+                                                     return HTTPResponse<Acknowledgement<ConnectorPostStatusRequest>>.ExceptionThrown(new Acknowledgement<ConnectorPostStatusRequest>(Request, false),
+                                                                                                                                      Exception:  exception);
 
                                                  }
 
@@ -652,24 +846,25 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
 
             if (result == null)
-                result = HTTPResponse<Result>.OK(Result.Error(500, "result == null!"));
+                result = HTTPResponse<Acknowledgement<ConnectorPostStatusRequest>>.OK(new Acknowledgement<ConnectorPostStatusRequest>(Request, false));
 
             #region Send OnConnectorPostStatusResponse event
+
+            var Endtime = DateTime.Now;
 
             try
             {
 
-                OnConnectorPostStatusResponse?.Invoke(DateTime.Now,
-                                                      Timestamp.Value,
+                OnConnectorPostStatusResponse?.Invoke(Endtime,
+                                                      Request.Timestamp.Value,
                                                       this,
                                                       ClientId,
-                                                      EventTrackingId,
-                                                      ConnectorId,
-                                                      Status,
-                                                      PartnerId,
-                                                      RequestTimeout,
+                                                      Request.EventTrackingId,
+                                                      Request.Status,
+                                                      Request.PartnerIdentifier,
+                                                      Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout,
                                                       result.Content,
-                                                      DateTime.Now - Timestamp.Value);
+                                                      Endtime - StartTime);
 
             }
             catch (Exception e)
@@ -686,59 +881,47 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         #endregion
 
 
-        #region RFIDVerify(RFIDId, ...)
+        #region RFIDVerify (Request, ...)
 
         /// <summary>
-        /// Create a new task verifying a RFID identification via the OIOI server.
+        /// Verify a RFID identification via the OIOI server.
         /// </summary>
-        /// <param name="RFIDId">A RFID identification.</param>
-        /// 
-        /// <param name="Timestamp">The optional timestamp of the request.</param>
-        /// <param name="CancellationToken">An optional token to cancel this request.</param>
-        /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
-        /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        public async Task<HTTPResponse<Result>>
+        /// <param name="Request">A RFIDVerify request.</param>
+        public async Task<HTTPResponse<Acknowledgement<RFIDVerifyRequest>>>
 
-            RFIDVerify(Auth_Token          RFIDId,
-
-                       DateTime?           Timestamp          = null,
-                       CancellationToken?  CancellationToken  = null,
-                       EventTracking_Id    EventTrackingId    = null,
-                       TimeSpan?           RequestTimeout     = null)
+            RFIDVerify(RFIDVerifyRequest Request)
 
         {
 
             #region Initial checks
 
-            if (RFIDId == null)
-                throw new ArgumentNullException(nameof(RFIDId),  "The given RFID identification must not be null!");
+            if (Request == null)
+                throw new ArgumentNullException(nameof(Request), "The given RFIDVerify request must not be null!");
+
+            Request = _CustomRFIDVerifyRequestMapper(Request);
+
+            if (Request == null)
+                throw new ArgumentNullException(nameof(Request), "The mapped RFIDVerify request must not be null!");
 
 
-            if (!Timestamp.HasValue)
-                Timestamp = DateTime.Now;
-
-            if (EventTrackingId == null)
-                EventTrackingId = EventTracking_Id.New;
-
-            if (!RequestTimeout.HasValue)
-                RequestTimeout = this.RequestTimeout;
-
-            HTTPResponse<Result> result = null;
+            HTTPResponse<Acknowledgement<RFIDVerifyRequest>> result = null;
 
             #endregion
 
             #region Send OnRFIDVerifyRequest event
 
+            var StartTime = DateTime.Now;
+
             try
             {
 
-                OnRFIDVerifyRequest?.Invoke(DateTime.Now,
-                                            Timestamp.Value,
+                OnRFIDVerifyRequest?.Invoke(StartTime,
+                                            Request.Timestamp.Value,
                                             this,
                                             ClientId,
-                                            EventTrackingId,
-                                            RFIDId,
-                                            RequestTimeout);
+                                            Request.EventTrackingId,
+                                            Request.RFIDId,
+                                            Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout);
 
             }
             catch (Exception e)
@@ -759,21 +942,25 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                                                     DNSClient))
             {
 
-                result = await _JSONClient.Query(new JObject(
-                                                     new JProperty("rfid-verify", new JObject(
-                                                         new JProperty("rfid", RFIDId.ToString())
-                                                     ))
-                                                 ),
+                result = await _JSONClient.Query(_CustomRFIDVerifyJSONRequestMapper(Request,
+                                                                                    Request.ToJSON()),
                                                  HTTPRequestBuilder:   request => request.Set("Authorization", "key=" + APIKey),
                                                  RequestLogDelegate:   OnRFIDVerifyHTTPRequest,
                                                  ResponseLogDelegate:  OnRFIDVerifyHTTPResponse,
-                                                 CancellationToken:    CancellationToken,
-                                                 EventTrackingId:      EventTrackingId,
-                                                 RequestTimeout:       RequestTimeout,
+                                                 CancellationToken:    Request.CancellationToken,
+                                                 EventTrackingId:      Request.EventTrackingId,
+                                                 RequestTimeout:       Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout,
 
                                                  #region OnSuccess
 
-                                                 OnSuccess: JSONResponse => JSONResponse.ConvertContent(jsonobject => Result.Parse(jsonobject)),
+                                                 OnSuccess: JSONResponse => JSONResponse.ConvertContent(Request,
+                                                                                                        (request, json, onexception) =>
+                                                                                                        Acknowledgement<RFIDVerifyRequest>.Parse(request,
+                                                                                                                                                 json,
+                                                                                                                                                 "rfid-verify",
+                                                                                                                                                 "verified",
+                                                                                                                                                 CustomRFIDVerifyResponseMapper,
+                                                                                                                                                 onexception)),
 
                                                  #endregion
 
@@ -783,9 +970,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
                                                      SendJSONError(timestamp, this, httpresponse.Content);
 
-                                                     return new HTTPResponse<Result>(httpresponse,
-                                                                                     Result.Error(500, "JSON Fault!"),
-                                                                                     IsFault: true);
+                                                     return new HTTPResponse<Acknowledgement<RFIDVerifyRequest>>(httpresponse,
+                                                                                                                 new Acknowledgement<RFIDVerifyRequest>(Request, false),
+                                                                                                                 IsFault: true);
 
                                                  },
 
@@ -795,12 +982,15 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
                                                  OnHTTPError: (timestamp, soapclient, httpresponse) => {
 
+                                                     // 404 Not found
+                                                     // An active RFID with the given UID could not be found.
+                                                     // However, it is possible that the RFID is known, but currently blocked.
+
                                                      SendHTTPError(timestamp, this, httpresponse);
 
-                                                     return new HTTPResponse<Result>(httpresponse,
-                                                                                     Result.Error(httpresponse.HTTPStatusCode.Code,
-                                                                                                  httpresponse.HTTPBody.      ToUTF8String()),
-                                                                                     IsFault: true);
+                                                     return new HTTPResponse<Acknowledgement<RFIDVerifyRequest>>(httpresponse,
+                                                                                                                 new Acknowledgement<RFIDVerifyRequest>(Request, false),
+                                                                                                                 IsFault: true);
 
                                                  },
 
@@ -812,9 +1002,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
                                                      SendException(timestamp, sender, exception);
 
-                                                     return HTTPResponse<Result>.ExceptionThrown(Result.Error(500,
-                                                                                                            exception.Message),
-                                                                                                 Exception:  exception);
+                                                     return HTTPResponse<Acknowledgement<RFIDVerifyRequest>>.ExceptionThrown(new Acknowledgement<RFIDVerifyRequest>(Request, false),
+                                                                                                                             Exception: exception);
 
                                                  }
 
@@ -826,22 +1015,24 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
 
             if (result == null)
-                result = HTTPResponse<Result>.OK(Result.Error(500, "result == null!"));
+                result = HTTPResponse<Acknowledgement<RFIDVerifyRequest>>.OK(new Acknowledgement<RFIDVerifyRequest>(Request, false));
 
             #region Send OnRFIDVerifyResponse event
+
+            var Endtime = DateTime.Now;
 
             try
             {
 
-                OnRFIDVerifyResponse?.Invoke(DateTime.Now,
-                                                      Timestamp.Value,
-                                                      this,
-                                                      ClientId,
-                                                      EventTrackingId,
-                                                      RFIDId,
-                                                      RequestTimeout,
-                                                      result.Content,
-                                                      DateTime.Now - Timestamp.Value);
+                OnRFIDVerifyResponse?.Invoke(Endtime,
+                                             Request.Timestamp.Value,
+                                             this,
+                                             ClientId,
+                                             Request.EventTrackingId,
+                                             Request.RFIDId,
+                                             Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout,
+                                             result.Content,
+                                             Endtime - StartTime);
 
             }
             catch (Exception e)
@@ -857,8 +1048,171 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
         #endregion
 
+        #region SessionPost(Request, ...)
 
-        // SessionPost
+        /// <summary>
+        /// Upload a charging session to the OIOI server.
+        /// </summary>
+        /// <param name="Request">A SessionPost request.</param>
+        public async Task<HTTPResponse<SessionPostResponse>>
+
+            SessionPost(SessionPostRequest Request)
+
+        {
+
+            #region Initial checks
+
+            if (Request == null)
+                throw new ArgumentNullException(nameof(Request), "The given SessionPost request must not be null!");
+
+            Request = _CustomSessionPostRequestMapper(Request);
+
+            if (Request == null)
+                throw new ArgumentNullException(nameof(Request), "The mapped SessionPost request must not be null!");
+
+
+            HTTPResponse<SessionPostResponse> result = null;
+
+            #endregion
+
+            #region Send OnSessionPostRequest event
+
+            var StartTime = DateTime.Now;
+
+            try
+            {
+
+                OnSessionPostRequest?.Invoke(StartTime,
+                                             Request.Timestamp.Value,
+                                             this,
+                                             ClientId,
+                                             Request.EventTrackingId,
+                                             Request.Session,
+                                             Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout);
+
+            }
+            catch (Exception e)
+            {
+                e.Log(nameof(CPOClient) + "." + nameof(OnSessionPostRequest));
+            }
+
+            #endregion
+
+
+            using (var _JSONClient = new JSONClient(Hostname,
+                                                    RemotePort,
+                                                    HTTPVirtualHost,
+                                                    URIPrefix,
+                                                    RemoteCertificateValidator,
+                                                    ClientCert,
+                                                    UserAgent,
+                                                    DNSClient))
+            {
+
+                result = await _JSONClient.Query(_CustomSessionPostJSONRequestMapper(Request,
+                                                                                     Request.ToJSON()),
+                                                 HTTPRequestBuilder:   request => request.Set("Authorization", "key=" + APIKey),
+                                                 RequestLogDelegate:   OnRFIDVerifyHTTPRequest,
+                                                 ResponseLogDelegate:  OnRFIDVerifyHTTPResponse,
+                                                 CancellationToken:    Request.CancellationToken,
+                                                 EventTrackingId:      Request.EventTrackingId,
+                                                 RequestTimeout:       Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout,
+
+                                                 #region OnSuccess
+
+                                                 OnSuccess: JSONResponse => JSONResponse.ConvertContent(Request,
+                                                                                                        (request, json, onexception) =>
+                                                                                                        SessionPostResponse.Parse(request,
+                                                                                                                                  json,
+                                                                                                                                  CustomSessionPostResponseMapper,
+                                                                                                                                  onexception)),
+
+                                                 #endregion
+
+                                                 #region OnJSONFault
+
+                                                 OnJSONFault: (timestamp, jsonclient, httpresponse) => {
+
+                                                     SendJSONError(timestamp, this, httpresponse.Content);
+
+                                                     return new HTTPResponse<SessionPostResponse>(httpresponse,
+                                                                                                  new SessionPostResponse(Request, false),
+                                                                                                  IsFault: true);
+
+                                                 },
+
+                                                 #endregion
+
+                                                 #region OnHTTPError
+
+                                                 OnHTTPError: (timestamp, soapclient, httpresponse) => {
+
+                                                     // 404 Not found
+                                                     // An active RFID with the given UID could not be found.
+                                                     // However, it is possible that the RFID is known, but currently blocked.
+
+                                                     SendHTTPError(timestamp, this, httpresponse);
+
+                                                     return new HTTPResponse<SessionPostResponse>(httpresponse,
+                                                                                                                  new SessionPostResponse(Request, false),
+                                                                                                                  IsFault: true);
+
+                                                 },
+
+                                                 #endregion
+
+                                                 #region OnException
+
+                                                 OnException: (timestamp, sender, exception) => {
+
+                                                     SendException(timestamp, sender, exception);
+
+                                                     return HTTPResponse<SessionPostResponse>.ExceptionThrown(new SessionPostResponse(Request, false),
+                                                                                                                              Exception: exception);
+
+                                                 }
+
+                                                 #endregion
+
+                                                );
+
+            }
+
+
+            if (result == null)
+                result = HTTPResponse<SessionPostResponse>.OK(new SessionPostResponse(Request, false));
+
+            #region Send OnRFIDVerifyResponse event
+
+            var Endtime = DateTime.Now;
+
+            try
+            {
+
+                OnSessionPostResponse?.Invoke(Endtime,
+                                              Request.Timestamp.Value,
+                                              this,
+                                              ClientId,
+                                              Request.EventTrackingId,
+                                              Request.Session,
+                                              Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout,
+                                              result.Content,
+                                              Endtime - StartTime);
+
+            }
+            catch (Exception e)
+            {
+                e.Log(nameof(CPOClient) + "." + nameof(OnRFIDVerifyResponse));
+            }
+
+            #endregion
+
+            return result;
+
+        }
+
+        #endregion
+
 
     }
 

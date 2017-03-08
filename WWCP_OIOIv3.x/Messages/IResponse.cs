@@ -18,22 +18,36 @@
 #region Usings
 
 using System;
+using System.Collections.Generic;
+using System.Xml.Linq;
 
 #endregion
 
 namespace org.GraphDefined.WWCP.OIOIv3_x
 {
 
+    public delegate T CustomMapperDelegate<T>(XElement XML, T ResponseBuilder);
+
+    public delegate TB CustomMapper2Delegate<TB>(TB ResponseBuilder);
+
+    public delegate TB CustomMapperDelegate<T, TB>(XElement XML, TB ResponseBuilder);
+
+
     /// <summary>
-    /// The current OIOI version.
+    /// The common interface of an OIOI response message.
     /// </summary>
-    public static class Version
+    public interface IResponse
     {
 
         /// <summary>
-        /// The current OIOI version.
+        /// The machine-readable result code.
         /// </summary>
-        public const String Number = "v3.x";
+   //     Result    Result              { get; }
+
+        /// <summary>
+        /// The timestamp of the response message creation.
+        /// </summary>
+        DateTime  ResponseTimestamp   { get; }
 
     }
 

@@ -18,22 +18,50 @@
 #region Usings
 
 using System;
+using System.Threading.Tasks;
+
+using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv3_x
+namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 {
 
     /// <summary>
-    /// The current OIOI version.
+    /// The common interface of all OIOI CPO clients.
     /// </summary>
-    public static class Version
+    public interface ICPOClient
     {
 
+        #region Properties
+
         /// <summary>
-        /// The current OIOI version.
+        /// The default request timeout for this client.
         /// </summary>
-        public const String Number = "v3.x";
+        TimeSpan? RequestTimeout { get; }
+
+        #endregion
+
+
+        Task<HTTPResponse<Acknowledgement<StationPostRequest>>>
+
+            StationPost(StationPostRequest Request);
+
+
+        Task<HTTPResponse<Acknowledgement<ConnectorPostStatusRequest>>>
+
+            ConnectorPostStatus(ConnectorPostStatusRequest Request);
+
+
+        Task<HTTPResponse<Acknowledgement<RFIDVerifyRequest>>>
+
+            RFIDVerify(RFIDVerifyRequest Request);
+
+
+        Task<HTTPResponse<SessionPostResponse>>
+
+            SessionPost(SessionPostRequest Request);
+
 
     }
 

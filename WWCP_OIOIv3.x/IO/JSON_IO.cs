@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2016 GraphDefined GmbH
+ * Copyright (c) 2016-2017 GraphDefined GmbH
  * This file is part of WWCP OIOI <https://github.com/OpenChargingCloud/WWCP_OIOI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,10 +19,7 @@
 
 using System;
 
-using Newtonsoft.Json.Linq;
-
 using org.GraphDefined.Vanaheimr.Illias;
-using org.GraphDefined.Vanaheimr.Hermod;
 
 #endregion
 
@@ -30,13 +27,18 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 {
 
     /// <summary>
-    /// An OIOI Object Mapper.
+    /// OIOI JSON I/O.
     /// </summary>
-    public static class ObjectMapper
+    public static class JSON_IO
     {
+
+        #region IdentifierTypes
 
         public static IdentifierTypes AsIdentifierTypes(this String Text)
         {
+
+            if (Text.IsNullOrEmpty())
+                return IdentifierTypes.Unknown;
 
             switch (Text)
             {
@@ -78,6 +80,65 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
             }
 
         }
+
+        #endregion
+
+        #region ConnectorStatusTypes
+
+        public static ConnectorStatusTypes AsConnectorStatusType(this String Text)
+        {
+
+            if (Text.IsNullOrEmpty())
+                return ConnectorStatusTypes.Unknown;
+
+            switch (Text.ToLower())
+            {
+
+                case "available":
+                    return ConnectorStatusTypes.Available;
+
+                case "occupied":
+                    return ConnectorStatusTypes.Occupied;
+
+                case "offline":
+                    return ConnectorStatusTypes.Offline;
+
+                case "reserved":
+                    return ConnectorStatusTypes.Reserved;
+
+                default:
+                    return ConnectorStatusTypes.Unknown;
+
+            }
+
+        }
+
+        public static String AsText(this ConnectorStatusTypes ConnectorStatusType)
+        {
+
+            switch (ConnectorStatusType)
+            {
+
+                case ConnectorStatusTypes.Available:
+                    return "Available";
+
+                case ConnectorStatusTypes.Occupied:
+                    return "Occupied";
+
+                case ConnectorStatusTypes.Offline:
+                    return "Offline";
+
+                case ConnectorStatusTypes.Reserved:
+                    return "Reserved";
+
+                default:
+                    return "Unknown";
+
+            }
+
+        }
+
+        #endregion
 
 
     }
