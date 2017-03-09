@@ -41,7 +41,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// A unique identification that identifies this session.
         /// </summary>
         [Mandatory]
-        public ChargingSession_Id  SessionId            { get; }
+        public Session_Id          Id                   { get; }
 
         /// <summary>
         /// The unique identification of the user/customer/driver.
@@ -53,7 +53,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// The EVSE Id of the connector where the session took place.
         /// </summary>
         [Mandatory]
-        public EVSE_Id             ConnectorId          { get; }
+        public Connector_Id        ConnectorId          { get; }
 
         /// <summary>
         /// The start and, optionally, stop timestamps of the session.
@@ -86,20 +86,20 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// <summary>
         /// Create a new OIOI charging session.
         /// </summary>
-        /// <param name="SessionId">A unique identification that identifies this session.</param>
+        /// <param name="Id">A unique identification that identifies this session.</param>
         /// <param name="User">The unique identification of the user/customer/driver.</param>
         /// <param name="ConnectorId">The EVSE Id of the connector where the session took place.</param>
         /// <param name="SessionInterval">The start and, optionally, stop timestamps of the session.</param>
         /// <param name="ChargingInterval">The start and stop timestamps of charging.</param>
         /// <param name="EnergyConsumed">The consumed energy in kWh.</param>
         /// <param name="PartnerIdentifier">The partner identifier of the partner that shall be associated with this CDR.</param>
-        public Session(ChargingSession_Id  SessionId,
-                       User                User,
-                       EVSE_Id             ConnectorId,
-                       StartEndDateTime    SessionInterval,
-                       StartEndDateTime?   ChargingInterval   = null,
-                       Single?             EnergyConsumed     = null,
-                       String              PartnerIdentifier  = null)
+        public Session(Session_Id         Id,
+                       User               User,
+                       Connector_Id       ConnectorId,
+                       StartEndDateTime   SessionInterval,
+                       StartEndDateTime?  ChargingInterval   = null,
+                       Single?            EnergyConsumed     = null,
+                       String             PartnerIdentifier  = null)
 
         {
 
@@ -110,7 +110,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
             #endregion
 
-            this.SessionId          = SessionId;
+            this.Id                 = Id;
             this.User               = User;
             this.ConnectorId        = ConnectorId;
             this.SessionInterval    = SessionInterval;
@@ -163,7 +163,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
             => JSONObject.Create(
 
                    new JProperty("user",                       User.        ToJSON()),
-                   new JProperty("session-id",                 SessionId.   ToString()),
+                   new JProperty("session-id",                 Id.          ToString()),
                    new JProperty("connector-id",               ConnectorId. ToString()),
                    new JProperty("session-interval",           JSONObject.Create(
 
@@ -282,7 +282,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
             if ((Object) Session == null)
                 return false;
 
-            return SessionId.        Equals(Session.SessionId)       &&
+            return Id.        Equals(Session.Id)       &&
                    User.             Equals(Session.User)            &&
                    ConnectorId.      Equals(Session.ConnectorId)     &&
                    SessionInterval.  Equals(Session.SessionInterval) &&
@@ -305,7 +305,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
             unchecked
             {
 
-                return SessionId.        GetHashCode() * 17 ^
+                return Id.        GetHashCode() * 17 ^
                        User.             GetHashCode() * 13 ^
                        ConnectorId.      GetHashCode() * 11 ^
                        SessionInterval.  GetHashCode() *  7 ^
@@ -323,7 +323,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// </summary>
         public override String ToString()
 
-            => String.Concat(SessionId, " for ", User.Identifier, " at ", ConnectorId);
+            => String.Concat(Id, " for ", User.Identifier, " at ", ConnectorId);
 
         #endregion
 

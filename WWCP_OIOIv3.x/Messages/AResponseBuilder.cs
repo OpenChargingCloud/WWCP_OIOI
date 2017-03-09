@@ -26,33 +26,33 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 {
 
     /// <summary>
-    /// An abstract response.
+    /// An abstract response builder.
     /// </summary>
     /// <typeparam name="TRequest">The type of the request.</typeparam>
     /// <typeparam name="TResponse">The type of the response.</typeparam>
-    public abstract class AResponse<TRequest, TResponse> : IResponse<TResponse>
+    public abstract class AResponseBuilder<TRequest, TResponse>
 
         where TRequest  : class, IRequest
         where TResponse : class, IResponse<TResponse>
 
     {
 
-        #region Properties
+        #region Data
 
         /// <summary>
         /// The request leading to this response.
         /// </summary>
-        public TRequest                             Request             { get; }
-
-        ///// <summary>
-        ///// The machine-readable result code.
-        ///// </summary>
-        //public Result                               Result              { get; }
+        public TRequest                    Request        { get; set; }
 
         /// <summary>
-        /// An optional read-only dictionary of customer-specific key-value pairs.
+        /// The response.
         /// </summary>
-        public IReadOnlyDictionary<String, Object>  CustomData          { get; protected set; }
+        public TResponse                   Response       { get; set; }
+
+        /// <summary>
+        /// An optional dictionary of customer-specific key-value pairs.
+        /// </summary>
+        public Dictionary<String, Object>  CustomData     { get; }
 
         /// <summary>
         /// Whether the response has customer-specific key-value pairs defined.
@@ -63,32 +63,40 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// <summary>
         /// An optional mapper for customer-specific key-value pairs.
         /// </summary>
-        public Action<TResponse>                    CustomMapper        { get; }
-
-        /// <summary>
-        /// The timestamp of the response message creation.
-        /// </summary>
-        public DateTime                             ResponseTimestamp   { get; }
+        public Action<TResponse>           CustomMapper   { get; set; }
 
         #endregion
 
         #region Constructor(s)
 
         /// <summary>
-        /// Create a new generic OIOI response.
+        /// Create a new response builder.
         /// </summary>
-        /// <param name="Request">The OIOI request leading to this result.</param>
-        /// <param name="CustomData">An optional read-only dictionary of customer-specific key-value pairs.</param>
+        /// <param name="Request">The request leading to this response.</param>
+        /// <param name="Response">The response.</param>
+        /// <param name="CustomData">An optional dictionary of customer-specific key-value pairs.</param>
         /// <param name="CustomMapper">An optional mapper for customer-specific key-value pairs.</param>
-        protected AResponse(TRequest                             Request,
-                            IReadOnlyDictionary<String, Object>  CustomData    = null,
-                            Action<TResponse>                    CustomMapper  = null)
+        public AResponseBuilder(TRequest                    Request,
+                                TResponse                   Response      = default(TResponse),
+                                Dictionary<String, Object>  CustomData    = null,
+                                Action<TResponse>           CustomMapper  = null)
         {
 
-            this.Request            = Request;
-            this.CustomData         = CustomData;
-            this.CustomMapper       = CustomMapper;
-            this.ResponseTimestamp  = DateTime.Now;
+            this.Request       = Request;
+
+            if (Response != null)
+            {
+
+                this.Response      = Response;
+
+                if (Response.CustomData != null)
+                    foreach (var item in Response.CustomData)
+                        CustomData.Add(item.Key, item.Value);
+
+            }
+
+            this.CustomData    = CustomData ?? new Dictionary<String, Object>();
+            this.CustomMapper  = CustomMapper;
 
         }
 

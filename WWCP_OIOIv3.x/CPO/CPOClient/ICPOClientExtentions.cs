@@ -49,7 +49,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        public static async Task<HTTPResponse<Acknowledgement<StationPostRequest>>>
+        public static async Task<HTTPResponse<StationPostResponse>>
 
             StationPost(this ICPOClient     ICPOClient,
                         Station             Station,
@@ -83,7 +83,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        public static async Task<HTTPResponse<Acknowledgement<ConnectorPostStatusRequest>>>
+        public static async Task<HTTPResponse<ConnectorPostStatusResponse>>
 
             ConnectorPostStatus(this ICPOClient      ICPOClient,
                                 ConnectorStatus      ConnectorStatus,
@@ -115,7 +115,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        public static async Task<HTTPResponse<Acknowledgement<RFIDVerifyRequest>>>
+        public static async Task<HTTPResponse<RFIDVerifyResponse>>
 
             RFIDVerify(this ICPOClient      ICPOClient,
                        RFID_Id              RFIDId,

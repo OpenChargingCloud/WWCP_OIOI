@@ -240,7 +240,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         #endregion
 
-        public CustomMapperDelegate<Acknowledgement<StationPostRequest>, Acknowledgement<StationPostRequest>.Builder> CustomStationPostResponseMapper { get; set; }
+        public CustomMapperDelegate<StationPostResponse, StationPostResponse.Builder> CustomStationPostResponseMapper { get; set; }
 
         #endregion
 
@@ -290,7 +290,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         #endregion
 
-        public CustomMapperDelegate<Acknowledgement<ConnectorPostStatusRequest>, Acknowledgement<ConnectorPostStatusRequest>.Builder> CustomConnectorPostStatusResponseMapper { get; set; }
+        public CustomMapperDelegate<ConnectorPostStatusResponse, ConnectorPostStatusResponse.Builder> CustomConnectorPostStatusResponseMapper { get; set; }
 
         #endregion
 
@@ -340,7 +340,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         #endregion
 
-        public CustomMapperDelegate<Acknowledgement<RFIDVerifyRequest>, Acknowledgement<RFIDVerifyRequest>.Builder> CustomRFIDVerifyResponseMapper { get; set; }
+        public CustomMapperDelegate<RFIDVerifyResponse, RFIDVerifyResponse.Builder> CustomRFIDVerifyResponseMapper { get; set; }
 
         #endregion
 
@@ -550,7 +550,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// Upload a charging station onto the OIOI server.
         /// </summary>
         /// <param name="Request">A StationPost request.</param>
-        public async Task<HTTPResponse<Acknowledgement<StationPostRequest>>>
+        public async Task<HTTPResponse<StationPostResponse>>
 
             StationPost(StationPostRequest  Request)
 
@@ -567,7 +567,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                 throw new ArgumentNullException(nameof(Request), "The mapped StationPost request must not be null!");
 
 
-            HTTPResponse<Acknowledgement<StationPostRequest>> result = null;
+            HTTPResponse<StationPostResponse> result = null;
 
             #endregion
 
@@ -622,12 +622,10 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
                                                  OnSuccess: JSONResponse => JSONResponse.ConvertContent(Request,
                                                                                                         (request, json, onexception) =>
-                                                                                                        Acknowledgement<StationPostRequest>.Parse(request,
-                                                                                                                                                  json,
-                                                                                                                                                  "station-post",
-                                                                                                                                                  "success",
-                                                                                                                                                  CustomStationPostResponseMapper,
-                                                                                                                                                  onexception)),
+                                                                                                            StationPostResponse.Parse(request,
+                                                                                                                                      json,
+                                                                                                                                      CustomStationPostResponseMapper,
+                                                                                                                                      onexception)),
 
                                                  #endregion
 
@@ -637,9 +635,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
                                                      SendJSONError(timestamp, this, httpresponse.Content);
 
-                                                     return new HTTPResponse<Acknowledgement<StationPostRequest>>(httpresponse,
-                                                                                                                  new Acknowledgement<StationPostRequest>(Request, false),
-                                                                                                                  IsFault: true);
+                                                     return new HTTPResponse<StationPostResponse>(httpresponse,
+                                                                                                  new StationPostResponse(Request, false),
+                                                                                                  IsFault: true);
 
                                                  },
 
@@ -651,9 +649,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
                                                      SendHTTPError(timestamp, this, httpresponse);
 
-                                                     return new HTTPResponse<Acknowledgement<StationPostRequest>>(httpresponse,
-                                                                                                                  new Acknowledgement<StationPostRequest>(Request, false),
-                                                                                                                  IsFault: true);
+                                                     return new HTTPResponse<StationPostResponse>(httpresponse,
+                                                                                                  new StationPostResponse(Request, false),
+                                                                                                  IsFault: true);
 
                                                  },
 
@@ -665,8 +663,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
                                                      SendException(timestamp, sender, exception);
 
-                                                     return HTTPResponse<Acknowledgement<StationPostRequest>>.ExceptionThrown(new Acknowledgement<StationPostRequest>(Request, false),
-                                                                                                                              Exception:  exception);
+                                                     return HTTPResponse<StationPostResponse>.ExceptionThrown(new StationPostResponse(Request, false),
+                                                                                                              Exception:  exception);
 
                                                  }
 
@@ -678,7 +676,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
 
             if (result == null)
-                result = HTTPResponse<Acknowledgement<StationPostRequest>>.OK(new Acknowledgement<StationPostRequest>(Request, false));
+                result = HTTPResponse<StationPostResponse>.OK(new StationPostResponse(Request, false));
 
             #region Send OnStationPostResponse event
 
@@ -718,7 +716,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// Update the status of a charging connector on the OIOI server.
         /// </summary>
         /// <param name="Request">A StationPost request.</param>
-        public async Task<HTTPResponse<Acknowledgement<ConnectorPostStatusRequest>>>
+        public async Task<HTTPResponse<ConnectorPostStatusResponse>>
 
             ConnectorPostStatus(ConnectorPostStatusRequest Request)
 
@@ -735,7 +733,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                 throw new ArgumentNullException(nameof(Request), "The mapped ConnectorPostStatus request must not be null!");
 
 
-            HTTPResponse<Acknowledgement<ConnectorPostStatusRequest>> result = null;
+            HTTPResponse<ConnectorPostStatusResponse> result = null;
 
             #endregion
 
@@ -787,12 +785,10 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
                                                  OnSuccess: JSONResponse => JSONResponse.ConvertContent(Request,
                                                                                                         (request, json, onexception) =>
-                                                                                                        Acknowledgement<ConnectorPostStatusRequest>.Parse(request,
-                                                                                                                                                          json,
-                                                                                                                                                          "connector-post-status",
-                                                                                                                                                          "success",
-                                                                                                                                                          CustomConnectorPostStatusResponseMapper,
-                                                                                                                                                          onexception)),
+                                                                                                            ConnectorPostStatusResponse.Parse(request,
+                                                                                                                                              json,
+                                                                                                                                              CustomConnectorPostStatusResponseMapper,
+                                                                                                                                              onexception)),
 
                                                  #endregion
 
@@ -802,9 +798,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
                                                      SendJSONError(timestamp, this, httpresponse.Content);
 
-                                                     return new HTTPResponse<Acknowledgement<ConnectorPostStatusRequest>>(httpresponse,
-                                                                                                                          new Acknowledgement<ConnectorPostStatusRequest>(Request, false),
-                                                                                                                          IsFault: true);
+                                                     return new HTTPResponse<ConnectorPostStatusResponse>(httpresponse,
+                                                                                                          new ConnectorPostStatusResponse(Request, false),
+                                                                                                          IsFault: true);
 
                                                  },
 
@@ -819,9 +815,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
                                                      SendHTTPError(timestamp, this, httpresponse);
 
-                                                     return new HTTPResponse<Acknowledgement<ConnectorPostStatusRequest>>(httpresponse,
-                                                                                                                          new Acknowledgement<ConnectorPostStatusRequest>(Request, false),
-                                                                                                                          IsFault: true);
+                                                     return new HTTPResponse<ConnectorPostStatusResponse>(httpresponse,
+                                                                                                          new ConnectorPostStatusResponse(Request, false),
+                                                                                                          IsFault: true);
 
                                                  },
 
@@ -833,8 +829,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
                                                      SendException(timestamp, sender, exception);
 
-                                                     return HTTPResponse<Acknowledgement<ConnectorPostStatusRequest>>.ExceptionThrown(new Acknowledgement<ConnectorPostStatusRequest>(Request, false),
-                                                                                                                                      Exception:  exception);
+                                                     return HTTPResponse<ConnectorPostStatusResponse>.ExceptionThrown(new ConnectorPostStatusResponse(Request, false),
+                                                                                                                      Exception:  exception);
 
                                                  }
 
@@ -846,7 +842,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
 
             if (result == null)
-                result = HTTPResponse<Acknowledgement<ConnectorPostStatusRequest>>.OK(new Acknowledgement<ConnectorPostStatusRequest>(Request, false));
+                result = HTTPResponse<ConnectorPostStatusResponse>.OK(new ConnectorPostStatusResponse(Request, false));
 
             #region Send OnConnectorPostStatusResponse event
 
@@ -887,7 +883,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// Verify a RFID identification via the OIOI server.
         /// </summary>
         /// <param name="Request">A RFIDVerify request.</param>
-        public async Task<HTTPResponse<Acknowledgement<RFIDVerifyRequest>>>
+        public async Task<HTTPResponse<RFIDVerifyResponse>>
 
             RFIDVerify(RFIDVerifyRequest Request)
 
@@ -904,7 +900,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                 throw new ArgumentNullException(nameof(Request), "The mapped RFIDVerify request must not be null!");
 
 
-            HTTPResponse<Acknowledgement<RFIDVerifyRequest>> result = null;
+            HTTPResponse<RFIDVerifyResponse> result = null;
 
             #endregion
 
@@ -955,12 +951,10 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
                                                  OnSuccess: JSONResponse => JSONResponse.ConvertContent(Request,
                                                                                                         (request, json, onexception) =>
-                                                                                                        Acknowledgement<RFIDVerifyRequest>.Parse(request,
-                                                                                                                                                 json,
-                                                                                                                                                 "rfid-verify",
-                                                                                                                                                 "verified",
-                                                                                                                                                 CustomRFIDVerifyResponseMapper,
-                                                                                                                                                 onexception)),
+                                                                                                            RFIDVerifyResponse.Parse(request,
+                                                                                                                                     json,
+                                                                                                                                     CustomRFIDVerifyResponseMapper,
+                                                                                                                                     onexception)),
 
                                                  #endregion
 
@@ -970,9 +964,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
                                                      SendJSONError(timestamp, this, httpresponse.Content);
 
-                                                     return new HTTPResponse<Acknowledgement<RFIDVerifyRequest>>(httpresponse,
-                                                                                                                 new Acknowledgement<RFIDVerifyRequest>(Request, false),
-                                                                                                                 IsFault: true);
+                                                     return new HTTPResponse<RFIDVerifyResponse>(httpresponse,
+                                                                                                 new RFIDVerifyResponse(Request, false),
+                                                                                                 IsFault: true);
 
                                                  },
 
@@ -988,9 +982,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
                                                      SendHTTPError(timestamp, this, httpresponse);
 
-                                                     return new HTTPResponse<Acknowledgement<RFIDVerifyRequest>>(httpresponse,
-                                                                                                                 new Acknowledgement<RFIDVerifyRequest>(Request, false),
-                                                                                                                 IsFault: true);
+                                                     return new HTTPResponse<RFIDVerifyResponse>(httpresponse,
+                                                                                                 new RFIDVerifyResponse(Request, false),
+                                                                                                 IsFault: true);
 
                                                  },
 
@@ -1002,8 +996,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
                                                      SendException(timestamp, sender, exception);
 
-                                                     return HTTPResponse<Acknowledgement<RFIDVerifyRequest>>.ExceptionThrown(new Acknowledgement<RFIDVerifyRequest>(Request, false),
-                                                                                                                             Exception: exception);
+                                                     return HTTPResponse<RFIDVerifyResponse>.ExceptionThrown(new RFIDVerifyResponse(Request, false),
+                                                                                                             Exception: exception);
 
                                                  }
 
@@ -1015,7 +1009,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
 
             if (result == null)
-                result = HTTPResponse<Acknowledgement<RFIDVerifyRequest>>.OK(new Acknowledgement<RFIDVerifyRequest>(Request, false));
+                result = HTTPResponse<RFIDVerifyResponse>.OK(new RFIDVerifyResponse(Request, false));
 
             #region Send OnRFIDVerifyResponse event
 

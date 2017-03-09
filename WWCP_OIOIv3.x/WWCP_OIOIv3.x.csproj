@@ -60,10 +60,12 @@
     <Compile Include="Definitions.cs" />
     <Compile Include="IO\JSON_IO.cs" />
     <Compile Include="IO\Result.cs" />
-    <Compile Include="Messages\ABuilder.cs" />
+    <Compile Include="Messages\AResponseBuilder.cs" />
     <Compile Include="Messages\ARequest.cs" />
     <Compile Include="Messages\AResponse.cs" />
-    <Compile Include="Messages\Common\Acknowledgement.cs" />
+    <Compile Include="Messages\CPO\ConnectorPostStatusResponse.cs" />
+    <Compile Include="Messages\CPO\RFIDVerifyResponse.cs" />
+    <Compile Include="Messages\CPO\StationPostResponse.cs" />
     <Compile Include="Messages\CPO\SessionPostResponse.cs" />
     <Compile Include="Messages\CPO\ConnectorPostStatusRequest.cs" />
     <Compile Include="Messages\CPO\SessionPostRequest.cs" />

@@ -17,6 +17,7 @@
 
 #region Usings
 
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
@@ -26,28 +27,39 @@ using System.Xml.Linq;
 namespace org.GraphDefined.WWCP.OIOIv3_x
 {
 
-    public delegate T CustomMapperDelegate<T>(XElement XML, T ResponseBuilder);
-
     public delegate TB CustomMapper2Delegate<TB>(TB ResponseBuilder);
 
-    public delegate TB CustomMapperDelegate<T, TB>(XElement XML, TB ResponseBuilder);
+    public delegate T CustomMapperDelegate<T, TB>(JObject JSON, TB ResponseBuilder);
 
 
     /// <summary>
-    /// The common interface of an OIOI response message.
+    /// The common interface of a response message.
     /// </summary>
-    public interface IResponse
+    public interface IResponse<TResponse>
+
+        where TResponse : class
+
     {
 
         /// <summary>
-        /// The machine-readable result code.
+        /// An optional read-only dictionary of customer-specific key-value pairs.
         /// </summary>
-   //     Result    Result              { get; }
+        IReadOnlyDictionary<String, Object>  CustomData          { get; }
+
+        /// <summary>
+        /// Whether the response has customer-specific key-value pairs defined.
+        /// </summary>
+        Boolean                              HasCustomData       { get; }
+
+        /// <summary>
+        /// An optional mapper for customer-specific key-value pairs.
+        /// </summary>
+        Action<TResponse>                    CustomMapper        { get; }
 
         /// <summary>
         /// The timestamp of the response message creation.
         /// </summary>
-        DateTime  ResponseTimestamp   { get; }
+        DateTime                             ResponseTimestamp   { get; }
 
     }
 

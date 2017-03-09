@@ -461,7 +461,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         #endregion
 
-        public CustomMapperDelegate<Acknowledgement<StationPostRequest>, Acknowledgement<StationPostRequest>.Builder> CustomStationPostResponseMapper
+        public CustomMapperDelegate<StationPostResponse, StationPostResponse.Builder> CustomStationPostResponseMapper
         {
 
             get
@@ -518,7 +518,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         #endregion
 
-        public CustomMapperDelegate<Acknowledgement<ConnectorPostStatusRequest>, Acknowledgement<ConnectorPostStatusRequest>.Builder> CustomConnectorPostStatusResponseMapper
+        public CustomMapperDelegate<ConnectorPostStatusResponse, ConnectorPostStatusResponse.Builder> CustomConnectorPostStatusResponseMapper
         {
 
             get
@@ -576,7 +576,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         #endregion
 
-        public CustomMapperDelegate<Acknowledgement<RFIDVerifyRequest>, Acknowledgement<RFIDVerifyRequest>.Builder> CustomRFIDVerifyResponseMapper
+        public CustomMapperDelegate<RFIDVerifyResponse, RFIDVerifyResponse.Builder> CustomRFIDVerifyResponseMapper
         {
 
             get
@@ -776,7 +776,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// Upload a charging station onto the OIOI server.
         /// </summary>
         /// <param name="Request">A StationPost request.</param>
-        public async Task<HTTPResponse<Acknowledgement<StationPostRequest>>>
+        public async Task<HTTPResponse<StationPostResponse>>
 
             StationPost(StationPostRequest Request)
 
@@ -790,7 +790,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// Update the status of a charging connector on the OIOI server.
         /// </summary>
         /// <param name="Request">A StationPost request.</param>
-        public async Task<HTTPResponse<Acknowledgement<ConnectorPostStatusRequest>>>
+        public async Task<HTTPResponse<ConnectorPostStatusResponse>>
 
             ConnectorPostStatus(ConnectorPostStatusRequest Request)
 
@@ -805,7 +805,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// Verify a RFID identification via the OIOI server.
         /// </summary>
         /// <param name="Request">A RFIDVerify request.</param>
-        public async Task<HTTPResponse<Acknowledgement<RFIDVerifyRequest>>>
+        public async Task<HTTPResponse<RFIDVerifyResponse>>
 
             RFIDVerify(RFIDVerifyRequest Request)
 

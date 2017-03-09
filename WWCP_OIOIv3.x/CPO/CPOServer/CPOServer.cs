@@ -268,7 +268,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         #endregion
 
-        #region (private) CPOServer(HTTPServer, HTTPHostname = null, URIPrefix = DefaultURIPrefix)
+        #region CPOServer(HTTPServer, HTTPHostname = null, URIPrefix = DefaultURIPrefix)
 
         /// <summary>
         /// Create a new OIOI CPO Server using the given parameters.
@@ -276,11 +276,11 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="HTTPServer">An existing HTTP server.</param>
         /// <param name="HTTPHostname">An optional HTTP hostname.</param>
         /// <param name="URIPrefix">The URI prefix for all incoming HTTP requests.</param>
-        private CPOServer(HTTPServer       HTTPServer,
-                          HTTPHostname     HTTPHostname                   = null,
-                          String           URIPrefix                      = DefaultURIPrefix,
-                          HTTPContentType  ServerContentType              = null,
-                          Boolean          ServerRegisterHTTPRootService  = true)
+        public CPOServer(HTTPServer       HTTPServer,
+                         HTTPHostname     HTTPHostname                   = null,
+                         String           URIPrefix                      = DefaultURIPrefix,
+                         HTTPContentType  ServerContentType              = null,
+                         Boolean          ServerRegisterHTTPRootService  = true)
         {
 
             #region Initial checks
@@ -299,7 +299,19 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             this.DNSClient          = HTTPServer.DNSClient;
             this.ServerContentType  = ServerContentType ?? HTTPContentType.JSON_UTF8;
 
-            #region / {URIPrefix}
+            RegisterURITemplates();
+
+        }
+
+        #endregion
+
+        #endregion
+
+
+        #region (private) RegisterURITemplates()
+
+        private void RegisterURITemplates()
+        {
 
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                          HTTPMethod.POST,
@@ -485,34 +497,34 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                                                  #endregion
 
 
-                                                 RemoteStartEVSEResult _RemoteStartEVSEResult;
+                                                 RemoteStartEVSEResult _RemoteStartEVSEResult = null;
 
-                                                 // Call remote start directly...
-                                                 var OnSessionStartLocal = OnSessionStart;
-                                                 if (OnSessionStartLocal == null)
-                                                     _RemoteStartEVSEResult  = await RoamingNetwork.RemoteStart(EVSEId:             ConnectorId,
-                                                                                                                ProviderId:         DefaultEMobilityProviderId,
-                                                                                                                eMAId:              eMobilityAccountId,
-                                                                                                                Timestamp:          Request.Timestamp,
-                                                                                                                CancellationToken:  Request.CancellationToken,
-                                                                                                                EventTrackingId:    Request.EventTrackingId,
-                                                                                                                RequestTimeout:     TimeSpan.FromSeconds(45));
+                                                 //// Call remote start directly...
+                                                 //var OnSessionStartLocal = OnSessionStart;
+                                                 //if (OnSessionStartLocal == null)
+                                                 //    _RemoteStartEVSEResult  = await RoamingNetwork.RemoteStart(EVSEId:             ConnectorId,
+                                                 //                                                               //ProviderId:         DefaultEMobilityProviderId,
+                                                 //                                                               eMAId:              eMobilityAccountId,
+                                                 //                                                               Timestamp:          Request.Timestamp,
+                                                 //                                                               CancellationToken:  Request.CancellationToken,
+                                                 //                                                               EventTrackingId:    Request.EventTrackingId,
+                                                 //                                                               RequestTimeout:     TimeSpan.FromSeconds(45));
 
-                                                 // ...or send OnSessionStart event(s)!
-                                                 else
-                                                     _RemoteStartEVSEResult  = (await Task.WhenAll(OnSessionStartLocal.
-                                                                                                       GetInvocationList().
-                                                                                                       Select(subscriber => (subscriber as OnSessionStartDelegate)
-                                                                                                           (DateTime.Now,
-                                                                                                            this,
-                                                                                                            eMobilityAccountId,
-                                                                                                            ConnectorId,
-                                                                                                            PaymentReference,
-                                                                                                            new CancellationTokenSource().Token,
-                                                                                                            EventTracking_Id.New,
-                                                                                                            TimeSpan.FromSeconds(45))))).
+                                                 //// ...or send OnSessionStart event(s)!
+                                                 //else
+                                                 //    _RemoteStartEVSEResult  = (await Task.WhenAll(OnSessionStartLocal.
+                                                 //                                                      GetInvocationList().
+                                                 //                                                      Select(subscriber => (subscriber as OnSessionStartDelegate)
+                                                 //                                                          (DateTime.Now,
+                                                 //                                                           this,
+                                                 //                                                           eMobilityAccountId,
+                                                 //                                                           ConnectorId,
+                                                 //                                                           PaymentReference,
+                                                 //                                                           new CancellationTokenSource().Token,
+                                                 //                                                           EventTracking_Id.New,
+                                                 //                                                           TimeSpan.FromSeconds(45))))).
 
-                                                                               FirstOrDefault(result => result.Result != RemoteStartEVSEResultType.Unspecified);
+                                                 //                              FirstOrDefault(result => result.Result != RemoteStartEVSEResultType.Unspecified);
 
 
                                                  switch (_RemoteStartEVSEResult.Result)
@@ -739,36 +751,36 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                                                  #endregion
 
 
-                                                 RemoteStopEVSEResult _RemoteEVSEStopResult;
+                                                 RemoteStopEVSEResult _RemoteEVSEStopResult = null;
 
-                                                 // Call remote stop directly...
-                                                 var OnSessionStopLocal = OnSessionStop;
-                                                 if (OnSessionStopLocal == null)
-                                                     _RemoteEVSEStopResult  = await RoamingNetwork.RemoteStop(EVSEId:               ConnectorId,
-                                                                                                              SessionId:            SessionId,
-                                                                                                              ReservationHandling:  ReservationHandling.Close,
-                                                                                                              ProviderId:           DefaultEMobilityProviderId,
-                                                                                                              eMAId:                eMobilityAccountId,
-                                                                                                              Timestamp:            Request.Timestamp,
-                                                                                                              CancellationToken:    Request.CancellationToken,
-                                                                                                              EventTrackingId:      Request.EventTrackingId,
-                                                                                                              RequestTimeout:       TimeSpan.FromSeconds(45));
+                                                 //// Call remote stop directly...
+                                                 //var OnSessionStopLocal = OnSessionStop;
+                                                 //if (OnSessionStopLocal == null)
+                                                 //    _RemoteEVSEStopResult  = await RoamingNetwork.RemoteStop(EVSEId:               ConnectorId,
+                                                 //                                                             SessionId:            SessionId,
+                                                 //                                                             ReservationHandling:  ReservationHandling.Close,
+                                                 //                                                             ProviderId:           DefaultEMobilityProviderId,
+                                                 //                                                             eMAId:                eMobilityAccountId,
+                                                 //                                                             Timestamp:            Request.Timestamp,
+                                                 //                                                             CancellationToken:    Request.CancellationToken,
+                                                 //                                                             EventTrackingId:      Request.EventTrackingId,
+                                                 //                                                             RequestTimeout:       TimeSpan.FromSeconds(45));
 
-                                                 // ...or send OnSessionStop event(s)!
-                                                 else
-                                                     _RemoteEVSEStopResult  = (await Task.WhenAll(OnSessionStopLocal.
-                                                                                                      GetInvocationList().
-                                                                                                      Select(subscriber => (subscriber as OnSessionStopDelegate)
-                                                                                                          (DateTime.Now,
-                                                                                                           this,
-                                                                                                           ConnectorId,
-                                                                                                           SessionId,
-                                                                                                           eMobilityAccountId,
-                                                                                                           new CancellationTokenSource().Token,
-                                                                                                           EventTracking_Id.New,
-                                                                                                           TimeSpan.FromSeconds(45))))).
+                                                 //// ...or send OnSessionStop event(s)!
+                                                 //else
+                                                 //    _RemoteEVSEStopResult  = (await Task.WhenAll(OnSessionStopLocal.
+                                                 //                                                     GetInvocationList().
+                                                 //                                                     Select(subscriber => (subscriber as OnSessionStopDelegate)
+                                                 //                                                         (DateTime.Now,
+                                                 //                                                          this,
+                                                 //                                                          ConnectorId,
+                                                 //                                                          SessionId,
+                                                 //                                                          eMobilityAccountId,
+                                                 //                                                          new CancellationTokenSource().Token,
+                                                 //                                                          EventTracking_Id.New,
+                                                 //                                                          TimeSpan.FromSeconds(45))))).
 
-                                                                              FirstOrDefault(result => result.Result != RemoteStopEVSEResultType.Unspecified);
+                                                 //                             FirstOrDefault(result => result.Result != RemoteStopEVSEResultType.Unspecified);
 
 
                                                  switch (_RemoteEVSEStopResult.Result)
@@ -839,11 +851,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
                                          });
 
-            #endregion
-
         }
-
-        #endregion
 
         #endregion
 

@@ -51,6 +51,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
     public delegate Session                ChargeDetailRecord2SessionDelegate            (ChargeDetailRecord     ChargeDetailRecord,
                                                                                           Session                Session);
 
+    /// <summary>
+    /// A delegate which allows you to modify charging sessions after receiving them from upstream.
+    /// </summary>
+    /// <param name="Session">A charging session.</param>
+    /// <param name="ChargeDetailRecord">A WWCP charge detail record.</param>
+    public delegate ChargeDetailRecord     Session2ChargeDetailRecordDelegate            (Session                Session,
+                                                                                          ChargeDetailRecord     ChargeDetailRecord);
+
 
     /// <summary>
     /// A delegate called whenever a new station will be send upstream.

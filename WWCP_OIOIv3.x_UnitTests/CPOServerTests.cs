@@ -36,6 +36,7 @@ using org.GraphDefined.Vanaheimr.Hermod.Sockets;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets.TCP;
 
 using org.GraphDefined.WWCP.OIOIv3_x;
+using org.GraphDefined.WWCP.OIOIv3_x.CPO;
 
 #endregion
 
@@ -51,12 +52,12 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.UnitTests
 
         #region Data
 
-        private CPOServer               _CPOServer;
+        private CPOServer                _CPOServer;
 
-        private ChargingStationOperator CSOP01;
-        private ChargingPool            CP01;
-        private ChargingStation         CS01;
-        private EVSE                    EVSE01;
+        private ChargingStationOperator  CSOP01;
+        private ChargingPool             CP01;
+        private ChargingStation          CS01;
+        private EVSE                     EVSE01;
 
         #endregion
 
@@ -65,11 +66,11 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.UnitTests
         public CPOServerTests()
         {
 
-            this._CPOServer = CPOServer.AttachToHTTPAPI(_RoamingNetwork, HTTPAPI);
+            this._CPOServer = CPOServer.AttachToHTTPAPI(HTTPAPI);
 
             CSOP01 = _RoamingNetwork.CreateChargingStationOperator(ChargingStationOperator_Id.Parse("DE*GEF"),
-                                                                      I18NString.Create(Languages.deu, "GraphDefined"),
-                                                                      AdminStatus: ChargingStationOperatorAdminStatusType.Operational);
+                                                                   I18NString.Create(Languages.deu, "GraphDefined"),
+                                                                   AdminStatus: ChargingStationOperatorAdminStatusType.Operational);
 
             CP01   = CSOP01.CreateChargingPool   (ChargingPool_Id.   Parse("DE*GEF*P123456"));
             CS01   = CP01.  CreateChargingStation(ChargingStation_Id.Parse("DE*GEF*S123456*A"));

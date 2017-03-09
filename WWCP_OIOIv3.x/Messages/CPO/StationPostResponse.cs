@@ -31,42 +31,34 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 {
 
     /// <summary>
-    /// An OIOI SessionPost response.
+    /// An OIOI StationPost result.
     /// </summary>
-    public class SessionPostResponse : AResponse<SessionPostRequest,
-                                                 SessionPostResponse>,
-                                       IEquatable<SessionPostResponse>
+    public class StationPostResponse : AResponse<StationPostRequest,
+                                                 StationPostResponse>
     {
 
         #region Properties
 
         /// <summary>
-        /// The response of the corresponding SessionPost request.
+        /// The result of the corresponding StationPost request.
         /// </summary>
         public Boolean  Success   { get; }
-
-        /// <summary>
-        /// Explains what the problem was, whenever 'success' was false.
-        /// </summary>
-        public String   Reason    { get; }
 
         #endregion
 
         #region Constructor(s)
 
         /// <summary>
-        /// Create a new OIOI SessionPost response.
+        /// Create a new OIOI StationPost result.
         /// </summary>
         /// <param name="Request">The session post request leading to this response.</param>
-        /// <param name="Success">The response of the corresponding SessionPost request.</param>
-        /// <param name="Reason">Explains what the problem was, whenever 'success' was false.</param>
-        /// <param name="CustomData">An optional read-only dictionary of customer-specific key-value pairs.</param>
-        /// <param name="CustomMapper">An optional mapper for customer-specific key-value pairs.</param>
-        public SessionPostResponse(SessionPostRequest                   Request,
+        /// <param name="Success">The result of the corresponding StationPost request.</param>
+        /// <param name="CustomData">A read-only dictionary of custom key-value pairs.</param>
+        /// <param name="CustomMapper">An optional mapper for customer-specific semi-structured data.</param>
+        public StationPostResponse(StationPostRequest                   Request,
                                    Boolean                              Success,
-                                   String                               Reason        = null,
                                    IReadOnlyDictionary<String, Object>  CustomData    = null,
-                                   Action<SessionPostResponse>          CustomMapper  = null)
+                                   Action<StationPostResponse>          CustomMapper  = null)
 
             : base(Request,
                    CustomData,
@@ -75,7 +67,6 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         {
 
             this.Success  = Success;
-            this.Reason   = Reason;
 
         }
 
@@ -85,33 +76,32 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         #region Documentation
 
         // {
-        //     "session": {
-        //         "success": true,
-        //         "reason":  null
+        //     "station-post": {
+        //         "success": true
         //     }
         // }
 
         #endregion
 
-        #region (static) Parse   (Request, JSON,                          CustomMapper = null, OnException = null)
+        #region (static) Parse   (Request, JSON,                      CustomMapper = null, OnException = null)
 
         /// <summary>
-        /// Parse the given JSON representation of an OIOI SessionPost response.
+        /// Parse the given JSON representation of an OIOI StationPost response.
         /// </summary>
         /// <param name="Request">The corresponding StationPost request.</param>
         /// <param name="JSON">The JSON response to be parsed.</param>
         /// <param name="CustomMapper">An optional delegate to customize the transformation.</param>
         /// <param name="OnException">A delegate to handle exceptions.</param>
-        public static SessionPostResponse Parse(SessionPostRequest                                  Request,
+        public static StationPostResponse Parse(StationPostRequest                                  Request,
                                                 JObject                                             JSON,
-                                                CustomMapperDelegate<SessionPostResponse, Builder>  CustomMapper  = null,
+                                                CustomMapperDelegate<StationPostResponse, Builder>  CustomMapper  = null,
                                                 OnExceptionDelegate                                 OnException   = null)
         {
 
-            SessionPostResponse _SessionPostResponse;
+            StationPostResponse _StationPostResponse;
 
-            if (TryParse(Request, JSON, out _SessionPostResponse, CustomMapper, OnException))
-                return _SessionPostResponse;
+            if (TryParse(Request, JSON, out _StationPostResponse, CustomMapper, OnException))
+                return _StationPostResponse;
 
             return null;
 
@@ -119,21 +109,18 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         #endregion
 
-        #region (static) TryParse(Request, JSON, out SessionPostResponse, CustomMapper = null, OnException = null)
+        #region (static) TryParse(Request, JSON, out Acknowledgement, CustomMapper = null, OnException = null)
 
         /// <summary>
-        /// Parse the given JSON representation of an OIOI SessionPost response.
+        /// Parse the given JSON representation of an OIOI StationPost response.
         /// </summary>
-        /// <param name="Request">The corresponding StationPost request.</param>
-        /// <param name="JSON">The JSON response to be parsed.</param>
-        /// <param name="SessionPostResponse">The parsed StationPost response.</param>
-        /// <param name="CustomMapper">An optional delegate to customize the transformation.</param>
-        /// <param name="OnException">A delegate to handle exceptions.</param>
-        public static Boolean TryParse(SessionPostRequest                                  Request,
-                                       JObject                                             JSON,
-                                       out SessionPostResponse                             SessionPostResponse,
-                                       CustomMapperDelegate<SessionPostResponse, Builder>  CustomMapper  = null,
-                                       OnExceptionDelegate                                 OnException   = null)
+        /// <param name="JSON">The JSON to parse.</param>
+        /// <param name="StationPostResponse">The parsed StationPost response</param>
+        public static Boolean TryParse(StationPostRequest                                        Request,
+                                       JObject                                                   JSON,
+                                       out StationPostResponse                                   StationPostResponse,
+                                       CustomMapperDelegate<StationPostResponse, Builder>  CustomMapper  = null,
+                                       OnExceptionDelegate                                       OnException   = null)
         {
 
             try
@@ -143,19 +130,18 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
                 if (InnerJSON == null)
                 {
-                    SessionPostResponse = null;
+                    StationPostResponse = null;
                     return false;
                 }
 
-                SessionPostResponse = new SessionPostResponse(
+                StationPostResponse = new StationPostResponse(
                                           Request,
-                                          InnerJSON["success"].Value<Boolean>() == true,
-                                          InnerJSON["reason" ].Value<String>()
+                                          InnerJSON["success"].Value<Boolean>() == true
                                       );
 
                 if (CustomMapper != null)
-                    SessionPostResponse = CustomMapper(JSON,
-                                                       SessionPostResponse.ToBuilder());
+                    StationPostResponse = CustomMapper(JSON,
+                                                       StationPostResponse.ToBuilder());
 
                 return true;
 
@@ -165,7 +151,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
                 OnException?.Invoke(DateTime.Now, JSON, e);
 
-                SessionPostResponse = null;
+                StationPostResponse = null;
                 return false;
 
             }
@@ -184,11 +170,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             => new JObject(
                    new JProperty("session", JSONObject.Create(
 
-                       new JProperty("success", Success),
-
-                       Reason.IsNotNullOrEmpty()
-                           ? new JProperty("reason", Reason)
-                           : null
+                       new JProperty("success",  Success)
 
                    ))
                );
@@ -198,47 +180,47 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         #region Operator overloading
 
-        #region Operator == (SessionPostResponse1, SessionPostResponse2)
+        #region Operator == (StationPostResponse1, StationPostResponse2)
 
         /// <summary>
         /// Compares two responses for equality.
         /// </summary>
-        /// <param name="SessionPostResponse1">A response.</param>
-        /// <param name="SessionPostResponse2">Another response.</param>
+        /// <param name="StationPostResponse1">A response.</param>
+        /// <param name="StationPostResponse2">Another response.</param>
         /// <returns>True if both match; False otherwise.</returns>
-        public static Boolean operator == (SessionPostResponse SessionPostResponse1, SessionPostResponse SessionPostResponse2)
+        public static Boolean operator == (StationPostResponse StationPostResponse1, StationPostResponse StationPostResponse2)
         {
 
             // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(SessionPostResponse1, SessionPostResponse2))
+            if (Object.ReferenceEquals(StationPostResponse1, StationPostResponse2))
                 return true;
 
             // If one is null, but not both, return false.
-            if (((Object) SessionPostResponse1 == null) || ((Object) SessionPostResponse2 == null))
+            if (((Object) StationPostResponse1 == null) || ((Object) StationPostResponse2 == null))
                 return false;
 
-            return SessionPostResponse1.Equals(SessionPostResponse2);
+            return StationPostResponse1.Equals(StationPostResponse2);
 
         }
 
         #endregion
 
-        #region Operator != (SessionPostResponse1, SessionPostResponse2)
+        #region Operator != (StationPostResponse1, StationPostResponse2)
 
         /// <summary>
         /// Compares two responses for inequality.
         /// </summary>
-        /// <param name="SessionPostResponse1">A response.</param>
-        /// <param name="SessionPostResponse2">Another response.</param>
+        /// <param name="StationPostResponse1">A response.</param>
+        /// <param name="StationPostResponse2">Another response.</param>
         /// <returns>False if both match; True otherwise.</returns>
-        public static Boolean operator != (SessionPostResponse SessionPostResponse1, SessionPostResponse SessionPostResponse2)
-            => !(SessionPostResponse1 == SessionPostResponse2);
+        public static Boolean operator != (StationPostResponse StationPostResponse1, StationPostResponse StationPostResponse2)
+            => !(StationPostResponse1 == StationPostResponse2);
 
         #endregion
 
         #endregion
 
-        #region IEquatable<SessionPostResponse> Members
+        #region IEquatable<StationPostResponse> Members
 
         #region Equals(Object)
 
@@ -254,7 +236,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                 return false;
 
             // Check if the given object is a response.
-            var AResponse = Object as SessionPostResponse;
+            var AResponse = Object as StationPostResponse;
             if ((Object) AResponse == null)
                 return false;
 
@@ -264,20 +246,20 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         #endregion
 
-        #region Equals(SessionPostResponse)
+        #region Equals(StationPostResponse)
 
         /// <summary>
         /// Compares two responses for equality.
         /// </summary>
-        /// <param name="SessionPostResponse">A response to compare with.</param>
+        /// <param name="StationPostResponse">A response to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
-        public Boolean Equals(SessionPostResponse SessionPostResponse)
+        public Boolean Equals(StationPostResponse StationPostResponse)
         {
 
-            if ((Object) SessionPostResponse == null)
+            if ((Object) StationPostResponse == null)
                 return false;
 
-            return Success.Equals(SessionPostResponse.Success);
+            return Success.Equals(StationPostResponse.Success);
 
         }
 
@@ -307,7 +289,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// Return a string representation of this object.
         /// </summary>
         public override String ToString()
-            => "SessionPost response: " + Success.ToString();
+            => "StationPost response: " + Success.ToString();
 
         #endregion
 
@@ -325,31 +307,33 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         #region (class) Builder
 
         /// <summary>
-        /// A SessionPost response builder.
+        /// A StationPost response builder.
         /// </summary>
-        public class Builder : AResponseBuilder<SessionPostRequest,
-                                                SessionPostResponse>
+        public class Builder : AResponseBuilder<StationPostRequest,
+                                                StationPostResponse>
         {
 
             #region Properties
 
             /// <summary>
-            /// The response of the operation.
+            /// The result of the operation.
             /// </summary>
-            public Boolean  Success   { get; set; }
+            public Boolean                     Success      { get; set; }
 
             /// <summary>
             /// Explains what the problem was, whenever 'success' was false.
             /// </summary>
-            public String   Reason    { get; set; }
+            public String                      Reason       { get; set; }
+
+            public Dictionary<String, Object>  CustomData   { get; set; }
 
             #endregion
 
             #region Constructor(s)
 
-            internal Builder(SessionPostResponse Response = null)
+            public Builder(StationPostResponse Response = null)
 
-                : base(Response?.Request,
+                : base(Response.Request,
                        Response)
 
             {
@@ -357,9 +341,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                 if (Response != null)
                 {
 
-                    this.Request       = Response.Request;
-                    this.Response      = Response;
-                    this.Success       = Response.Success;
+                    this.Success     = Response.Success;
+                    this.CustomData  = new Dictionary<String, Object>();
 
                     if (Response.CustomData != null)
                         foreach (var item in Response.CustomData)
@@ -374,13 +357,12 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             #region ToImmutable()
 
             /// <summary>
-            /// Return an immutable SessionPost response.
+            /// Return an immutable StationPost response.
             /// </summary>
-            public SessionPostResponse ToImmutable()
+            public StationPostResponse ToImmutable()
 
-                => new SessionPostResponse(Request,
+                => new StationPostResponse(Request,
                                            Success,
-                                           Reason,
                                            CustomData,
                                            CustomMapper);
 
@@ -389,7 +371,6 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         }
 
         #endregion
-
 
     }
 

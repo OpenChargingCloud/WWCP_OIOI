@@ -66,7 +66,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                                                        Station                                 Station,
                                                        Partner_Id                              PartnerId,
                                                        TimeSpan?                               RequestTimeout,
-                                                       Acknowledgement<StationPostRequest>     Result,
+                                                       StationPostResponse                     Result,
                                                        TimeSpan                                Duration);
 
     #endregion
@@ -96,7 +96,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                                                                ConnectorStatus                               ConnectorStatus,
                                                                Partner_Id                                    PartnerId,
                                                                TimeSpan?                                     RequestTimeout,
-                                                               Acknowledgement<ConnectorPostStatusRequest>   Result,
+                                                               ConnectorPostStatusResponse                   Result,
                                                                TimeSpan                                      Duration);
 
     #endregion
@@ -124,7 +124,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                                                       EventTracking_Id                        EventTrackingId,
                                                       RFID_Id                                 RFIDId,
                                                       TimeSpan?                               RequestTimeout,
-                                                      Acknowledgement<RFIDVerifyRequest>      Result,
+                                                      RFIDVerifyResponse                      Result,
                                                       TimeSpan                                Duration);
 
     #endregion

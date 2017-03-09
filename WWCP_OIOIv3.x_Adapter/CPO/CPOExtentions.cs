@@ -93,16 +93,20 @@ namespace org.GraphDefined.WWCP
                                               I18NString                                                          Name,
 
                                               String                                                              RemoteHostname,
+                                              String                                                              APIKey,
                                               IPPort                                                              RemoteTCPPort                                   = null,
                                               String                                                              RemoteHTTPVirtualHost                           = null,
                                               RemoteCertificateValidationCallback                                 RemoteCertificateValidator                      = null,
                                               X509Certificate                                                     ClientCert                                      = null,
                                               String                                                              URIPrefix                                       = OIOIv3_x.CPO.CPOClient.DefaultURIPrefix,
+                                              OIOIv3_x.Partner_Id?                                                DefaultPartnerId                                = null,
                                               String                                                              HTTPUserAgent                                   = OIOIv3_x.CPO.CPOClient.DefaultHTTPUserAgent,
                                               TimeSpan?                                                           QueryTimeout                                    = null,
 
                                               String                                                              ServerName                                      = OIOIv3_x.CPO.CPOServer.DefaultHTTPServerName,
+                                              HTTPHostname                                                        HTTPHostname                                    = null,
                                               IPPort                                                              ServerTCPPort                                   = null,
+                                              X509Certificate2                                                    X509Certificate                                 = null,
                                               String                                                              ServerURIPrefix                                 = OIOIv3_x.CPO.CPOServer.DefaultURIPrefix,
                                               HTTPContentType                                                     ServerContentType                               = null,
                                               Boolean                                                             ServerRegisterHTTPRootService                   = true,
@@ -157,16 +161,20 @@ namespace org.GraphDefined.WWCP
                                                                      RoamingNetwork,
 
                                                                      RemoteHostname,
+                                                                     APIKey,
                                                                      RemoteTCPPort,
                                                                      RemoteCertificateValidator,
                                                                      ClientCert,
                                                                      RemoteHTTPVirtualHost,
                                                                      URIPrefix,
+                                                                     DefaultPartnerId,
                                                                      HTTPUserAgent,
                                                                      QueryTimeout,
 
                                                                      ServerName,
+                                                                     HTTPHostname,
                                                                      ServerTCPPort,
+                                                                     X509Certificate,
                                                                      ServerURIPrefix,
                                                                      ServerContentType,
                                                                      ServerRegisterHTTPRootService,
@@ -183,8 +191,6 @@ namespace org.GraphDefined.WWCP
                                                                      ConnectorStatus2JSON,
                                                                      ChargeDetailRecord2JSON,
 
-                                                                     DefaultOperator,
-                                                                     OperatorNameSelector,
                                                                      IncludeEVSEs,
                                                                      ServiceCheckEvery,
                                                                      StatusCheckEvery,
@@ -252,56 +258,57 @@ namespace org.GraphDefined.WWCP
         /// <param name="DNSClient">An optional DNS client to use.</param>
         public static ICSORoamingProvider
 
-            CreateOIOIv3_x_CPORoamingProvider(this RoamingNetwork                                                 RoamingNetwork,
-                                              CSORoamingProvider_Id                                               Id,
-                                              I18NString                                                          Name,
-                                              SOAPServer                                                          SOAPServer,
+            CreateOIOIv3_x_CPORoamingProvider(this RoamingNetwork                                          RoamingNetwork,
+                                              CSORoamingProvider_Id                                        Id,
+                                              I18NString                                                   Name,
+                                              HTTPServer                                                   HTTPServer,
 
-                                              String                                                              RemoteHostname,
-                                              String                                                              APIKey,
-                                              IPPort                                                              RemoteTCPPort                                   = null,
-                                              RemoteCertificateValidationCallback                                 RemoteCertificateValidator                      = null,
-                                              X509Certificate                                                     ClientCert                                      = null,
-                                              String                                                              RemoteHTTPVirtualHost                           = null,
-                                              String                                                              URIPrefix                                       = OIOIv3_x.CPO.CPOClient.DefaultURIPrefix,
-                                              OIOIv3_x.Partner_Id?                                                DefaultPartnerId                                = null,
-                                              String                                                              HTTPUserAgent                                   = OIOIv3_x.CPO.CPOClient.DefaultHTTPUserAgent,
-                                              TimeSpan?                                                           QueryTimeout                                    = null,
+                                              String                                                       RemoteHostname,
+                                              String                                                       APIKey,
+                                              IPPort                                                       RemoteTCPPort                                   = null,
+                                              RemoteCertificateValidationCallback                          RemoteCertificateValidator                      = null,
+                                              X509Certificate                                              ClientCert                                      = null,
+                                              String                                                       RemoteHTTPVirtualHost                           = null,
+                                              String                                                       URIPrefix                                       = OIOIv3_x.CPO.CPOClient.DefaultURIPrefix,
+                                              OIOIv3_x.Partner_Id?                                         DefaultPartnerId                                = null,
+                                              String                                                       HTTPUserAgent                                   = OIOIv3_x.CPO.CPOClient.DefaultHTTPUserAgent,
+                                              TimeSpan?                                                    QueryTimeout                                    = null,
 
-                                              String                                                              ServerURIPrefix                                 = null,
+                                              HTTPHostname                                                 HTTPHostname                                    = null,
+                                              String                                                       ServerURIPrefix                                 = null,
+                                              HTTPContentType                                              ServerContentType                               = null,
+                                              Boolean                                                      ServerRegisterHTTPRootService                   = true,
 
-                                              String                                                              ClientLoggingContext                            = OIOIv3_x.CPO.CPOClient.CPOClientLogger.DefaultContext,
-                                              String                                                              ServerLoggingContext                            = OIOIv3_x.CPO.CPOServerLogger.DefaultContext,
-                                              Func<String, String, String>                                        LogFileCreator                                  = null,
+                                              String                                                       ClientLoggingContext                            = OIOIv3_x.CPO.CPOClient.CPOClientLogger.DefaultContext,
+                                              String                                                       ServerLoggingContext                            = OIOIv3_x.CPO.CPOServerLogger.DefaultContext,
+                                              Func<String, String, String>                                 LogFileCreator                                  = null,
 
-                                              OIOIv3_x.CPO.ChargingStation2StationDelegate                        EVSE2Station                                    = null,
-                                              OIOIv3_x.CPO.EVSEStatusUpdate2ConnectorStatusUpdateDelegate         EVSEStatusUpdate2ConnectorStatusUpdate          = null,
-                                              OIOIv3_x.CPO.ChargeDetailRecord2SessionDelegate                     WWCPChargeDetailRecord2OIOIChargeDetailRecord   = null,
-                                              OIOIv3_x.CPO.Station2JSONDelegate                                   Station2JSON                                    = null,
-                                              OIOIv3_x.CPO.ConnectorStatus2JSONDelegate                           ConnectorStatus2JSON                            = null,
-                                              OIOIv3_x.CPO.ChargeDetailRecord2JSONDelegate                        ChargeDetailRecord2JSON                         = null,
+                                              OIOIv3_x.CPO.ChargingStation2StationDelegate                 EVSE2Station                                    = null,
+                                              OIOIv3_x.CPO.EVSEStatusUpdate2ConnectorStatusUpdateDelegate  EVSEStatusUpdate2ConnectorStatusUpdate          = null,
+                                              OIOIv3_x.CPO.ChargeDetailRecord2SessionDelegate              WWCPChargeDetailRecord2OIOIChargeDetailRecord   = null,
+                                              OIOIv3_x.CPO.Station2JSONDelegate                            Station2JSON                                    = null,
+                                              OIOIv3_x.CPO.ConnectorStatus2JSONDelegate                    ConnectorStatus2JSON                            = null,
+                                              OIOIv3_x.CPO.ChargeDetailRecord2JSONDelegate                 ChargeDetailRecord2JSON                         = null,
 
-                                              ChargingStationOperator                                             DefaultOperator                                 = null,
-                                              ChargingStationOperatorNameSelectorDelegate                         OperatorNameSelector                            = null,
-                                              IncludeEVSEDelegate                                                 IncludeEVSEs                                    = null,
-                                              TimeSpan?                                                           ServiceCheckEvery                               = null,
-                                              TimeSpan?                                                           StatusCheckEvery                                = null,
+                                              IncludeEVSEDelegate                                          IncludeEVSEs                                    = null,
+                                              TimeSpan?                                                    ServiceCheckEvery                               = null,
+                                              TimeSpan?                                                    StatusCheckEvery                                = null,
 
-                                              Boolean                                                             DisablePushData                                 = false,
-                                              Boolean                                                             DisablePushStatus                               = false,
-                                              Boolean                                                             DisableAuthentication                           = false,
-                                              Boolean                                                             DisableSendChargeDetailRecords                  = false,
+                                              Boolean                                                      DisablePushData                                 = false,
+                                              Boolean                                                      DisablePushStatus                               = false,
+                                              Boolean                                                      DisableAuthentication                           = false,
+                                              Boolean                                                      DisableSendChargeDetailRecords                  = false,
 
-                                              Action<OIOIv3_x.CPO.WWCPCPOAdapter>                                 OIOIConfigurator                                = null,
-                                              Action<ICSORoamingProvider>                                         Configurator                                    = null,
-                                              DNSClient                                                           DNSClient                                       = null)
+                                              Action<OIOIv3_x.CPO.WWCPCPOAdapter>                          OIOIConfigurator                                = null,
+                                              Action<ICSORoamingProvider>                                  Configurator                                    = null,
+                                              DNSClient                                                    DNSClient                                       = null)
 
         {
 
             #region Initial checks
 
-            if (SOAPServer == null)
-                throw new ArgumentNullException(nameof(SOAPServer),      "The given SOAP/HTTP server must not be null!");
+            if (HTTPServer == null)
+                throw new ArgumentNullException(nameof(HTTPServer),      "The given HTTP server must not be null!");
 
 
             if (RoamingNetwork == null)
@@ -337,8 +344,11 @@ namespace org.GraphDefined.WWCP
                                                                                                 ClientLoggingContext,
                                                                                                 LogFileCreator),
 
-                                                                     new OIOIv3_x.CPO.CPOServer(SOAPServer,
-                                                                                                ServerURIPrefix),
+                                                                     new OIOIv3_x.CPO.CPOServer(HTTPServer,
+                                                                                                HTTPHostname,
+                                                                                                URIPrefix,
+                                                                                                ServerContentType,
+                                                                                                ServerRegisterHTTPRootService),
 
                                                                      ServerLoggingContext,
                                                                      LogFileCreator,
@@ -350,8 +360,6 @@ namespace org.GraphDefined.WWCP
                                                                      ConnectorStatus2JSON,
                                                                      ChargeDetailRecord2JSON,
 
-                                                                     DefaultOperator,
-                                                                     OperatorNameSelector,
                                                                      IncludeEVSEs,
                                                                      ServiceCheckEvery,
                                                                      StatusCheckEvery,

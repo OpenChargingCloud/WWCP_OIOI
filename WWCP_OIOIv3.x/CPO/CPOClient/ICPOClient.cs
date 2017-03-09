@@ -43,17 +43,17 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         #endregion
 
 
-        Task<HTTPResponse<Acknowledgement<StationPostRequest>>>
+        Task<HTTPResponse<StationPostResponse>>
 
             StationPost(StationPostRequest Request);
 
 
-        Task<HTTPResponse<Acknowledgement<ConnectorPostStatusRequest>>>
+        Task<HTTPResponse<ConnectorPostStatusResponse>>
 
             ConnectorPostStatus(ConnectorPostStatusRequest Request);
 
 
-        Task<HTTPResponse<Acknowledgement<RFIDVerifyRequest>>>
+        Task<HTTPResponse<RFIDVerifyResponse>>
 
             RFIDVerify(RFIDVerifyRequest Request);
 

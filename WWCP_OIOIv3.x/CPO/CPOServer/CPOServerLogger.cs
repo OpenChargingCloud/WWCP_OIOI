@@ -122,7 +122,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
                                Func<String, String, String>  LogFileCreator             = null)
 
-            : base(CPOServer.SOAPServer,
+            : base(CPOServer.HTTPServer,
                    Context.IsNotNullOrEmpty() ? Context : DefaultContext,
 
                    LogHTTPRequest_toConsole,
@@ -155,62 +155,33 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #region Register remote start/stop log events
 
-            RegisterEvent("RemoteReservationStart",
-                          handler => CPOServer.OnLogRemoteReservationStart   += handler,
-                          handler => CPOServer.OnLogRemoteReservationStart   -= handler,
-                          "Reservation", "All").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
+            //RegisterEvent("RemoteStart",
+            //              handler => CPOServer.OnLogRemoteStart   += handler,
+            //              handler => CPOServer.OnLogRemoteStart   -= handler,
+            //              "Remote", "All").
+            //    RegisterDefaultConsoleLogTarget(this).
+            //    RegisterDefaultDiscLogTarget(this);
 
-            RegisterEvent("RemoteReservationStarted",
-                          handler => CPOServer.OnLogRemoteReservationStarted += handler,
-                          handler => CPOServer.OnLogRemoteReservationStarted -= handler,
-                          "Reservation", "All").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
+            //RegisterEvent("RemoteStarted",
+            //              handler => CPOServer.OnLogRemoteStarted += handler,
+            //              handler => CPOServer.OnLogRemoteStarted -= handler,
+            //              "Remote", "All").
+            //    RegisterDefaultConsoleLogTarget(this).
+            //    RegisterDefaultDiscLogTarget(this);
 
-            RegisterEvent("RemoteReservationStop",
-                          handler => CPOServer.OnLogRemoteReservationStop    += handler,
-                          handler => CPOServer.OnLogRemoteReservationStop    -= handler,
-                          "Reservation", "All").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
+            //RegisterEvent("RemoteStop",
+            //              handler => CPOServer.OnLogRemoteStop    += handler,
+            //              handler => CPOServer.OnLogRemoteStop    -= handler,
+            //              "Remote", "All").
+            //    RegisterDefaultConsoleLogTarget(this).
+            //    RegisterDefaultDiscLogTarget(this);
 
-            RegisterEvent("RemoteReservationStopped",
-                          handler => CPOServer.OnLogRemoteReservationStopped += handler,
-                          handler => CPOServer.OnLogRemoteReservationStopped -= handler,
-                          "Reservation", "All").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
-
-
-            RegisterEvent("RemoteStart",
-                          handler => CPOServer.OnLogRemoteStart   += handler,
-                          handler => CPOServer.OnLogRemoteStart   -= handler,
-                          "Remote", "All").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
-
-            RegisterEvent("RemoteStarted",
-                          handler => CPOServer.OnLogRemoteStarted += handler,
-                          handler => CPOServer.OnLogRemoteStarted -= handler,
-                          "Remote", "All").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
-
-            RegisterEvent("RemoteStop",
-                          handler => CPOServer.OnLogRemoteStop    += handler,
-                          handler => CPOServer.OnLogRemoteStop    -= handler,
-                          "Remote", "All").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
-
-            RegisterEvent("RemoteStopped",
-                          handler => CPOServer.OnLogRemoteStopped += handler,
-                          handler => CPOServer.OnLogRemoteStopped -= handler,
-                          "Remote", "All").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
+            //RegisterEvent("RemoteStopped",
+            //              handler => CPOServer.OnLogRemoteStopped += handler,
+            //              handler => CPOServer.OnLogRemoteStopped -= handler,
+            //              "Remote", "All").
+            //    RegisterDefaultConsoleLogTarget(this).
+            //    RegisterDefaultDiscLogTarget(this);
 
             #endregion
 

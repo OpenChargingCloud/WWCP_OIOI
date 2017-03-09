@@ -349,7 +349,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         public override String ToString()
 
             => String.Concat("Session Post '",
-                             Session.SessionId +
+                             Session.Id +
                              "'");
 
         #endregion

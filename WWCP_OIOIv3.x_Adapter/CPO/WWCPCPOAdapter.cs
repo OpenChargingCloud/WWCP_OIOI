@@ -47,9 +47,18 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                                   IComparable
     {
 
+        private Object ServerAction = null;
+
+        /// <summary>
+        /// An optional default charging station operator identification.
+        /// </summary>
+        //public Operator_Id DefaultOperatorId { get; }
+
+
+
         #region Data
 
-        private        readonly  IRemotePushData                                        _IRemotePushData;
+        private readonly  IRemotePushData                                        _IRemotePushData;
 
         private        readonly  IRemotePushStatus                                      _IRemotePushStatus;
 
@@ -240,17 +249,6 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         public Boolean  DisableSendChargeDetailRecords   { get; set; }
 
         #endregion
-
-
-        /// <summary>
-        /// An optional default charging station operator identification.
-        /// </summary>
-        public Operator_Id  DefaultOperatorId     { get; }
-
-        /// <summary>
-        /// An optional default charging station operator name.
-        /// </summary>
-        public String       DefaultOperatorName   { get; }
 
         #endregion
 
@@ -443,12 +441,12 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                               RoamingNetwork                                         RoamingNetwork,
 
                               CPORoaming                                             CPORoaming,
-                              ChargingStation2StationDelegate                            EVSE2EVSEDataRecord                             = null,
-                              EVSEStatusUpdate2ConnectorStatusUpdateDelegate              EVSEStatusUpdate2EVSEStatusRecord               = null,
-                              ChargeDetailRecord2SessionDelegate  WWCPChargeDetailRecord2OIOIChargeDetailRecord   = null,
-                              Station2JSONDelegate                             EVSEDataRecord2XML                              = null,
+                              ChargingStation2StationDelegate                        EVSE2EVSEDataRecord                             = null,
+                              EVSEStatusUpdate2ConnectorStatusUpdateDelegate         EVSEStatusUpdate2EVSEStatusRecord               = null,
+                              ChargeDetailRecord2SessionDelegate                     WWCPChargeDetailRecord2OIOIChargeDetailRecord   = null,
+                              Station2JSONDelegate                                   EVSEDataRecord2XML                              = null,
                               ConnectorStatus2JSONDelegate                           EVSEStatusRecord2XML                            = null,
-                              ChargeDetailRecord2JSONDelegate                         ChargeDetailRecord2XML                          = null,
+                              ChargeDetailRecord2JSONDelegate                        ChargeDetailRecord2XML                          = null,
 
                               IncludeEVSEDelegate                                    IncludeEVSEs                                    = null,
                               TimeSpan?                                              ServiceCheckEvery                               = null,
@@ -519,221 +517,221 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #region OnRemoteStart
 
-            this.CPORoaming.OnRemoteStart += async (Timestamp,
-                                                    Sender,
-                                                    CancellationToken,
-                                                    EventTrackingId,
-                                                    EVSEId,
-                                                    PartnerProductId,
-                                                    SessionId,
-                                                    PartnerSessionId,
-                                                    ProviderId,
-                                                    EVCOId,
-                                                    RequestTimeout) => {
+            //this.CPORoaming.OnRemoteStart += async (Timestamp,
+            //                                        Sender,
+            //                                        CancellationToken,
+            //                                        EventTrackingId,
+            //                                        EVSEId,
+            //                                        PartnerProductId,
+            //                                        SessionId,
+            //                                        PartnerSessionId,
+            //                                        ProviderId,
+            //                                        EVCOId,
+            //                                        RequestTimeout) => {
 
-                #region Request mapping
+            //    #region Request mapping
 
-                ChargingReservation_Id? ReservationId    = null;
-                TimeSpan?               MinDuration      = null;
-                Single?                 PlannedEnergy    = null;
-                ChargingProduct_Id?     ProductId        = ChargingProduct_Id.Parse("AC1");
-                ChargingProduct         ChargingProduct  = null;
+            //    //ChargingReservation_Id? ReservationId    = null;
+            //    //TimeSpan?               MinDuration      = null;
+            //    //Single?                 PlannedEnergy    = null;
+            //    //ChargingProduct_Id?     ProductId        = ChargingProduct_Id.Parse("AC1");
+            //    //ChargingProduct         ChargingProduct  = null;
 
-                if (PartnerProductId != null && PartnerProductId.ToString().IsNotNullOrEmpty())
-                {
+            //    //if (PartnerProductId != null && PartnerProductId.ToString().IsNotNullOrEmpty())
+            //    //{
 
-                    // The PartnerProductId is a simple string...
-                    if (!PartnerProductId.Value.ToString().Contains("="))
-                    {
-                        ChargingProduct = new ChargingProduct(
-                                              ChargingProduct_Id.Parse(PartnerProductId.Value.ToString())
-                                          );
-                    }
+            //    //    // The PartnerProductId is a simple string...
+            //    //    if (!PartnerProductId.Value.ToString().Contains("="))
+            //    //    {
+            //    //        ChargingProduct = new ChargingProduct(
+            //    //                              ChargingProduct_Id.Parse(PartnerProductId.Value.ToString())
+            //    //                          );
+            //    //    }
 
-                    else
-                    {
+            //    //    else
+            //    //    {
 
-                        var ProductIdElements = PartnerProductId.ToString().DoubleSplit('|', '=');
+            //    //        var ProductIdElements = PartnerProductId.ToString().DoubleSplit('|', '=');
 
-                        if (ProductIdElements.Any())
-                        {
+            //    //        if (ProductIdElements.Any())
+            //    //        {
 
-                            ChargingReservation_Id _ReservationId;
+            //    //            ChargingReservation_Id _ReservationId;
 
-                            if (ProductIdElements.ContainsKey("R") &&
-                                ChargingReservation_Id.TryParse(EVSEId.OperatorId.ToWWCP(), ProductIdElements["R"], out _ReservationId))
-                                ReservationId = _ReservationId;
-
-
-                            if (ProductIdElements.ContainsKey("D"))
-                            {
-
-                                var MinDurationText = ProductIdElements["D"];
-
-                                if (MinDurationText.EndsWith("sec", StringComparison.InvariantCulture))
-                                    MinDuration = TimeSpan.FromSeconds(UInt32.Parse(MinDurationText.Substring(0, MinDurationText.Length - 3)));
-
-                                if (MinDurationText.EndsWith("min", StringComparison.InvariantCulture))
-                                    MinDuration = TimeSpan.FromMinutes(UInt32.Parse(MinDurationText.Substring(0, MinDurationText.Length - 3)));
-
-                            }
+            //    //            if (ProductIdElements.ContainsKey("R") &&
+            //    //                ChargingReservation_Id.TryParse(EVSEId.OperatorId.ToWWCP(), ProductIdElements["R"], out _ReservationId))
+            //    //                ReservationId = _ReservationId;
 
 
-                            Single _PlannedEnergy = 0;
+            //    //            if (ProductIdElements.ContainsKey("D"))
+            //    //            {
 
-                            if (ProductIdElements.ContainsKey("E") &&
-                                Single.TryParse(ProductIdElements["E"], out _PlannedEnergy))
-                                PlannedEnergy = _PlannedEnergy;
+            //    //                var MinDurationText = ProductIdElements["D"];
+
+            //    //                if (MinDurationText.EndsWith("sec", StringComparison.InvariantCulture))
+            //    //                    MinDuration = TimeSpan.FromSeconds(UInt32.Parse(MinDurationText.Substring(0, MinDurationText.Length - 3)));
+
+            //    //                if (MinDurationText.EndsWith("min", StringComparison.InvariantCulture))
+            //    //                    MinDuration = TimeSpan.FromMinutes(UInt32.Parse(MinDurationText.Substring(0, MinDurationText.Length - 3)));
+
+            //    //            }
 
 
-                            ChargingProduct_Id _ProductId;
+            //    //            Single _PlannedEnergy = 0;
 
-                            if (ProductIdElements.ContainsKey("P") &&
-                                ChargingProduct_Id.TryParse(ProductIdElements["P"], out _ProductId))
-                                ProductId = _ProductId;
+            //    //            if (ProductIdElements.ContainsKey("E") &&
+            //    //                Single.TryParse(ProductIdElements["E"], out _PlannedEnergy))
+            //    //                PlannedEnergy = _PlannedEnergy;
 
 
-                            ChargingProduct = new ChargingProduct(
-                                                      ProductId.Value,
-                                                      MinDuration
-                                                  );
+            //    //            ChargingProduct_Id _ProductId;
 
-                        }
+            //    //            if (ProductIdElements.ContainsKey("P") &&
+            //    //                ChargingProduct_Id.TryParse(ProductIdElements["P"], out _ProductId))
+            //    //                ProductId = _ProductId;
 
-                    }
 
-                }
+            //    //            ChargingProduct = new ChargingProduct(
+            //    //                                      ProductId.Value,
+            //    //                                      MinDuration
+            //    //                                  );
 
-                #endregion
+            //    //        }
 
-                var response = await RoamingNetwork.
-                                         RemoteStart(EVSEId.    ToWWCP(),
-                                                     ChargingProduct,
-                                                     ReservationId,
-                                                     SessionId. ToWWCP(),
-                                                     ProviderId.ToWWCP(),
-                                                     EVCOId.    ToWWCP(),
+            //    //    }
 
-                                                     Timestamp,
-                                                     CancellationToken,
-                                                     EventTrackingId,
-                                                     RequestTimeout).ConfigureAwait(false);
+            //    //}
 
-                #region Response mapping
+            //    #endregion
 
-                if (response != null)
-                {
-                    switch (response.Result)
-                    {
+            //    var response = await RoamingNetwork.
+            //                             RemoteStart(EVSEId.    ToWWCP(),
+            //                                         ChargingProduct,
+            //                                         ReservationId,
+            //                                         SessionId. ToWWCP(),
+            //                                         ProviderId.ToWWCP(),
+            //                                         EVCOId.    ToWWCP(),
 
-                        case RemoteStartEVSEResultType.Success:
-                            return Acknowledgement.Success(
-                                       response.Session.Id.ToOIOI(),
-                                       StatusCodeDescription: "Ready to charge!"
-                                   );
+            //                                         Timestamp,
+            //                                         CancellationToken,
+            //                                         EventTrackingId,
+            //                                         RequestTimeout).ConfigureAwait(false);
 
-                        case RemoteStartEVSEResultType.InvalidSessionId:
-                            return Acknowledgement.SessionIsInvalid(
-                                       SessionId: SessionId
-                                   );
+            //    #region Response mapping
 
-                        case RemoteStartEVSEResultType.InvalidCredentials:
-                            return Acknowledgement.NoValidContract();
+            //    if (response != null)
+            //    {
+            //        switch (response.Result)
+            //        {
 
-                        case RemoteStartEVSEResultType.Offline:
-                            return Acknowledgement.CommunicationToEVSEFailed();
+            //            case RemoteStartEVSEResultType.Success:
+            //                return Acknowledgement.Success(
+            //                           response.Session.Id.ToOIOI(),
+            //                           StatusCodeDescription: "Ready to charge!"
+            //                       );
 
-                        case RemoteStartEVSEResultType.Timeout:
-                        case RemoteStartEVSEResultType.CommunicationError:
-                            return Acknowledgement.CommunicationToEVSEFailed();
+            //            case RemoteStartEVSEResultType.InvalidSessionId:
+            //                return Acknowledgement.SessionIsInvalid(
+            //                           SessionId: SessionId
+            //                       );
 
-                        case RemoteStartEVSEResultType.Reserved:
-                            return Acknowledgement.EVSEAlreadyReserved();
+            //            case RemoteStartEVSEResultType.InvalidCredentials:
+            //                return Acknowledgement.NoValidContract();
 
-                        case RemoteStartEVSEResultType.AlreadyInUse:
-                            return Acknowledgement.EVSEAlreadyInUse_WrongToken();
+            //            case RemoteStartEVSEResultType.Offline:
+            //                return Acknowledgement.CommunicationToEVSEFailed();
 
-                        case RemoteStartEVSEResultType.UnknownEVSE:
-                            return Acknowledgement.UnknownEVSEID();
+            //            case RemoteStartEVSEResultType.Timeout:
+            //            case RemoteStartEVSEResultType.CommunicationError:
+            //                return Acknowledgement.CommunicationToEVSEFailed();
 
-                        case RemoteStartEVSEResultType.OutOfService:
-                            return Acknowledgement.EVSEOutOfService();
+            //            case RemoteStartEVSEResultType.Reserved:
+            //                return Acknowledgement.EVSEAlreadyReserved();
 
-                    }
-                }
+            //            case RemoteStartEVSEResultType.AlreadyInUse:
+            //                return Acknowledgement.EVSEAlreadyInUse_WrongToken();
 
-                return Acknowledgement.ServiceNotAvailable(
-                           SessionId: SessionId
-                       );
+            //            case RemoteStartEVSEResultType.UnknownEVSE:
+            //                return Acknowledgement.UnknownEVSEID();
 
-                #endregion
+            //            case RemoteStartEVSEResultType.OutOfService:
+            //                return Acknowledgement.EVSEOutOfService();
 
-            };
+            //        }
+            //    }
+
+            //    return Acknowledgement.ServiceNotAvailable(
+            //               SessionId: SessionId
+            //           );
+
+            //    #endregion
+
+            //};
 
             #endregion
 
             #region OnRemoteStop
 
-            this.CPORoaming.OnRemoteStop += async (Timestamp,
-                                                   Sender,
-                                                   CancellationToken,
-                                                   EventTrackingId,
-                                                   EVSEId,
-                                                   SessionId,
-                                                   PartnerSessionId,
-                                                   ProviderId,
-                                                   RequestTimeout) => {
+            //this.CPORoaming.OnRemoteStop += async (Timestamp,
+            //                                       Sender,
+            //                                       CancellationToken,
+            //                                       EventTrackingId,
+            //                                       EVSEId,
+            //                                       SessionId,
+            //                                       PartnerSessionId,
+            //                                       ProviderId,
+            //                                       RequestTimeout) => {
 
-                var response = await RoamingNetwork.RemoteStop(EVSEId.ToWWCP(),
-                                                               SessionId. ToWWCP(),
-                                                               ReservationHandling.Close,
-                                                               ProviderId.ToWWCP(),
-                                                               null,
+            //    var response = await RoamingNetwork.RemoteStop(EVSEId.ToWWCP(),
+            //                                                   SessionId. ToWWCP(),
+            //                                                   ReservationHandling.Close,
+            //                                                   ProviderId.ToWWCP(),
+            //                                                   null,
 
-                                                               Timestamp,
-                                                               CancellationToken,
-                                                               EventTrackingId,
-                                                               RequestTimeout).ConfigureAwait(false);
+            //                                                   Timestamp,
+            //                                                   CancellationToken,
+            //                                                   EventTrackingId,
+            //                                                   RequestTimeout).ConfigureAwait(false);
 
-                #region Response mapping
+            //    #region Response mapping
 
-                if (response != null)
-                {
-                    switch (response.Result)
-                    {
+            //    if (response != null)
+            //    {
+            //        switch (response.Result)
+            //        {
 
-                        case RemoteStopEVSEResultType.Success:
-                            return Acknowledgement.Success(
-                                       response.SessionId.ToOIOI(),
-                                       StatusCodeDescription: "Ready to stop charging!"
-                                   );
+            //            case RemoteStopEVSEResultType.Success:
+            //                return Acknowledgement.Success(
+            //                           response.SessionId.ToOIOI(),
+            //                           StatusCodeDescription: "Ready to stop charging!"
+            //                       );
 
-                        case RemoteStopEVSEResultType.InvalidSessionId:
-                            return Acknowledgement.SessionIsInvalid(
-                                       SessionId: SessionId
-                                   );
+            //            case RemoteStopEVSEResultType.InvalidSessionId:
+            //                return Acknowledgement.SessionIsInvalid(
+            //                           SessionId: SessionId
+            //                       );
 
-                        case RemoteStopEVSEResultType.Offline:
-                        case RemoteStopEVSEResultType.Timeout:
-                        case RemoteStopEVSEResultType.CommunicationError:
-                            return Acknowledgement.CommunicationToEVSEFailed();
+            //            case RemoteStopEVSEResultType.Offline:
+            //            case RemoteStopEVSEResultType.Timeout:
+            //            case RemoteStopEVSEResultType.CommunicationError:
+            //                return Acknowledgement.CommunicationToEVSEFailed();
 
-                        case RemoteStopEVSEResultType.UnknownEVSE:
-                            return Acknowledgement.UnknownEVSEID();
+            //            case RemoteStopEVSEResultType.UnknownEVSE:
+            //                return Acknowledgement.UnknownEVSEID();
 
-                        case RemoteStopEVSEResultType.OutOfService:
-                            return Acknowledgement.EVSEOutOfService();
+            //            case RemoteStopEVSEResultType.OutOfService:
+            //                return Acknowledgement.EVSEOutOfService();
 
-                    }
-                }
+            //        }
+            //    }
 
-                return Acknowledgement.ServiceNotAvailable(
-                           SessionId: SessionId
-                       );
+            //    return Acknowledgement.ServiceNotAvailable(
+            //               SessionId: SessionId
+            //           );
 
-                #endregion
+            //    #endregion
 
-            };
+            //};
 
             #endregion
 
@@ -775,12 +773,12 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                               String                                                 ServerLoggingContext                            = CPOServerLogger.DefaultContext,
                               Func<String, String, String>                           LogFileCreator                                  = null,
 
-                              ChargingStation2StationDelegate                            EVSE2EVSEDataRecord                             = null,
-                              EVSEStatusUpdate2ConnectorStatusUpdateDelegate              EVSEStatusUpdate2EVSEStatusRecord               = null,
-                              ChargeDetailRecord2SessionDelegate  WWCPChargeDetailRecord2OIOIChargeDetailRecord   = null,
-                              Station2JSONDelegate                             EVSEDataRecord2XML                              = null,
+                              ChargingStation2StationDelegate                        EVSE2EVSEDataRecord                             = null,
+                              EVSEStatusUpdate2ConnectorStatusUpdateDelegate         EVSEStatusUpdate2EVSEStatusRecord               = null,
+                              ChargeDetailRecord2SessionDelegate                     WWCPChargeDetailRecord2OIOIChargeDetailRecord   = null,
+                              Station2JSONDelegate                                   EVSEDataRecord2XML                              = null,
                               ConnectorStatus2JSONDelegate                           EVSEStatusRecord2XML                            = null,
-                              ChargeDetailRecord2JSONDelegate                         ChargeDetailRecord2XML                          = null,
+                              ChargeDetailRecord2JSONDelegate                        ChargeDetailRecord2XML                          = null,
 
                               IncludeEVSEDelegate                                    IncludeEVSEs                                    = null,
                               TimeSpan?                                              ServiceCheckEvery                               = null,
@@ -866,16 +864,20 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                               RoamingNetwork                                         RoamingNetwork,
 
                               String                                                 RemoteHostname,
+                              String                                                 APIKey,
                               IPPort                                                 RemoteTCPPort                                   = null,
                               RemoteCertificateValidationCallback                    RemoteCertificateValidator                      = null,
                               X509Certificate                                        ClientCert                                      = null,
                               String                                                 RemoteHTTPVirtualHost                           = null,
                               String                                                 URIPrefix                                       = CPOClient.DefaultURIPrefix,
+                              Partner_Id?                                            DefaultPartnerId                                = null,
                               String                                                 HTTPUserAgent                                   = CPOClient.DefaultHTTPUserAgent,
                               TimeSpan?                                              RequestTimeout                                  = null,
 
                               String                                                 ServerName                                      = CPOServer.DefaultHTTPServerName,
+                              HTTPHostname                                           HTTPHostname                                    = null,
                               IPPort                                                 ServerTCPPort                                   = null,
+                              X509Certificate2                                       X509Certificate                                 = null,
                               String                                                 ServerURIPrefix                                 = CPOServer.DefaultURIPrefix,
                               HTTPContentType                                        ServerContentType                               = null,
                               Boolean                                                ServerRegisterHTTPRootService                   = true,
@@ -885,12 +887,12 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                               String                                                 ServerLoggingContext                            = CPOServerLogger.DefaultContext,
                               Func<String, String, String>                           LogFileCreator                                  = null,
 
-                              ChargingStation2StationDelegate                            EVSE2EVSEDataRecord                             = null,
-                              EVSEStatusUpdate2ConnectorStatusUpdateDelegate              EVSEStatusUpdate2EVSEStatusRecord               = null,
-                              ChargeDetailRecord2SessionDelegate  WWCPChargeDetailRecord2OIOIChargeDetailRecord   = null,
-                              Station2JSONDelegate                             EVSEDataRecord2XML                              = null,
+                              ChargingStation2StationDelegate                        EVSE2EVSEDataRecord                             = null,
+                              EVSEStatusUpdate2ConnectorStatusUpdateDelegate         EVSEStatusUpdate2EVSEStatusRecord               = null,
+                              ChargeDetailRecord2SessionDelegate                     WWCPChargeDetailRecord2OIOIChargeDetailRecord   = null,
+                              Station2JSONDelegate                                   EVSEDataRecord2XML                              = null,
                               ConnectorStatus2JSONDelegate                           EVSEStatusRecord2XML                            = null,
-                              ChargeDetailRecord2JSONDelegate                         ChargeDetailRecord2XML                          = null,
+                              ChargeDetailRecord2JSONDelegate                        ChargeDetailRecord2XML                          = null,
 
                               IncludeEVSEDelegate                                    IncludeEVSEs                                    = null,
                               TimeSpan?                                              ServiceCheckEvery                               = null,
@@ -909,16 +911,20 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
                    new CPORoaming(Id.ToString(),
                                   RemoteHostname,
+                                  APIKey,
                                   RemoteTCPPort,
                                   RemoteCertificateValidator,
                                   ClientCert,
                                   RemoteHTTPVirtualHost,
                                   URIPrefix,
+                                  DefaultPartnerId,
                                   HTTPUserAgent,
                                   RequestTimeout,
 
                                   ServerName,
+                                  HTTPHostname,
                                   ServerTCPPort,
+                                  X509Certificate,
                                   ServerURIPrefix,
                                   ServerContentType,
                                   ServerRegisterHTTPRootService,
@@ -1140,158 +1146,160 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         {
 
-            #region Initial checks
+            return null;
 
-            if (EVSEs == null)
-                throw new ArgumentNullException(nameof(EVSEs), "The given enumeration of EVSEs must not be null!");
+            //#region Initial checks
 
-
-            if (!Timestamp.HasValue)
-                Timestamp = DateTime.Now;
-
-            if (!CancellationToken.HasValue)
-                CancellationToken = new CancellationTokenSource().Token;
-
-            if (EventTrackingId == null)
-                EventTrackingId = EventTracking_Id.New;
-
-            if (!RequestTimeout.HasValue)
-                RequestTimeout = CPOClient?.RequestTimeout;
-
-            #endregion
-
-            #region Get effective number of EVSE status to upload
-
-            var Warnings = new List<String>();
-
-            var _EVSEs = EVSEs.Where (evse => evse != null && _IncludeEVSEs(evse)).
-                               Select(evse => {
-
-                                   try
-                                   {
-
-                                       return evse.ToOIOI(_EVSE2Station);
-
-                                   }
-                                   catch (Exception e)
-                                   {
-                                       DebugX.  Log(e.Message);
-                                       Warnings.Add(e.Message);
-                                   }
-
-                                   return null;
-
-                               }).
-                               Where(evsedatarecord => evsedatarecord != null).
-                               ToArray();
-
-            WWCP.Acknowledgement result;
-
-            #endregion
-
-            #region Send OnPushEVSEDataWWCPRequest event
-
-            var StartTime = DateTime.Now;
-
-            try
-            {
-
-                OnPushEVSEDataWWCPRequest?.Invoke(StartTime,
-                                                  Timestamp.Value,
-                                                  this,
-                                                  Id,
-                                                  EventTrackingId,
-                                                  RoamingNetwork.Id,
-                                                  //ServerAction,
-                                                  _EVSEs.ULongCount(),
-                                                  _EVSEs,
-                                                  Warnings.Where(warning => warning.IsNotNullOrEmpty()),
-                                                  RequestTimeout);
-
-            }
-            catch (Exception e)
-            {
-                e.Log(nameof(WWCPCPOAdapter) + "." + nameof(OnPushEVSEDataWWCPRequest));
-            }
-
-            #endregion
+            //if (EVSEs == null)
+            //    throw new ArgumentNullException(nameof(EVSEs), "The given enumeration of EVSEs must not be null!");
 
 
-            var response = await CPORoaming.
-                                     StationPost(_EVSEs,
-                                                 DefaultOperatorId,
-                                                 DefaultOperatorName.IsNotNullOrEmpty() ? DefaultOperatorName : null,
-                                                 //ServerAction,
-                                                 null,
+            //if (!Timestamp.HasValue)
+            //    Timestamp = DateTime.Now;
 
-                                                 Timestamp,
-                                                 CancellationToken,
-                                                 EventTrackingId,
-                                                 RequestTimeout).
-                                     ConfigureAwait(false);
+            //if (!CancellationToken.HasValue)
+            //    CancellationToken = new CancellationTokenSource().Token;
+
+            //if (EventTrackingId == null)
+            //    EventTrackingId = EventTracking_Id.New;
+
+            //if (!RequestTimeout.HasValue)
+            //    RequestTimeout = CPOClient?.RequestTimeout;
+
+            //#endregion
+
+            //#region Get effective number of EVSE status to upload
+
+            //var Warnings = new List<String>();
+
+            //var _EVSEs = EVSEs.Where (evse => evse != null && _IncludeEVSEs(evse)).
+            //                   Select(evse => {
+
+            //                       try
+            //                       {
+
+            //                           return evse.ToOIOI(_EVSE2Station);
+
+            //                       }
+            //                       catch (Exception e)
+            //                       {
+            //                           DebugX.  Log(e.Message);
+            //                           Warnings.Add(e.Message);
+            //                       }
+
+            //                       return null;
+
+            //                   }).
+            //                   Where(evsedatarecord => evsedatarecord != null).
+            //                   ToArray();
+
+            //WWCP.Acknowledgement result;
+
+            //#endregion
+
+            //#region Send OnPushEVSEDataWWCPRequest event
+
+            //var StartTime = DateTime.Now;
+
+            //try
+            //{
+
+            //    OnPushEVSEDataWWCPRequest?.Invoke(StartTime,
+            //                                      Timestamp.Value,
+            //                                      this,
+            //                                      Id,
+            //                                      EventTrackingId,
+            //                                      RoamingNetwork.Id,
+            //                                      //ServerAction,
+            //                                      _EVSEs.ULongCount(),
+            //                                      _EVSEs,
+            //                                      Warnings.Where(warning => warning.IsNotNullOrEmpty()),
+            //                                      RequestTimeout);
+
+            //}
+            //catch (Exception e)
+            //{
+            //    e.Log(nameof(WWCPCPOAdapter) + "." + nameof(OnPushEVSEDataWWCPRequest));
+            //}
+
+            //#endregion
 
 
-            var Endtime = DateTime.Now;
-            var Runtime = Endtime - StartTime;
+            //var response = await CPORoaming.
+            //                         StationPost(_EVSEs,
+            //                                     DefaultOperatorId,
+            //                                     DefaultOperatorName.IsNotNullOrEmpty() ? DefaultOperatorName : null,
+            //                                     //ServerAction,
+            //                                     null,
 
-            if (response.HTTPStatusCode == HTTPStatusCode.OK &&
-                response.Content        != null)
-            {
-
-                if (response.Content.Result)
-                    result = new WWCP.Acknowledgement(ResultType.True,
-                                                      response.Content.StatusCode.Description,
-                                                      response.Content.StatusCode.AdditionalInfo.IsNotNullOrEmpty()
-                                                          ? Warnings.AddAndReturnList(response.Content.StatusCode.AdditionalInfo)
-                                                          : Warnings,
-                                                      Runtime);
-
-                else
-                    result = new WWCP.Acknowledgement(ResultType.False,
-                                                      response.Content.StatusCode.Description,
-                                                      response.Content.StatusCode.AdditionalInfo.IsNotNullOrEmpty()
-                                                          ? Warnings.AddAndReturnList(response.Content.StatusCode.AdditionalInfo)
-                                                          : Warnings,
-                                                      Runtime);
-
-            }
-            else
-                result = new WWCP.Acknowledgement(ResultType.False,
-                                                  response.HTTPStatusCode.ToString(),
-                                                  response.HTTPBody != null
-                                                      ? Warnings.AddAndReturnList(response.HTTPBody.ToUTF8String())
-                                                      : Warnings.AddAndReturnList("No HTTP body received!"),
-                                                  Runtime);
+            //                                     Timestamp,
+            //                                     CancellationToken,
+            //                                     EventTrackingId,
+            //                                     RequestTimeout).
+            //                         ConfigureAwait(false);
 
 
-            #region Send OnPushEVSEDataResponse event
+            //var Endtime = DateTime.Now;
+            //var Runtime = Endtime - StartTime;
 
-            try
-            {
+            //if (response.HTTPStatusCode == HTTPStatusCode.OK &&
+            //    response.Content        != null)
+            //{
 
-                OnPushEVSEDataWWCPResponse?.Invoke(Endtime,
-                                                   Timestamp.Value,
-                                                   this,
-                                                   Id,
-                                                   EventTrackingId,
-                                                   RoamingNetwork.Id,
-                                                   //ServerAction,
-                                                   _EVSEs.ULongCount(),
-                                                   _EVSEs,
-                                                   Warnings.Where(warning => warning.IsNotNullOrEmpty()),
-                                                   RequestTimeout,
-                                                   result,
-                                                   Runtime);
+            //    if (response.Content.Result)
+            //        result = new WWCP.Acknowledgement(ResultType.True,
+            //                                          response.Content.StatusCode.Description,
+            //                                          response.Content.StatusCode.AdditionalInfo.IsNotNullOrEmpty()
+            //                                              ? Warnings.AddAndReturnList(response.Content.StatusCode.AdditionalInfo)
+            //                                              : Warnings,
+            //                                          Runtime);
 
-            }
-            catch (Exception e)
-            {
-                e.Log(nameof(WWCPCPOAdapter) + "." + nameof(OnPushEVSEDataWWCPResponse));
-            }
+            //    else
+            //        result = new WWCP.Acknowledgement(ResultType.False,
+            //                                          response.Content.StatusCode.Description,
+            //                                          response.Content.StatusCode.AdditionalInfo.IsNotNullOrEmpty()
+            //                                              ? Warnings.AddAndReturnList(response.Content.StatusCode.AdditionalInfo)
+            //                                              : Warnings,
+            //                                          Runtime);
 
-            #endregion
+            //}
+            //else
+            //    result = new WWCP.Acknowledgement(ResultType.False,
+            //                                      response.HTTPStatusCode.ToString(),
+            //                                      response.HTTPBody != null
+            //                                          ? Warnings.AddAndReturnList(response.HTTPBody.ToUTF8String())
+            //                                          : Warnings.AddAndReturnList("No HTTP body received!"),
+            //                                      Runtime);
 
-            return result;
+
+            //#region Send OnPushEVSEDataResponse event
+
+            //try
+            //{
+
+            //    OnPushEVSEDataWWCPResponse?.Invoke(Endtime,
+            //                                       Timestamp.Value,
+            //                                       this,
+            //                                       Id,
+            //                                       EventTrackingId,
+            //                                       RoamingNetwork.Id,
+            //                                       //ServerAction,
+            //                                       _EVSEs.ULongCount(),
+            //                                       _EVSEs,
+            //                                       Warnings.Where(warning => warning.IsNotNullOrEmpty()),
+            //                                       RequestTimeout,
+            //                                       result,
+            //                                       Runtime);
+
+            //}
+            //catch (Exception e)
+            //{
+            //    e.Log(nameof(WWCPCPOAdapter) + "." + nameof(OnPushEVSEDataWWCPResponse));
+            //}
+
+            //#endregion
+
+            //return result;
 
         }
 
@@ -1320,167 +1328,169 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         {
 
-            #region Initial checks
+            return null;
 
-            if (EVSEStatusUpdates == null)
-                throw new ArgumentNullException(nameof(EVSEStatusUpdates), "The given enumeration of EVSE status updates must not be null!");
+            //#region Initial checks
 
-
-            if (!Timestamp.HasValue)
-                Timestamp = DateTime.Now;
-
-            if (!CancellationToken.HasValue)
-                CancellationToken = new CancellationTokenSource().Token;
-
-            if (EventTrackingId == null)
-                EventTrackingId = EventTracking_Id.New;
-
-            if (!RequestTimeout.HasValue)
-                RequestTimeout = CPOClient?.RequestTimeout;
-
-            #endregion
-
-            #region Get effective number of EVSE status to upload
-
-            var Warnings = new List<String>();
-
-            var _EVSEStatus = EVSEStatusUpdates.
-                                  Where       (evsestatusupdate => _IncludeEVSEs(RoamingNetwork.GetEVSEbyId(evsestatusupdate.Id))).
-                                  ToLookup    (evsestatusupdate => evsestatusupdate.Id,
-                                               evsestatusupdate => evsestatusupdate).
-                                  ToDictionary(group            => group.Key,
-                                               group            => group.AsEnumerable().OrderByDescending(item => item.NewStatus.Timestamp)).
-                                  Select      (evsestatusupdate => {
-
-                                      try
-                                      {
-
-                                          // Only push the current status of the latest status update!
-                                          return new EVSEStatusRecord(
-                                                     evsestatusupdate.Key.ToOIOI(),
-                                                     evsestatusupdate.Value.First().NewStatus.Value.AsOIOIEVSEStatus()
-                                                 );
-
-                                      }
-                                      catch (Exception e)
-                                      {
-                                          DebugX.  Log(e.Message);
-                                          Warnings.Add(e.Message);
-                                      }
-
-                                      return null;
-
-                                  }).
-                                  Where(evsestatusrecord => evsestatusrecord != null).
-                                  ToArray();
-
-            WWCP.Acknowledgement result = null;
-
-            #endregion
-
-            #region Send OnEVSEStatusPush event
-
-            var StartTime = DateTime.Now;
-
-            try
-            {
-
-                OnPushEVSEStatusWWCPRequest?.Invoke(StartTime,
-                                                    Timestamp.Value,
-                                                    this,
-                                                    Id,
-                                                    EventTrackingId,
-                                                    RoamingNetwork.Id,
-                                                    ServerAction,
-                                                    _EVSEStatus.ULongCount(),
-                                                    _EVSEStatus,
-                                                    Warnings.Where(warning => warning.IsNotNullOrEmpty()),
-                                                    RequestTimeout);
-
-            }
-            catch (Exception e)
-            {
-                e.Log(nameof(WWCPCPOAdapter) + "." + nameof(OnPushEVSEStatusWWCPRequest));
-            }
-
-            #endregion
+            //if (EVSEStatusUpdates == null)
+            //    throw new ArgumentNullException(nameof(EVSEStatusUpdates), "The given enumeration of EVSE status updates must not be null!");
 
 
-            var response = await CPORoaming.
-                                     PushEVSEStatus(_EVSEStatus,
-                                                    DefaultOperatorId,
-                                                    DefaultOperatorName.IsNotNullOrEmpty() ? DefaultOperatorName : null,
-                                                    ServerAction,
-                                                    null,
+            //if (!Timestamp.HasValue)
+            //    Timestamp = DateTime.Now;
 
-                                                    Timestamp,
-                                                    CancellationToken,
-                                                    EventTrackingId,
-                                                    RequestTimeout).
-                                     ConfigureAwait(false);
+            //if (!CancellationToken.HasValue)
+            //    CancellationToken = new CancellationTokenSource().Token;
+
+            //if (EventTrackingId == null)
+            //    EventTrackingId = EventTracking_Id.New;
+
+            //if (!RequestTimeout.HasValue)
+            //    RequestTimeout = CPOClient?.RequestTimeout;
+
+            //#endregion
+
+            //#region Get effective number of EVSE status to upload
+
+            //var Warnings = new List<String>();
+
+            //var _EVSEStatus = EVSEStatusUpdates.
+            //                      Where       (evsestatusupdate => _IncludeEVSEs(RoamingNetwork.GetEVSEbyId(evsestatusupdate.Id))).
+            //                      ToLookup    (evsestatusupdate => evsestatusupdate.Id,
+            //                                   evsestatusupdate => evsestatusupdate).
+            //                      ToDictionary(group            => group.Key,
+            //                                   group            => group.AsEnumerable().OrderByDescending(item => item.NewStatus.Timestamp)).
+            //                      Select      (evsestatusupdate => {
+
+            //                          try
+            //                          {
+
+            //                              // Only push the current status of the latest status update!
+            //                              return new EVSEStatusRecord(
+            //                                         evsestatusupdate.Key.ToOIOI(),
+            //                                         evsestatusupdate.Value.First().NewStatus.Value.AsOIOIEVSEStatus()
+            //                                     );
+
+            //                          }
+            //                          catch (Exception e)
+            //                          {
+            //                              DebugX.  Log(e.Message);
+            //                              Warnings.Add(e.Message);
+            //                          }
+
+            //                          return null;
+
+            //                      }).
+            //                      Where(evsestatusrecord => evsestatusrecord != null).
+            //                      ToArray();
+
+            //WWCP.Acknowledgement result = null;
+
+            //#endregion
+
+            //#region Send OnEVSEStatusPush event
+
+            //var StartTime = DateTime.Now;
+
+            //try
+            //{
+
+            //    OnPushEVSEStatusWWCPRequest?.Invoke(StartTime,
+            //                                        Timestamp.Value,
+            //                                        this,
+            //                                        Id,
+            //                                        EventTrackingId,
+            //                                        RoamingNetwork.Id,
+            //                                        ServerAction,
+            //                                        _EVSEStatus.ULongCount(),
+            //                                        _EVSEStatus,
+            //                                        Warnings.Where(warning => warning.IsNotNullOrEmpty()),
+            //                                        RequestTimeout);
+
+            //}
+            //catch (Exception e)
+            //{
+            //    e.Log(nameof(WWCPCPOAdapter) + "." + nameof(OnPushEVSEStatusWWCPRequest));
+            //}
+
+            //#endregion
 
 
-            var Endtime = DateTime.Now;
-            var Runtime = Endtime - StartTime;
+            //var response = await CPORoaming.
+            //                         PushEVSEStatus(_EVSEStatus,
+            //                                        DefaultOperatorId,
+            //                                        DefaultOperatorName.IsNotNullOrEmpty() ? DefaultOperatorName : null,
+            //                                        ServerAction,
+            //                                        null,
 
-            if (response.HTTPStatusCode == HTTPStatusCode.OK &&
-                response.Content        != null)
-            {
-
-                if (response.Content.Result)
-                    result = new WWCP.Acknowledgement(ResultType.True,
-                                                      response.Content.StatusCode.Description,
-                                                      response.Content.StatusCode.AdditionalInfo.IsNotNullOrEmpty()
-                                                          ? Warnings.AddAndReturnList(response.Content.StatusCode.AdditionalInfo)
-                                                          : Warnings,
-                                                      Runtime);
-
-                else
-                    result = new WWCP.Acknowledgement(ResultType.False,
-                                                      response.Content.StatusCode.Description,
-                                                      response.Content.StatusCode.AdditionalInfo.IsNotNullOrEmpty()
-                                                          ? Warnings.AddAndReturnList(response.Content.StatusCode.AdditionalInfo)
-                                                          : Warnings,
-                                                      Runtime);
-
-            }
-            else
-                result = new WWCP.Acknowledgement(ResultType.False,
-                                                  response.HTTPStatusCode.ToString(),
-                                                  response.HTTPBody != null
-                                                      ? Warnings.AddAndReturnList(response.HTTPBody.ToUTF8String())
-                                                      : Warnings.AddAndReturnList("No HTTP body received!"),
-                                                  Runtime);
+            //                                        Timestamp,
+            //                                        CancellationToken,
+            //                                        EventTrackingId,
+            //                                        RequestTimeout).
+            //                         ConfigureAwait(false);
 
 
-            #region Send OnPushEVSEStatusResponse event
+            //var Endtime = DateTime.Now;
+            //var Runtime = Endtime - StartTime;
 
-            try
-            {
+            //if (response.HTTPStatusCode == HTTPStatusCode.OK &&
+            //    response.Content        != null)
+            //{
 
-                OnPushEVSEStatusWWCPResponse?.Invoke(Endtime,
-                                                     Timestamp.Value,
-                                                     this,
-                                                     Id,
-                                                     EventTrackingId,
-                                                     RoamingNetwork.Id,
-                                                     ServerAction,
-                                                     _EVSEStatus.ULongCount(),
-                                                     _EVSEStatus,
-                                                     Warnings.Where(warning => warning.IsNotNullOrEmpty()),
-                                                     RequestTimeout,
-                                                     result,
-                                                     Runtime);
+            //    if (response.Content.Result)
+            //        result = new WWCP.Acknowledgement(ResultType.True,
+            //                                          response.Content.StatusCode.Description,
+            //                                          response.Content.StatusCode.AdditionalInfo.IsNotNullOrEmpty()
+            //                                              ? Warnings.AddAndReturnList(response.Content.StatusCode.AdditionalInfo)
+            //                                              : Warnings,
+            //                                          Runtime);
 
-            }
-            catch (Exception e)
-            {
-                e.Log(nameof(WWCPCPOAdapter) + "." + nameof(OnPushEVSEStatusWWCPResponse));
-            }
+            //    else
+            //        result = new WWCP.Acknowledgement(ResultType.False,
+            //                                          response.Content.StatusCode.Description,
+            //                                          response.Content.StatusCode.AdditionalInfo.IsNotNullOrEmpty()
+            //                                              ? Warnings.AddAndReturnList(response.Content.StatusCode.AdditionalInfo)
+            //                                              : Warnings,
+            //                                          Runtime);
 
-            #endregion
+            //}
+            //else
+            //    result = new WWCP.Acknowledgement(ResultType.False,
+            //                                      response.HTTPStatusCode.ToString(),
+            //                                      response.HTTPBody != null
+            //                                          ? Warnings.AddAndReturnList(response.HTTPBody.ToUTF8String())
+            //                                          : Warnings.AddAndReturnList("No HTTP body received!"),
+            //                                      Runtime);
 
-            return result;
+
+            //#region Send OnPushEVSEStatusResponse event
+
+            //try
+            //{
+
+            //    OnPushEVSEStatusWWCPResponse?.Invoke(Endtime,
+            //                                         Timestamp.Value,
+            //                                         this,
+            //                                         Id,
+            //                                         EventTrackingId,
+            //                                         RoamingNetwork.Id,
+            //                                         ServerAction,
+            //                                         _EVSEStatus.ULongCount(),
+            //                                         _EVSEStatus,
+            //                                         Warnings.Where(warning => warning.IsNotNullOrEmpty()),
+            //                                         RequestTimeout,
+            //                                         result,
+            //                                         Runtime);
+
+            //}
+            //catch (Exception e)
+            //{
+            //    e.Log(nameof(WWCPCPOAdapter) + "." + nameof(OnPushEVSEStatusWWCPResponse));
+            //}
+
+            //#endregion
+
+            //return result;
 
         }
 
@@ -3655,50 +3665,53 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             else
             {
 
-                var response = await CPORoaming.
-                                         AuthorizeStart(OperatorId.HasValue
-                                                            ? OperatorId.Value.ToOIOI()
-                                                            : DefaultOperatorId,
-                                                        AuthToken.          ToOIOI(),
-                                                        null,
-                                                        ChargingProduct?.Id.ToOIOI(),
-                                                        SessionId.          ToOIOI(),
-                                                        null,
-
-                                                        Timestamp,
-                                                        CancellationToken,
-                                                        EventTrackingId,
-                                                        RequestTimeout).ConfigureAwait(false);
+                //var response = await CPORoaming.
+                //                         RFIDVerify(AuthToken.ToOIOI(),
 
 
-                Endtime  = DateTime.Now;
-                Runtime  = Endtime - StartTime;
+                //                                        //OperatorId.HasValue
+                //                                        //    ? OperatorId.Value.ToOIOI()
+                //                                        //    : DefaultOperatorId,
+                //                                        //AuthToken.          ToOIOI(),
+                //                                        //null,
+                //                                        //ChargingProduct?.Id.ToOIOI(),
+                //                                        //SessionId.          ToOIOI(),
+                //                                        //null,
 
-                if (response.HTTPStatusCode              == HTTPStatusCode.OK &&
-                    response.Content                     != null              &&
-                    response.Content.AuthorizationStatus == AuthorizationStatusTypes.Authorized)
-                {
+                //                                        Timestamp,
+                //                                        CancellationToken,
+                //                                        EventTrackingId,
+                //                                        RequestTimeout).ConfigureAwait(false);
 
-                    result = AuthStartResult.Authorized(
-                                 Id,
-                                 response.Content.SessionId. ToWWCP().Value,
-                                 ProviderId:      response.Content.ProviderId.ToWWCP(),
-                                 Description:     response.Content.StatusCode.Description,
-                                 AdditionalInfo:  response.Content.StatusCode.AdditionalInfo,
-                                 Runtime:         Runtime
-                             );
 
-                }
+                //Endtime  = DateTime.Now;
+                //Runtime  = Endtime - StartTime;
 
-                else
-                    result = AuthStartResult.NotAuthorized(
-                                 Id,
-                                 SessionId,
-                                 response.Content.ProviderId.ToWWCP(),
-                                 response.Content.StatusCode.Description,
-                                 response.Content.StatusCode.AdditionalInfo,
-                                 Runtime
-                             );
+                //if (response.HTTPStatusCode              == HTTPStatusCode.OK &&
+                //    response.Content                     != null              &&
+                //    response.Content.AuthorizationStatus == AuthorizationStatusTypes.Authorized)
+                //{
+
+                //    result = AuthStartResult.Authorized(
+                //                 Id,
+                //                 response.Content.SessionId. ToWWCP().Value,
+                //                 ProviderId:      response.Content.ProviderId.ToWWCP(),
+                //                 Description:     response.Content.StatusCode.Description,
+                //                 AdditionalInfo:  response.Content.StatusCode.AdditionalInfo,
+                //                 Runtime:         Runtime
+                //             );
+
+                //}
+
+                //else
+                //    result = AuthStartResult.NotAuthorized(
+                //                 Id,
+                //                 SessionId,
+                //                 response.Content.ProviderId.ToWWCP(),
+                //                 response.Content.StatusCode.Description,
+                //                 response.Content.StatusCode.AdditionalInfo,
+                //                 Runtime
+                //             );
 
             }
 
@@ -3708,18 +3721,18 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             try
             {
 
-                OnAuthorizeStartResponse?.Invoke(Endtime,
-                                                 Timestamp.Value,
-                                                 this,
-                                                 EventTrackingId,
-                                                 RoamingNetwork.Id,
-                                                 OperatorId,
-                                                 AuthToken,
-                                                 ChargingProduct,
-                                                 SessionId,
-                                                 RequestTimeout,
-                                                 result,
-                                                 Runtime);
+                //OnAuthorizeStartResponse?.Invoke(Endtime,
+                //                                 Timestamp.Value,
+                //                                 this,
+                //                                 EventTrackingId,
+                //                                 RoamingNetwork.Id,
+                //                                 OperatorId,
+                //                                 AuthToken,
+                //                                 ChargingProduct,
+                //                                 SessionId,
+                //                                 RequestTimeout,
+                //                                 result,
+                //                                 Runtime);
 
             }
             catch (Exception e)
@@ -3728,6 +3741,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             }
 
             #endregion
+
+            result = null;
 
             return result;
 
@@ -3827,50 +3842,50 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             else
             {
 
-                var response  = await CPORoaming.
-                                          AuthorizeStart(OperatorId.HasValue
-                                                            ? OperatorId.Value.ToOIOI()
-                                                            : DefaultOperatorId,
-                                                         AuthToken.          ToOIOI(),
-                                                         EVSEId.             ToOIOI(),
-                                                         ChargingProduct?.Id.ToOIOI(),
-                                                         SessionId.          ToOIOI(),
-                                                         null,
+                //var response  = await CPORoaming.
+                //                          AuthorizeStart(OperatorId.HasValue
+                //                                            ? OperatorId.Value.ToOIOI()
+                //                                            : DefaultOperatorId,
+                //                                         AuthToken.          ToOIOI(),
+                //                                         EVSEId.             ToOIOI(),
+                //                                         ChargingProduct?.Id.ToOIOI(),
+                //                                         SessionId.          ToOIOI(),
+                //                                         null,
 
-                                                         Timestamp,
-                                                         CancellationToken,
-                                                         EventTrackingId,
-                                                         RequestTimeout).ConfigureAwait(false);
+                //                                         Timestamp,
+                //                                         CancellationToken,
+                //                                         EventTrackingId,
+                //                                         RequestTimeout).ConfigureAwait(false);
 
 
-                Endtime  = DateTime.Now;
-                Runtime  = Endtime - StartTime;
+                //Endtime  = DateTime.Now;
+                //Runtime  = Endtime - StartTime;
 
-                if (response.HTTPStatusCode              == HTTPStatusCode.OK &&
-                    response.Content                     != null              &&
-                    response.Content.AuthorizationStatus == AuthorizationStatusTypes.Authorized)
-                {
+                //if (response.HTTPStatusCode              == HTTPStatusCode.OK &&
+                //    response.Content                     != null              &&
+                //    response.Content.AuthorizationStatus == AuthorizationStatusTypes.Authorized)
+                //{
 
-                    result = AuthStartEVSEResult.Authorized(
-                                 Id,
-                                 response.Content.SessionId.ToWWCP().Value,
-                                 ProviderId:      response.Content.ProviderId.ToWWCP(),
-                                 Description:     response.Content.StatusCode.Description,
-                                 AdditionalInfo:  response.Content.StatusCode.AdditionalInfo,
-                                 Runtime:         Runtime
-                             );
+                //    result = AuthStartEVSEResult.Authorized(
+                //                 Id,
+                //                 response.Content.SessionId.ToWWCP().Value,
+                //                 ProviderId:      response.Content.ProviderId.ToWWCP(),
+                //                 Description:     response.Content.StatusCode.Description,
+                //                 AdditionalInfo:  response.Content.StatusCode.AdditionalInfo,
+                //                 Runtime:         Runtime
+                //             );
 
-                }
+                //}
 
-                else
-                    result = AuthStartEVSEResult.NotAuthorized(
-                                 Id,
-                                 SessionId,
-                                 response.Content.ProviderId.ToWWCP(),
-                                 response.Content.StatusCode.Description,
-                                 response.Content.StatusCode.AdditionalInfo,
-                                 Runtime
-                             );
+                //else
+                //    result = AuthStartEVSEResult.NotAuthorized(
+                //                 Id,
+                //                 SessionId,
+                //                 response.Content.ProviderId.ToWWCP(),
+                //                 response.Content.StatusCode.Description,
+                //                 response.Content.StatusCode.AdditionalInfo,
+                //                 Runtime
+                //             );
 
             }
 
@@ -3880,19 +3895,19 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             try
             {
 
-                OnAuthorizeEVSEStartResponse?.Invoke(Endtime,
-                                                     Timestamp.Value,
-                                                     this,
-                                                     EventTrackingId,
-                                                     RoamingNetwork.Id,
-                                                     OperatorId,
-                                                     AuthToken,
-                                                     EVSEId,
-                                                     ChargingProduct,
-                                                     SessionId,
-                                                     RequestTimeout,
-                                                     result,
-                                                     Runtime);
+                //OnAuthorizeEVSEStartResponse?.Invoke(Endtime,
+                //                                     Timestamp.Value,
+                //                                     this,
+                //                                     EventTrackingId,
+                //                                     RoamingNetwork.Id,
+                //                                     OperatorId,
+                //                                     AuthToken,
+                //                                     EVSEId,
+                //                                     ChargingProduct,
+                //                                     SessionId,
+                //                                     RequestTimeout,
+                //                                     result,
+                //                                     Runtime);
 
             }
             catch (Exception e)
@@ -3901,6 +3916,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             }
 
             #endregion
+
+            result = null;
 
             return result;
 
@@ -4240,45 +4257,45 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             else
             {
 
-                var response = await CPORoaming.AuthorizeStop(OperatorId.HasValue
-                                                                  ? OperatorId.Value.ToOIOI()
-                                                                  : DefaultOperatorId,
-                                                              SessionId. ToOIOI(),
-                                                              AuthToken. ToOIOI(),
-                                                              null,
-                                                              null,
+                //var response = await CPORoaming.AuthorizeStop(OperatorId.HasValue
+                //                                                  ? OperatorId.Value.ToOIOI()
+                //                                                  : DefaultOperatorId,
+                //                                              SessionId. ToOIOI(),
+                //                                              AuthToken. ToOIOI(),
+                //                                              null,
+                //                                              null,
 
-                                                              Timestamp,
-                                                              CancellationToken,
-                                                              EventTrackingId,
-                                                              RequestTimeout).ConfigureAwait(false);
+                //                                              Timestamp,
+                //                                              CancellationToken,
+                //                                              EventTrackingId,
+                //                                              RequestTimeout).ConfigureAwait(false);
 
 
-                Endtime  = DateTime.Now;
-                Runtime  = Endtime - StartTime;
+                //Endtime  = DateTime.Now;
+                //Runtime  = Endtime - StartTime;
 
-                if (response.HTTPStatusCode              == HTTPStatusCode.OK &&
-                    response.Content                     != null              &&
-                    response.Content.AuthorizationStatus == AuthorizationStatusTypes.Authorized)
-                {
+                //if (response.HTTPStatusCode              == HTTPStatusCode.OK &&
+                //    response.Content                     != null              &&
+                //    response.Content.AuthorizationStatus == AuthorizationStatusTypes.Authorized)
+                //{
 
-                    result = AuthStopResult.Authorized(
-                                 Id,
-                                 SessionId,
-                                 response.Content.ProviderId.ToWWCP(),
-                                 response.Content?.StatusCode?.Description,
-                                 response.Content?.StatusCode?.AdditionalInfo
-                             );
+                //    result = AuthStopResult.Authorized(
+                //                 Id,
+                //                 SessionId,
+                //                 response.Content.ProviderId.ToWWCP(),
+                //                 response.Content?.StatusCode?.Description,
+                //                 response.Content?.StatusCode?.AdditionalInfo
+                //             );
 
-                }
-                else
-                    result = AuthStopResult.NotAuthorized(
-                                 Id,
-                                 SessionId,
-                                 response.Content?.ProviderId.ToWWCP(),
-                                 response.Content?.StatusCode?.Description,
-                                 response.Content?.StatusCode?.AdditionalInfo
-                             );
+                //}
+                //else
+                //    result = AuthStopResult.NotAuthorized(
+                //                 Id,
+                //                 SessionId,
+                //                 response.Content?.ProviderId.ToWWCP(),
+                //                 response.Content?.StatusCode?.Description,
+                //                 response.Content?.StatusCode?.AdditionalInfo
+                //             );
 
             }
 
@@ -4288,17 +4305,17 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             try
             {
 
-                OnAuthorizeStopResponse?.Invoke(Endtime,
-                                                Timestamp.Value,
-                                                this,
-                                                EventTrackingId,
-                                                RoamingNetwork.Id,
-                                                OperatorId,
-                                                SessionId,
-                                                AuthToken,
-                                                RequestTimeout,
-                                                result,
-                                                Runtime);
+                //OnAuthorizeStopResponse?.Invoke(Endtime,
+                //                                Timestamp.Value,
+                //                                this,
+                //                                EventTrackingId,
+                //                                RoamingNetwork.Id,
+                //                                OperatorId,
+                //                                SessionId,
+                //                                AuthToken,
+                //                                RequestTimeout,
+                //                                result,
+                //                                Runtime);
 
             }
             catch (Exception e)
@@ -4307,6 +4324,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             }
 
             #endregion
+
+            result = null;
 
             return result;
 
@@ -4402,45 +4421,45 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             else
             {
 
-                var response  = await CPORoaming.AuthorizeStop(OperatorId.HasValue
-                                                                  ? OperatorId.Value.ToOIOI()
-                                                                  : DefaultOperatorId,
-                                                               SessionId. ToOIOI(),
-                                                               AuthToken. ToOIOI(),
-                                                               EVSEId.    ToOIOI(),
-                                                               null,
+                //var response  = await CPORoaming.AuthorizeStop(OperatorId.HasValue
+                //                                                  ? OperatorId.Value.ToOIOI()
+                //                                                  : DefaultOperatorId,
+                //                                               SessionId. ToOIOI(),
+                //                                               AuthToken. ToOIOI(),
+                //                                               EVSEId.    ToOIOI(),
+                //                                               null,
 
-                                                               Timestamp,
-                                                               CancellationToken,
-                                                               EventTrackingId,
-                                                               RequestTimeout).ConfigureAwait(false);
+                //                                               Timestamp,
+                //                                               CancellationToken,
+                //                                               EventTrackingId,
+                //                                               RequestTimeout).ConfigureAwait(false);
 
 
-                Endtime  = DateTime.Now;
-                Runtime  = Endtime - StartTime;
+                //Endtime  = DateTime.Now;
+                //Runtime  = Endtime - StartTime;
 
-                if (response.HTTPStatusCode              == HTTPStatusCode.OK &&
-                    response.Content                     != null              &&
-                    response.Content.AuthorizationStatus == AuthorizationStatusTypes.Authorized)
-                {
+                //if (response.HTTPStatusCode              == HTTPStatusCode.OK &&
+                //    response.Content                     != null              &&
+                //    response.Content.AuthorizationStatus == AuthorizationStatusTypes.Authorized)
+                //{
 
-                    result = AuthStopEVSEResult.Authorized(
-                                 Id,
-                                 SessionId,
-                                 response.Content?.ProviderId?.ToWWCP(),
-                                 response.Content?.StatusCode?.Description,
-                                 response.Content?.StatusCode?.AdditionalInfo
-                             );
+                //    result = AuthStopEVSEResult.Authorized(
+                //                 Id,
+                //                 SessionId,
+                //                 response.Content?.ProviderId?.ToWWCP(),
+                //                 response.Content?.StatusCode?.Description,
+                //                 response.Content?.StatusCode?.AdditionalInfo
+                //             );
 
-                }
-                else
-                    result = AuthStopEVSEResult.NotAuthorized(
-                                 Id,
-                                 SessionId,
-                                 response.Content?.ProviderId?.ToWWCP(),
-                                 response.Content?.StatusCode?.Description,
-                                 response.Content?.StatusCode?.AdditionalInfo
-                             );
+                //}
+                //else
+                //    result = AuthStopEVSEResult.NotAuthorized(
+                //                 Id,
+                //                 SessionId,
+                //                 response.Content?.ProviderId?.ToWWCP(),
+                //                 response.Content?.StatusCode?.Description,
+                //                 response.Content?.StatusCode?.AdditionalInfo
+                //             );
 
             }
 
@@ -4450,18 +4469,18 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             try
             {
 
-                OnAuthorizeEVSEStopResponse?.Invoke(Endtime,
-                                                    Timestamp.Value,
-                                                    this,
-                                                    EventTrackingId,
-                                                    RoamingNetwork.Id,
-                                                    OperatorId,
-                                                    EVSEId,
-                                                    SessionId,
-                                                    AuthToken,
-                                                    RequestTimeout,
-                                                    result,
-                                                    Runtime);
+                //OnAuthorizeEVSEStopResponse?.Invoke(Endtime,
+                //                                    Timestamp.Value,
+                //                                    this,
+                //                                    EventTrackingId,
+                //                                    RoamingNetwork.Id,
+                //                                    OperatorId,
+                //                                    EVSEId,
+                //                                    SessionId,
+                //                                    AuthToken,
+                //                                    RequestTimeout,
+                //                                    result,
+                //                                    Runtime);
 
             }
             catch (Exception e)
@@ -4470,6 +4489,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             }
 
             #endregion
+
+            result = null;
 
             return result;
 
@@ -4727,13 +4748,13 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         public async Task<SendCDRsResult>
 
-            SendChargeDetailRecords(IEnumerable<WWCP.ChargeDetailRecord>  ChargeDetailRecords,
-                                    TransmissionTypes                     TransmissionType    = TransmissionTypes.Enqueued,
+            SendChargeDetailRecords(IEnumerable<ChargeDetailRecord>  ChargeDetailRecords,
+                                    TransmissionTypes                TransmissionType    = TransmissionTypes.Enqueued,
 
-                                    DateTime?                             Timestamp           = null,
-                                    CancellationToken?                    CancellationToken   = null,
-                                    EventTracking_Id                      EventTrackingId     = null,
-                                    TimeSpan?                             RequestTimeout      = null)
+                                    DateTime?                        Timestamp           = null,
+                                    CancellationToken?               CancellationToken   = null,
+                                    EventTracking_Id                 EventTrackingId     = null,
+                                    TimeSpan?                        RequestTimeout      = null)
 
         {
 
@@ -4826,6 +4847,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             TimeSpan        Runtime;
             SendCDRsResult  result;
 
+            #region Check if sending CDRs is disabled
+
             if (DisableSendChargeDetailRecords)
             {
                 Endtime  = DateTime.Now;
@@ -4833,51 +4856,54 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                 result   = SendCDRsResult.OutOfService(Id, Runtime: Runtime);
             }
 
+            #endregion
+
             else
             {
 
-                HTTPResponse<Acknowledgement<SendChargeDetailRecordRequest>> response;
-                var SendCDRsResults = new Dictionary<WWCP.ChargeDetailRecord, SendCDRsResult>();
+                //HTTPResponse<Acknowledgement<SessionPostRequest>> response;
 
-                foreach (var _ChargeDetailRecord in ChargeDetailRecords)
-                {
+                //var SendCDRsResults = new Dictionary<ChargeDetailRecord, SendCDRsResult>();
 
-                    response = await CPORoaming.SendChargeDetailRecord(_ChargeDetailRecord.ToOIOI(_ChargeDetailRecord2Session),
+                //foreach (var _ChargeDetailRecord in ChargeDetailRecords)
+                //{
 
-                                                                       Timestamp,
-                                                                       CancellationToken,
-                                                                       EventTrackingId,
-                                                                       RequestTimeout).ConfigureAwait(false);
+                //    //response = await CPORoaming.SessionPost(_ChargeDetailRecord.ToOIOI(_ChargeDetailRecord2Session),
+                //    //
+                //    //                                        Timestamp,
+                //    //                                        CancellationToken,
+                //    //                                        EventTrackingId,
+                //    //                                        RequestTimeout).ConfigureAwait(false);
 
-                    if (response.HTTPStatusCode == HTTPStatusCode.OK &&
-                        response.Content        != null              &&
-                        response.Content.Success)
-                    {
-                        SendCDRsResults.Add(_ChargeDetailRecord, SendCDRsResult.Forwarded(Id));
-                    }
+                //    if (response.HTTPStatusCode == HTTPStatusCode.OK &&
+                //        response.Content        != null              &&
+                //        response.Content.Success)
+                //    {
+                //        SendCDRsResults.Add(_ChargeDetailRecord, SendCDRsResult.Forwarded(Id));
+                //    }
 
-                    else
-                        SendCDRsResults.Add(_ChargeDetailRecord, SendCDRsResult.NotForwared(Id,
-                                                                                            new WWCP.ChargeDetailRecord[] { _ChargeDetailRecord },
-                                                                                            response?.Content?.StatusCode?.Description));
+                //    else
+                //        SendCDRsResults.Add(_ChargeDetailRecord, SendCDRsResult.NotForwared(Id,
+                //                                                                            new WWCP.ChargeDetailRecord[] { _ChargeDetailRecord },
+                //                                                                            response?.Content?.StatusCode?.Description));
 
-                }
+                //}
 
-                Endtime  = DateTime.Now;
-                Runtime  = Endtime - StartTime;
+                //Endtime  = DateTime.Now;
+                //Runtime  = Endtime - StartTime;
 
-                if      (SendCDRsResults.All(cdrresult => cdrresult.Value.Status == SendCDRsResultType.Forwarded))
-                    result = SendCDRsResult.Forwarded(Id);
+                //if      (SendCDRsResults.All(cdrresult => cdrresult.Value.Status == SendCDRsResultType.Forwarded))
+                //    result = SendCDRsResult.Forwarded(Id);
 
-                else if (SendCDRsResults.All(cdrresult => cdrresult.Value.Status != SendCDRsResultType.Forwarded))
-                    result = SendCDRsResult.NotForwared(Id,
-                                                        SendCDRsResults.Keys);
+                //else if (SendCDRsResults.All(cdrresult => cdrresult.Value.Status != SendCDRsResultType.Forwarded))
+                //    result = SendCDRsResult.NotForwared(Id,
+                //                                        SendCDRsResults.Keys);
 
-                else
-                    result = SendCDRsResult.Partly   (Id,
-                                                        SendCDRsResults.
-                                                            Where (cdrresult => cdrresult.Value.Status != SendCDRsResultType.Forwarded).
-                                                            Select(cdrresult => cdrresult.Key));
+                //else
+                //    result = SendCDRsResult.Partly   (Id,
+                //                                        SendCDRsResults.
+                //                                            Where (cdrresult => cdrresult.Value.Status != SendCDRsResultType.Forwarded).
+                //                                            Select(cdrresult => cdrresult.Key));
 
             }
 
@@ -4887,15 +4913,15 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             try
             {
 
-                OnSendCDRsResponse?.Invoke(Endtime,
-                                           Timestamp.Value,
-                                           this,
-                                           EventTrackingId,
-                                           RoamingNetwork.Id,
-                                           ChargeDetailRecords,
-                                           RequestTimeout,
-                                           result,
-                                           Runtime);
+                //OnSendCDRsResponse?.Invoke(Endtime,
+                //                           Timestamp.Value,
+                //                           this,
+                //                           EventTrackingId,
+                //                           RoamingNetwork.Id,
+                //                           ChargeDetailRecords,
+                //                           RequestTimeout,
+                //                           result,
+                //                           Runtime);
 
             }
             catch (Exception e)
@@ -4904,6 +4930,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             }
 
             #endregion
+
+            result = null;
 
             return result;
 
@@ -5187,13 +5215,13 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                 if (EVSEStatusChangesDelayedQueueCopy.Value.Count > 0)
                 {
 
-                    var PushEVSEStatusTask = PushEVSEStatus(EVSEStatusChangesDelayedQueueCopy.Value,
-                                                            _ServiceRunId == 1
-                                                                ? ActionTypes.fullLoad
-                                                                : ActionTypes.update,
-                                                            EventTrackingId: EventTrackingId);
+                    //var PushEVSEStatusTask = PushEVSEStatus(EVSEStatusChangesDelayedQueueCopy.Value,
+                    //                                        _ServiceRunId == 1
+                    //                                            ? ActionTypes.fullLoad
+                    //                                            : ActionTypes.update,
+                    //                                        EventTrackingId: EventTrackingId);
 
-                    PushEVSEStatusTask.Wait();
+                    //PushEVSEStatusTask.Wait();
 
                 }
 
@@ -5320,13 +5348,13 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                 if (EVSEStatusFastQueueCopy.Value.Count > 0)
                 {
 
-                    var PushEVSEStatusTask = PushEVSEStatus(EVSEStatusFastQueueCopy.Value,
-                                                            _ServiceRunId == 1
-                                                                ? ActionTypes.fullLoad
-                                                                : ActionTypes.update,
-                                                            EventTrackingId: EventTrackingId);
+                    //var PushEVSEStatusTask = PushEVSEStatus(EVSEStatusFastQueueCopy.Value,
+                    //                                        _ServiceRunId == 1
+                    //                                            ? ActionTypes.fullLoad
+                    //                                            : ActionTypes.update,
+                    //                                        EventTrackingId: EventTrackingId);
 
-                    PushEVSEStatusTask.Wait();
+                    //PushEVSEStatusTask.Wait();
 
                 }
 

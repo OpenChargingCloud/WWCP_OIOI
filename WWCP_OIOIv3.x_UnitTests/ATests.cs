@@ -75,7 +75,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.UnitTests
                               DNSClient:          _DNSClient
                           );
 
-                HTTPAPI.AttachTCPPort(CPOClient.DefaultRemotePort);
+                HTTPAPI.AttachTCPPort(CPO.CPOClient.DefaultRemotePort);
 
                 _RoamingNetwork   = new RoamingNetwork(RoamingNetwork_Id.Parse("PlugSurfing"));
                 _RoamingNetworks  = new RoamingNetworks(_RoamingNetwork);

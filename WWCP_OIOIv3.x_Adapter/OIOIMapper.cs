@@ -36,16 +36,18 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
     {
 
         public static Station_Id         ToOIOI(this ChargingStation_Id  ChargingStationId)
-            => Station_Id.Parse(ChargingStationId.ToString());
+            => Station_Id.        Parse(ChargingStationId.ToString());
 
         public static ChargingStation_Id ToWWCP(this Station_Id          StationId)
             => ChargingStation_Id.Parse(StationId.ToString());
 
         public static Connector_Id       ToOIOI(this EVSE_Id             EVSEId)
-            => Connector_Id.Parse(EVSEId.ToString());
+            => Connector_Id.      Parse(EVSEId.ToString());
 
         public static EVSE_Id            ToWWCP(this Connector_Id        ConnectorId)
-            => EVSE_Id.Parse(ConnectorId.ToString());
+            => EVSE_Id.           Parse(ConnectorId.ToString());
+
+
 
 
         #region ToOIOI(this WWCPAddress)
@@ -164,7 +166,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// <param name="ChargingStation">A WWCP charging station.</param>
         /// <param name="ChargingStation2Station">A delegate to process a charging station, e.g. before pushing it to a roaming provider.</param>
         /// <returns>The corresponding OIOI charging station.</returns>
-        public static Station ToOIOI(this WWCP.ChargingStation            ChargingStation,
+        public static Station ToOIOI(this ChargingStation                 ChargingStation,
                                      CPO.ChargingStation2StationDelegate  ChargingStation2Station = null)
         {
 
@@ -186,6 +188,107 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         }
 
         #endregion
+
+
+        #region ChargeDetailRecord <-> Session
+
+        /// <summary>
+        /// Convert the given WWCP charging session identification into an OIOI session identification.
+        /// </summary>
+        /// <param name="ChargingSessionId">A WWCP charging session identification.</param>
+        public static Session_Id ToOIOI(this ChargingSession_Id ChargingSessionId)
+            => Session_Id.Parse(ChargingSessionId.ToString());
+
+
+        /// <summary>
+        /// Convert the given OIOI session identification into a WWCP charging session identification.
+        /// </summary>
+        /// <param name="SessionId">An OIOI session identification.</param>
+        public static ChargingSession_Id ToWWCP(this Session_Id SessionId)
+            => ChargingSession_Id.Parse(SessionId.ToString());
+
+
+        /// <summary>
+        /// Convert a WWCP charge detail record into a corresponding OIOI charging session.
+        /// </summary>
+        /// <param name="ChargeDetailRecord">A WWCP charge detail record.</param>
+        /// <param name="ChargeDetailRecord2Session">An optional delegate to customize the transformation.</param>
+        public static Session ToOIOI(this ChargeDetailRecord                 ChargeDetailRecord,
+                                     CPO.ChargeDetailRecord2SessionDelegate  ChargeDetailRecord2Session = null)
+
+        {
+
+            return null;
+
+            //var Session = new Session(
+            //                  ChargeDetailRecord.EVSEId.Value.ToOIOI(),
+            //                  ChargeDetailRecord.SessionId.ToOIOI(),
+            //                  ChargeDetailRecord.SessionTime.Value.StartTime,
+            //                  ChargeDetailRecord.SessionTime.Value.EndTime.Value,
+            //                  ChargeDetailRecord.IdentificationStart.ToOIOI(),
+            //                  ChargeDetailRecord.ChargingProduct?.Id.ToOIOI(),
+            //                  null, // PartnerSessionId
+            //                  ChargeDetailRecord.SessionTime.HasValue ? ChargeDetailRecord.SessionTime.Value.StartTime : new DateTime?(),
+            //                  ChargeDetailRecord.SessionTime.HasValue ? ChargeDetailRecord.SessionTime.Value.EndTime : null,
+            //                  ChargeDetailRecord.EnergyMeteringValues != null && ChargeDetailRecord.EnergyMeteringValues.Any() ? ChargeDetailRecord.EnergyMeteringValues.First().Value : new Single?(),
+            //                  ChargeDetailRecord.EnergyMeteringValues != null && ChargeDetailRecord.EnergyMeteringValues.Any() ? ChargeDetailRecord.EnergyMeteringValues.Last(). Value : new Single?(),
+            //                  ChargeDetailRecord.EnergyMeteringValues != null && ChargeDetailRecord.EnergyMeteringValues.Any() ? ChargeDetailRecord.EnergyMeteringValues.Select((Timestamped<Single> v) => v.Value) : null,
+            //                  ChargeDetailRecord.ConsumedEnergy,
+            //                  ChargeDetailRecord.MeteringSignature
+            //              );
+
+            //if (ChargeDetailRecord2Session != null)
+            //    return ChargeDetailRecord2Session(ChargeDetailRecord, Session);
+
+            //return Session;
+
+        }
+
+
+        /// <summary>
+        /// Convert an OIOI charging session into a corresponding WWCP charge detail record.
+        /// </summary>
+        /// <param name="Session">An OIOI charging session.</param>
+        /// <param name="Session2ChargeDetailRecord">An optional delegate to customize the transformation.</param>
+        public static ChargeDetailRecord ToWWCP(this Session                            Session,
+                                                CPO.Session2ChargeDetailRecordDelegate  Session2ChargeDetailRecord = null)
+        {
+
+            return null;
+
+            //var ChargeDetailRecord = new ChargeDetailRecord(Session.Id.ToWWCP(),
+            //                                                EVSEId:                Session.ConnectorId.ToWWCP(),
+            //                                                ChargingProduct:       ChargeDetailRecord.PartnerProductId.HasValue
+            //                                                                           ? new ChargingProduct(ChargeDetailRecord.PartnerProductId.Value.ToWWCP())
+            //                                                                           : null,
+            //                                                SessionTime:           new StartEndDateTime(ChargeDetailRecord.SessionStart, ChargeDetailRecord.SessionEnd),
+            //                                                EnergyMeteringValues:  new List<Timestamped<Single>> {
+
+            //                                                                           new Timestamped<Single>(
+            //                                                                               ChargeDetailRecord.ChargingStart.  Value,
+            //                                                                               ChargeDetailRecord.MeterValueStart.Value
+            //                                                                           ),
+
+            //                                                                           new Timestamped<Single>(
+            //                                                                               ChargeDetailRecord.ChargingEnd.  Value,
+            //                                                                               ChargeDetailRecord.MeterValueEnd.Value
+            //                                                                           )
+
+            //                                                                       },
+            //                                                //MeterValuesInBetween
+            //                                                //ConsumedEnergy
+            //                                                MeteringSignature:  ChargeDetailRecord.MeteringSignature);
+
+            //if (Session2ChargeDetailRecord != null)
+            //    return Session2ChargeDetailRecord(Session, ChargeDetailRecord);
+
+            //return ChargeDetailRecord;
+
+        }
+
+        #endregion
+
+
 
 
 
