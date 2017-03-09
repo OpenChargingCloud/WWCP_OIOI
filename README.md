@@ -13,6 +13,7 @@ http://docs.plugsurfing.com.
 
 1. You need .NET 4.6+
 2. You will need an API-Key. To get one, just send an e-mail to service@plugsurfing.com.
+3. Read the OIOI documentation at http://docs.plugsurfing.com
 
 ### Your participation
 
