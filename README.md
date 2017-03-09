@@ -9,6 +9,11 @@ on this protocol please visit https://www.plugsurfing.com and
 http://docs.plugsurfing.com.
 
 
+### Requirements & Configuration
+
+1. You need .NET 4.6+
+2. You will need an API-Key. To get one, just send an e-mail to service@plugsurfing.com.
+
 ### Your participation
 
 This software is Open Source under the Apache 2.0 license. We appreciate
