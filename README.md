@@ -8,7 +8,7 @@ are the communication aspects of an e-mobility provider. For more details
 on this protocol please visit https://www.plugsurfing.com.
 
 
-### Requirements & Configuration
+### Requirements
 
 1. You need .NET 4.6+
 2. You will need an API-Key. To get one, just send an e-mail to service@plugsurfing.com.
