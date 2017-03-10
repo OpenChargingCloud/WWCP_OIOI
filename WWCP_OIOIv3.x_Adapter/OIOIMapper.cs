@@ -157,6 +157,13 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
         #endregion
 
+        #region  ToOIOI(this AuthToken)
+
+        public static RFID_Id ToOIOI(this Auth_Token AuthToken)
+            => RFID_Id.Parse(AuthToken.ToString());
+
+        #endregion
+
 
         #region ToOIOI(this ChargingStation, EVSE2EVSEDataRecord = null)
 

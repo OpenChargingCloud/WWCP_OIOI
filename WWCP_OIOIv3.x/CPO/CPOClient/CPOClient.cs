@@ -424,8 +424,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                          RemoteCertificateValidationCallback  RemoteCertificateValidator  = null,
                          X509Certificate                      ClientCert                  = null,
                          String                               HTTPVirtualHost             = null,
-                         String                               HTTPUserAgent               = DefaultHTTPUserAgent,
                          String                               URIPrefix                   = null,
+                         String                               HTTPUserAgent               = DefaultHTTPUserAgent,
                          Partner_Id?                          DefaultPartnerId            = null,
                          TimeSpan?                            RequestTimeout              = null,
                          DNSClient                            DNSClient                   = null,
@@ -532,7 +532,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             this.Logger                       = Logger;
             this.APIKey                       = APIKey;
-            this.URIPrefix                    = URIPrefix.IsNotNullOrEmpty() ? URIPrefix : "/api/v3/request";
+            this.URIPrefix                    = URIPrefix.IsNotNullOrEmpty() ? URIPrefix : DefaultURIPrefix;
             this.DefaultPartnerId             = DefaultPartnerId.HasValue ? DefaultPartnerId.Value : Partner_Id.Parse("1");
 
             this.DefaultOperatorNameSelector  = I18N => I18N.FirstText;

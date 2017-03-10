@@ -54,8 +54,6 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// </summary>
         //public Operator_Id DefaultOperatorId { get; }
 
-
-
         #region Data
 
         private readonly  IRemotePushData                                        _IRemotePushData;
@@ -108,6 +106,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         private                 IncludeEVSEDelegate                                     _IncludeEVSEs;
 
         public readonly static  TimeSpan                                                DefaultRequestTimeout  = TimeSpan.FromSeconds(30);
+        public readonly static  eMobilityProvider_Id                                    DefaultProviderId      = eMobilityProvider_Id.Parse("DE*8PS");
 
         #endregion
 
@@ -256,17 +255,17 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         // Client logging...
 
-        #region OnPushEVSEDataWWCPRequest/-Response
+        #region OnStationPostWWCPRequest/-Response
 
         /// <summary>
         /// An event fired whenever new EVSE data will be send upstream.
         /// </summary>
-        public event OnStationPostRequestDelegate   OnPushEVSEDataWWCPRequest;
+        public event OnStationPostRequestDelegate   OnStationPostWWCPRequest;
 
         /// <summary>
         /// An event fired whenever new EVSE data had been sent upstream.
         /// </summary>
-        public event OnStationPostResponseDelegate  OnPushEVSEDataWWCPResponse;
+        public event OnStationPostResponseDelegate  OnStationPostWWCPResponse;
 
         #endregion
 
@@ -1122,53 +1121,51 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         // RN -> External service requests...
 
-        #region PushEVSEData/-Status directly...
+        #region StationPost/-Status directly...
 
-        #region (private) PushEVSEData  (EVSEs,             ServerAction, ...)
+        #region (private) StationPost  (ChargingStations, ...)
 
         /// <summary>
-        /// Upload the EVSE data of the given enumeration of EVSEs.
+        /// Upload the EVSE data of the given enumeration of ChargingStations.
         /// </summary>
-        /// <param name="EVSEs">An enumeration of EVSEs.</param>
+        /// <param name="ChargingStations">An enumeration of ChargingStations.</param>
         /// 
         /// <param name="Timestamp">The optional timestamp of the request.</param>
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        private async Task<WWCP.Acknowledgement>
+        private async Task<Acknowledgement>
 
-            PushEVSEData(IEnumerable<EVSE>    EVSEs,
+            StationPost(IEnumerable<ChargingStation>  ChargingStations,
 
-                         DateTime?            Timestamp          = null,
-                         CancellationToken?   CancellationToken  = null,
-                         EventTracking_Id     EventTrackingId    = null,
-                         TimeSpan?            RequestTimeout     = null)
+                        DateTime?                     Timestamp          = null,
+                        CancellationToken?            CancellationToken  = null,
+                        EventTracking_Id              EventTrackingId    = null,
+                        TimeSpan?                     RequestTimeout     = null)
 
         {
 
-            return null;
+            #region Initial checks
 
-            //#region Initial checks
-
-            //if (EVSEs == null)
-            //    throw new ArgumentNullException(nameof(EVSEs), "The given enumeration of EVSEs must not be null!");
+            if (ChargingStations == null)
+                throw new ArgumentNullException(nameof(ChargingStations), "The given enumeration of ChargingStations must not be null!");
 
 
-            //if (!Timestamp.HasValue)
-            //    Timestamp = DateTime.Now;
+            if (!Timestamp.HasValue)
+                Timestamp = DateTime.Now;
 
-            //if (!CancellationToken.HasValue)
-            //    CancellationToken = new CancellationTokenSource().Token;
+            if (!CancellationToken.HasValue)
+                CancellationToken = new CancellationTokenSource().Token;
 
-            //if (EventTrackingId == null)
-            //    EventTrackingId = EventTracking_Id.New;
+            if (EventTrackingId == null)
+                EventTrackingId = EventTracking_Id.New;
 
-            //if (!RequestTimeout.HasValue)
-            //    RequestTimeout = CPOClient?.RequestTimeout;
+            if (!RequestTimeout.HasValue)
+                RequestTimeout = CPOClient?.RequestTimeout;
 
-            //#endregion
+            #endregion
 
-            //#region Get effective number of EVSE status to upload
+            #region Get effective number of EVSE status to upload
 
             //var Warnings = new List<String>();
 
@@ -1195,16 +1192,20 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             //WWCP.Acknowledgement result;
 
-            //#endregion
+            #endregion
 
-            //#region Send OnPushEVSEDataWWCPRequest event
+
+            return new Acknowledgement(ResultType.NoOperation);
+
+
+            //#region Send OnStationPostWWCPRequest event
 
             //var StartTime = DateTime.Now;
 
             //try
             //{
 
-            //    OnPushEVSEDataWWCPRequest?.Invoke(StartTime,
+            //    OnStationPostWWCPRequest?.Invoke(StartTime,
             //                                      Timestamp.Value,
             //                                      this,
             //                                      Id,
@@ -1219,7 +1220,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             //}
             //catch (Exception e)
             //{
-            //    e.Log(nameof(WWCPCPOAdapter) + "." + nameof(OnPushEVSEDataWWCPRequest));
+            //    e.Log(nameof(WWCPCPOAdapter) + "." + nameof(OnStationPostWWCPRequest));
             //}
 
             //#endregion
@@ -1272,12 +1273,12 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             //                                      Runtime);
 
 
-            //#region Send OnPushEVSEDataResponse event
+            //#region Send OnStationPostResponse event
 
             //try
             //{
 
-            //    OnPushEVSEDataWWCPResponse?.Invoke(Endtime,
+            //    OnStationPostWWCPResponse?.Invoke(Endtime,
             //                                       Timestamp.Value,
             //                                       this,
             //                                       Id,
@@ -1294,7 +1295,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             //}
             //catch (Exception e)
             //{
-            //    e.Log(nameof(WWCPCPOAdapter) + "." + nameof(OnPushEVSEDataWWCPResponse));
+            //    e.Log(nameof(WWCPCPOAdapter) + "." + nameof(OnStationPostWWCPResponse));
             //}
 
             //#endregion
@@ -1578,14 +1579,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             #endregion
 
 
-            return await PushEVSEData(new EVSE[] { EVSE },
+            return await StationPost(new ChargingStation[] { EVSE.ChargingStation },
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                     Timestamp,
+                                     CancellationToken,
+                                     EventTrackingId,
+                                     RequestTimeout).
 
-                                      ConfigureAwait(false);
+                                     ConfigureAwait(false);
 
         }
 
@@ -1670,7 +1671,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             #endregion
 
 
-            return await PushEVSEData(new EVSE[] { EVSE },
+            return await StationPost(new ChargingStation[] { EVSE.ChargingStation },
 
                                       Timestamp,
                                       CancellationToken,
@@ -1769,7 +1770,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             #endregion
 
 
-            return await PushEVSEData(new EVSE[] { EVSE },
+            return await StationPost(new ChargingStation[] { EVSE.ChargingStation },
 
                                       Timestamp,
                                       CancellationToken,
@@ -1861,7 +1862,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             #endregion
 
 
-            return await PushEVSEData(new EVSE[] { EVSE },
+            return await StationPost(new ChargingStation[] { EVSE.ChargingStation },
 
                                       Timestamp,
                                       CancellationToken,
@@ -1904,14 +1905,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return await PushEVSEData(EVSEs,
+            return await StationPost(EVSEs.Select(evse => evse.ChargingStation).Distinct(),
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                     Timestamp,
+                                     CancellationToken,
+                                     EventTrackingId,
+                                     RequestTimeout).
 
-                                      ConfigureAwait(false);
+                                     ConfigureAwait(false);
 
         }
 
@@ -1946,14 +1947,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return await PushEVSEData(EVSEs,
+            return await StationPost(EVSEs.Select(evse => evse.ChargingStation).Distinct(),
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                     Timestamp,
+                                     CancellationToken,
+                                     EventTrackingId,
+                                     RequestTimeout).
 
-                                      ConfigureAwait(false);
+                                     ConfigureAwait(false);
 
         }
 
@@ -1988,14 +1989,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return await PushEVSEData(EVSEs,
+            return await StationPost(EVSEs.Select(evse => evse.ChargingStation).Distinct(),
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                     Timestamp,
+                                     CancellationToken,
+                                     EventTrackingId,
+                                     RequestTimeout).
 
-                                      ConfigureAwait(false);
+                                     ConfigureAwait(false);
 
         }
 
@@ -2030,14 +2031,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return await PushEVSEData(EVSEs,
+            return await StationPost(EVSEs.Select(evse => evse.ChargingStation).Distinct(),
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                     Timestamp,
+                                     CancellationToken,
+                                     EventTrackingId,
+                                     RequestTimeout).
 
-                                      ConfigureAwait(false);
+                                     ConfigureAwait(false);
 
         }
 
@@ -2189,14 +2190,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return await PushEVSEData(ChargingStation.EVSEs,
+            return await StationPost(new ChargingStation[] { ChargingStation },
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                     Timestamp,
+                                     CancellationToken,
+                                     EventTrackingId,
+                                     RequestTimeout).
 
-                                      ConfigureAwait(false);
+                                     ConfigureAwait(false);
 
         }
 
@@ -2231,14 +2232,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return await PushEVSEData(ChargingStation.EVSEs,
+            return await StationPost(new ChargingStation[] { ChargingStation },
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                     Timestamp,
+                                     CancellationToken,
+                                     EventTrackingId,
+                                     RequestTimeout).
 
-                                      ConfigureAwait(false);
+                                     ConfigureAwait(false);
 
         }
 
@@ -2273,14 +2274,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return await PushEVSEData(ChargingStation.EVSEs,
+            return await StationPost(new ChargingStation[] { ChargingStation },
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                     Timestamp,
+                                     CancellationToken,
+                                     EventTrackingId,
+                                     RequestTimeout).
 
-                                      ConfigureAwait(false);
+                                     ConfigureAwait(false);
 
         }
 
@@ -2315,14 +2316,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return await PushEVSEData(ChargingStation.EVSEs,
+            return await StationPost(new ChargingStation[] { ChargingStation },
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                     Timestamp,
+                                     CancellationToken,
+                                     EventTrackingId,
+                                     RequestTimeout).
 
-                                      ConfigureAwait(false);
+                                     ConfigureAwait(false);
 
         }
 
@@ -2358,14 +2359,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return await PushEVSEData(ChargingStations.SafeSelectMany(station => station.EVSEs),
+            return await StationPost(ChargingStations,
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                     Timestamp,
+                                     CancellationToken,
+                                     EventTrackingId,
+                                     RequestTimeout).
 
-                                      ConfigureAwait(false);
+                                     ConfigureAwait(false);
 
         }
 
@@ -2400,14 +2401,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return await PushEVSEData(ChargingStations.SafeSelectMany(station => station.EVSEs),
+            return await StationPost(ChargingStations,
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                     Timestamp,
+                                     CancellationToken,
+                                     EventTrackingId,
+                                     RequestTimeout).
 
-                                      ConfigureAwait(false);
+                                     ConfigureAwait(false);
 
         }
 
@@ -2442,14 +2443,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return await PushEVSEData(ChargingStations.SafeSelectMany(station => station.EVSEs),
+            return await StationPost(ChargingStations,
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                     Timestamp,
+                                     CancellationToken,
+                                     EventTrackingId,
+                                     RequestTimeout).
 
-                                      ConfigureAwait(false);
+                                     ConfigureAwait(false);
 
         }
 
@@ -2484,14 +2485,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return await PushEVSEData(ChargingStations.SafeSelectMany(station => station.EVSEs),
+            return await StationPost(ChargingStations,
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                     Timestamp,
+                                     CancellationToken,
+                                     EventTrackingId,
+                                     RequestTimeout).
 
-                                      ConfigureAwait(false);
+                                     ConfigureAwait(false);
 
         }
 
@@ -2585,14 +2586,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return await PushEVSEData(ChargingPool.EVSEs,
+            return await StationPost(ChargingPool.ChargingStations,
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                     Timestamp,
+                                     CancellationToken,
+                                     EventTrackingId,
+                                     RequestTimeout).
 
-                                      ConfigureAwait(false);
+                                     ConfigureAwait(false);
 
         }
 
@@ -2627,14 +2628,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return await PushEVSEData(ChargingPool.EVSEs,
+            return await StationPost(ChargingPool.ChargingStations,
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                     Timestamp,
+                                     CancellationToken,
+                                     EventTrackingId,
+                                     RequestTimeout).
 
-                                      ConfigureAwait(false);
+                                     ConfigureAwait(false);
 
         }
 
@@ -2669,14 +2670,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return await PushEVSEData(ChargingPool.EVSEs,
+            return await StationPost(ChargingPool.ChargingStations,
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                     Timestamp,
+                                     CancellationToken,
+                                     EventTrackingId,
+                                     RequestTimeout).
 
-                                      ConfigureAwait(false);
+                                     ConfigureAwait(false);
 
         }
 
@@ -2711,14 +2712,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return await PushEVSEData(ChargingPool.EVSEs,
+            return await StationPost(ChargingPool.ChargingStations,
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                     Timestamp,
+                                     CancellationToken,
+                                     EventTrackingId,
+                                     RequestTimeout).
 
-                                      ConfigureAwait(false);
+                                     ConfigureAwait(false);
 
         }
 
@@ -2754,14 +2755,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return await PushEVSEData(ChargingPools.SafeSelectMany(pool => pool.EVSEs),
+            return await StationPost(ChargingPools.SafeSelectMany(pool => pool.ChargingStations),
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                     Timestamp,
+                                     CancellationToken,
+                                     EventTrackingId,
+                                     RequestTimeout).
 
-                                      ConfigureAwait(false);
+                                     ConfigureAwait(false);
 
         }
 
@@ -2796,14 +2797,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return await PushEVSEData(ChargingPools.SafeSelectMany(pool => pool.EVSEs),
+            return await StationPost(ChargingPools.SafeSelectMany(pool => pool.ChargingStations),
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                     Timestamp,
+                                     CancellationToken,
+                                     EventTrackingId,
+                                     RequestTimeout).
 
-                                      ConfigureAwait(false);
+                                     ConfigureAwait(false);
 
         }
 
@@ -2838,14 +2839,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return await PushEVSEData(ChargingPools.SafeSelectMany(pool => pool.EVSEs),
+            return await StationPost(ChargingPools.SafeSelectMany(pool => pool.ChargingStations),
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                     Timestamp,
+                                     CancellationToken,
+                                     EventTrackingId,
+                                     RequestTimeout).
 
-                                      ConfigureAwait(false);
+                                     ConfigureAwait(false);
 
         }
 
@@ -2880,14 +2881,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return await PushEVSEData(ChargingPools.SafeSelectMany(pool => pool.EVSEs),
+            return await StationPost(ChargingPools.SafeSelectMany(pool => pool.ChargingStations),
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                     Timestamp,
+                                     CancellationToken,
+                                     EventTrackingId,
+                                     RequestTimeout).
 
-                                      ConfigureAwait(false);
+                                     ConfigureAwait(false);
 
         }
 
@@ -2981,14 +2982,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return await PushEVSEData(ChargingStationOperator.EVSEs,
+            return await StationPost(ChargingStationOperator.ChargingStations,
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                     Timestamp,
+                                     CancellationToken,
+                                     EventTrackingId,
+                                     RequestTimeout).
 
-                                      ConfigureAwait(false);
+                                     ConfigureAwait(false);
 
         }
 
@@ -3023,14 +3024,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return await PushEVSEData(ChargingStationOperator.EVSEs,
+            return await StationPost(ChargingStationOperator.ChargingStations,
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                     Timestamp,
+                                     CancellationToken,
+                                     EventTrackingId,
+                                     RequestTimeout).
 
-                                      ConfigureAwait(false);
+                                     ConfigureAwait(false);
 
         }
 
@@ -3065,14 +3066,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return await PushEVSEData(ChargingStationOperator.EVSEs,
+            return await StationPost(ChargingStationOperator.ChargingStations,
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                     Timestamp,
+                                     CancellationToken,
+                                     EventTrackingId,
+                                     RequestTimeout).
 
-                                      ConfigureAwait(false);
+                                     ConfigureAwait(false);
 
         }
 
@@ -3107,14 +3108,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return await PushEVSEData(ChargingStationOperator.EVSEs,
+            return await StationPost(ChargingStationOperator.ChargingStations,
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                     Timestamp,
+                                     CancellationToken,
+                                     EventTrackingId,
+                                     RequestTimeout).
 
-                                      ConfigureAwait(false);
+                                     ConfigureAwait(false);
 
         }
 
@@ -3150,14 +3151,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return await PushEVSEData(ChargingStationOperators.SafeSelectMany(stationoperator => stationoperator.EVSEs),
+            return await StationPost(ChargingStationOperators.SafeSelectMany(stationoperator => stationoperator.ChargingStations),
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                     Timestamp,
+                                     CancellationToken,
+                                     EventTrackingId,
+                                     RequestTimeout).
 
-                                      ConfigureAwait(false);
+                                     ConfigureAwait(false);
 
         }
 
@@ -3192,14 +3193,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return await PushEVSEData(ChargingStationOperators.SafeSelectMany(stationoperator => stationoperator.EVSEs),
+            return await StationPost(ChargingStationOperators.SafeSelectMany(stationoperator => stationoperator.ChargingStations),
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                     Timestamp,
+                                     CancellationToken,
+                                     EventTrackingId,
+                                     RequestTimeout).
 
-                                      ConfigureAwait(false);
+                                     ConfigureAwait(false);
 
         }
 
@@ -3234,14 +3235,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return await PushEVSEData(ChargingStationOperators.SafeSelectMany(stationoperator => stationoperator.EVSEs),
+            return await StationPost(ChargingStationOperators.SafeSelectMany(stationoperator => stationoperator.ChargingStations),
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                     Timestamp,
+                                     CancellationToken,
+                                     EventTrackingId,
+                                     RequestTimeout).
 
-                                      ConfigureAwait(false);
+                                     ConfigureAwait(false);
 
         }
 
@@ -3276,14 +3277,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return await PushEVSEData(ChargingStationOperators.SafeSelectMany(stationoperator => stationoperator.EVSEs),
+            return await StationPost(ChargingStationOperators.SafeSelectMany(stationoperator => stationoperator.ChargingStations),
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                     Timestamp,
+                                     CancellationToken,
+                                     EventTrackingId,
+                                     RequestTimeout).
 
-                                      ConfigureAwait(false);
+                                     ConfigureAwait(false);
 
         }
 
@@ -3377,14 +3378,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return await PushEVSEData(RoamingNetwork.EVSEs,
+            return await StationPost(RoamingNetwork.ChargingStations,
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                     Timestamp,
+                                     CancellationToken,
+                                     EventTrackingId,
+                                     RequestTimeout).
 
-                                      ConfigureAwait(false);
+                                     ConfigureAwait(false);
 
         }
 
@@ -3419,14 +3420,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return await PushEVSEData(RoamingNetwork.EVSEs,
+            return await StationPost(RoamingNetwork.ChargingStations,
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                     Timestamp,
+                                     CancellationToken,
+                                     EventTrackingId,
+                                     RequestTimeout).
 
-                                      ConfigureAwait(false);
+                                     ConfigureAwait(false);
 
         }
 
@@ -3461,14 +3462,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return await PushEVSEData(RoamingNetwork.EVSEs,
+            return await StationPost(RoamingNetwork.ChargingStations,
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                     Timestamp,
+                                     CancellationToken,
+                                     EventTrackingId,
+                                     RequestTimeout).
 
-                                      ConfigureAwait(false);
+                                     ConfigureAwait(false);
 
         }
 
@@ -3503,14 +3504,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return await PushEVSEData(RoamingNetwork.EVSEs,
+            return await StationPost(RoamingNetwork.ChargingStations,
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                     Timestamp,
+                                     CancellationToken,
+                                     EventTrackingId,
+                                     RequestTimeout).
 
-                                      ConfigureAwait(false);
+                                     ConfigureAwait(false);
 
         }
 
@@ -3665,53 +3666,39 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             else
             {
 
-                //var response = await CPORoaming.
-                //                         RFIDVerify(AuthToken.ToOIOI(),
+                var response = await CPORoaming.
+                                         RFIDVerify(AuthToken.ToOIOI(),
+
+                                                    Timestamp,
+                                                    CancellationToken,
+                                                    EventTrackingId,
+                                                    RequestTimeout).ConfigureAwait(false);
 
 
-                //                                        //OperatorId.HasValue
-                //                                        //    ? OperatorId.Value.ToOIOI()
-                //                                        //    : DefaultOperatorId,
-                //                                        //AuthToken.          ToOIOI(),
-                //                                        //null,
-                //                                        //ChargingProduct?.Id.ToOIOI(),
-                //                                        //SessionId.          ToOIOI(),
-                //                                        //null,
+                Endtime  = DateTime.Now;
+                Runtime  = Endtime - StartTime;
 
-                //                                        Timestamp,
-                //                                        CancellationToken,
-                //                                        EventTrackingId,
-                //                                        RequestTimeout).ConfigureAwait(false);
+                if (response.HTTPStatusCode == HTTPStatusCode.OK &&
+                    response.Content        != null              &&
+                    response.Content.Success)
+                {
 
+                    result = AuthStartResult.Authorized(
+                                 Id,
+                                 SessionId,
+                                 ProviderId: DefaultProviderId,
+                                 Runtime:    Runtime
+                             );
 
-                //Endtime  = DateTime.Now;
-                //Runtime  = Endtime - StartTime;
+                }
 
-                //if (response.HTTPStatusCode              == HTTPStatusCode.OK &&
-                //    response.Content                     != null              &&
-                //    response.Content.AuthorizationStatus == AuthorizationStatusTypes.Authorized)
-                //{
-
-                //    result = AuthStartResult.Authorized(
-                //                 Id,
-                //                 response.Content.SessionId. ToWWCP().Value,
-                //                 ProviderId:      response.Content.ProviderId.ToWWCP(),
-                //                 Description:     response.Content.StatusCode.Description,
-                //                 AdditionalInfo:  response.Content.StatusCode.AdditionalInfo,
-                //                 Runtime:         Runtime
-                //             );
-
-                //}
-
-                //else
-                //    result = AuthStartResult.NotAuthorized(
-                //                 Id,
-                //                 SessionId,
-                //                 response.Content.ProviderId.ToWWCP(),
-                //                 response.Content.StatusCode.Description,
-                //                 response.Content.StatusCode.AdditionalInfo,
-                //                 Runtime
-                //             );
+                else
+                    result = AuthStartResult.NotAuthorized(
+                                 Id,
+                                 SessionId,
+                                 ProviderId: DefaultProviderId,
+                                 Runtime:    Runtime
+                             );
 
             }
 
@@ -3721,18 +3708,18 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             try
             {
 
-                //OnAuthorizeStartResponse?.Invoke(Endtime,
-                //                                 Timestamp.Value,
-                //                                 this,
-                //                                 EventTrackingId,
-                //                                 RoamingNetwork.Id,
-                //                                 OperatorId,
-                //                                 AuthToken,
-                //                                 ChargingProduct,
-                //                                 SessionId,
-                //                                 RequestTimeout,
-                //                                 result,
-                //                                 Runtime);
+                OnAuthorizeStartResponse?.Invoke(Endtime,
+                                                 Timestamp.Value,
+                                                 this,
+                                                 EventTrackingId,
+                                                 RoamingNetwork.Id,
+                                                 OperatorId,
+                                                 AuthToken,
+                                                 ChargingProduct,
+                                                 SessionId,
+                                                 RequestTimeout,
+                                                 result,
+                                                 Runtime);
 
             }
             catch (Exception e)
@@ -3741,8 +3728,6 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             }
 
             #endregion
-
-            result = null;
 
             return result;
 
@@ -3768,7 +3753,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         public async Task<AuthStartEVSEResult>
 
             AuthorizeStart(Auth_Token                   AuthToken,
-                           WWCP.EVSE_Id                 EVSEId,
+                           EVSE_Id                      EVSEId,
                            ChargingProduct              ChargingProduct     = null,   // [maxlength: 100]
                            ChargingSession_Id?          SessionId           = null,
                            ChargingStationOperator_Id?  OperatorId          = null,
@@ -3842,50 +3827,39 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             else
             {
 
-                //var response  = await CPORoaming.
-                //                          AuthorizeStart(OperatorId.HasValue
-                //                                            ? OperatorId.Value.ToOIOI()
-                //                                            : DefaultOperatorId,
-                //                                         AuthToken.          ToOIOI(),
-                //                                         EVSEId.             ToOIOI(),
-                //                                         ChargingProduct?.Id.ToOIOI(),
-                //                                         SessionId.          ToOIOI(),
-                //                                         null,
+                var response  = await CPORoaming.
+                                          RFIDVerify(AuthToken.ToOIOI(),
 
-                //                                         Timestamp,
-                //                                         CancellationToken,
-                //                                         EventTrackingId,
-                //                                         RequestTimeout).ConfigureAwait(false);
+                                                     Timestamp,
+                                                     CancellationToken,
+                                                     EventTrackingId,
+                                                     RequestTimeout).ConfigureAwait(false);
 
 
-                //Endtime  = DateTime.Now;
-                //Runtime  = Endtime - StartTime;
+                Endtime  = DateTime.Now;
+                Runtime  = Endtime - StartTime;
 
-                //if (response.HTTPStatusCode              == HTTPStatusCode.OK &&
-                //    response.Content                     != null              &&
-                //    response.Content.AuthorizationStatus == AuthorizationStatusTypes.Authorized)
-                //{
+                if (response.HTTPStatusCode == HTTPStatusCode.OK &&
+                    response.Content        != null              &&
+                    response.Content.Success)
+                {
 
-                //    result = AuthStartEVSEResult.Authorized(
-                //                 Id,
-                //                 response.Content.SessionId.ToWWCP().Value,
-                //                 ProviderId:      response.Content.ProviderId.ToWWCP(),
-                //                 Description:     response.Content.StatusCode.Description,
-                //                 AdditionalInfo:  response.Content.StatusCode.AdditionalInfo,
-                //                 Runtime:         Runtime
-                //             );
+                    result = AuthStartEVSEResult.Authorized(
+                                 Id,
+                                 SessionId,
+                                 ProviderId: DefaultProviderId,
+                                 Runtime:    Runtime
+                             );
 
-                //}
+                }
 
-                //else
-                //    result = AuthStartEVSEResult.NotAuthorized(
-                //                 Id,
-                //                 SessionId,
-                //                 response.Content.ProviderId.ToWWCP(),
-                //                 response.Content.StatusCode.Description,
-                //                 response.Content.StatusCode.AdditionalInfo,
-                //                 Runtime
-                //             );
+                else
+                    result = AuthStartEVSEResult.NotAuthorized(
+                                 Id,
+                                 SessionId,
+                                 ProviderId: DefaultProviderId,
+                                 Runtime:    Runtime
+                             );
 
             }
 
@@ -3895,19 +3869,19 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             try
             {
 
-                //OnAuthorizeEVSEStartResponse?.Invoke(Endtime,
-                //                                     Timestamp.Value,
-                //                                     this,
-                //                                     EventTrackingId,
-                //                                     RoamingNetwork.Id,
-                //                                     OperatorId,
-                //                                     AuthToken,
-                //                                     EVSEId,
-                //                                     ChargingProduct,
-                //                                     SessionId,
-                //                                     RequestTimeout,
-                //                                     result,
-                //                                     Runtime);
+                OnAuthorizeEVSEStartResponse?.Invoke(Endtime,
+                                                     Timestamp.Value,
+                                                     this,
+                                                     EventTrackingId,
+                                                     RoamingNetwork.Id,
+                                                     OperatorId,
+                                                     AuthToken,
+                                                     EVSEId,
+                                                     ChargingProduct,
+                                                     SessionId,
+                                                     RequestTimeout,
+                                                     result,
+                                                     Runtime);
 
             }
             catch (Exception e)
@@ -3916,8 +3890,6 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             }
 
             #endregion
-
-            result = null;
 
             return result;
 
@@ -3940,7 +3912,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        public Task<AuthStartChargingStationResult>
+        public async Task<AuthStartChargingStationResult>
 
             AuthorizeStart(Auth_Token                   AuthToken,
                            ChargingStation_Id           ChargingStationId,
@@ -4003,14 +3975,55 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             #endregion
 
 
-            var result   = AuthStartChargingStationResult.Error(
-                               Id,
-                               SessionId,
-                               "Not implemented!"
-                           );
+            DateTime                        Endtime;
+            TimeSpan                        Runtime;
+            AuthStartChargingStationResult  result;
 
-            var Endtime  = DateTime.Now;
-            var Runtime  = Endtime - StartTime;
+            if (DisableAuthentication)
+            {
+                Endtime  = DateTime.Now;
+                Runtime  = Endtime - StartTime;
+                result   = AuthStartChargingStationResult.OutOfService(Id, SessionId, Runtime);
+            }
+
+            else
+            {
+
+                var response  = await CPORoaming.
+                                          RFIDVerify(AuthToken.ToOIOI(),
+
+                                                     Timestamp,
+                                                     CancellationToken,
+                                                     EventTrackingId,
+                                                     RequestTimeout).ConfigureAwait(false);
+
+
+                Endtime  = DateTime.Now;
+                Runtime  = Endtime - StartTime;
+
+                if (response.HTTPStatusCode == HTTPStatusCode.OK &&
+                    response.Content        != null              &&
+                    response.Content.Success)
+                {
+
+                    result = AuthStartChargingStationResult.Authorized(
+                                 Id,
+                                 SessionId,
+                                 ProviderId: DefaultProviderId,
+                                 Runtime:    Runtime
+                             );
+
+                }
+
+                else
+                    result = AuthStartChargingStationResult.NotAuthorized(
+                                 Id,
+                                 SessionId,
+                                 ProviderId: DefaultProviderId,
+                                 Runtime:    Runtime
+                             );
+
+            }
 
 
             #region Send OnAuthorizeChargingStationStartResponse event
@@ -4040,7 +4053,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return Task.FromResult(result);
+            return result;
 
         }
 
@@ -4061,7 +4074,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        public Task<AuthStartChargingPoolResult>
+        public async Task<AuthStartChargingPoolResult>
 
             AuthorizeStart(Auth_Token                   AuthToken,
                            ChargingPool_Id              ChargingPoolId,
@@ -4124,14 +4137,55 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             #endregion
 
 
-            var result   = AuthStartChargingPoolResult.Error(
-                               Id,
-                               SessionId,
-                               "Not implemented!"
-                           );
+            DateTime                     Endtime;
+            TimeSpan                     Runtime;
+            AuthStartChargingPoolResult  result;
 
-            var Endtime  = DateTime.Now;
-            var Runtime  = Endtime - StartTime;
+            if (DisableAuthentication)
+            {
+                Endtime  = DateTime.Now;
+                Runtime  = Endtime - StartTime;
+                result   = AuthStartChargingPoolResult.OutOfService(Id, SessionId, Runtime);
+            }
+
+            else
+            {
+
+                var response  = await CPORoaming.
+                                          RFIDVerify(AuthToken.ToOIOI(),
+
+                                                     Timestamp,
+                                                     CancellationToken,
+                                                     EventTrackingId,
+                                                     RequestTimeout).ConfigureAwait(false);
+
+
+                Endtime  = DateTime.Now;
+                Runtime  = Endtime - StartTime;
+
+                if (response.HTTPStatusCode == HTTPStatusCode.OK &&
+                    response.Content        != null              &&
+                    response.Content.Success)
+                {
+
+                    result = AuthStartChargingPoolResult.Authorized(
+                                 Id,
+                                 SessionId,
+                                 ProviderId: DefaultProviderId,
+                                 Runtime:    Runtime
+                             );
+
+                }
+
+                else
+                    result = AuthStartChargingPoolResult.NotAuthorized(
+                                 Id,
+                                 SessionId,
+                                 ProviderId: DefaultProviderId,
+                                 Runtime:    Runtime
+                             );
+
+            }
 
 
             #region Send OnAuthorizeChargingPoolStartResponse event
@@ -4161,7 +4215,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return Task.FromResult(result);
+            return result;
 
         }
 
@@ -4257,45 +4311,37 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             else
             {
 
-                //var response = await CPORoaming.AuthorizeStop(OperatorId.HasValue
-                //                                                  ? OperatorId.Value.ToOIOI()
-                //                                                  : DefaultOperatorId,
-                //                                              SessionId. ToOIOI(),
-                //                                              AuthToken. ToOIOI(),
-                //                                              null,
-                //                                              null,
+                var response = await CPORoaming.RFIDVerify(AuthToken. ToOIOI(),
 
-                //                                              Timestamp,
-                //                                              CancellationToken,
-                //                                              EventTrackingId,
-                //                                              RequestTimeout).ConfigureAwait(false);
+                                                           Timestamp,
+                                                           CancellationToken,
+                                                           EventTrackingId,
+                                                           RequestTimeout).ConfigureAwait(false);
 
 
-                //Endtime  = DateTime.Now;
-                //Runtime  = Endtime - StartTime;
+                Endtime  = DateTime.Now;
+                Runtime  = Endtime - StartTime;
 
-                //if (response.HTTPStatusCode              == HTTPStatusCode.OK &&
-                //    response.Content                     != null              &&
-                //    response.Content.AuthorizationStatus == AuthorizationStatusTypes.Authorized)
-                //{
+                if (response.HTTPStatusCode == HTTPStatusCode.OK &&
+                    response.Content        != null              &&
+                    response.Content.Success)
+                {
 
-                //    result = AuthStopResult.Authorized(
-                //                 Id,
-                //                 SessionId,
-                //                 response.Content.ProviderId.ToWWCP(),
-                //                 response.Content?.StatusCode?.Description,
-                //                 response.Content?.StatusCode?.AdditionalInfo
-                //             );
+                    result = AuthStopResult.Authorized(
+                                 Id,
+                                 SessionId,
+                                 ProviderId: DefaultProviderId,
+                                 Runtime:    Runtime
+                             );
 
-                //}
-                //else
-                //    result = AuthStopResult.NotAuthorized(
-                //                 Id,
-                //                 SessionId,
-                //                 response.Content?.ProviderId.ToWWCP(),
-                //                 response.Content?.StatusCode?.Description,
-                //                 response.Content?.StatusCode?.AdditionalInfo
-                //             );
+                }
+                else
+                    result = AuthStopResult.NotAuthorized(
+                                 Id,
+                                 SessionId,
+                                 ProviderId: DefaultProviderId,
+                                 Runtime:    Runtime
+                             );
 
             }
 
@@ -4305,17 +4351,17 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             try
             {
 
-                //OnAuthorizeStopResponse?.Invoke(Endtime,
-                //                                Timestamp.Value,
-                //                                this,
-                //                                EventTrackingId,
-                //                                RoamingNetwork.Id,
-                //                                OperatorId,
-                //                                SessionId,
-                //                                AuthToken,
-                //                                RequestTimeout,
-                //                                result,
-                //                                Runtime);
+                OnAuthorizeStopResponse?.Invoke(Endtime,
+                                                Timestamp.Value,
+                                                this,
+                                                EventTrackingId,
+                                                RoamingNetwork.Id,
+                                                OperatorId,
+                                                SessionId,
+                                                AuthToken,
+                                                RequestTimeout,
+                                                result,
+                                                Runtime);
 
             }
             catch (Exception e)
@@ -4421,45 +4467,37 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             else
             {
 
-                //var response  = await CPORoaming.AuthorizeStop(OperatorId.HasValue
-                //                                                  ? OperatorId.Value.ToOIOI()
-                //                                                  : DefaultOperatorId,
-                //                                               SessionId. ToOIOI(),
-                //                                               AuthToken. ToOIOI(),
-                //                                               EVSEId.    ToOIOI(),
-                //                                               null,
+                var response  = await CPORoaming.RFIDVerify(AuthToken. ToOIOI(),
 
-                //                                               Timestamp,
-                //                                               CancellationToken,
-                //                                               EventTrackingId,
-                //                                               RequestTimeout).ConfigureAwait(false);
+                                                            Timestamp,
+                                                            CancellationToken,
+                                                            EventTrackingId,
+                                                            RequestTimeout).ConfigureAwait(false);
 
 
-                //Endtime  = DateTime.Now;
-                //Runtime  = Endtime - StartTime;
+                Endtime  = DateTime.Now;
+                Runtime  = Endtime - StartTime;
 
-                //if (response.HTTPStatusCode              == HTTPStatusCode.OK &&
-                //    response.Content                     != null              &&
-                //    response.Content.AuthorizationStatus == AuthorizationStatusTypes.Authorized)
-                //{
+                if (response.HTTPStatusCode == HTTPStatusCode.OK &&
+                    response.Content        != null              &&
+                    response.Content.Success)
+                {
 
-                //    result = AuthStopEVSEResult.Authorized(
-                //                 Id,
-                //                 SessionId,
-                //                 response.Content?.ProviderId?.ToWWCP(),
-                //                 response.Content?.StatusCode?.Description,
-                //                 response.Content?.StatusCode?.AdditionalInfo
-                //             );
+                    result = AuthStopEVSEResult.Authorized(
+                                 Id,
+                                 SessionId,
+                                 ProviderId: DefaultProviderId,
+                                 Runtime:    Runtime
+                             );
 
-                //}
-                //else
-                //    result = AuthStopEVSEResult.NotAuthorized(
-                //                 Id,
-                //                 SessionId,
-                //                 response.Content?.ProviderId?.ToWWCP(),
-                //                 response.Content?.StatusCode?.Description,
-                //                 response.Content?.StatusCode?.AdditionalInfo
-                //             );
+                }
+                else
+                    result = AuthStopEVSEResult.NotAuthorized(
+                                 Id,
+                                 SessionId,
+                                 ProviderId: DefaultProviderId,
+                                 Runtime:    Runtime
+                             );
 
             }
 
@@ -4469,18 +4507,18 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             try
             {
 
-                //OnAuthorizeEVSEStopResponse?.Invoke(Endtime,
-                //                                    Timestamp.Value,
-                //                                    this,
-                //                                    EventTrackingId,
-                //                                    RoamingNetwork.Id,
-                //                                    OperatorId,
-                //                                    EVSEId,
-                //                                    SessionId,
-                //                                    AuthToken,
-                //                                    RequestTimeout,
-                //                                    result,
-                //                                    Runtime);
+                OnAuthorizeEVSEStopResponse?.Invoke(Endtime,
+                                                    Timestamp.Value,
+                                                    this,
+                                                    EventTrackingId,
+                                                    RoamingNetwork.Id,
+                                                    OperatorId,
+                                                    EVSEId,
+                                                    SessionId,
+                                                    AuthToken,
+                                                    RequestTimeout,
+                                                    result,
+                                                    Runtime);
 
             }
             catch (Exception e)
@@ -4512,7 +4550,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        public Task<AuthStopChargingStationResult>
+        public async Task<AuthStopChargingStationResult>
 
             AuthorizeStop(ChargingSession_Id           SessionId,
                           Auth_Token                   AuthToken,
@@ -4573,14 +4611,53 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             #endregion
 
 
-            var result   = AuthStopChargingStationResult.Error(
-                               Id,
-                               SessionId,
-                               "OIOI does not support this request!"
-                           );
+            DateTime                       Endtime;
+            TimeSpan                       Runtime;
+            AuthStopChargingStationResult  result;
 
-            var Endtime  = DateTime.Now;
-            var Runtime  = Endtime - StartTime;
+            if (DisableAuthentication)
+            {
+                Endtime  = DateTime.Now;
+                Runtime  = Endtime - StartTime;
+                result   = AuthStopChargingStationResult.OutOfService(Id, SessionId, Runtime);
+            }
+
+            else
+            {
+
+                var response  = await CPORoaming.RFIDVerify(AuthToken. ToOIOI(),
+
+                                                            Timestamp,
+                                                            CancellationToken,
+                                                            EventTrackingId,
+                                                            RequestTimeout).ConfigureAwait(false);
+
+
+                Endtime  = DateTime.Now;
+                Runtime  = Endtime - StartTime;
+
+                if (response.HTTPStatusCode == HTTPStatusCode.OK &&
+                    response.Content        != null              &&
+                    response.Content.Success)
+                {
+
+                    result = AuthStopChargingStationResult.Authorized(
+                                 Id,
+                                 SessionId,
+                                 ProviderId: DefaultProviderId,
+                                 Runtime:    Runtime
+                             );
+
+                }
+                else
+                    result = AuthStopChargingStationResult.NotAuthorized(
+                                 Id,
+                                 SessionId,
+                                 ProviderId: DefaultProviderId,
+                                 Runtime:    Runtime
+                             );
+
+            }
 
 
             #region Send OnAuthorizeChargingStationStopResponse event
@@ -4609,7 +4686,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return Task.FromResult(result);
+            return result;
 
         }
 
@@ -4629,7 +4706,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        public Task<AuthStopChargingPoolResult>
+        public async Task<AuthStopChargingPoolResult>
 
             AuthorizeStop(ChargingSession_Id           SessionId,
                           Auth_Token                   AuthToken,
@@ -4690,14 +4767,53 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             #endregion
 
 
-            var result   = AuthStopChargingPoolResult.Error(
-                               Id,
-                               SessionId,
-                               "OIOI does not support this request!"
-                           );
+            DateTime                    Endtime;
+            TimeSpan                    Runtime;
+            AuthStopChargingPoolResult  result;
 
-            var Endtime  = DateTime.Now;
-            var Runtime  = Endtime - StartTime;
+            if (DisableAuthentication)
+            {
+                Endtime  = DateTime.Now;
+                Runtime  = Endtime - StartTime;
+                result   = AuthStopChargingPoolResult.OutOfService(Id, SessionId, Runtime);
+            }
+
+            else
+            {
+
+                var response  = await CPORoaming.RFIDVerify(AuthToken. ToOIOI(),
+
+                                                            Timestamp,
+                                                            CancellationToken,
+                                                            EventTrackingId,
+                                                            RequestTimeout).ConfigureAwait(false);
+
+
+                Endtime  = DateTime.Now;
+                Runtime  = Endtime - StartTime;
+
+                if (response.HTTPStatusCode == HTTPStatusCode.OK &&
+                    response.Content        != null              &&
+                    response.Content.Success)
+                {
+
+                    result = AuthStopChargingPoolResult.Authorized(
+                                 Id,
+                                 SessionId,
+                                 ProviderId: DefaultProviderId,
+                                 Runtime:    Runtime
+                             );
+
+                }
+                else
+                    result = AuthStopChargingPoolResult.NotAuthorized(
+                                 Id,
+                                 SessionId,
+                                 ProviderId: DefaultProviderId,
+                                 Runtime:    Runtime
+                             );
+
+            }
 
 
             #region Send OnAuthorizeChargingPoolStopResponse event
@@ -4726,7 +4842,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            return Task.FromResult(result);
+            return result;
 
         }
 
@@ -5200,9 +5316,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                     if (EVSEsWithoutNewEVSEs.Length > 0)
                     {
 
-                        var PushEVSEDataTask = (this as IRemotePushData).UpdateStaticData(EVSEsWithoutNewEVSEs, EventTrackingId: EventTrackingId);
+                        var StationPostTask = (this as IRemotePushData).UpdateStaticData(EVSEsWithoutNewEVSEs, EventTrackingId: EventTrackingId);
 
-                        PushEVSEDataTask.Wait();
+                        StationPostTask.Wait();
 
                     }
 
