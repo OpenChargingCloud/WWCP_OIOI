@@ -161,81 +161,64 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
                 #region Register EVSE data/status push log events
 
-                //RegisterEvent("EVSEDataPush",
-                //              handler => CPOClient.OnPushEVSEDataSOAPRequest    += handler,
-                //              handler => CPOClient.OnPushEVSEDataSOAPRequest    -= handler,
-                //              "EVSE", "EVSEData", "Request", "All").
-                //    RegisterDefaultConsoleLogTarget(this).
-                //    RegisterDefaultDiscLogTarget(this);
+                RegisterEvent("OnStationPostRequest",
+                              handler => CPOClient.OnStationPostHTTPRequest  += handler,
+                              handler => CPOClient.OnStationPostHTTPRequest  -= handler,
+                              "OnStationPost", "Request", "All").
+                    RegisterDefaultConsoleLogTarget(this).
+                    RegisterDefaultDiscLogTarget(this);
 
-                //RegisterEvent("EVSEDataPushed",
-                //              handler => CPOClient.OnPushEVSEDataSOAPResponse   += handler,
-                //              handler => CPOClient.OnPushEVSEDataSOAPResponse   -= handler,
-                //              "EVSE", "EVSEData", "Response", "All").
-                //    RegisterDefaultConsoleLogTarget(this).
-                //    RegisterDefaultDiscLogTarget(this);
-
-
-                //RegisterEvent("EVSEStatusPush",
-                //              handler => CPOClient.OnPushEVSEStatusSOAPRequest  += handler,
-                //              handler => CPOClient.OnPushEVSEStatusSOAPRequest  -= handler,
-                //              "EVSE", "EVSEStatus", "Request", "All").
-                //    RegisterDefaultConsoleLogTarget(this).
-                //    RegisterDefaultDiscLogTarget(this);
-
-                //RegisterEvent("EVSEStatusPushed",
-                //              handler => CPOClient.OnPushEVSEStatusSOAPResponse += handler,
-                //              handler => CPOClient.OnPushEVSEStatusSOAPResponse -= handler,
-                //              "EVSE", "EVSEStatus", "Response", "All").
-                //    RegisterDefaultConsoleLogTarget(this).
-                //    RegisterDefaultDiscLogTarget(this);
+                RegisterEvent("OnStationPostResponse",
+                              handler => CPOClient.OnStationPostHTTPResponse += handler,
+                              handler => CPOClient.OnStationPostHTTPResponse -= handler,
+                              "OnStationPost", "Response", "All").
+                    RegisterDefaultConsoleLogTarget(this).
+                    RegisterDefaultDiscLogTarget(this);
 
 
+                RegisterEvent("OnConnectorPostStatusRequest",
+                              handler => CPOClient.OnConnectorPostStatusHTTPRequest  += handler,
+                              handler => CPOClient.OnConnectorPostStatusHTTPRequest  -= handler,
+                              "OnConnectorPostStatus", "Request", "All").
+                    RegisterDefaultConsoleLogTarget(this).
+                    RegisterDefaultDiscLogTarget(this);
 
-                //RegisterEvent("AuthorizeStart",
-                //              handler => CPOClient.OnAuthorizeStartSOAPRequest += handler,
-                //              handler => CPOClient.OnAuthorizeStartSOAPRequest -= handler,
-                //              "Authorize", "Request", "All").
-                //    RegisterDefaultConsoleLogTarget(this).
-                //    RegisterDefaultDiscLogTarget(this);
-
-                //RegisterEvent("AuthorizeStarted",
-                //              handler => CPOClient.OnAuthorizeStartSOAPResponse += handler,
-                //              handler => CPOClient.OnAuthorizeStartSOAPResponse -= handler,
-                //              "Authorize", "Response", "All").
-                //    RegisterDefaultConsoleLogTarget(this).
-                //    RegisterDefaultDiscLogTarget(this);
-
-
-                //RegisterEvent("AuthorizeStop",
-                //              handler => CPOClient.OnAuthorizeStopSOAPRequest += handler,
-                //              handler => CPOClient.OnAuthorizeStopSOAPRequest -= handler,
-                //              "Authorize", "Request", "All").
-                //    RegisterDefaultConsoleLogTarget(this).
-                //    RegisterDefaultDiscLogTarget(this);
-
-                //RegisterEvent("AuthorizeStopped",
-                //              handler => CPOClient.OnAuthorizeStopSOAPResponse += handler,
-                //              handler => CPOClient.OnAuthorizeStopSOAPResponse -= handler,
-                //              "Authorize", "Response", "All").
-                //    RegisterDefaultConsoleLogTarget(this).
-                //    RegisterDefaultDiscLogTarget(this);
+                RegisterEvent("OnConnectorPostStatusResponse",
+                              handler => CPOClient.OnConnectorPostStatusHTTPResponse += handler,
+                              handler => CPOClient.OnConnectorPostStatusHTTPResponse -= handler,
+                              "OnConnectorPostStatus", "Response", "All").
+                    RegisterDefaultConsoleLogTarget(this).
+                    RegisterDefaultDiscLogTarget(this);
 
 
+                RegisterEvent("RFIDVerifyRequest",
+                              handler => CPOClient.OnRFIDVerifyHTTPRequest  += handler,
+                              handler => CPOClient.OnRFIDVerifyHTTPRequest  -= handler,
+                              "RFIDVerify", "Request", "All").
+                    RegisterDefaultConsoleLogTarget(this).
+                    RegisterDefaultDiscLogTarget(this);
 
-                //RegisterEvent("SendChargeDetailRecord",
-                //              handler => CPOClient.OnSendChargeDetailRecordSOAPRequest += handler,
-                //              handler => CPOClient.OnSendChargeDetailRecordSOAPRequest -= handler,
-                //              "ChargeDetailRecord", "CDR", "Request", "All").
-                //    RegisterDefaultConsoleLogTarget(this).
-                //    RegisterDefaultDiscLogTarget(this);
+                RegisterEvent("RFIDVerifyResponse",
+                              handler => CPOClient.OnRFIDVerifyHTTPResponse += handler,
+                              handler => CPOClient.OnRFIDVerifyHTTPResponse -= handler,
+                              "RFIDVerify", "Response", "All").
+                    RegisterDefaultConsoleLogTarget(this).
+                    RegisterDefaultDiscLogTarget(this);
 
-                //RegisterEvent("ChargeDetailRecordSent",
-                //              handler => CPOClient.OnSendChargeDetailRecordSOAPResponse += handler,
-                //              handler => CPOClient.OnSendChargeDetailRecordSOAPResponse -= handler,
-                //              "ChargeDetailRecord", "CDR", "Response", "All").
-                //    RegisterDefaultConsoleLogTarget(this).
-                //    RegisterDefaultDiscLogTarget(this);
+
+                RegisterEvent("OnSessionPostRequest",
+                              handler => CPOClient.OnSessionPostHTTPRequest  += handler,
+                              handler => CPOClient.OnSessionPostHTTPRequest  -= handler,
+                              "OnSessionPost", "Request", "All").
+                    RegisterDefaultConsoleLogTarget(this).
+                    RegisterDefaultDiscLogTarget(this);
+
+                RegisterEvent("OnSessionPostResponse",
+                              handler => CPOClient.OnSessionPostHTTPResponse += handler,
+                              handler => CPOClient.OnSessionPostHTTPResponse -= handler,
+                              "OnSessionPost", "Response", "All").
+                    RegisterDefaultConsoleLogTarget(this).
+                    RegisterDefaultDiscLogTarget(this);
 
 
                 //RegisterEvent("PullAuthenticationData",
