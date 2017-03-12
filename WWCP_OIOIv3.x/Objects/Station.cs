@@ -351,6 +351,11 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         #endregion
 
 
+        public static Station Parse(JObject JSON)
+        {
+            return null;
+        }
+
         #region ToJSON()
 
         /// <summary>

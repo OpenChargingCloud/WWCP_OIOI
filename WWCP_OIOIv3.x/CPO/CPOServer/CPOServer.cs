@@ -339,20 +339,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
                                                  #region Documentation
 
-                                                 // {
-                                                 //    "session-start": {
-                                                 //
-                                                 //        "user": {
-                                                 //            "identifier-type":  "evco-id",
-                                                 //            "identifier":       "DE*8PS*123456*7",
-                                                 //            "token":            "..."   [optional]
-                                                 //        },
-                                                 //
-                                                 //        "connector-id":       "1356",
-                                                 //        "payment-reference":  "1212"    [optional]
-                                                 //
-                                                 //    }
-                                                 // }
+                                                 
 
                                                  // HTTP Status codes
                                                  //  200 OK             Request was processed successfully

@@ -25,19 +25,19 @@ using org.GraphDefined.Vanaheimr.Hermod.SOAP;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
+namespace org.GraphDefined.WWCP.OIOIv3_x.EMP
 {
 
     /// <summary>
     /// An OIOI CPO Client.
     /// </summary>
-    public partial class CPOClient : AJSONClient
+    public partial class EMPClient : AJSONClient
     {
 
         /// <summary>
-        /// An OIOI CPO Client (HTTP/JSON client) logger.
+        /// An OIOI EMP Client (HTTP/JSON client) logger.
         /// </summary>
-        public class CPOClientLogger : HTTPLogger
+        public class EMPClientLogger : HTTPLogger
         {
 
             #region Data
@@ -45,34 +45,34 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             /// <summary>
             /// The default context for this logger.
             /// </summary>
-            public const String DefaultContext = "OIOI_CPOClient";
+            public const String DefaultContext = "OIOI_EMPClient";
 
             #endregion
 
             #region Properties
 
             /// <summary>
-            /// The attached OIOI CPO Client.
+            /// The attached OIOI EMP Client.
             /// </summary>
-            public CPOClient CPOClient { get; }
+            public EMPClient EMPClient { get; }
 
             #endregion
 
             #region Constructor(s)
 
-            #region CPOClientLogger(CPOClient, Context = DefaultContext, LogFileCreator = null)
+            #region EMPClientLogger(EMPClient, Context = DefaultContext, LogFileCreator = null)
 
             /// <summary>
-            /// Create a new OIOI CPO Client logger using the default logging delegates.
+            /// Create a new OIOI EMP Client logger using the default logging delegates.
             /// </summary>
-            /// <param name="CPOClient">A OIOI CPO Client.</param>
+            /// <param name="EMPClient">A OIOI EMP Client.</param>
             /// <param name="Context">A context of this API.</param>
             /// <param name="LogFileCreator">A delegate to create a log file from the given context and log file name.</param>
-            public CPOClientLogger(CPOClient                    CPOClient,
+            public EMPClientLogger(EMPClient                    EMPClient,
                                    String                       Context         = DefaultContext,
                                    Func<String, String, String> LogFileCreator  = null)
 
-                : this(CPOClient,
+                : this(EMPClient,
                        Context.IsNotNullOrEmpty() ? Context : DefaultContext,
                        null,
                        null,
@@ -85,12 +85,12 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            #region CPOClientLogger(CPOClient, Context, ... Logging delegates ...)
+            #region EMPClientLogger(EMPClient, Context, ... Logging delegates ...)
 
             /// <summary>
-            /// Create a new OIOI CPO Client logger using the given logging delegates.
+            /// Create a new OIOI EMP Client logger using the given logging delegates.
             /// </summary>
-            /// <param name="CPOClient">A OIOI CPO Client.</param>
+            /// <param name="EMPClient">A OIOI EMP Client.</param>
             /// <param name="Context">A context of this API.</param>
             /// 
             /// <param name="LogHTTPRequest_toConsole">A delegate to log incoming HTTP requests to console.</param>
@@ -109,7 +109,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             /// <param name="LogHTTPError_toHTTPSSE">A delegate to log HTTP errors to a HTTP client sent events source.</param>
             /// 
             /// <param name="LogFileCreator">A delegate to create a log file from the given context and log file name.</param>
-            public CPOClientLogger(CPOClient                     CPOClient,
+            public EMPClientLogger(EMPClient                     EMPClient,
                                    String                        Context,
 
                                    HTTPRequestLoggerDelegate     LogHTTPRequest_toConsole,
@@ -152,88 +152,28 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
                 #region Initial checks
 
-                if (CPOClient == null)
-                    throw new ArgumentNullException(nameof(CPOClient), "The given CPO Client must not be null!");
+                if (EMPClient == null)
+                    throw new ArgumentNullException(nameof(EMPClient), "The given EMP Client must not be null!");
 
-                this.CPOClient = CPOClient;
+                this.EMPClient = EMPClient;
 
                 #endregion
 
                 #region Register EVSE data/status push log events
 
-                RegisterEvent("OnStationPostRequest",
-                              handler => CPOClient.OnStationPostHTTPRequest  += handler,
-                              handler => CPOClient.OnStationPostHTTPRequest  -= handler,
-                              "OnStationPost", "Request", "All").
+                RegisterEvent("OnStationGetSurfaceRequest",
+                              handler => EMPClient.OnStationGetSurfaceHTTPRequest  += handler,
+                              handler => EMPClient.OnStationGetSurfaceHTTPRequest -= handler,
+                              "OnStationGetSurface", "Request", "All").
                     RegisterDefaultConsoleLogTarget(this).
                     RegisterDefaultDiscLogTarget(this);
 
-                RegisterEvent("OnStationPostResponse",
-                              handler => CPOClient.OnStationPostHTTPResponse += handler,
-                              handler => CPOClient.OnStationPostHTTPResponse -= handler,
-                              "OnStationPost", "Response", "All").
+                RegisterEvent("OnStationGetSurfaceResponse",
+                              handler => EMPClient.OnStationGetSurfaceHTTPResponse += handler,
+                              handler => EMPClient.OnStationGetSurfaceHTTPResponse -= handler,
+                              "OnStationGetSurface", "Response", "All").
                     RegisterDefaultConsoleLogTarget(this).
                     RegisterDefaultDiscLogTarget(this);
-
-
-                RegisterEvent("OnConnectorPostStatusRequest",
-                              handler => CPOClient.OnConnectorPostStatusHTTPRequest  += handler,
-                              handler => CPOClient.OnConnectorPostStatusHTTPRequest  -= handler,
-                              "OnConnectorPostStatus", "Request", "All").
-                    RegisterDefaultConsoleLogTarget(this).
-                    RegisterDefaultDiscLogTarget(this);
-
-                RegisterEvent("OnConnectorPostStatusResponse",
-                              handler => CPOClient.OnConnectorPostStatusHTTPResponse += handler,
-                              handler => CPOClient.OnConnectorPostStatusHTTPResponse -= handler,
-                              "OnConnectorPostStatus", "Response", "All").
-                    RegisterDefaultConsoleLogTarget(this).
-                    RegisterDefaultDiscLogTarget(this);
-
-
-                RegisterEvent("RFIDVerifyRequest",
-                              handler => CPOClient.OnRFIDVerifyHTTPRequest  += handler,
-                              handler => CPOClient.OnRFIDVerifyHTTPRequest  -= handler,
-                              "RFIDVerify", "Request", "All").
-                    RegisterDefaultConsoleLogTarget(this).
-                    RegisterDefaultDiscLogTarget(this);
-
-                RegisterEvent("RFIDVerifyResponse",
-                              handler => CPOClient.OnRFIDVerifyHTTPResponse += handler,
-                              handler => CPOClient.OnRFIDVerifyHTTPResponse -= handler,
-                              "RFIDVerify", "Response", "All").
-                    RegisterDefaultConsoleLogTarget(this).
-                    RegisterDefaultDiscLogTarget(this);
-
-
-                RegisterEvent("OnSessionPostRequest",
-                              handler => CPOClient.OnSessionPostHTTPRequest  += handler,
-                              handler => CPOClient.OnSessionPostHTTPRequest  -= handler,
-                              "OnSessionPost", "Request", "All").
-                    RegisterDefaultConsoleLogTarget(this).
-                    RegisterDefaultDiscLogTarget(this);
-
-                RegisterEvent("OnSessionPostResponse",
-                              handler => CPOClient.OnSessionPostHTTPResponse += handler,
-                              handler => CPOClient.OnSessionPostHTTPResponse -= handler,
-                              "OnSessionPost", "Response", "All").
-                    RegisterDefaultConsoleLogTarget(this).
-                    RegisterDefaultDiscLogTarget(this);
-
-
-                //RegisterEvent("PullAuthenticationData",
-                //              handler => CPOClient.OnPullAuthenticationDataSOAPRequest += handler,
-                //              handler => CPOClient.OnPullAuthenticationDataSOAPRequest -= handler,
-                //              "AuthenticationData", "Request", "All").
-                //    RegisterDefaultConsoleLogTarget(this).
-                //    RegisterDefaultDiscLogTarget(this);
-
-                //RegisterEvent("AuthenticationDataPulled",
-                //              handler => CPOClient.OnPullAuthenticationDataSOAPResponse += handler,
-                //              handler => CPOClient.OnPullAuthenticationDataSOAPResponse -= handler,
-                //              "AuthenticationData", "Response", "All").
-                //    RegisterDefaultConsoleLogTarget(this).
-                //    RegisterDefaultDiscLogTarget(this);
 
                 #endregion
 

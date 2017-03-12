@@ -44,11 +44,6 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// </summary>
         public TRequest                             Request             { get; }
 
-        ///// <summary>
-        ///// The machine-readable result code.
-        ///// </summary>
-        //public Result                               Result              { get; }
-
         /// <summary>
         /// An optional read-only dictionary of customer-specific key-value pairs.
         /// </summary>
@@ -80,17 +75,30 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// <param name="Request">The OIOI request leading to this result.</param>
         /// <param name="CustomData">An optional read-only dictionary of customer-specific key-value pairs.</param>
         /// <param name="CustomMapper">An optional mapper for customer-specific key-value pairs.</param>
+        /// <param name="ResponseTimestamp">An optional timestamp of the response message creation.</param>
         protected AResponse(TRequest                             Request,
-                            IReadOnlyDictionary<String, Object>  CustomData    = null,
-                            Action<TResponse>                    CustomMapper  = null)
+                            IReadOnlyDictionary<String, Object>  CustomData         = null,
+                            Action<TResponse>                    CustomMapper       = null,
+                            DateTime?                            ResponseTimestamp  = null)
         {
 
             this.Request            = Request;
             this.CustomData         = CustomData;
             this.CustomMapper       = CustomMapper;
-            this.ResponseTimestamp  = DateTime.Now;
+            this.ResponseTimestamp  = ResponseTimestamp ?? DateTime.Now;
 
         }
+
+        #endregion
+
+
+        #region IEquatable<AResponse> Members
+
+        /// <summary>
+        /// Compare two responses for equality.
+        /// </summary>
+        /// <param name="AResponse">Another abstract generic OIOI response.</param>
+        public abstract Boolean Equals(TResponse AResponse);
 
         #endregion
 

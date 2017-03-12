@@ -18,17 +18,15 @@
 #region Usings
 
 using System;
-using System.Threading;
 using System.Net.Security;
 using System.Threading.Tasks;
 using System.Security.Cryptography.X509Certificates;
 
-using org.GraphDefined.Vanaheimr.Illias;
+using Newtonsoft.Json.Linq;
+
 using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Hermod.DNS;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
-using System.Xml.Linq;
-using Newtonsoft.Json.Linq;
 
 #endregion
 
@@ -298,6 +296,82 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             remove
             {
                 CPOClient.OnRFIDVerifyResponse -= value;
+            }
+
+        }
+
+        #endregion
+
+        #region OnSessionPostRequest/-Response
+
+        /// <summary>
+        /// An event fired whenever a request posting a session will be send.
+        /// </summary>
+        public event OnSessionPostRequestDelegate OnSessionPostRequest
+        {
+
+            add
+            {
+                CPOClient.OnSessionPostRequest += value;
+            }
+
+            remove
+            {
+                CPOClient.OnSessionPostRequest -= value;
+            }
+
+        }
+
+        /// <summary>
+        /// An event fired whenever a HTTP request posting a session will be send.
+        /// </summary>
+        public event ClientRequestLogHandler OnSessionPostHTTPRequest
+        {
+
+            add
+            {
+                CPOClient.OnSessionPostHTTPRequest += value;
+            }
+
+            remove
+            {
+                CPOClient.OnSessionPostHTTPRequest -= value;
+            }
+
+        }
+
+        /// <summary>
+        /// An event fired whenever a HTTP response to a session post request had been received.
+        /// </summary>
+        public event ClientResponseLogHandler OnSessionPostHTTPResponse
+        {
+
+            add
+            {
+                CPOClient.OnSessionPostHTTPResponse += value;
+            }
+
+            remove
+            {
+                CPOClient.OnSessionPostHTTPResponse -= value;
+            }
+
+        }
+
+        /// <summary>
+        /// An event fired whenever a response to a session post request had been received.
+        /// </summary>
+        public event OnSessionPostResponseDelegate OnSessionPostResponse
+        {
+
+            add
+            {
+                CPOClient.OnSessionPostResponse += value;
+            }
+
+            remove
+            {
+                CPOClient.OnSessionPostResponse -= value;
             }
 
         }
@@ -798,8 +872,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         #endregion
 
-
-        #region RFIDVerify (Request)
+        #region RFIDVerify         (Request)
 
         /// <summary>
         /// Verify a RFID identification via the OIOI server.
@@ -813,7 +886,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         #endregion
 
-        #region SessionPost(Request)
+        #region SessionPost        (Request)
 
         /// <summary>
         /// Upload the given charging session onto the OIOI server.

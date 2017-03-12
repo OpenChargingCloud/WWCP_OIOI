@@ -55,4 +55,16 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
     }
 
+
+    /// <summary>
+    /// The common generic interface of an OIOI request message.
+    /// </summary>
+    /// <typeparam name="TRequest">The type of the request message.</typeparam>
+    public interface IRequest<TRequest> : IRequest,
+                                          IEquatable<TRequest>
+
+        where TRequest : class
+
+    { }
+
 }

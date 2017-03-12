@@ -38,30 +38,72 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         #region Properties
 
         /// <summary>
-        /// A connector status.
+        /// The unique identification of the connector.
         /// </summary>
-        public ConnectorStatus  Status              { get; }
+        public Connector_Id          Id                  { get; }
+
+        /// <summary>
+        /// The current status of the connector.
+        /// </summary>
+        public ConnectorStatusTypes  Status              { get; }
 
         /// <summary>
         /// The partner identifier of the partner that owns the connector.
         /// </summary>
-        public Partner_Id       PartnerIdentifier   { get; }
+        public Partner_Id            PartnerIdentifier   { get; }
 
         #endregion
 
         #region Constructor(s)
 
+        #region ConnectorPostStatusRequest(ConnectorStatus, PartnerIdentifier, ...)
+
         /// <summary>
         /// Create an OIOI connector post status JSON/HTTP request.
         /// </summary>
-        /// <param name="Status">A connector status.</param>
+        /// <param name="ConnectorStatus">The current timestamped status of the connector.</param>
         /// <param name="PartnerIdentifier">The partner identifier of the partner that shall be associated with this station.</param>
         /// 
         /// <param name="Timestamp">The optional timestamp of the request.</param>
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        public ConnectorPostStatusRequest(ConnectorStatus        Status,
+        public ConnectorPostStatusRequest(ConnectorStatus        ConnectorStatus,
+                                          Partner_Id             PartnerIdentifier,
+
+                                          DateTime?              Timestamp           = null,
+                                          CancellationToken?     CancellationToken   = null,
+                                          EventTracking_Id       EventTrackingId     = null,
+                                          TimeSpan?              RequestTimeout      = null)
+
+            : this(ConnectorStatus.Id,
+                   ConnectorStatus.Status,
+                   PartnerIdentifier,
+
+                   Timestamp,
+                   CancellationToken,
+                   EventTrackingId,
+                   RequestTimeout)
+
+        { }
+
+        #endregion
+
+        #region ConnectorPostStatusRequest(Id, Status, PartnerIdentifier, ...)
+
+        /// <summary>
+        /// Create an OIOI connector post status JSON/HTTP request.
+        /// </summary>
+        /// <param name="Id">The unique identification of the connector.</param>
+        /// <param name="Status">The current status of the connector.</param>
+        /// <param name="PartnerIdentifier">The partner identifier of the partner that shall be associated with this station.</param>
+        /// 
+        /// <param name="Timestamp">The optional timestamp of the request.</param>
+        /// <param name="CancellationToken">An optional token to cancel this request.</param>
+        /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
+        /// <param name="RequestTimeout">An optional timeout for this request.</param>
+        public ConnectorPostStatusRequest(Connector_Id           Id,
+                                          ConnectorStatusTypes   Status,
                                           Partner_Id             PartnerIdentifier,
 
                                           DateTime?              Timestamp           = null,
@@ -76,17 +118,13 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         {
 
-            #region Initial checks
-
-            //if (PartnerIdentifier == null)
-            //    PartnerIdentifier = CPOClient.DefaultPartnerId;
-
-            #endregion
-
+            this.Id                 = Id;
             this.Status             = Status;
             this.PartnerIdentifier  = PartnerIdentifier;
 
         }
+
+        #endregion
 
         #endregion
 
@@ -166,11 +204,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                 var ConnectorPostStatus  = ConnectorPostStatusRequestJSON["connector-post-status"];
 
                 ConnectorPostStatusRequest = new ConnectorPostStatusRequest(
-                                                 new ConnectorStatus(
-                                                     Connector_Id.Parse(ConnectorPostStatus["connector-id"].Value<String>()),
-                                                     ConnectorPostStatus["status"].Value<String>().AsConnectorStatusType(),
-                                                     DateTime.Now
-                                                 ),
+                                                 Connector_Id.Parse(ConnectorPostStatus["connector-id"].Value<String>()),
+                                                 ConnectorPostStatus["status"].Value<String>().AsConnectorStatusType(),
                                                  Partner_Id.Parse(ConnectorPostStatus["partner-identifier"].Value<String>())
                                              );
 
@@ -191,7 +226,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         #endregion
 
-        #region (static) TryParse(PushEVSEDataText, out PushEVSEData, OnException = null)
+        #region (static) TryParse(ConnectorPostStatusText, out ConnectorPostStatus, OnException = null)
 
         /// <summary>
         /// Try to parse the given text representation of an OIOI connector post status request.
@@ -234,9 +269,11 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         public JObject ToJSON()
 
             => new JObject(new JProperty("connector-post-status", new JObject(
-                               new JProperty("connector-id",        Status.Id.        ToString()),
+
+                               new JProperty("connector-id",        Id.               ToString()),
                                new JProperty("partner-identifier",  PartnerIdentifier.ToString()),
-                               new JProperty("status",              Status.Status.    AsText())
+                               new JProperty("status",              Status.           AsText())
+
                            )));
 
         #endregion
@@ -244,41 +281,41 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         #region Operator overloading
 
-        #region Operator == (PushEVSEData1, PushEVSEData2)
+        #region Operator == (ConnectorPostStatus1, ConnectorPostStatus2)
 
         /// <summary>
-        /// Compares two push EVSE data requests for equality.
+        /// Compares two connector post status requests for equality.
         /// </summary>
-        /// <param name="PushEVSEData1">An push EVSE data request.</param>
-        /// <param name="PushEVSEData2">Another push EVSE data request.</param>
+        /// <param name="ConnectorPostStatus1">A connector post status request.</param>
+        /// <param name="ConnectorPostStatus2">Another connector post status request.</param>
         /// <returns>True if both match; False otherwise.</returns>
-        public static Boolean operator == (ConnectorPostStatusRequest PushEVSEData1, ConnectorPostStatusRequest PushEVSEData2)
+        public static Boolean operator == (ConnectorPostStatusRequest ConnectorPostStatus1, ConnectorPostStatusRequest ConnectorPostStatus2)
         {
 
             // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(PushEVSEData1, PushEVSEData2))
+            if (Object.ReferenceEquals(ConnectorPostStatus1, ConnectorPostStatus2))
                 return true;
 
             // If one is null, but not both, return false.
-            if (((Object) PushEVSEData1 == null) || ((Object) PushEVSEData2 == null))
+            if (((Object) ConnectorPostStatus1 == null) || ((Object) ConnectorPostStatus2 == null))
                 return false;
 
-            return PushEVSEData1.Equals(PushEVSEData2);
+            return ConnectorPostStatus1.Equals(ConnectorPostStatus2);
 
         }
 
         #endregion
 
-        #region Operator != (PushEVSEData1, PushEVSEData2)
+        #region Operator != (ConnectorPostStatus1, ConnectorPostStatus2)
 
         /// <summary>
-        /// Compares two push EVSE data requests for inequality.
+        /// Compares two connector post status requests for inequality.
         /// </summary>
-        /// <param name="PushEVSEData1">An push EVSE data request.</param>
-        /// <param name="PushEVSEData2">Another push EVSE data request.</param>
+        /// <param name="ConnectorPostStatus1">A connector post status request.</param>
+        /// <param name="ConnectorPostStatus2">Another connector post status request.</param>
         /// <returns>False if both match; True otherwise.</returns>
-        public static Boolean operator != (ConnectorPostStatusRequest PushEVSEData1, ConnectorPostStatusRequest PushEVSEData2)
-            => !(PushEVSEData1 == PushEVSEData2);
+        public static Boolean operator != (ConnectorPostStatusRequest ConnectorPostStatus1, ConnectorPostStatusRequest ConnectorPostStatus2)
+            => !(ConnectorPostStatus1 == ConnectorPostStatus2);
 
         #endregion
 
@@ -299,11 +336,11 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             if (Object == null)
                 return false;
 
-            var PushEVSEData = Object as ConnectorPostStatusRequest;
-            if ((Object) PushEVSEData == null)
+            var ConnectorPostStatus = Object as ConnectorPostStatusRequest;
+            if ((Object) ConnectorPostStatus == null)
                 return false;
 
-            return Equals(PushEVSEData);
+            return Equals(ConnectorPostStatus);
 
         }
 
@@ -322,7 +359,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             if ((Object) ConnectorPostStatusRequest == null)
                 return false;
 
-            return Status.           Equals(ConnectorPostStatusRequest.Status) &&
+            return Id.               Equals(ConnectorPostStatusRequest.Id)     &&
+                   Status.           Equals(ConnectorPostStatusRequest.Status) &&
                    PartnerIdentifier.Equals(ConnectorPostStatusRequest.PartnerIdentifier);
 
         }
@@ -342,7 +380,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             unchecked
             {
 
-                return Status.           GetHashCode() * 5 ^
+                return Id.               GetHashCode() * 7 ^
+                       Status.           GetHashCode() * 5 ^
                        PartnerIdentifier.GetHashCode();
 
             }
@@ -358,7 +397,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         public override String ToString()
 
             => String.Concat("connector post status '",
-                             Status.Id + " -> " + Status.Status.ToString() +
+                             Id + " -> " + Status.ToString() +
                              "' / '" +
                              PartnerIdentifier +
                              "'");

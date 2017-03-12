@@ -164,8 +164,49 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
         #endregion
 
+        #region  ToOIOI(this EVSEStatusType)
 
-        #region ToOIOI(this ChargingStation, EVSE2EVSEDataRecord = null)
+        public static ConnectorStatusTypes ToOIOI(this EVSEStatusTypes EVSEStatusType)
+        {
+
+            switch (EVSEStatusType)
+            {
+
+                case EVSEStatusTypes.Offline:
+                    return ConnectorStatusTypes.Offline;
+
+                case EVSEStatusTypes.Available:
+                    return ConnectorStatusTypes.Available;
+
+                case EVSEStatusTypes.Reserved:
+                    return ConnectorStatusTypes.Reserved;
+
+                case EVSEStatusTypes.Charging:
+                    return ConnectorStatusTypes.Occupied;
+
+                //case EVSEStatusTypes.Unspecified
+                //case EVSEStatusTypes.Planned
+                //case EVSEStatusTypes.InDeployment
+                //case EVSEStatusTypes.OutOfService
+                //case EVSEStatusTypes.Blocked
+                //case EVSEStatusTypes.WaitingForPlugin
+                //case EVSEStatusTypes.PluggedIn
+                //case EVSEStatusTypes.DoorNotClosed
+                //case EVSEStatusTypes.Faulted
+                //case EVSEStatusTypes.Private
+                //case EVSEStatusTypes.Deleted
+
+                default:
+                    return ConnectorStatusTypes.Unknown;
+
+            }
+
+        }
+
+        #endregion
+
+
+        #region ToOIOI(this ChargingStation, ChargingStation2Station = null)
 
         /// <summary>
         /// Convert a WWCP charging station into a corresponding OIOI charging station.
@@ -181,7 +222,10 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                                        ChargingStation.Name.FirstText,
                                        ChargingStation.GeoLocation.Value,
                                        ChargingStation.Address.ToOIOI(),
-                                       null, // Contact
+                                       new Contact("Phone",
+                                                   "Fax",
+                                                   "Web",
+                                                   "EMail"),
                                        ChargingStation.Operator.Id,
                                        ChargingStation.OpeningTimes != null ? ChargingStation.OpeningTimes.IsOpen24Hours : true,
                                        ChargingStation.EVSEs.Select(evse => evse.ToOIOI()),

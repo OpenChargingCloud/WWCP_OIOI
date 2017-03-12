@@ -30,10 +30,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
     /// <summary>
     /// An abstract generic OIOI request message.
     /// </summary>
-    public abstract class ARequest<T> : IRequest,
-                                        IEquatable<T>
+    public abstract class ARequest<TRequest> : IRequest<TRequest>
 
-        where T : class
+        where TRequest : class
 
     {
 
@@ -79,15 +78,15 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        public ARequest(DateTime?                                 Timestamp           = null,
-                        CancellationToken?                        CancellationToken   = null,
-                        EventTracking_Id                          EventTrackingId     = null,
-                        TimeSpan?                                 RequestTimeout      = null)
+        public ARequest(DateTime?           Timestamp           = null,
+                        CancellationToken?  CancellationToken   = null,
+                        EventTracking_Id    EventTrackingId     = null,
+                        TimeSpan?           RequestTimeout      = null)
         {
 
             this.Timestamp          = Timestamp.        HasValue ? Timestamp            : DateTime.Now;
             this.CancellationToken  = CancellationToken.HasValue ? CancellationToken    : new CancellationTokenSource().Token;
-            this.EventTrackingId    = EventTrackingId != null    ? EventTrackingId      : EventTracking_Id.New;
+            this.EventTrackingId    = EventTrackingId ?? EventTracking_Id.New;
             this.RequestTimeout     = RequestTimeout.   HasValue ? RequestTimeout.Value : DefaultRequestTimeout;
 
         }
@@ -101,7 +100,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// Compare two requests for equality.
         /// </summary>
         /// <param name="ARequest">Another abstract generic OIOI request.</param>
-        public abstract Boolean Equals(T ARequest);
+        public abstract Boolean Equals(TRequest ARequest);
 
         #endregion
 

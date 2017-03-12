@@ -65,16 +65,16 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// </summary>
         /// <param name="Id">The unique identification of the connector.</param>
         /// <param name="Status">The current status of the connector.</param>
-        /// <param name="Timestamp">The timestamp of the current status of the connector.</param>
-        public ConnectorStatus(Connector_Id         Id,
+        /// <param name="Timestamp">An optional timestamp of the current status of the connector.</param>
+        public ConnectorStatus(Connector_Id          Id,
                                ConnectorStatusTypes  Status,
-                               DateTime             Timestamp)
+                               DateTime?             Timestamp = null)
 
         {
 
             this.Id         = Id;
             this.Status     = Status;
-            this.Timestamp  = Timestamp;
+            this.Timestamp  = Timestamp.HasValue ? Timestamp.Value : DateTime.Now;
 
         }
 
@@ -226,11 +226,15 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                 throw new ArgumentNullException(nameof(ConnectorStatus), "The given ConnectorStatus must not be null!");
 
             // Compare EVSE Ids
-            var _Result = Id.CompareTo(ConnectorStatus.Id);
+            var _Result = Id.       CompareTo(ConnectorStatus.Id);
 
             // If equal: Compare EVSE status
             if (_Result == 0)
-                _Result = Status.CompareTo(ConnectorStatus.Status);
+                _Result = Status.   CompareTo(ConnectorStatus.Status);
+
+            // If equal: Compare timestamps
+            if (_Result == 0)
+                _Result = Timestamp.CompareTo(ConnectorStatus.Timestamp);
 
             return _Result;
 

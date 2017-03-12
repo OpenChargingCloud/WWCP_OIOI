@@ -69,26 +69,22 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <summary>
         /// The URI prefix for all HTTP requests.
         /// </summary>
-        public String                                       URIPrefix                    { get; }
+        public String           URIPrefix          { get; }
 
         /// <summary>
         /// The API key for all requests.
         /// </summary>
-        public String                                       APIKey                       { get; }
+        public String           APIKey             { get; }
 
         /// <summary>
         /// The default communication partner identification for all requests.
         /// </summary>
-        public Partner_Id                                   DefaultPartnerId             { get; }
+        public Partner_Id       DefaultPartnerId   { get; }
 
         /// <summary>
         /// The attached OIOI CPO client (HTTP/JSON client) logger.
         /// </summary>
-        public CPOClientLogger                              Logger                       { get; }
-
-        public RoamingNetwork                               RoamingNetwork               { get; }
-
-        public ChargingStationOperatorNameSelectorDelegate  DefaultOperatorNameSelector  { get; }
+        public CPOClientLogger  Logger             { get; }
 
         #endregion
 
@@ -457,15 +453,13 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            this.APIKey                       = APIKey;
-            this.URIPrefix                    = URIPrefix.IsNotNullOrEmpty() ? URIPrefix : DefaultURIPrefix;
-            this.DefaultPartnerId             = DefaultPartnerId.HasValue ? DefaultPartnerId.Value : Partner_Id.Parse("1");
+            this.APIKey            = APIKey;
+            this.URIPrefix         = URIPrefix.IsNotNullOrEmpty() ? URIPrefix : DefaultURIPrefix;
+            this.DefaultPartnerId  = DefaultPartnerId.HasValue ? DefaultPartnerId.Value : Partner_Id.Parse("1");
 
-            this.Logger                       = new CPOClientLogger(this,
-                                                                    LoggingContext,
-                                                                    LogFileCreator);
-
-            this.DefaultOperatorNameSelector  = I18N => I18N.FirstText;
+            this.Logger            = new CPOClientLogger(this,
+                                                         LoggingContext,
+                                                         LogFileCreator);
 
         }
 
@@ -477,6 +471,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// Create a new OIOI CPO Client.
         /// </summary>
         /// <param name="ClientId">A unqiue identification of this client.</param>
+        /// <param name="Logger">A CPO client logger.</param>
         /// <param name="Hostname">The hostname of the remote OIOI service.</param>
         /// <param name="APIKey">The PlugSurfing API key.</param>
         /// <param name="RemotePort">An optional TCP port of the remote OIOI service.</param>
@@ -530,12 +525,10 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            this.Logger                       = Logger;
-            this.APIKey                       = APIKey;
-            this.URIPrefix                    = URIPrefix.IsNotNullOrEmpty() ? URIPrefix : DefaultURIPrefix;
-            this.DefaultPartnerId             = DefaultPartnerId.HasValue ? DefaultPartnerId.Value : Partner_Id.Parse("1");
-
-            this.DefaultOperatorNameSelector  = I18N => I18N.FirstText;
+            this.Logger            = Logger;
+            this.APIKey            = APIKey;
+            this.URIPrefix         = URIPrefix.IsNotNullOrEmpty() ? URIPrefix : DefaultURIPrefix;
+            this.DefaultPartnerId  = DefaultPartnerId.HasValue ? DefaultPartnerId.Value : Partner_Id.Parse("1");
 
         }
 
@@ -749,6 +742,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                                                      this,
                                                      ClientId,
                                                      Request.EventTrackingId,
+                                                     Request.Id,
                                                      Request.Status,
                                                      Request.PartnerIdentifier,
                                                      Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout);
@@ -775,8 +769,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                 result = await _JSONClient.Query(_CustomConnectorPostStatusJSONRequestMapper(Request,
                                                                                              Request.ToJSON()),
                                                  HTTPRequestBuilder:   request => request.Set("Authorization", "key=" + APIKey),
-                                                 RequestLogDelegate:   OnStationPostHTTPRequest,
-                                                 ResponseLogDelegate:  OnStationPostHTTPResponse,
+                                                 RequestLogDelegate:   OnConnectorPostStatusHTTPRequest,
+                                                 ResponseLogDelegate:  OnConnectorPostStatusHTTPResponse,
                                                  CancellationToken:    Request.CancellationToken,
                                                  EventTrackingId:      Request.EventTrackingId,
                                                  RequestTimeout:       Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout,
@@ -856,6 +850,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                                                       this,
                                                       ClientId,
                                                       Request.EventTrackingId,
+                                                      Request.Id,
                                                       Request.Status,
                                                       Request.PartnerIdentifier,
                                                       Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout,
@@ -1106,8 +1101,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                 result = await _JSONClient.Query(_CustomSessionPostJSONRequestMapper(Request,
                                                                                      Request.ToJSON()),
                                                  HTTPRequestBuilder:   request => request.Set("Authorization", "key=" + APIKey),
-                                                 RequestLogDelegate:   OnRFIDVerifyHTTPRequest,
-                                                 ResponseLogDelegate:  OnRFIDVerifyHTTPResponse,
+                                                 RequestLogDelegate:   OnSessionPostHTTPRequest,
+                                                 ResponseLogDelegate:  OnSessionPostHTTPResponse,
                                                  CancellationToken:    Request.CancellationToken,
                                                  EventTrackingId:      Request.EventTrackingId,
                                                  RequestTimeout:       Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout,

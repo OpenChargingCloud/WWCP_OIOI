@@ -37,13 +37,13 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
     public static class ICPOClientExtentions
     {
 
-        #region StationPost(Station, PartnerIdentification, ...)
+        #region StationPost(Station, PartnerId, ...)
 
         /// <summary>
         /// Upload the given charging station.
         /// </summary>
         /// <param name="Station">A charging station.</param>
-        /// <param name="PartnerIdentification">The partner identifier of the partner that shall be associated with this station.</param>
+        /// <param name="PartnerId">The partner identifier of the partner that shall be associated with this station.</param>
         /// 
         /// <param name="Timestamp">The optional timestamp of the request.</param>
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
@@ -53,7 +53,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             StationPost(this ICPOClient     ICPOClient,
                         Station             Station,
-                        Partner_Id          PartnerIdentification,
+                        Partner_Id          PartnerId,
 
                         DateTime?           Timestamp           = null,
                         CancellationToken?  CancellationToken   = null,
@@ -62,7 +62,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
 
                 => await ICPOClient.StationPost(new StationPostRequest(Station,
-                                                                       PartnerIdentification,
+                                                                       PartnerId,
 
                                                                        Timestamp,
                                                                        CancellationToken,
@@ -77,7 +77,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// Update the status of a charging connector on the OIOI server.
         /// </summary>
         /// <param name="ConnectorStatus">A connector status.</param>
-        /// <param name="PartnerIdentification">The partner identifier of the partner that owns the connector.</param>
+        /// <param name="PartnerId">The partner identifier of the partner that owns the connector.</param>
         /// 
         /// <param name="Timestamp">The optional timestamp of the request.</param>
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
@@ -87,7 +87,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             ConnectorPostStatus(this ICPOClient      ICPOClient,
                                 ConnectorStatus      ConnectorStatus,
-                                Partner_Id           PartnerIdentification,
+                                Partner_Id           PartnerId,
 
                                 DateTime?            Timestamp              = null,
                                 CancellationToken?   CancellationToken      = null,
@@ -95,7 +95,43 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                                 TimeSpan?            RequestTimeout         = null)
 
             => await ICPOClient.ConnectorPostStatus(new ConnectorPostStatusRequest(ConnectorStatus,
-                                                                                   PartnerIdentification,
+                                                                                   PartnerId,
+
+                                                                                   Timestamp,
+                                                                                   CancellationToken,
+                                                                                   EventTrackingId,
+                                                                                   RequestTimeout.HasValue ? RequestTimeout.Value : ICPOClient.RequestTimeout));
+
+        #endregion
+
+        #region ConnectorPostStatus(Id, Status, PartnerId, ...)
+
+        /// <summary>
+        /// Update the status of a charging connector on the OIOI server.
+        /// </summary>
+        /// <param name="Id">The unique identification of the connector.</param>
+        /// <param name="Status">The current status of the connector.</param>
+        /// <param name="PartnerId">The partner identifier of the partner that owns the connector.</param>
+        /// 
+        /// <param name="Timestamp">The optional timestamp of the request.</param>
+        /// <param name="CancellationToken">An optional token to cancel this request.</param>
+        /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
+        /// <param name="RequestTimeout">An optional timeout for this request.</param>
+        public static async Task<HTTPResponse<ConnectorPostStatusResponse>>
+
+            ConnectorPostStatus(this ICPOClient       ICPOClient,
+                                Connector_Id          Id,
+                                ConnectorStatusTypes  Status,
+                                Partner_Id            PartnerId,
+
+                                DateTime?             Timestamp              = null,
+                                CancellationToken?    CancellationToken      = null,
+                                EventTracking_Id      EventTrackingId        = null,
+                                TimeSpan?             RequestTimeout         = null)
+
+            => await ICPOClient.ConnectorPostStatus(new ConnectorPostStatusRequest(Id,
+                                                                                   Status,
+                                                                                   PartnerId,
 
                                                                                    Timestamp,
                                                                                    CancellationToken,

@@ -18,12 +18,12 @@
 #region Usings
 
 using System;
-using System.Xml.Linq;
+using System.Collections.Generic;
+
+using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
-using Newtonsoft.Json.Linq;
 using org.GraphDefined.Vanaheimr.Hermod;
-using System.Collections.Generic;
 
 #endregion
 
@@ -34,8 +34,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
     /// An OIOI ConnectorPostStatus response.
     /// </summary>
     public class ConnectorPostStatusResponse : AResponse<ConnectorPostStatusRequest,
-                                                         ConnectorPostStatusResponse>,
-                                               IEquatable<ConnectorPostStatusResponse>
+                                                         ConnectorPostStatusResponse>
     {
 
         #region Properties
@@ -257,7 +256,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// </summary>
         /// <param name="ConnectorPostStatusResponse">A response to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
-        public Boolean Equals(ConnectorPostStatusResponse ConnectorPostStatusResponse)
+        public override Boolean Equals(ConnectorPostStatusResponse ConnectorPostStatusResponse)
         {
 
             if ((Object) ConnectorPostStatusResponse == null)

@@ -207,7 +207,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         #endregion
 
-        #region (static) TryParse(StationPostRequestJSON,  out StationPostRequest, OnException = null)
+        #region (static) TryParse(StationPostRequestJSON, out StationPostRequest, OnException = null)
 
         /// <summary>
         /// Try to parse the given JSON representation of an OIOI station post request.
@@ -251,7 +251,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         #endregion
 
-        #region (static) TryParse(PushEVSEDataText, out PushEVSEData, OnException = null)
+        #region (static) TryParse(StationPostRequestText, out StationPostRequest, OnException = null)
 
         /// <summary>
         /// Try to parse the given text representation of an OIOI station post request.

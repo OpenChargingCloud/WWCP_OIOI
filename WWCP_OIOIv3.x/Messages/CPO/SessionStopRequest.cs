@@ -30,9 +30,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 {
 
     /// <summary>
-    /// An OIOI Session Post request.
+    /// An OIOI Session Stop request.
     /// </summary>
-    public class SessionPostRequest : ARequest<SessionPostRequest>
+    public class SessionStopRequest : ARequest<SessionStopRequest>
     {
 
         #region Properties
@@ -48,7 +48,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         #region Constructor(s)
 
         /// <summary>
-        /// Create an OIOI Session Post JSON/HTTP request.
+        /// Create an OIOI Session Stop JSON/HTTP request.
         /// </summary>
         /// <param name="Session">A charging session.</param>
         /// 
@@ -56,7 +56,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        public SessionPostRequest(Session             Session,
+        public SessionStopRequest(Session             Session,
 
                                   DateTime?           Timestamp           = null,
                                   CancellationToken?  CancellationToken   = null,
@@ -80,43 +80,36 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         #region Documentation
 
         // {
-        //     "session-post": {
-        //         "user": {
-        //             "identifier": "12345678",
-        //             "identifier-type": "rfid"
-        //         },
-        //         "session-id": "abcdef-123456-abc123-456def",
-        //         "connector-id": "DE*8PS*ETABCD*1",
-        //         "session-interval": {
-        //             "start": "2010-01-01T11:00:00+00:00",
-        //             "stop": "2010-01-01T17:00:00+00:00"
-        //         },
-        //         "charging-interval": {
-        //             "start": "2010-01-01T12:00:00+00:00",
-        //             "stop": "2010-01-01T16:00:00+00:00"
-        //         },
-        //         "energy-consumed": 16.5,
-        //         "partner-identifier": "123456-123456-abcdef-abc123-456def"
-        //     }
+        //    "session-stop": {
+        //
+        //        "user": {
+        //            "identifier-type":  "evco-id",
+        //            "identifier":       "DE*8PS*123456*7"
+        //        },
+        //
+        //        "connector-id":  "1356",
+        //        "session-id":    "dfdf"
+        //
+        //    }
         // }
 
         #endregion
 
-        #region (static) Parse(SessionPostRequestJSON, OnException = null)
+        #region (static) Parse(SessionStopRequestJSON, OnException = null)
 
         /// <summary>
-        /// Parse the given JSON representation of an OIOI Session Post request.
+        /// Parse the given JSON representation of an OIOI Session Stop request.
         /// </summary>
-        /// <param name="SessionPostRequestJSON">The JSON to parse.</param>
+        /// <param name="SessionStopRequestJSON">The JSON to parse.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static SessionPostRequest Parse(JObject              SessionPostRequestJSON,
-                                               OnExceptionDelegate  OnException = null)
+        public static SessionStopRequest Parse(JObject              SessionStopRequestJSON,
+                                                OnExceptionDelegate  OnException = null)
         {
 
-            SessionPostRequest _SessionPostRequest;
+            SessionStopRequest _SessionStopRequest;
 
-            if (TryParse(SessionPostRequestJSON, out _SessionPostRequest, OnException))
-                return _SessionPostRequest;
+            if (TryParse(SessionStopRequestJSON, out _SessionStopRequest, OnException))
+                return _SessionStopRequest;
 
             return null;
 
@@ -124,21 +117,21 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         #endregion
 
-        #region (static) Parse(SessionPostRequestText, OnException = null)
+        #region (static) Parse(SessionStopRequestText, OnException = null)
 
         /// <summary>
-        /// Parse the given text representation of an OIOI Session Post request.
+        /// Parse the given text representation of an OIOI Session Stop request.
         /// </summary>
-        /// <param name="SessionPostRequestText">The text to parse.</param>
+        /// <param name="SessionStopRequestText">The text to parse.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static SessionPostRequest Parse(String               SessionPostRequestText,
-                                               OnExceptionDelegate  OnException = null)
+        public static SessionStopRequest Parse(String               SessionStopRequestText,
+                                                OnExceptionDelegate  OnException = null)
         {
 
-            SessionPostRequest _SessionPostRequest;
+            SessionStopRequest _SessionStopRequest;
 
-            if (TryParse(SessionPostRequestText, out _SessionPostRequest, OnException))
-                return _SessionPostRequest;
+            if (TryParse(SessionStopRequestText, out _SessionStopRequest, OnException))
+                return _SessionStopRequest;
 
             return null;
 
@@ -146,25 +139,25 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         #endregion
 
-        #region (static) TryParse(SessionPostRequestJSON,  out SessionPostRequest, OnException = null)
+        #region (static) TryParse(SessionStopRequestJSON,  out SessionStopRequest, OnException = null)
 
         /// <summary>
-        /// Try to parse the given JSON representation of an OIOI Session Post request.
+        /// Try to parse the given JSON representation of an OIOI Session Stop request.
         /// </summary>
-        /// <param name="SessionPostRequestJSON">The JSON to parse.</param>
-        /// <param name="SessionPostRequest">The parsed Session Post request.</param>
+        /// <param name="SessionStopRequestJSON">The JSON to parse.</param>
+        /// <param name="SessionStopRequest">The parsed Session Stop request.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static Boolean TryParse(JObject                SessionPostRequestJSON,
-                                       out SessionPostRequest  SessionPostRequest,
-                                       OnExceptionDelegate    OnException  = null)
+        public static Boolean TryParse(JObject                  SessionStopRequestJSON,
+                                       out SessionStopRequest  SessionStopRequest,
+                                       OnExceptionDelegate      OnException  = null)
         {
 
             try
             {
 
-                var SessionPost = SessionPostRequestJSON["rfid-verify"];
+                var SessionStop = SessionStopRequestJSON["session-start"];
 
-                SessionPostRequest = new SessionPostRequest(
+                SessionStopRequest = new SessionStopRequest(
 
                                          null
 
@@ -176,9 +169,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             catch (Exception e)
             {
 
-                OnException?.Invoke(DateTime.Now, SessionPostRequestJSON, e);
+                OnException?.Invoke(DateTime.Now, SessionStopRequestJSON, e);
 
-                SessionPostRequest = null;
+                SessionStopRequest = null;
                 return false;
 
             }
@@ -187,24 +180,24 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         #endregion
 
-        #region (static) TryParse(SessionPostText, out SessionPost, OnException = null)
+        #region (static) TryParse(SessionStopText, out SessionStop, OnException = null)
 
         /// <summary>
-        /// Try to parse the given text representation of an OIOI Session Post request.
+        /// Try to parse the given text representation of an OIOI Session Stop request.
         /// </summary>
-        /// <param name="SessionPostRequestText">The text to parse.</param>
-        /// <param name="SessionPostRequest">The parsed Session Post request.</param>
+        /// <param name="SessionStopRequestText">The text to parse.</param>
+        /// <param name="SessionStopRequest">The parsed Session Stop request.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static Boolean TryParse(String                  SessionPostRequestText,
-                                       out SessionPostRequest  SessionPostRequest,
-                                       OnExceptionDelegate     OnException  = null)
+        public static Boolean TryParse(String                   SessionStopRequestText,
+                                       out SessionStopRequest  SessionStopRequest,
+                                       OnExceptionDelegate      OnException  = null)
         {
 
             try
             {
 
-                if (TryParse(JObject.Parse(SessionPostRequestText),
-                             out SessionPostRequest,
+                if (TryParse(JObject.Parse(SessionStopRequestText),
+                             out SessionStopRequest,
                              OnException))
 
                     return true;
@@ -212,10 +205,10 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             }
             catch (Exception e)
             {
-                OnException?.Invoke(DateTime.Now, SessionPostRequestText, e);
+                OnException?.Invoke(DateTime.Now, SessionStopRequestText, e);
             }
 
-            SessionPostRequest = null;
+            SessionStopRequest = null;
             return false;
 
         }
@@ -230,7 +223,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         public JObject ToJSON()
 
             => new JObject(new JObject(
-                               new JProperty("session-post", Session.ToJSON())
+                               new JProperty("session-stop", Session.ToJSON())
                            ));
 
         #endregion
@@ -238,47 +231,47 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         #region Operator overloading
 
-        #region Operator == (SessionPost1, SessionPost2)
+        #region Operator == (SessionStop1, SessionStop2)
 
         /// <summary>
-        /// Compares two session post requests for equality.
+        /// Compares two Session Stop requests for equality.
         /// </summary>
-        /// <param name="SessionPost1">An session post request.</param>
-        /// <param name="SessionPost2">Another session post request.</param>
+        /// <param name="SessionStop1">An Session Stop request.</param>
+        /// <param name="SessionStop2">Another Session Stop request.</param>
         /// <returns>True if both match; False otherwise.</returns>
-        public static Boolean operator == (SessionPostRequest SessionPost1, SessionPostRequest SessionPost2)
+        public static Boolean operator == (SessionStopRequest SessionStop1, SessionStopRequest SessionStop2)
         {
 
             // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(SessionPost1, SessionPost2))
+            if (Object.ReferenceEquals(SessionStop1, SessionStop2))
                 return true;
 
             // If one is null, but not both, return false.
-            if (((Object) SessionPost1 == null) || ((Object) SessionPost2 == null))
+            if (((Object) SessionStop1 == null) || ((Object) SessionStop2 == null))
                 return false;
 
-            return SessionPost1.Equals(SessionPost2);
+            return SessionStop1.Equals(SessionStop2);
 
         }
 
         #endregion
 
-        #region Operator != (SessionPost1, SessionPost2)
+        #region Operator != (SessionStop1, SessionStop2)
 
         /// <summary>
-        /// Compares two session post requests for inequality.
+        /// Compares two Session Stop requests for inequality.
         /// </summary>
-        /// <param name="SessionPost1">An session post request.</param>
-        /// <param name="SessionPost2">Another session post request.</param>
+        /// <param name="SessionStop1">An Session Stop request.</param>
+        /// <param name="SessionStop2">Another Session Stop request.</param>
         /// <returns>False if both match; True otherwise.</returns>
-        public static Boolean operator != (SessionPostRequest SessionPost1, SessionPostRequest SessionPost2)
-            => !(SessionPost1 == SessionPost2);
+        public static Boolean operator != (SessionStopRequest SessionStop1, SessionStopRequest SessionStop2)
+            => !(SessionStop1 == SessionStop2);
 
         #endregion
 
         #endregion
 
-        #region IEquatable<SessionPostRequest> Members
+        #region IEquatable<SessionStopRequest> Members
 
         #region Equals(Object)
 
@@ -293,30 +286,30 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             if (Object == null)
                 return false;
 
-            var SessionPost = Object as SessionPostRequest;
-            if ((Object) SessionPost == null)
+            var SessionStop = Object as SessionStopRequest;
+            if ((Object) SessionStop == null)
                 return false;
 
-            return Equals(SessionPost);
+            return Equals(SessionStop);
 
         }
 
         #endregion
 
-        #region Equals(SessionPostRequest)
+        #region Equals(SessionStopRequest)
 
         /// <summary>
-        /// Compares two Session Post requests for equality.
+        /// Compares two Session Stop requests for equality.
         /// </summary>
-        /// <param name="SessionPostRequest">A Session Post request to compare with.</param>
+        /// <param name="SessionStopRequest">A Session Stop request to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
-        public override Boolean Equals(SessionPostRequest SessionPostRequest)
+        public override Boolean Equals(SessionStopRequest SessionStopRequest)
         {
 
-            if ((Object) SessionPostRequest == null)
+            if ((Object) SessionStopRequest == null)
                 return false;
 
-            return Session.Equals(SessionPostRequest.Session);
+            return Session.Equals(SessionStopRequest.Session);
 
         }
 
@@ -347,7 +340,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// </summary>
         public override String ToString()
 
-            => String.Concat("Session Post '",
+            => String.Concat("Session Stop '",
                              Session.Id +
                              "'");
 

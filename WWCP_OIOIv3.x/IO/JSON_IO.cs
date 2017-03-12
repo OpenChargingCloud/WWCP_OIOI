@@ -140,6 +140,154 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
         #endregion
 
+        #region ConnectorTypes
+
+        public static ConnectorTypes AsConnectorType(this String Text)
+        {
+
+            if (Text.IsNullOrEmpty())
+                return ConnectorTypes.Unspecified;
+
+            switch (Text.ToLower())
+            {
+
+                case "type2":
+                    return ConnectorTypes.Type2;
+
+                case "combo":
+                    return ConnectorTypes.Combo;
+
+                case "chademo":
+                    return ConnectorTypes.Chademo;
+
+                case "schuko":
+                    return ConnectorTypes.Schuko;
+
+                case "type3":
+                    return ConnectorTypes.Type3;
+
+                case "ceeblue":
+                    return ConnectorTypes.CeeBlue;
+
+                case "threepinsquare":
+                    return ConnectorTypes.ThreePinSquare;
+
+                case "type1":
+                    return ConnectorTypes.Type1;
+
+                case "ceered":
+                    return ConnectorTypes.CeeRed;
+
+                case "cee2poles":
+                    return ConnectorTypes.Cee2Poles;
+
+                case "tesla":
+                    return ConnectorTypes.Tesla;
+
+                case "scame":
+                    return ConnectorTypes.Scame;
+
+                case "nema5":
+                    return ConnectorTypes.Nema5;
+
+                case "ceeplus":
+                    return ConnectorTypes.CeePlus;
+
+                case "t13":
+                    return ConnectorTypes.T13;
+
+                case "t15":
+                    return ConnectorTypes.T15;
+
+                case "t23":
+                    return ConnectorTypes.T23;
+
+                case "marechal":
+                    return ConnectorTypes.Marechal;
+
+                case "typee":
+                    return ConnectorTypes.TypeE;
+
+
+                default:
+                    return ConnectorTypes.Unspecified;
+
+            }
+
+        }
+
+        public static String AsText(this ConnectorTypes ConnectorType)
+        {
+
+            switch (ConnectorType)
+            {
+
+                case ConnectorTypes.Type2:
+                    return "Type2";
+
+                case ConnectorTypes.Combo:
+                    return "Combo";
+
+                case ConnectorTypes.Chademo:
+                    return "Chademo";
+
+                case ConnectorTypes.Schuko:
+                    return "Schuko";
+
+                case ConnectorTypes.Type3:
+                    return "Type3";
+
+                case ConnectorTypes.CeeBlue:
+                    return "CeeBlue";
+
+                case ConnectorTypes.ThreePinSquare:
+                    return "ThreePinSquare";
+
+                case ConnectorTypes.Type1:
+                    return "Type1";
+
+                case ConnectorTypes.CeeRed:
+                    return "CeeRed";
+
+                case ConnectorTypes.Cee2Poles:
+                    return "Cee2Poles";
+
+                case ConnectorTypes.Tesla:
+                    return "Tesla";
+
+                case ConnectorTypes.Scame:
+                    return "Scame";
+
+                case ConnectorTypes.Nema5:
+                    return "Nema5";
+
+                case ConnectorTypes.CeePlus:
+                    return "CeePlus";
+
+                case ConnectorTypes.T13:
+                    return "T13";
+
+                case ConnectorTypes.T15:
+                    return "T15";
+
+                case ConnectorTypes.T23:
+                    return "T23";
+
+                case ConnectorTypes.Marechal:
+                    return "Marechal";
+
+                case ConnectorTypes.TypeE:
+                    return "TypeE";
+
+
+                default:
+                    return "Unspecified";
+
+            }
+
+        }
+
+        #endregion
 
     }
 

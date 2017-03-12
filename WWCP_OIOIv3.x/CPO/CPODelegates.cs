@@ -29,29 +29,29 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
     /// </summary>
     /// <param name="Station">A station.</param>
     /// <param name="JSON">The JSON representation of a station.</param>
-    public delegate JObject Station2JSONDelegate           (Station             Station,
-                                                            JObject             JSON);
+    public delegate JObject Station2JSONDelegate        (Station           Station,
+                                                         JObject           JSON);
 
     /// <summary>
     /// A delegate which allows you to modify the JSON representation of connector status before sending them upstream.
     /// </summary>
     /// <param name="ConnectorStatus">A connector status.</param>
     /// <param name="JSON">The JSON representation of a connector status.</param>
-    public delegate JObject ConnectorStatus2JSONDelegate   (ConnectorStatus     ConnectorStatus,
-                                                            JObject             JSON);
+    public delegate JObject ConnectorStatus2JSONDelegate(ConnectorStatus   ConnectorStatus,
+                                                         JObject           JSON);
 
     /// <summary>
-    /// A delegate which allows you to modify the JSON representation of charge detail records before sending them upstream.
+    /// A delegate which allows you to modify the JSON representation of charging sessions before sending them upstream.
     /// </summary>
-    /// <param name="ChargeDetailRecord">A charge detail record.</param>
+    /// <param name="Session">A charging session.</param>
     /// <param name="JSON">The JSON representation of a charge detail record.</param>
-    public delegate JObject ChargeDetailRecord2JSONDelegate(ChargeDetailRecord  ChargeDetailRecord,
-                                                            JObject             JSON);
+    public delegate JObject Session2JSONDelegate        (Session           Session,
+                                                         JObject           JSON);
 
     /// <summary>
     /// A delegate for post-processing JSON before sending it upstream.
     /// </summary>
     /// <param name="JSON">A JSON element to process.</param>
-    public delegate JObject JSONPostProcessingDelegate     (JObject             JSON);
+    public delegate JObject JSONPostProcessingDelegate  (JObject           JSON);
 
 }

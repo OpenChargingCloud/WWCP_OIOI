@@ -63,64 +63,64 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
     /// <summary>
     /// A delegate called whenever a new station will be send upstream.
     /// </summary>
-    public delegate void OnStationPostRequestDelegate   (DateTime                         LogTimestamp,
-                                                         DateTime                         RequestTimestamp,
-                                                         Object                           Sender,
-                                                         CSORoamingProvider_Id            SenderId,
-                                                         EventTracking_Id                 EventTrackingId,
-                                                         RoamingNetwork_Id                RoamingNetworkId,
-                                                         UInt64                           NumberOfEVSEDataRecords,
-                                                         Station                          Station,
-                                                         IEnumerable<String>              Warnings,
-                                                         TimeSpan?                        RequestTimeout);
+    public delegate void OnStationPostWWCPRequestDelegate (DateTime                                      LogTimestamp,
+                                                           DateTime                                      RequestTimestamp,
+                                                           Object                                        Sender,
+                                                           CSORoamingProvider_Id                         SenderId,
+                                                           EventTracking_Id                              EventTrackingId,
+                                                           RoamingNetwork_Id                             RoamingNetworkId,
+                                                           UInt64                                        NumberOfStations,
+                                                           IEnumerable<Tuple<ChargingStation, Station>>  Stations,
+                                                           IEnumerable<String>                           Warnings,
+                                                           TimeSpan?                                     RequestTimeout);
 
 
     /// <summary>
     /// A delegate called whenever a new station had been send upstream.
     /// </summary>
-    public delegate void OnStationPostResponseDelegate  (DateTime                         LogTimestamp,
-                                                         DateTime                         RequestTimestamp,
-                                                         Object                           Sender,
-                                                         CSORoamingProvider_Id            SenderId,
-                                                         EventTracking_Id                 EventTrackingId,
-                                                         RoamingNetwork_Id                RoamingNetworkId,
-                                                         UInt64                           NumberOfEVSEDataRecords,
-                                                         Station                          Station,
-                                                         IEnumerable<String>              Warnings,
-                                                         TimeSpan?                        RequestTimeout,
-                                                         WWCP.Acknowledgement             Result,
-                                                         TimeSpan                         Runtime);
+    public delegate void OnStationPostWWCPResponseDelegate(DateTime                                      LogTimestamp,
+                                                           DateTime                                      RequestTimestamp,
+                                                           Object                                        Sender,
+                                                           CSORoamingProvider_Id                         SenderId,
+                                                           EventTracking_Id                              EventTrackingId,
+                                                           RoamingNetwork_Id                             RoamingNetworkId,
+                                                           UInt64                                        NumberOfStations,
+                                                           IEnumerable<Tuple<ChargingStation, Station>>  Stations,
+                                                           IEnumerable<String>                           Warnings,
+                                                           TimeSpan?                                     RequestTimeout,
+                                                           Acknowledgement                               Result,
+                                                           TimeSpan                                      Runtime);
 
 
     /// <summary>
     /// A delegate called whenever new connector status will be send upstream.
     /// </summary>
-    public delegate void OnConnectorStatusPostRequestDelegate (DateTime                         LogTimestamp,
-                                                               DateTime                         RequestTimestamp,
-                                                               Object                           Sender,
-                                                               CSORoamingProvider_Id            SenderId,
-                                                               EventTracking_Id                 EventTrackingId,
-                                                               RoamingNetwork_Id                RoamingNetworkId,
-                                                               UInt64                           NumberOfEVSEDataRecords,
-                                                               ConnectorStatus                  ConnectorStatus,
-                                                               IEnumerable<String>              Warnings,
-                                                               TimeSpan?                        RequestTimeout);
+    public delegate void OnConnectorStatusPostWWCPRequestDelegate (DateTime                                               LogTimestamp,
+                                                                   DateTime                                               RequestTimestamp,
+                                                                   Object                                                 Sender,
+                                                                   CSORoamingProvider_Id                                  SenderId,
+                                                                   EventTracking_Id                                       EventTrackingId,
+                                                                   RoamingNetwork_Id                                      RoamingNetworkId,
+                                                                   UInt64                                                 NumberOfEVSEDataRecords,
+                                                                   IEnumerable<Tuple<EVSEStatusUpdate, ConnectorStatus>>  ConnectorStatus,
+                                                                   IEnumerable<String>                                    Warnings,
+                                                                   TimeSpan?                                              RequestTimeout);
 
 
     /// <summary>
     /// A delegate called whenever new connector status had been send upstream.
     /// </summary>
-    public delegate void OnConnectorStatusPostResponseDelegate(DateTime                         LogTimestamp,
-                                                               DateTime                         RequestTimestamp,
-                                                               Object                           Sender,
-                                                               CSORoamingProvider_Id            SenderId,
-                                                               EventTracking_Id                 EventTrackingId,
-                                                               RoamingNetwork_Id                RoamingNetworkId,
-                                                               UInt64                           NumberOfEVSEDataRecords,
-                                                               ConnectorStatus                  ConnectorStatus,
-                                                               IEnumerable<String>              Warnings,
-                                                               TimeSpan?                        RequestTimeout,
-                                                               WWCP.Acknowledgement             Result,
-                                                               TimeSpan                         Runtime);
+    public delegate void OnConnectorStatusPostWWCPResponseDelegate(DateTime                                               LogTimestamp,
+                                                                   DateTime                                               RequestTimestamp,
+                                                                   Object                                                 Sender,
+                                                                   CSORoamingProvider_Id                                  SenderId,
+                                                                   EventTracking_Id                                       EventTrackingId,
+                                                                   RoamingNetwork_Id                                      RoamingNetworkId,
+                                                                   UInt64                                                 NumberOfEVSEDataRecords,
+                                                                   IEnumerable<Tuple<EVSEStatusUpdate, ConnectorStatus>>  ConnectorStatus,
+                                                                   IEnumerable<String>                                    Warnings,
+                                                                   TimeSpan?                                              RequestTimeout,
+                                                                   WWCP.Acknowledgement                                   Result,
+                                                                   TimeSpan                                               Runtime);
 
 }

@@ -81,7 +81,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                                                                CPOClient                                     Sender,
                                                                String                                        SenderId,
                                                                EventTracking_Id                              EventTrackingId,
-                                                               ConnectorStatus                               ConnectorStatus,
+                                                               Connector_Id                                  Id,
+                                                               ConnectorStatusTypes                          Status,
                                                                Partner_Id                                    PartnerId,
                                                                TimeSpan?                                     RequestTimeout);
 
@@ -93,7 +94,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                                                                CPOClient                                     Sender,
                                                                String                                        SenderId,
                                                                EventTracking_Id                              EventTrackingId,
-                                                               ConnectorStatus                               ConnectorStatus,
+                                                               Connector_Id                                  Id,
+                                                               ConnectorStatusTypes                          Status,
                                                                Partner_Id                                    PartnerId,
                                                                TimeSpan?                                     RequestTimeout,
                                                                ConnectorPostStatusResponse                   Result,

@@ -74,7 +74,7 @@ namespace org.GraphDefined.WWCP
         /// 
         /// <param name="DefaultOperator">An optional Charging Station Operator, which will be copied into the main OperatorID-section of the OIOI SOAP request.</param>
         /// <param name="OperatorNameSelector">An optional delegate to select an Charging Station Operator name, which will be copied into the OperatorName-section of the OIOI SOAP request.</param>
-        /// <param name="IncludeEVSEs">Only include the EVSEs matching the given delegate.</param>
+        /// <param name="IncludeChargingStations">Only include the EVSEs matching the given delegate.</param>
         /// <param name="ServiceCheckEvery">The service check intervall.</param>
         /// <param name="StatusCheckEvery">The status check intervall.</param>
         /// 
@@ -121,11 +121,11 @@ namespace org.GraphDefined.WWCP
                                               OIOIv3_x.CPO.ChargeDetailRecord2SessionDelegate                     WWCPChargeDetailRecord2OIOIChargeDetailRecord   = null,
                                               OIOIv3_x.CPO.Station2JSONDelegate                                   Station2JSON                                    = null,
                                               OIOIv3_x.CPO.ConnectorStatus2JSONDelegate                           ConnectorStatus2JSON                            = null,
-                                              OIOIv3_x.CPO.ChargeDetailRecord2JSONDelegate                        ChargeDetailRecord2JSON                         = null,
+                                              OIOIv3_x.CPO.Session2JSONDelegate                                   ChargeDetailRecord2JSON                         = null,
 
                                               ChargingStationOperator                                             DefaultOperator                                 = null,
                                               ChargingStationOperatorNameSelectorDelegate                         OperatorNameSelector                            = null,
-                                              IncludeEVSEDelegate                                                 IncludeEVSEs                                    = null,
+                                              IncludeChargingStationDelegate                                      IncludeChargingStations                         = null,
                                               TimeSpan?                                                           ServiceCheckEvery                               = null,
                                               TimeSpan?                                                           StatusCheckEvery                                = null,
 
@@ -191,7 +191,8 @@ namespace org.GraphDefined.WWCP
                                                                      ConnectorStatus2JSON,
                                                                      ChargeDetailRecord2JSON,
 
-                                                                     IncludeEVSEs,
+                                                                     IncludeChargingStations,
+
                                                                      ServiceCheckEvery,
                                                                      StatusCheckEvery,
 
@@ -244,7 +245,7 @@ namespace org.GraphDefined.WWCP
         /// 
         /// <param name="DefaultOperator">An optional Charging Station Operator, which will be copied into the main OperatorID-section of the OIOI SOAP request.</param>
         /// <param name="OperatorNameSelector">An optional delegate to select an Charging Station Operator name, which will be copied into the OperatorName-section of the OIOI SOAP request.</param>
-        /// <param name="IncludeEVSEs">Only include the EVSEs matching the given delegate.</param>
+        /// <param name="IncludeChargingStations">Only include the EVSEs matching the given delegate.</param>
         /// <param name="ServiceCheckEvery">The service check intervall.</param>
         /// <param name="StatusCheckEvery">The status check intervall.</param>
         /// 
@@ -288,9 +289,10 @@ namespace org.GraphDefined.WWCP
                                               OIOIv3_x.CPO.ChargeDetailRecord2SessionDelegate              WWCPChargeDetailRecord2OIOIChargeDetailRecord   = null,
                                               OIOIv3_x.CPO.Station2JSONDelegate                            Station2JSON                                    = null,
                                               OIOIv3_x.CPO.ConnectorStatus2JSONDelegate                    ConnectorStatus2JSON                            = null,
-                                              OIOIv3_x.CPO.ChargeDetailRecord2JSONDelegate                 ChargeDetailRecord2JSON                         = null,
+                                              OIOIv3_x.CPO.Session2JSONDelegate                            ChargeDetailRecord2JSON                         = null,
 
-                                              IncludeEVSEDelegate                                          IncludeEVSEs                                    = null,
+                                              IncludeChargingStationDelegate                               IncludeChargingStations                         = null,
+
                                               TimeSpan?                                                    ServiceCheckEvery                               = null,
                                               TimeSpan?                                                    StatusCheckEvery                                = null,
 
@@ -360,7 +362,7 @@ namespace org.GraphDefined.WWCP
                                                                      ConnectorStatus2JSON,
                                                                      ChargeDetailRecord2JSON,
 
-                                                                     IncludeEVSEs,
+                                                                     IncludeChargingStations,
                                                                      ServiceCheckEvery,
                                                                      StatusCheckEvery,
 

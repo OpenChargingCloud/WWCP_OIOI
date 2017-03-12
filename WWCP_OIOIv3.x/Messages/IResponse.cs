@@ -35,7 +35,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
     /// <summary>
     /// The common interface of a response message.
     /// </summary>
-    public interface IResponse<TResponse>
+    public interface IResponse<TResponse> : IEquatable<TResponse>
 
         where TResponse : class
 
