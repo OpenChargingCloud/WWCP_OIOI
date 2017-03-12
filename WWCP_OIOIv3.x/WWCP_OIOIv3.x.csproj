@@ -68,10 +68,10 @@
     <Compile Include="Messages\AResponse.cs" />
     <Compile Include="Messages\CPO\ConnectorPostStatusResponse.cs" />
     <Compile Include="Messages\CPO\RFIDVerifyResponse.cs" />
-    <Compile Include="Messages\CPO\SessionStopResponse.cs" />
-    <Compile Include="Messages\CPO\SessionStopRequest.cs" />
-    <Compile Include="Messages\CPO\SessionStartRequest.cs" />
-    <Compile Include="Messages\CPO\SessionStartResponse.cs" />
+    <Compile Include="Messages\EMP\SessionStopResponse.cs" />
+    <Compile Include="Messages\EMP\SessionStopRequest.cs" />
+    <Compile Include="Messages\EMP\SessionStartRequest.cs" />
+    <Compile Include="Messages\EMP\SessionStartResponse.cs" />
     <Compile Include="Messages\CPO\StationPostResponse.cs" />
     <Compile Include="Messages\CPO\SessionPostResponse.cs" />
     <Compile Include="Messages\CPO\ConnectorPostStatusRequest.cs" />

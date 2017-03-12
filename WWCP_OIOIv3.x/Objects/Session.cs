@@ -258,7 +258,6 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
             if (Object == null)
                 return false;
 
-            // Check if the given object is a charging session.
             var Session = Object as Session;
             if ((Object) Session == null)
                 return false;
@@ -282,7 +281,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
             if ((Object) Session == null)
                 return false;
 
-            return Id.        Equals(Session.Id)       &&
+            return Id.               Equals(Session.Id)              &&
                    User.             Equals(Session.User)            &&
                    ConnectorId.      Equals(Session.ConnectorId)     &&
                    SessionInterval.  Equals(Session.SessionInterval) &&

@@ -23,10 +23,11 @@ using System.Threading;
 using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
+using org.GraphDefined.Vanaheimr.Hermod;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
+namespace org.GraphDefined.WWCP.OIOIv3_x.EMP
 {
 
     /// <summary>
@@ -38,10 +39,22 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         #region Properties
 
         /// <summary>
-        /// A charging session.
+        /// The customer who wants to charge.
         /// </summary>
         [Mandatory]
-        public Session  Session   { get; }
+        public User               User               { get; }
+
+        /// <summary>
+        /// The connector where the customer wants to charge.
+        /// </summary>
+        [Mandatory]
+        public Connector_Id       ConnectorId        { get; }
+
+        /// <summary>
+        /// The payment method the customer wants to use for paying this charging session.
+        /// </summary>
+        [Optional]
+        public PaymentReference?  PaymentReference   { get; }
 
         #endregion
 
@@ -50,18 +63,22 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <summary>
         /// Create an OIOI Session Start JSON/HTTP request.
         /// </summary>
-        /// <param name="Session">A charging session.</param>
+        /// <param name="User">A customer who wants to charge.</param>
+        /// <param name="ConnectorId">The connector where the customer wants to charge.</param>
+        /// <param name="PaymentReference">The payment method the customer wants to use for paying this charging session.</param>
         /// 
         /// <param name="Timestamp">The optional timestamp of the request.</param>
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        public SessionStartRequest(Session             Session,
+        public SessionStartRequest(User                User,
+                                   Connector_Id        ConnectorId,
+                                   PaymentReference?   PaymentReference    = null,
 
-                                  DateTime?           Timestamp           = null,
-                                  CancellationToken?  CancellationToken   = null,
-                                  EventTracking_Id    EventTrackingId     = null,
-                                  TimeSpan?           RequestTimeout      = null)
+                                   DateTime?           Timestamp           = null,
+                                   CancellationToken?  CancellationToken   = null,
+                                   EventTracking_Id    EventTrackingId     = null,
+                                   TimeSpan?           RequestTimeout      = null)
 
             : base(Timestamp,
                    CancellationToken,
@@ -70,7 +87,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         {
 
-            this.Session = Session;
+            this.User              = User;
+            this.ConnectorId       = ConnectorId;
+            this.PaymentReference  = PaymentReference;
 
         }
 
@@ -160,7 +179,12 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
                 SessionStartRequest = new SessionStartRequest(
 
-                                         null
+                                         User.Parse(SessionStart["user"] as JObject),
+                                         Connector_Id.Parse(SessionStart["connector-id"].Value<String>()),
+
+                                         SessionStart["payment-reference"] != null
+                                             ? new Nullable<PaymentReference>(OIOIv3_x.PaymentReference.Parse(SessionStart["payment-reference"].Value<String>()))
+                                             : null
 
                                      );
 
@@ -224,7 +248,16 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         public JObject ToJSON()
 
             => new JObject(new JObject(
-                               new JProperty("session-post", Session.ToJSON())
+                               new JProperty("session-start", JSONObject.Create(
+
+                                   new JProperty("user",          User.       ToJSON()),
+                                   new JProperty("connector-id",  ConnectorId.ToString()),
+
+                                   PaymentReference.HasValue
+                                       ? new JProperty("payment-reference", PaymentReference.ToString())
+                                       : null
+
+                               ))
                            ));
 
         #endregion
@@ -310,7 +343,11 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             if ((Object) SessionStartRequest == null)
                 return false;
 
-            return Session.Equals(SessionStartRequest.Session);
+            return User.Equals(SessionStartRequest.User) &&
+                   ConnectorId.Equals(SessionStartRequest.ConnectorId) &&
+
+                   (!PaymentReference.HasValue && !SessionStartRequest.PaymentReference.HasValue) ||
+                   (PaymentReference.HasValue && SessionStartRequest.PaymentReference.HasValue && PaymentReference.Value.Equals(SessionStartRequest.PaymentReference.Value));
 
         }
 
@@ -328,7 +365,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         {
             unchecked
             {
-                return Session.GetHashCode();
+
+                return User.       GetHashCode() * 7 ^
+                       ConnectorId.GetHashCode() * 5 ^
+
+                       (PaymentReference.HasValue
+                            ? PaymentReference.GetHashCode()
+                            : 0);
+
             }
         }
 
@@ -341,12 +385,13 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// </summary>
         public override String ToString()
 
-            => String.Concat("Session Start '",
-                             Session.Id +
-                             "'");
+            => String.Concat("Session Start: ",
+                             User.Identifier,
+                             " at ",
+                             ConnectorId,
+                             PaymentReference.HasValue ? " via " + PaymentReference : "");
 
         #endregion
-
 
     }
 

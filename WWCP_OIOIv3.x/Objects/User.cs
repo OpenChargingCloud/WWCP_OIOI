@@ -346,7 +346,6 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
             if (Object == null)
                 return false;
 
-            // Check if the given object is an user.
             var User = Object as User;
             if ((Object) User == null)
                 return false;

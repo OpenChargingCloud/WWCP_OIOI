@@ -29,19 +29,6 @@ using System.Collections.Generic;
 namespace org.GraphDefined.WWCP.OIOIv3_x.EMP
 {
 
-    ///// <summary>
-    ///// A delegate for filtering charging stations.
-    ///// </summary>
-    ///// <param name="Station">A OIOI charging station.</param>
-    //public delegate Boolean IncludeStationsDelegate       (Station          Station);
-
-    ///// <summary>
-    ///// A delegate for filtering connector status records.
-    ///// </summary>
-    ///// <param name="ConnectorStatus">An OIOI connector status.</param>
-    //public delegate Boolean IncludeConnectorStatusDelegate(ConnectorStatus  ConnectorStatus);
-
-
     #region OnStationGetSurfaceRequest/-Response
 
     /// <summary>
@@ -78,5 +65,68 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.EMP
 
     #endregion
 
+    #region OnSessionStartRequest/-Response
+
+    /// <summary>
+    /// A delegate called whenever a charging session start request will be send upstream.
+    /// </summary>
+    public delegate Task OnSessionStartRequestDelegate (DateTime                      LogTimestamp,
+                                                        DateTime                      RequestTimestamp,
+                                                        EMPClient                     Sender,
+                                                        String                        SenderId,
+                                                        EventTracking_Id              EventTrackingId,
+                                                        User                          User,
+                                                        Connector_Id                  ConnectorId,
+                                                        PaymentReference?             PaymentReference,
+                                                        TimeSpan?                     RequestTimeout);
+
+    /// <summary>
+    /// A delegate called whenever a charging session start request had been sent upstream.
+    /// </summary>
+    public delegate Task OnSessionStartResponseDelegate(DateTime                      LogTimestamp,
+                                                        DateTime                      RequestTimestamp,
+                                                        EMPClient                     Sender,
+                                                        String                        SenderId,
+                                                        EventTracking_Id              EventTrackingId,
+                                                        User                          User,
+                                                        Connector_Id                  ConnectorId,
+                                                        PaymentReference?             PaymentReference,
+                                                        TimeSpan?                     RequestTimeout,
+                                                        SessionStartResponse          Result,
+                                                        TimeSpan                      Duration);
+
+    #endregion
+
+    #region OnSessionStopRequest/-Response
+
+    /// <summary>
+    /// A delegate called whenever a charging session stop request will be send upstream.
+    /// </summary>
+    public delegate Task OnSessionStopRequestDelegate (DateTime                      LogTimestamp,
+                                                       DateTime                      RequestTimestamp,
+                                                       EMPClient                     Sender,
+                                                       String                        SenderId,
+                                                       EventTracking_Id              EventTrackingId,
+                                                       User                          User,
+                                                       Connector_Id                  ConnectorId,
+                                                       Session_Id?                   SessionId,
+                                                       TimeSpan?                     RequestTimeout);
+
+    /// <summary>
+    /// A delegate called whenever a charging session stop request had been sent upstream.
+    /// </summary>
+    public delegate Task OnSessionStopResponseDelegate(DateTime                      LogTimestamp,
+                                                       DateTime                      RequestTimestamp,
+                                                       EMPClient                     Sender,
+                                                       String                        SenderId,
+                                                       EventTracking_Id              EventTrackingId,
+                                                       User                          User,
+                                                       Connector_Id                  ConnectorId,
+                                                       Session_Id?                   SessionId,
+                                                       TimeSpan?                     RequestTimeout,
+                                                       SessionStopResponse           Result,
+                                                       TimeSpan                      Duration);
+
+    #endregion
 
 }

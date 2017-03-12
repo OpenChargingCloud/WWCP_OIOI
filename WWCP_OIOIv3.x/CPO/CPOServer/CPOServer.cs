@@ -379,8 +379,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                                                  IdentifierTypes       IdentifierType       = IdentifierTypes.Unknown;
                                                  eMobilityAccount_Id   eMobilityAccountId   = default(eMobilityAccount_Id);
                                                  String                Token                = null;
-                                                 EVSE_Id               ConnectorId;
-                                                 PaymentReference      PaymentReference     = null;
+                                                 Connector_Id          ConnectorId;
+                                                 PaymentReference?     PaymentReference     = null;
 
                                                  Result                SessionStartResult   = null;
                                                  HTTPResponse          _HTTPResponse        = null;
@@ -453,7 +453,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
                                                  #region Parse 'connector-id'
 
-                                                 if (!JSONObj.ParseMandatory("connector-id", s => EVSE_Id.Parse(s), out ConnectorId))
+                                                 if (!JSONObj.ParseMandatory("connector-id", s => Connector_Id.Parse(s), out ConnectorId))
                                                      return SendSessionStartResponse(Request,
                                                                                      HTTPStatusCode.BadRequest,
                                                                                      Result.Error(310, "JSON property 'connector-id' missing or invalid!"));
@@ -462,7 +462,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
                                                  #region Parse 'payment-reference'    [optional]
 
-                                                 if (!JSONObj.ParseOptional("payment-reference", s => PaymentReference.Parse(s), out PaymentReference))
+                                                 if (!JSONObj.ParseOptional("payment-reference", s => new Nullable<PaymentReference>(OIOIv3_x.PaymentReference.Parse(s)), out PaymentReference))
                                                      return SendSessionStartResponse(Request,
                                                                                      HTTPStatusCode.BadRequest,
                                                                                      Result.Error(310, "JSON property 'payment-reference' missing or invalid!"));
@@ -633,8 +633,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                                                  IdentifierTypes      IdentifierType      = IdentifierTypes.Unknown;
                                                  eMobilityAccount_Id  eMobilityAccountId  = default(eMobilityAccount_Id);
                                                  String               Token               = null;
-                                                 EVSE_Id              ConnectorId         = default(EVSE_Id);
-                                                 ChargingSession_Id   SessionId           = default(ChargingSession_Id);
+                                                 Connector_Id         ConnectorId         = default(Connector_Id);
+                                                 Session_Id           SessionId           = default(Session_Id);
 
                                                  Result               SessionStopResult   = null;
                                                  HTTPResponse         _HTTPResponse       = null;
@@ -707,7 +707,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
                                                  #region Parse 'connector-id'
 
-                                                 if (!JSONObj.ParseMandatory("connector-id", s => EVSE_Id.Parse(s), out ConnectorId))
+                                                 if (!JSONObj.ParseMandatory("connector-id", s => Connector_Id.Parse(s), out ConnectorId))
                                                      return SendSessionStopResponse(Request,
                                                                                     HTTPStatusCode.BadRequest,
                                                                                     Result.Error(310, "JSON property 'connector-id' missing or invalid!"));
@@ -716,7 +716,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
                                                  #region Parse 'session-id'
 
-                                                 if (!JSONObj.ParseMandatory("session-id", s => ChargingSession_Id.Parse(s), out SessionId))
+                                                 if (!JSONObj.ParseMandatory("session-id", s => Session_Id.Parse(s), out SessionId))
                                                      return SendSessionStopResponse(Request,
                                                                                     HTTPStatusCode.BadRequest,
                                                                                     Result.Error(310, "JSON property 'session-id' missing or invalid!"));

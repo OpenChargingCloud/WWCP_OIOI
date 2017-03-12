@@ -114,6 +114,54 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.EMP
 
         #endregion
 
+        #region OnSessionStartRequest/-Response
+
+        /// <summary>
+        /// An event fired whenever a charging session start request will be send.
+        /// </summary>
+        public event OnSessionStartRequestDelegate   OnSessionStartRequest;
+
+        /// <summary>
+        /// An event fired whenever a HTTP request starting a charging session will be send.
+        /// </summary>
+        public event ClientRequestLogHandler         OnSessionStartHTTPRequest;
+
+        /// <summary>
+        /// An event fired whenever a HTTP response to a charging session start request had been received.
+        /// </summary>
+        public event ClientResponseLogHandler        OnSessionStartHTTPResponse;
+
+        /// <summary>
+        /// An event fired whenever a response to a charging session start request had been received.
+        /// </summary>
+        public event OnSessionStartResponseDelegate  OnSessionStartResponse;
+
+        #endregion
+
+        #region OnSessionStopRequest/-Response
+
+        /// <summary>
+        /// An event fired whenever a charging session stop request will be send.
+        /// </summary>
+        public event OnSessionStopRequestDelegate   OnSessionStopRequest;
+
+        /// <summary>
+        /// An event fired whenever a HTTP request stopping a charging session will be send.
+        /// </summary>
+        public event ClientRequestLogHandler        OnSessionStopHTTPRequest;
+
+        /// <summary>
+        /// An event fired whenever a HTTP response to a charging session stop request had been received.
+        /// </summary>
+        public event ClientResponseLogHandler       OnSessionStopHTTPResponse;
+
+        /// <summary>
+        /// An event fired whenever a response to a charging session stop request had been received.
+        /// </summary>
+        public event OnSessionStopResponseDelegate  OnSessionStopResponse;
+
+        #endregion
+
         #endregion
 
         #region Custom request mappers
@@ -165,6 +213,106 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.EMP
         #endregion
 
         public CustomMapperDelegate<StationGetSurfaceResponse, StationGetSurfaceResponse.Builder> CustomStationGetSurfaceResponseMapper { get; set; }
+
+        #endregion
+
+        #region CustomSessionStartRequestMapper
+
+        #region CustomSessionStartRequestMapper
+
+        private Func<SessionStartRequest, SessionStartRequest> _CustomSessionStartRequestMapper = _ => _;
+
+        public Func<SessionStartRequest, SessionStartRequest> CustomSessionStartRequestMapper
+        {
+
+            get
+            {
+                return _CustomSessionStartRequestMapper;
+            }
+
+            set
+            {
+                if (value != null)
+                    _CustomSessionStartRequestMapper = value;
+            }
+
+        }
+
+        #endregion
+
+        #region CustomSessionStartJSONRequestMapper
+
+        private Func<SessionStartRequest, JObject, JObject> _CustomSessionStartJSONRequestMapper = (request, xml) => xml;
+
+        public Func<SessionStartRequest, JObject, JObject> CustomSessionStartJSONRequestMapper
+        {
+
+            get
+            {
+                return _CustomSessionStartJSONRequestMapper;
+            }
+
+            set
+            {
+                if (value != null)
+                    _CustomSessionStartJSONRequestMapper = value;
+            }
+
+        }
+
+        #endregion
+
+        public CustomMapperDelegate<SessionStartResponse, SessionStartResponse.Builder> CustomSessionStartResponseMapper { get; set; }
+
+        #endregion
+
+        #region CustomSessionStopRequestMapper
+
+        #region CustomSessionStopRequestMapper
+
+        private Func<SessionStopRequest, SessionStopRequest> _CustomSessionStopRequestMapper = _ => _;
+
+        public Func<SessionStopRequest, SessionStopRequest> CustomSessionStopRequestMapper
+        {
+
+            get
+            {
+                return _CustomSessionStopRequestMapper;
+            }
+
+            set
+            {
+                if (value != null)
+                    _CustomSessionStopRequestMapper = value;
+            }
+
+        }
+
+        #endregion
+
+        #region CustomSessionStopJSONRequestMapper
+
+        private Func<SessionStopRequest, JObject, JObject> _CustomSessionStopJSONRequestMapper = (request, xml) => xml;
+
+        public Func<SessionStopRequest, JObject, JObject> CustomSessionStopJSONRequestMapper
+        {
+
+            get
+            {
+                return _CustomSessionStopJSONRequestMapper;
+            }
+
+            set
+            {
+                if (value != null)
+                    _CustomSessionStopJSONRequestMapper = value;
+            }
+
+        }
+
+        #endregion
+
+        public CustomMapperDelegate<SessionStopResponse, SessionStopResponse.Builder> CustomSessionStopResponseMapper { get; set; }
 
         #endregion
 
@@ -484,6 +632,335 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.EMP
 
         #endregion
 
+        #region SessionStart(Request, ...)
+
+        /// <summary>
+        /// Upload a charging station onto the OIOI server.
+        /// </summary>
+        /// <param name="Request">A SessionStart request.</param>
+        public async Task<HTTPResponse<SessionStartResponse>>
+
+            SessionStart(SessionStartRequest  Request)
+
+        {
+
+            #region Initial checks
+
+            if (Request == null)
+                throw new ArgumentNullException(nameof(Request), "The given SessionStart request must not be null!");
+
+            Request = _CustomSessionStartRequestMapper(Request);
+
+            if (Request == null)
+                throw new ArgumentNullException(nameof(Request), "The mapped SessionStart request must not be null!");
+
+
+            HTTPResponse<SessionStartResponse> result = null;
+
+            #endregion
+
+            #region Send OnSessionStartRequest event
+
+            var StartTime = DateTime.Now;
+
+            try
+            {
+
+                OnSessionStartRequest?.Invoke(StartTime,
+                                              Request.Timestamp.Value,
+                                              this,
+                                              ClientId,
+                                              Request.EventTrackingId,
+                                              Request.User,
+                                              Request.ConnectorId,
+                                              Request.PaymentReference,
+                                              Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout);
+
+            }
+            catch (Exception e)
+            {
+                e.Log(nameof(EMPClient) + "." + nameof(OnSessionStartRequest));
+            }
+
+            #endregion
+
+
+            using (var _JSONClient = new JSONClient(Hostname,
+                                                    RemotePort,
+                                                    HTTPVirtualHost,
+                                                    URIPrefix,
+                                                    RemoteCertificateValidator,
+                                                    ClientCert,
+                                                    UserAgent,
+                                                    DNSClient))
+            {
+
+                result = await _JSONClient.Query(_CustomSessionStartJSONRequestMapper(Request,
+                                                                                      Request.ToJSON()),
+                                                 HTTPRequestBuilder:   request => request.Set("Authorization", "key=" + APIKey),
+                                                 RequestLogDelegate:   OnSessionStartHTTPRequest,
+                                                 ResponseLogDelegate:  OnSessionStartHTTPResponse,
+                                                 CancellationToken:    Request.CancellationToken,
+                                                 EventTrackingId:      Request.EventTrackingId,
+                                                 RequestTimeout:       Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout,
+
+                                                 #region OnSuccess
+
+                                                 OnSuccess: JSONResponse => JSONResponse.ConvertContent(Request,
+                                                                                                        (request, json, onexception) =>
+                                                                                                            SessionStartResponse.Parse(request,
+                                                                                                                                       json,
+                                                                                                                                       CustomSessionStartResponseMapper,
+                                                                                                                                       onexception)),
+
+                                                 #endregion
+
+                                                 #region OnJSONFault
+
+                                                 OnJSONFault: (timestamp, jsonclient, httpresponse) => {
+
+                                                     SendJSONError(timestamp, this, httpresponse.Content);
+
+                                                     return new HTTPResponse<SessionStartResponse>(httpresponse,
+                                                                                                   new SessionStartResponse(Request, false),
+                                                                                                   IsFault: true);
+
+                                                 },
+
+                                                 #endregion
+
+                                                 #region OnHTTPError
+
+                                                 OnHTTPError: (timestamp, soapclient, httpresponse) => {
+
+                                                     SendHTTPError(timestamp, this, httpresponse);
+
+                                                     return new HTTPResponse<SessionStartResponse>(httpresponse,
+                                                                                                   new SessionStartResponse(Request, false),
+                                                                                                   IsFault: true);
+
+                                                 },
+
+                                                 #endregion
+
+                                                 #region OnException
+
+                                                 OnException: (timestamp, sender, exception) => {
+
+                                                     SendException(timestamp, sender, exception);
+
+                                                     return HTTPResponse<SessionStartResponse>.ExceptionThrown(new SessionStartResponse(Request, false),
+                                                                                                               Exception:  exception);
+
+                                                 }
+
+                                                 #endregion
+
+                                                );
+
+            }
+
+
+            if (result == null)
+                result = HTTPResponse<SessionStartResponse>.OK(new SessionStartResponse(Request, false));
+
+            #region Send OnSessionStartResponse event
+
+            var Endtime = DateTime.Now;
+
+            try
+            {
+
+                OnSessionStartResponse?.Invoke(Endtime,
+                                               Request.Timestamp.Value,
+                                               this,
+                                               ClientId,
+                                               Request.EventTrackingId,
+                                               Request.User,
+                                               Request.ConnectorId,
+                                               Request.PaymentReference,
+                                               Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout,
+                                               result.Content,
+                                               Endtime - StartTime);
+
+            }
+            catch (Exception e)
+            {
+                e.Log(nameof(EMPClient) + "." + nameof(OnSessionStartResponse));
+            }
+
+            #endregion
+
+            return result;
+
+        }
+
+        #endregion
+
+        #region SessionStop(Request, ...)
+
+        /// <summary>
+        /// Upload a charging station onto the OIOI server.
+        /// </summary>
+        /// <param name="Request">A SessionStop request.</param>
+        public async Task<HTTPResponse<SessionStopResponse>>
+
+            SessionStop(SessionStopRequest  Request)
+
+        {
+
+            #region Initial checks
+
+            if (Request == null)
+                throw new ArgumentNullException(nameof(Request), "The given SessionStop request must not be null!");
+
+            Request = _CustomSessionStopRequestMapper(Request);
+
+            if (Request == null)
+                throw new ArgumentNullException(nameof(Request), "The mapped SessionStop request must not be null!");
+
+
+            HTTPResponse<SessionStopResponse> result = null;
+
+            #endregion
+
+            #region Send OnSessionStopRequest event
+
+            var StartTime = DateTime.Now;
+
+            try
+            {
+
+                OnSessionStopRequest?.Invoke(StartTime,
+                                             Request.Timestamp.Value,
+                                             this,
+                                             ClientId,
+                                             Request.EventTrackingId,
+                                             Request.User,
+                                             Request.ConnectorId,
+                                             Request.SessionId,
+                                             Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout);
+
+            }
+            catch (Exception e)
+            {
+                e.Log(nameof(EMPClient) + "." + nameof(OnSessionStopRequest));
+            }
+
+            #endregion
+
+
+            using (var _JSONClient = new JSONClient(Hostname,
+                                                    RemotePort,
+                                                    HTTPVirtualHost,
+                                                    URIPrefix,
+                                                    RemoteCertificateValidator,
+                                                    ClientCert,
+                                                    UserAgent,
+                                                    DNSClient))
+            {
+
+                result = await _JSONClient.Query(_CustomSessionStopJSONRequestMapper(Request,
+                                                                                     Request.ToJSON()),
+                                                 HTTPRequestBuilder:   request => request.Set("Authorization", "key=" + APIKey),
+                                                 RequestLogDelegate:   OnSessionStopHTTPRequest,
+                                                 ResponseLogDelegate:  OnSessionStopHTTPResponse,
+                                                 CancellationToken:    Request.CancellationToken,
+                                                 EventTrackingId:      Request.EventTrackingId,
+                                                 RequestTimeout:       Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout,
+
+                                                 #region OnSuccess
+
+                                                 OnSuccess: JSONResponse => JSONResponse.ConvertContent(Request,
+                                                                                                        (request, json, onexception) =>
+                                                                                                            SessionStopResponse.Parse(request,
+                                                                                                                                      json,
+                                                                                                                                      CustomSessionStopResponseMapper,
+                                                                                                                                      onexception)),
+
+                                                 #endregion
+
+                                                 #region OnJSONFault
+
+                                                 OnJSONFault: (timestamp, jsonclient, httpresponse) => {
+
+                                                     SendJSONError(timestamp, this, httpresponse.Content);
+
+                                                     return new HTTPResponse<SessionStopResponse>(httpresponse,
+                                                                                                  new SessionStopResponse(Request, false),
+                                                                                                  IsFault: true);
+
+                                                 },
+
+                                                 #endregion
+
+                                                 #region OnHTTPError
+
+                                                 OnHTTPError: (timestamp, soapclient, httpresponse) => {
+
+                                                     SendHTTPError(timestamp, this, httpresponse);
+
+                                                     return new HTTPResponse<SessionStopResponse>(httpresponse,
+                                                                                                  new SessionStopResponse(Request, false),
+                                                                                                  IsFault: true);
+
+                                                 },
+
+                                                 #endregion
+
+                                                 #region OnException
+
+                                                 OnException: (timestamp, sender, exception) => {
+
+                                                     SendException(timestamp, sender, exception);
+
+                                                     return HTTPResponse<SessionStopResponse>.ExceptionThrown(new SessionStopResponse(Request, false),
+                                                                                                              Exception:  exception);
+
+                                                 }
+
+                                                 #endregion
+
+                                                );
+
+            }
+
+
+            if (result == null)
+                result = HTTPResponse<SessionStopResponse>.OK(new SessionStopResponse(Request, false));
+
+            #region Send OnSessionStopResponse event
+
+            var Endtime = DateTime.Now;
+
+            try
+            {
+
+                OnSessionStopResponse?.Invoke(Endtime,
+                                              Request.Timestamp.Value,
+                                              this,
+                                              ClientId,
+                                              Request.EventTrackingId,
+                                              Request.User,
+                                              Request.ConnectorId,
+                                              Request.SessionId,
+                                              Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout,
+                                              result.Content,
+                                              Endtime - StartTime);
+
+            }
+            catch (Exception e)
+            {
+                e.Log(nameof(EMPClient) + "." + nameof(OnSessionStopResponse));
+            }
+
+            #endregion
+
+            return result;
+
+        }
+
+        #endregion
 
 
     }

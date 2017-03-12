@@ -29,9 +29,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
     /// <summary>
     /// The unique identification of an OIOI Payment Reference.
     /// </summary>
-    public class PaymentReference : IId,
-                                    IEquatable<PaymentReference>,
-                                    IComparable<PaymentReference>
+    public struct PaymentReference : IId,
+                                     IEquatable<PaymentReference>,
+                                     IComparable<PaymentReference>
 
     {
 
@@ -40,39 +40,29 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// <summary>
         /// The internal identification.
         /// </summary>
-        protected readonly String _Id;
+        private readonly String InternalId;
 
         #endregion
 
         #region Properties
 
         /// <summary>
-        /// Returns the length of the identification.
+        /// The length of the partner identificator.
         /// </summary>
         public UInt64 Length
-            => (UInt64)_Id.Length;
+            => (UInt64) InternalId.Length;
 
         #endregion
 
         #region Constructor(s)
 
         /// <summary>
-        /// Generate a new OIOI communication payment reference
-        /// based on the given string.
+        /// Create a new payment reference based on the given string.
         /// </summary>
         /// <param name="Text">The value of the payment reference.</param>
         private PaymentReference(String Text)
         {
-
-            #region Initial checks
-
-            if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text),  "The given payment reference must not be null or empty!");
-
-            #endregion
-
-            this._Id = Text;
-
+            InternalId = Text;
         }
 
         #endregion
@@ -85,8 +75,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// </summary>
         /// <param name="Text">A text representation of a payment reference.</param>
         public static PaymentReference Parse(String Text)
+        {
 
-            => new PaymentReference(Text);
+            if (Text.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(Text), "The given text representation of a payment reference must not be null or empty!");
+
+            return new PaymentReference(Text.Trim());
+
+        }
 
         #endregion
 
@@ -99,16 +95,39 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// <param name="PaymentReference">The parsed payment reference.</param>
         public static Boolean TryParse(String Text, out PaymentReference PaymentReference)
         {
-            try
+
+            #region Initial checks
+
+            if (Text != null)
+                Text = Text.Trim();
+
+            if (Text.IsNullOrEmpty())
             {
-                PaymentReference = new PaymentReference(Text);
-                return true;
-            }
-            catch (Exception)
-            {
-                PaymentReference = null;
+                PaymentReference = default(PaymentReference);
                 return false;
             }
+
+            #endregion
+
+            try
+            {
+
+                PaymentReference = new PaymentReference(Text);
+
+                return true;
+
+            }
+
+#pragma warning disable RCS1075  // Avoid empty catch clause that catches System.Exception.
+#pragma warning disable RECS0022 // A catch clause that catches System.Exception and has an empty body
+            catch (Exception)
+#pragma warning restore RECS0022 // A catch clause that catches System.Exception and has an empty body
+#pragma warning restore RCS1075  // Avoid empty catch clause that catches System.Exception.
+            { }
+
+            PaymentReference = default(PaymentReference);
+            return false;
+
         }
 
         #endregion
@@ -120,7 +139,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// </summary>
         public PaymentReference Clone
 
-            => new PaymentReference(_Id);
+            => new PaymentReference(
+                   new String(InternalId.ToCharArray())
+               );
 
         #endregion
 
@@ -161,7 +182,6 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// <param name="PaymentReference2">Another payment reference.</param>
         /// <returns>true|false</returns>
         public static Boolean operator != (PaymentReference PaymentReference1, PaymentReference PaymentReference2)
-
             => !(PaymentReference1 == PaymentReference2);
 
         #endregion
@@ -178,7 +198,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         {
 
             if ((Object) PaymentReference1 == null)
-                throw new ArgumentNullException(nameof(PaymentReference1),  "The given payment reference must not be null!");
+                throw new ArgumentNullException(nameof(PaymentReference1), "The given PaymentReference1 must not be null!");
 
             return PaymentReference1.CompareTo(PaymentReference2) < 0;
 
@@ -195,7 +215,6 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// <param name="PaymentReference2">Another payment reference.</param>
         /// <returns>true|false</returns>
         public static Boolean operator <= (PaymentReference PaymentReference1, PaymentReference PaymentReference2)
-
             => !(PaymentReference1 > PaymentReference2);
 
         #endregion
@@ -212,7 +231,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         {
 
             if ((Object) PaymentReference1 == null)
-                throw new ArgumentNullException(nameof(PaymentReference1),  "The given payment reference must not be null!");
+                throw new ArgumentNullException(nameof(PaymentReference1), "The given PaymentReference1 must not be null!");
 
             return PaymentReference1.CompareTo(PaymentReference2) > 0;
 
@@ -225,11 +244,10 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PaymentReference1">A PaymentReference.</param>
-        /// <param name="PaymentReference2">Another PaymentReference.</param>
+        /// <param name="PaymentReference1">A payment reference.</param>
+        /// <param name="PaymentReference2">Another payment reference.</param>
         /// <returns>true|false</returns>
         public static Boolean operator >= (PaymentReference PaymentReference1, PaymentReference PaymentReference2)
-
             => !(PaymentReference1 < PaymentReference2);
 
         #endregion
@@ -248,14 +266,13 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         {
 
             if (Object == null)
-                throw new ArgumentNullException(nameof(Object),  "The given object must not be null!");
+                throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
 
-            // Check if the given object is a payment reference.
-            var PaymentReference = Object as PaymentReference;
-            if ((Object) PaymentReference == null)
-                throw new ArgumentException("The given object is not a payment reference!", nameof(Object));
+            if (!(Object is PaymentReference))
+                throw new ArgumentException("The given object is not a payment reference!",
+                                            nameof(Object));
 
-            return CompareTo(PaymentReference);
+            return CompareTo((PaymentReference) Object);
 
         }
 
@@ -273,12 +290,11 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
             if ((Object) PaymentReference == null)
                 throw new ArgumentNullException(nameof(PaymentReference),  "The given payment reference must not be null!");
 
-            // Compare the length of the payment references
+            // Compare the length of the PaymentReferences
             var _Result = this.Length.CompareTo(PaymentReference.Length);
 
-            // If equal: Compare payment references
             if (_Result == 0)
-                _Result = String.Compare(_Id, PaymentReference._Id, StringComparison.Ordinal);
+                _Result = String.Compare(InternalId, PaymentReference.InternalId, StringComparison.Ordinal);
 
             return _Result;
 
@@ -303,12 +319,10 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
             if (Object == null)
                 return false;
 
-            // Check if the given object is a payment reference.
-            var PaymentReference = Object as PaymentReference;
-            if ((Object) PaymentReference == null)
+            if (!(Object is PaymentReference))
                 return false;
 
-            return this.Equals(PaymentReference);
+            return Equals((PaymentReference) Object);
 
         }
 
@@ -317,7 +331,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         #region Equals(PaymentReference)
 
         /// <summary>
-        /// Compares two payment references for equality.
+        /// Compares two PaymentReferences for equality.
         /// </summary>
         /// <param name="PaymentReference">A payment reference to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
@@ -327,7 +341,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
             if ((Object) PaymentReference == null)
                 return false;
 
-            return _Id.Equals(PaymentReference._Id);
+            return InternalId.Equals(PaymentReference.InternalId);
 
         }
 
@@ -342,8 +356,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// </summary>
         /// <returns>The HashCode of this object.</returns>
         public override Int32 GetHashCode()
-
-            => _Id.GetHashCode();
+            => InternalId.GetHashCode();
 
         #endregion
 
@@ -353,8 +366,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// Return a string representation of this object.
         /// </summary>
         public override String ToString()
-
-            => _Id;
+            => InternalId;
 
         #endregion
 

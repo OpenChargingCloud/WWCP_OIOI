@@ -368,7 +368,6 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         #endregion
 
-
     }
 
 }

@@ -40,8 +40,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                                        CPOServer             Sender,
                                        EventTracking_Id      EventTrackingId,
                                        User                  User,
-                                       EVSE_Id               ConnectorId,
-                                       PaymentReference      PaymentReference);
+                                       Connector_Id          ConnectorId,
+                                       PaymentReference?     PaymentReference);
 
 
     /// <summary>
@@ -60,7 +60,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         OnSessionStartDelegate        (DateTime              Timestamp,
                                        CPOServer             Sender,
                                        eMobilityAccount_Id   eMAId,
-                                       EVSE_Id               ConnectorId,
+                                       Connector_Id          ConnectorId,
                                        PaymentReference      PaymentReference,
                                        CancellationToken     CancellationToken,
                                        EventTracking_Id      EventTrackingId,
@@ -77,8 +77,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                                        CPOServer             Sender,
                                        EventTracking_Id      EventTrackingId,
                                        User                  User,
-                                       EVSE_Id               ConnectorId,
-                                       PaymentReference      PaymentReference,
+                                       Connector_Id          ConnectorId,
+                                       PaymentReference?     PaymentReference,
                                        Result                Result,
                                        TimeSpan              Duration);
 
@@ -96,8 +96,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                                       CPOServer              Sender,
                                       EventTracking_Id       EventTrackingId,
                                       User                   User,
-                                      EVSE_Id?               ConnectorId,
-                                      ChargingSession_Id?    SessionId);
+                                      Connector_Id           ConnectorId,
+                                      Session_Id?            SessionId);
 
 
     /// <summary>
@@ -115,7 +115,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         OnSessionStopDelegate        (DateTime               Timestamp,
                                       CPOServer              Sender,
-                                      EVSE_Id                ConnectorId,
+                                      Connector_Id           ConnectorId,
                                       ChargingSession_Id     SessionId,
                                       eMobilityAccount_Id    eMAId,
                                       CancellationToken      CancellationToken,
@@ -133,8 +133,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                                       CPOServer              Sender,
                                       EventTracking_Id       EventTrackingId,
                                       User                   User,
-                                      EVSE_Id?               ConnectorId,
-                                      ChargingSession_Id?    SessionId,
+                                      Connector_Id           ConnectorId,
+                                      Session_Id?            SessionId,
                                       Result                 Result,
                                       TimeSpan               Duration);
 

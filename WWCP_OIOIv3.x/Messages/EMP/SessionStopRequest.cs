@@ -23,10 +23,11 @@ using System.Threading;
 using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
+using org.GraphDefined.Vanaheimr.Hermod;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
+namespace org.GraphDefined.WWCP.OIOIv3_x.EMP
 {
 
     /// <summary>
@@ -38,10 +39,22 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         #region Properties
 
         /// <summary>
-        /// A charging session.
+        /// The customer who wants to stop charging.
         /// </summary>
         [Mandatory]
-        public Session  Session   { get; }
+        public User          User          { get; }
+
+        /// <summary>
+        /// The connector where the customer wants to stop charging.
+        /// </summary>
+        [Mandatory]
+        public Connector_Id  ConnectorId   { get; }
+
+        /// <summary>
+        /// The payment method the customer wants to use for paying this charging session.
+        /// </summary>
+        [Optional]
+        public Session_Id?   SessionId     { get; }
 
         #endregion
 
@@ -50,13 +63,17 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <summary>
         /// Create an OIOI Session Stop JSON/HTTP request.
         /// </summary>
-        /// <param name="Session">A charging session.</param>
+        /// <param name="User">The customer who wants to stop charging.</param>
+        /// <param name="ConnectorId">The connector where the customer wants to stop charging.</param>
+        /// <param name="SessionId">The payment method the customer wants to use for paying this charging session.</param>
         /// 
         /// <param name="Timestamp">The optional timestamp of the request.</param>
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        public SessionStopRequest(Session             Session,
+        public SessionStopRequest(User                User,
+                                  Connector_Id        ConnectorId,
+                                  Session_Id?         SessionId           = null,
 
                                   DateTime?           Timestamp           = null,
                                   CancellationToken?  CancellationToken   = null,
@@ -70,7 +87,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         {
 
-            this.Session = Session;
+            this.User         = User;
+            this.ConnectorId  = ConnectorId;
+            this.SessionId    = SessionId;
 
         }
 
@@ -88,7 +107,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         //        },
         //
         //        "connector-id":  "1356",
-        //        "session-id":    "dfdf"
+        //        "session-id":    "1234..."
         //
         //    }
         // }
@@ -103,7 +122,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="SessionStopRequestJSON">The JSON to parse.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static SessionStopRequest Parse(JObject              SessionStopRequestJSON,
-                                                OnExceptionDelegate  OnException = null)
+                                               OnExceptionDelegate  OnException = null)
         {
 
             SessionStopRequest _SessionStopRequest;
@@ -125,7 +144,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="SessionStopRequestText">The text to parse.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static SessionStopRequest Parse(String               SessionStopRequestText,
-                                                OnExceptionDelegate  OnException = null)
+                                               OnExceptionDelegate  OnException = null)
         {
 
             SessionStopRequest _SessionStopRequest;
@@ -147,19 +166,24 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="SessionStopRequestJSON">The JSON to parse.</param>
         /// <param name="SessionStopRequest">The parsed Session Stop request.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static Boolean TryParse(JObject                  SessionStopRequestJSON,
+        public static Boolean TryParse(JObject                 SessionStopRequestJSON,
                                        out SessionStopRequest  SessionStopRequest,
-                                       OnExceptionDelegate      OnException  = null)
+                                       OnExceptionDelegate     OnException  = null)
         {
 
             try
             {
 
-                var SessionStop = SessionStopRequestJSON["session-start"];
+                var SessionStop = SessionStopRequestJSON["session-stop"];
 
                 SessionStopRequest = new SessionStopRequest(
 
-                                         null
+                                         User.Parse(SessionStop["user"] as JObject),
+                                         Connector_Id.Parse(SessionStop["connector-id"].Value<String>()),
+
+                                         SessionStop["session-id"] != null
+                                             ? new Nullable<Session_Id>(Session_Id.Parse(SessionStop["session-id"].Value<String>()))
+                                             : null
 
                                      );
 
@@ -188,9 +212,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="SessionStopRequestText">The text to parse.</param>
         /// <param name="SessionStopRequest">The parsed Session Stop request.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static Boolean TryParse(String                   SessionStopRequestText,
+        public static Boolean TryParse(String                  SessionStopRequestText,
                                        out SessionStopRequest  SessionStopRequest,
-                                       OnExceptionDelegate      OnException  = null)
+                                       OnExceptionDelegate     OnException  = null)
         {
 
             try
@@ -223,7 +247,16 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         public JObject ToJSON()
 
             => new JObject(new JObject(
-                               new JProperty("session-stop", Session.ToJSON())
+                               new JProperty("session-stop", JSONObject.Create(
+
+                                   new JProperty("user",          User.       ToJSON()),
+                                   new JProperty("connector-id",  ConnectorId.ToString()),
+
+                                   SessionId.HasValue
+                                       ? new JProperty("session-id",  SessionId.ToString())
+                                       : null
+
+                               ))
                            ));
 
         #endregion
@@ -309,7 +342,11 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             if ((Object) SessionStopRequest == null)
                 return false;
 
-            return Session.Equals(SessionStopRequest.Session);
+            return User.       Equals(SessionStopRequest.User)        &&
+                   ConnectorId.Equals(SessionStopRequest.ConnectorId) &&
+
+                   (!SessionId.HasValue && !SessionStopRequest.SessionId.HasValue) ||
+                   (SessionId.HasValue && SessionStopRequest.SessionId.HasValue && SessionId.Value.Equals(SessionStopRequest.SessionId.Value));
 
         }
 
@@ -327,7 +364,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         {
             unchecked
             {
-                return Session.GetHashCode();
+
+                return User.       GetHashCode() * 7 ^
+                       ConnectorId.GetHashCode() * 5 ^
+
+                       (SessionId.HasValue
+                            ? SessionId.GetHashCode()
+                            : 0);
+
             }
         }
 
@@ -340,9 +384,11 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// </summary>
         public override String ToString()
 
-            => String.Concat("Session Stop '",
-                             Session.Id +
-                             "'");
+            => String.Concat("Session Stop: ",
+                             User.Identifier,
+                             " at ",
+                             ConnectorId,
+                             SessionId.HasValue ? " via " + SessionId : "");
 
         #endregion
 
