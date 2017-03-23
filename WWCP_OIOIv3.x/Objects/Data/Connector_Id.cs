@@ -44,7 +44,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// <summary>
         /// The regular expression for parsing a connector identification.
         /// </summary>
-        public static readonly Regex  ConnectorId_RegEx = new Regex(@"^[A-Za-z]{2}\*?[A-Za-z0-9]{3}\*?E[A-Za-z0-9\*]{1,30}$",
+        public static readonly Regex  ConnectorId_RegEx = new Regex(@"^([A-Za-z]{2}\*?[A-Za-z0-9]{3})\*?E([A-Za-z0-9\*]{1,30})$",
                                                                     RegexOptions.IgnorePatternWhitespace);
 
         #endregion

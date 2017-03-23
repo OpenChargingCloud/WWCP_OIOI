@@ -116,6 +116,7 @@ namespace org.GraphDefined.WWCP
                                               String                                                              ServerLoggingContext                            = OIOIv3_x.CPO.CPOServerLogger.DefaultContext,
                                               Func<String, String, String>                                        LogFileCreator                                  = null,
 
+                                              OIOIv3_x.CPO.CustomEVSEIdMapperDelegate                             CustomEVSEIdMapper                              = null,
                                               OIOIv3_x.CPO.ChargingStation2StationDelegate                        EVSE2Station                                    = null,
                                               OIOIv3_x.CPO.EVSEStatusUpdate2ConnectorStatusUpdateDelegate         EVSEStatusUpdate2ConnectorStatusUpdate          = null,
                                               OIOIv3_x.CPO.ChargeDetailRecord2SessionDelegate                     WWCPChargeDetailRecord2OIOIChargeDetailRecord   = null,
@@ -184,6 +185,7 @@ namespace org.GraphDefined.WWCP
                                                                      ServerLoggingContext,
                                                                      LogFileCreator,
 
+                                                                     CustomEVSEIdMapper,
                                                                      EVSE2Station,
                                                                      EVSEStatusUpdate2ConnectorStatusUpdate,
                                                                      WWCPChargeDetailRecord2OIOIChargeDetailRecord,
@@ -284,6 +286,7 @@ namespace org.GraphDefined.WWCP
                                               String                                                       ServerLoggingContext                            = OIOIv3_x.CPO.CPOServerLogger.DefaultContext,
                                               Func<String, String, String>                                 LogFileCreator                                  = null,
 
+                                              OIOIv3_x.CPO.CustomEVSEIdMapperDelegate                      CustomEVSEIdMapper                              = null,
                                               OIOIv3_x.CPO.ChargingStation2StationDelegate                 EVSE2Station                                    = null,
                                               OIOIv3_x.CPO.EVSEStatusUpdate2ConnectorStatusUpdateDelegate  EVSEStatusUpdate2ConnectorStatusUpdate          = null,
                                               OIOIv3_x.CPO.ChargeDetailRecord2SessionDelegate              WWCPChargeDetailRecord2OIOIChargeDetailRecord   = null,
@@ -355,6 +358,7 @@ namespace org.GraphDefined.WWCP
                                                                      ServerLoggingContext,
                                                                      LogFileCreator,
 
+                                                                     CustomEVSEIdMapper,
                                                                      EVSE2Station,
                                                                      EVSEStatusUpdate2ConnectorStatusUpdate,
                                                                      WWCPChargeDetailRecord2OIOIChargeDetailRecord,

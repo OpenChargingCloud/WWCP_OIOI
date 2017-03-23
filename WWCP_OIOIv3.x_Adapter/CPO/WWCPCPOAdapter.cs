@@ -53,6 +53,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         private        readonly  IRemotePushStatus                                _IRemotePushStatus;
 
+        private        readonly  CustomEVSEIdMapperDelegate                       _CustomEVSEIdMapper;
+
         private        readonly  ChargingStation2StationDelegate                  _ChargingStation2Station;
 
         private        readonly  EVSEStatusUpdate2ConnectorStatusUpdateDelegate   _EVSEStatusUpdate2ConnectorStatusUpdateDelegate;
@@ -593,8 +595,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         public WWCPCPOAdapter(CSORoamingProvider_Id                           Id,
                               I18NString                                      Name,
                               RoamingNetwork                                  RoamingNetwork,
-                              CPORoaming                                      CPORoaming,
 
+                              CPORoaming                                      CPORoaming,
+                              CustomEVSEIdMapperDelegate                      CustomEVSEIdMapper                       = null,
                               ChargingStation2StationDelegate                 ChargingStation2Station                  = null,
                               EVSEStatusUpdate2ConnectorStatusUpdateDelegate  EVSEStatusUpdate2ConnectorStatusUpdate   = null,
                               ChargeDetailRecord2SessionDelegate              ChargeDetailRecord2Session               = null,
@@ -632,6 +635,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             this._IRemotePushStatus                               = this as IRemotePushStatus;
 
             this.CPORoaming                                       = CPORoaming;
+            this._CustomEVSEIdMapper                              = CustomEVSEIdMapper;
             this._ChargingStation2Station                         = ChargingStation2Station;
             this._EVSEStatusUpdate2ConnectorStatusUpdateDelegate  = EVSEStatusUpdate2ConnectorStatusUpdate;
             this._ChargeDetailRecord2Session                      = ChargeDetailRecord2Session;
@@ -934,6 +938,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                               String                                          ServerLoggingContext                     = CPOServerLogger.DefaultContext,
                               Func<String, String, String>                    LogFileCreator                           = null,
 
+                              CustomEVSEIdMapperDelegate                      CustomEVSEIdMapper                       = null,
                               ChargingStation2StationDelegate                 ChargingStation2Station                  = null,
                               EVSEStatusUpdate2ConnectorStatusUpdateDelegate  EVSEStatusUpdate2ConnectorStatusUpdate   = null,
                               ChargeDetailRecord2SessionDelegate              ChargeDetailRecord2Session               = null,
@@ -961,6 +966,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                                   ServerLoggingContext,
                                   LogFileCreator),
 
+                   CustomEVSEIdMapper,
                    ChargingStation2Station,
                    EVSEStatusUpdate2ConnectorStatusUpdate,
                    ChargeDetailRecord2Session,
@@ -1058,6 +1064,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                               String                                          ServerLoggingContext                     = CPOServerLogger.DefaultContext,
                               Func<String, String, String>                    LogFileCreator                           = null,
 
+                              CustomEVSEIdMapperDelegate                      CustomEVSEIdMapper                       = null,
                               ChargingStation2StationDelegate                 ChargingStation2Station                  = null,
                               EVSEStatusUpdate2ConnectorStatusUpdateDelegate  EVSEStatusUpdate2ConnectorStatusUpdate   = null,
                               ChargeDetailRecord2SessionDelegate              ChargeDetailRecord2Session               = null,
@@ -1109,6 +1116,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
                                   DNSClient),
 
+                   CustomEVSEIdMapper,
                    ChargingStation2Station,
                    EVSEStatusUpdate2ConnectorStatusUpdate,
                    ChargeDetailRecord2Session,
@@ -1196,7 +1204,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                                                  {
 
                                                      return new Tuple<ChargingStation, Station>(station,
-                                                                                                station.ToOIOI(_ChargingStation2Station));
+                                                                                                station.ToOIOI(_CustomEVSEIdMapper,
+                                                                                                               _ChargingStation2Station));
 
                                                  }
                                                  catch (Exception e)
@@ -1397,7 +1406,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                                                return new Tuple<EVSEStatusUpdate, ConnectorStatus>(
                                                           evsestatusupdate.Value.First(),
                                                           new ConnectorStatus(
-                                                              evsestatusupdate.Key.ToOIOI(),
+                                                              _CustomEVSEIdMapper != null
+                                                                  ? _CustomEVSEIdMapper(evsestatusupdate.Key)
+                                                                  : evsestatusupdate.Key.ToOIOI(),
                                                               evsestatusupdate.Value.First().NewStatus.Value.ToOIOI()
                                                           )
                                                       );
@@ -1619,7 +1630,6 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-
             return await StationPost(new ChargingStation[] { EVSE.ChargingStation },
 
                                      Timestamp,
@@ -1710,7 +1720,6 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             }
 
             #endregion
-
 
             return await StationPost(new ChargingStation[] { EVSE.ChargingStation },
 
@@ -1809,7 +1818,6 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             }
 
             #endregion
-
 
             return await StationPost(new ChargingStation[] { EVSE.ChargingStation },
 
@@ -2214,12 +2222,13 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         #region (Set/Add/Update/Delete) Charging station(s)...
 
-        #region SetStaticData   (ChargingStation, ...)
+        #region SetStaticData   (ChargingStation, TransmissionType = Enqueued, ...)
 
         /// <summary>
         /// Set the EVSE data of the given charging station as new static EVSE data at the OIOI server.
         /// </summary>
         /// <param name="ChargingStation">A charging station.</param>
+        /// <param name="TransmissionType">Whether to send the charging pool update directly or enqueue it for a while.</param>
         /// 
         /// <param name="Timestamp">The optional timestamp of the request.</param>
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
@@ -2228,6 +2237,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         async Task<Acknowledgement>
 
             IRemotePushData.SetStaticData(ChargingStation     ChargingStation,
+                                          TransmissionTypes   TransmissionType,
 
                                           DateTime?           Timestamp,
                                           CancellationToken?  CancellationToken,
@@ -2240,6 +2250,53 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             if (ChargingStation == null)
                 throw new ArgumentNullException(nameof(ChargingStation), "The given charging station must not be null!");
+
+            #endregion
+
+            #region Enqueue, if requested...
+
+            if (TransmissionType == TransmissionTypes.Enqueued)
+            {
+
+                #region Send OnEnqueueSendCDRRequest event
+
+                //try
+                //{
+
+                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.Now,
+                //                                    Timestamp.Value,
+                //                                    this,
+                //                                    EventTrackingId,
+                //                                    RoamingNetwork.Id,
+                //                                    ChargeDetailRecord,
+                //                                    RequestTimeout);
+
+                //}
+                //catch (Exception e)
+                //{
+                //    e.Log(nameof(WWCPCPOAdapter) + "." + nameof(OnSendCDRRequest));
+                //}
+
+                #endregion
+
+                lock (ServiceCheckLock)
+                {
+
+                    if (_IncludeChargingStations == null ||
+                       (_IncludeChargingStations != null && _IncludeChargingStations(ChargingStation)))
+                    {
+
+                        ChargingStationsToAddQueue.Add(ChargingStation);
+
+                        ServiceCheckTimer.Change(_ServiceCheckEvery, Timeout.Infinite);
+
+                    }
+
+                }
+
+                return new Acknowledgement(ResultType.Enqueued);
+
+            }
 
             #endregion
 
@@ -2256,12 +2313,13 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         #endregion
 
-        #region AddStaticData   (ChargingStation, ...)
+        #region AddStaticData   (ChargingStation, TransmissionType = Enqueued, ...)
 
         /// <summary>
         /// Add the EVSE data of the given charging station to the static EVSE data at the OIOI server.
         /// </summary>
         /// <param name="ChargingStation">A charging station.</param>
+        /// <param name="TransmissionType">Whether to send the charging pool update directly or enqueue it for a while.</param>
         /// 
         /// <param name="Timestamp">The optional timestamp of the request.</param>
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
@@ -2270,6 +2328,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         async Task<Acknowledgement>
 
             IRemotePushData.AddStaticData(ChargingStation     ChargingStation,
+                                          TransmissionTypes   TransmissionType,
 
                                           DateTime?           Timestamp,
                                           CancellationToken?  CancellationToken,
@@ -2282,6 +2341,53 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             if (ChargingStation == null)
                 throw new ArgumentNullException(nameof(ChargingStation), "The given charging station must not be null!");
+
+            #endregion
+
+            #region Enqueue, if requested...
+
+            if (TransmissionType == TransmissionTypes.Enqueued)
+            {
+
+                #region Send OnEnqueueSendCDRRequest event
+
+                //try
+                //{
+
+                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.Now,
+                //                                    Timestamp.Value,
+                //                                    this,
+                //                                    EventTrackingId,
+                //                                    RoamingNetwork.Id,
+                //                                    ChargeDetailRecord,
+                //                                    RequestTimeout);
+
+                //}
+                //catch (Exception e)
+                //{
+                //    e.Log(nameof(WWCPCPOAdapter) + "." + nameof(OnSendCDRRequest));
+                //}
+
+                #endregion
+
+                lock (ServiceCheckLock)
+                {
+
+                    if (_IncludeChargingStations == null ||
+                       (_IncludeChargingStations != null && _IncludeChargingStations(ChargingStation)))
+                    {
+
+                        ChargingStationsToAddQueue.Add(ChargingStation);
+
+                        ServiceCheckTimer.Change(_ServiceCheckEvery, Timeout.Infinite);
+
+                    }
+
+                }
+
+                return new Acknowledgement(ResultType.Enqueued);
+
+            }
 
             #endregion
 
@@ -2332,6 +2438,53 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             if (ChargingStation == null)
                 throw new ArgumentNullException(nameof(ChargingStation), "The given charging station must not be null!");
+
+            #endregion
+
+            #region Enqueue, if requested...
+
+            if (TransmissionType == TransmissionTypes.Enqueued)
+            {
+
+                #region Send OnEnqueueSendCDRRequest event
+
+                //try
+                //{
+
+                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.Now,
+                //                                    Timestamp.Value,
+                //                                    this,
+                //                                    EventTrackingId,
+                //                                    RoamingNetwork.Id,
+                //                                    ChargeDetailRecord,
+                //                                    RequestTimeout);
+
+                //}
+                //catch (Exception e)
+                //{
+                //    e.Log(nameof(WWCPCPOAdapter) + "." + nameof(OnSendCDRRequest));
+                //}
+
+                #endregion
+
+                lock (ServiceCheckLock)
+                {
+
+                    if (_IncludeChargingStations == null ||
+                       (_IncludeChargingStations != null && _IncludeChargingStations(ChargingStation)))
+                    {
+
+                        ChargingStationsToUpdateQueue.Add(ChargingStation);
+
+                        ServiceCheckTimer.Change(_ServiceCheckEvery, Timeout.Infinite);
+
+                    }
+
+                }
+
+                return new Acknowledgement(ResultType.Enqueued);
+
+            }
 
             #endregion
 
@@ -2618,12 +2771,13 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         #region (Set/Add/Update/Delete) Charging pool(s)...
 
-        #region SetStaticData   (ChargingPool, ...)
+        #region SetStaticData   (ChargingPool, TransmissionType = Enqueued, ...)
 
         /// <summary>
         /// Set the EVSE data of the given charging pool as new static EVSE data at the OIOI server.
         /// </summary>
         /// <param name="ChargingPool">A charging pool.</param>
+        /// <param name="TransmissionType">Whether to send the charging pool update directly or enqueue it for a while.</param>
         /// 
         /// <param name="Timestamp">The optional timestamp of the request.</param>
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
@@ -2632,6 +2786,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         async Task<Acknowledgement>
 
             IRemotePushData.SetStaticData(ChargingPool        ChargingPool,
+                                          TransmissionTypes   TransmissionType,
 
                                           DateTime?           Timestamp,
                                           CancellationToken?  CancellationToken,
@@ -2644,6 +2799,58 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             if (ChargingPool == null)
                 throw new ArgumentNullException(nameof(ChargingPool), "The given charging pool must not be null!");
+
+            #endregion
+
+            #region Enqueue, if requested...
+
+            if (TransmissionType == TransmissionTypes.Enqueued)
+            {
+
+                #region Send OnEnqueueSendCDRRequest event
+
+                //try
+                //{
+
+                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.Now,
+                //                                    Timestamp.Value,
+                //                                    this,
+                //                                    EventTrackingId,
+                //                                    RoamingNetwork.Id,
+                //                                    ChargeDetailRecord,
+                //                                    RequestTimeout);
+
+                //}
+                //catch (Exception e)
+                //{
+                //    e.Log(nameof(WWCPCPOAdapter) + "." + nameof(OnSendCDRRequest));
+                //}
+
+                #endregion
+
+                lock (ServiceCheckLock)
+                {
+
+                    foreach (var station in ChargingPool)
+                    {
+
+                        if (_IncludeChargingStations == null ||
+                           (_IncludeChargingStations != null && _IncludeChargingStations(station)))
+                        {
+
+                            ChargingStationsToAddQueue.Add(station);
+
+                            ServiceCheckTimer.Change(_ServiceCheckEvery, Timeout.Infinite);
+
+                        }
+
+                    }
+
+                }
+
+                return new Acknowledgement(ResultType.Enqueued);
+
+            }
 
             #endregion
 
@@ -2660,12 +2867,13 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         #endregion
 
-        #region AddStaticData   (ChargingPool, ...)
+        #region AddStaticData   (ChargingPool, TransmissionType = Enqueued, ...)
 
         /// <summary>
         /// Add the EVSE data of the given charging pool to the static EVSE data at the OIOI server.
         /// </summary>
         /// <param name="ChargingPool">A charging pool.</param>
+        /// <param name="TransmissionType">Whether to send the charging pool update directly or enqueue it for a while.</param>
         /// 
         /// <param name="Timestamp">The optional timestamp of the request.</param>
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
@@ -2674,6 +2882,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         async Task<Acknowledgement>
 
             IRemotePushData.AddStaticData(ChargingPool        ChargingPool,
+                                          TransmissionTypes   TransmissionType,
 
                                           DateTime?           Timestamp,
                                           CancellationToken?  CancellationToken,
@@ -2686,6 +2895,58 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             if (ChargingPool == null)
                 throw new ArgumentNullException(nameof(ChargingPool), "The given charging pool must not be null!");
+
+            #endregion
+
+            #region Enqueue, if requested...
+
+            if (TransmissionType == TransmissionTypes.Enqueued)
+            {
+
+                #region Send OnEnqueueSendCDRRequest event
+
+                //try
+                //{
+
+                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.Now,
+                //                                    Timestamp.Value,
+                //                                    this,
+                //                                    EventTrackingId,
+                //                                    RoamingNetwork.Id,
+                //                                    ChargeDetailRecord,
+                //                                    RequestTimeout);
+
+                //}
+                //catch (Exception e)
+                //{
+                //    e.Log(nameof(WWCPCPOAdapter) + "." + nameof(OnSendCDRRequest));
+                //}
+
+                #endregion
+
+                lock (ServiceCheckLock)
+                {
+
+                    foreach (var station in ChargingPool)
+                    {
+
+                        if (_IncludeChargingStations == null ||
+                           (_IncludeChargingStations != null && _IncludeChargingStations(station)))
+                        {
+
+                            ChargingStationsToAddQueue.Add(station);
+
+                            ServiceCheckTimer.Change(_ServiceCheckEvery, Timeout.Infinite);
+
+                        }
+
+                    }
+
+                }
+
+                return new Acknowledgement(ResultType.Enqueued);
+
+            }
 
             #endregion
 
@@ -2736,6 +2997,58 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             if (ChargingPool == null)
                 throw new ArgumentNullException(nameof(ChargingPool), "The given charging pool must not be null!");
+
+            #endregion
+
+            #region Enqueue, if requested...
+
+            if (TransmissionType == TransmissionTypes.Enqueued)
+            {
+
+                #region Send OnEnqueueSendCDRRequest event
+
+                //try
+                //{
+
+                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.Now,
+                //                                    Timestamp.Value,
+                //                                    this,
+                //                                    EventTrackingId,
+                //                                    RoamingNetwork.Id,
+                //                                    ChargeDetailRecord,
+                //                                    RequestTimeout);
+
+                //}
+                //catch (Exception e)
+                //{
+                //    e.Log(nameof(WWCPCPOAdapter) + "." + nameof(OnSendCDRRequest));
+                //}
+
+                #endregion
+
+                lock (ServiceCheckLock)
+                {
+
+                    foreach (var station in ChargingPool)
+                    {
+
+                        if (_IncludeChargingStations == null ||
+                           (_IncludeChargingStations != null && _IncludeChargingStations(station)))
+                        {
+
+                            ChargingStationsToUpdateQueue.Add(station);
+
+                            ServiceCheckTimer.Change(_ServiceCheckEvery, Timeout.Infinite);
+
+                        }
+
+                    }
+
+                }
+
+                return new Acknowledgement(ResultType.Enqueued);
+
+            }
 
             #endregion
 

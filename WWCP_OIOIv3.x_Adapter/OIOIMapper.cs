@@ -147,11 +147,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
         #endregion
 
-        #region  ToOIOI(this EVSE)
+        #region  ToOIOI(this EVSE, CustomEVSEIdMapper = null)
 
-        public static Connector ToOIOI(this EVSE EVSE)
+        public static Connector ToOIOI(this EVSE                       EVSE,
+                                       CPO.CustomEVSEIdMapperDelegate  CustomEVSEIdMapper = null)
 
-            => new Connector(EVSE.Id.ToOIOI(),
+            => new Connector(CustomEVSEIdMapper != null
+                                 ? CustomEVSEIdMapper(EVSE.Id)
+                                 : EVSE.Id.ToOIOI(),
                              EVSE.SocketOutlets.First().Plug.ToOIOI(),
                              EVSE.MaxPower.HasValue ? EVSE.MaxPower.Value : 0);
 
@@ -212,9 +215,11 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// Convert a WWCP charging station into a corresponding OIOI charging station.
         /// </summary>
         /// <param name="ChargingStation">A WWCP charging station.</param>
+        /// <param name="CustomEVSEIdMapper">A custom WWCP EVSE Id to OIOI connector Id mapper.</param>
         /// <param name="ChargingStation2Station">A delegate to process a charging station, e.g. before pushing it to a roaming provider.</param>
         /// <returns>The corresponding OIOI charging station.</returns>
         public static Station ToOIOI(this ChargingStation                 ChargingStation,
+                                     CPO.CustomEVSEIdMapperDelegate       CustomEVSEIdMapper      = null,
                                      CPO.ChargingStation2StationDelegate  ChargingStation2Station = null)
         {
 
@@ -228,7 +233,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                                                    "EMail"),
                                        ChargingStation.Operator.Id,
                                        ChargingStation.OpeningTimes != null ? ChargingStation.OpeningTimes.IsOpen24Hours : true,
-                                       ChargingStation.EVSEs.Select(evse => evse.ToOIOI()),
+                                       ChargingStation.EVSEs.Select(evse => evse.ToOIOI(CustomEVSEIdMapper)),
                                        ChargingStation.Description.FirstText,
                                        ChargingStation.OpeningTimes);
 
