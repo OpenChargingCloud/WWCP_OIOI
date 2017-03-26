@@ -264,7 +264,7 @@ namespace org.GraphDefined.WWCP
             CreateOIOIv3_x_CPORoamingProvider(this RoamingNetwork                                          RoamingNetwork,
                                               CSORoamingProvider_Id                                        Id,
                                               I18NString                                                   Name,
-                                              HTTPServer                                                   HTTPServer,
+                                              HTTPServer<RoamingNetworks, RoamingNetwork>                  HTTPServer,
 
                                               String                                                       RemoteHostname,
                                               String                                                       APIKey,

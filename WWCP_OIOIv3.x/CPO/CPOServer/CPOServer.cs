@@ -74,27 +74,27 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <summary>
         /// The HTTP server of this API.
         /// </summary>
-        public HTTPServer             HTTPServer                     { get; }
+        public HTTPServer<RoamingNetworks, RoamingNetwork>  HTTPServer          { get; }
 
         /// <summary>
         /// The HTTP hostname of this API.
         /// </summary>
-        public HTTPHostname           HTTPHostname                   { get; }
+        public HTTPHostname                                 HTTPHostname        { get; }
 
         /// <summary>
         /// The common URI prefix of the HTTP server of this API for all incoming requests.
         /// </summary>
-        public String                 URIPrefix                      { get; }
+        public String                                       URIPrefix           { get; }
 
         /// <summary>
         /// The HTTP content type used by this service.
         /// </summary>
-        public HTTPContentType        ServerContentType              { get;  }
+        public HTTPContentType                              ServerContentType   { get;  }
 
         /// <summary>
         /// The DNS client used by this API.
         /// </summary>
-        public DNSClient              DNSClient                      { get; }
+        public DNSClient                                    DNSClient           { get; }
 
         #endregion
 
@@ -208,21 +208,21 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                          DNSClient                         DNSClient                         = null,
                          Boolean                           Autostart                         = false)
 
-            : this(new HTTPServer(HTTPPort ?? DefaultHTTPServerPort,
-                                  DefaultServerName.IsNotNullOrEmpty() ? DefaultServerName : DefaultHTTPServerName,
-                                  X509Certificate,
-                                  CallingAssemblies,
-                                  ServerThreadName,
-                                  ServerThreadPriority,
-                                  ServerThreadIsBackground,
-                                  ConnectionIdBuilder,
-                                  ConnectionThreadsNameBuilder,
-                                  ConnectionThreadsPriorityBuilder,
-                                  ConnectionThreadsAreBackground,
-                                  ConnectionTimeout,
-                                  MaxClientConnections,
-                                  DNSClient ?? new DNSClient(),
-                                  false),
+            : this(new HTTPServer<RoamingNetworks, RoamingNetwork>(HTTPPort ?? DefaultHTTPServerPort,
+                                                                   DefaultServerName.IsNotNullOrEmpty() ? DefaultServerName : DefaultHTTPServerName,
+                                                                   X509Certificate,
+                                                                   CallingAssemblies,
+                                                                   ServerThreadName,
+                                                                   ServerThreadPriority,
+                                                                   ServerThreadIsBackground,
+                                                                   ConnectionIdBuilder,
+                                                                   ConnectionThreadsNameBuilder,
+                                                                   ConnectionThreadsPriorityBuilder,
+                                                                   ConnectionThreadsAreBackground,
+                                                                   ConnectionTimeout,
+                                                                   MaxClientConnections,
+                                                                   DNSClient ?? new DNSClient(),
+                                                                   false),
                    HTTPHostname,
                    URIPrefix,
                    ServerContentType,
@@ -276,11 +276,11 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="HTTPServer">An existing HTTP server.</param>
         /// <param name="HTTPHostname">An optional HTTP hostname.</param>
         /// <param name="URIPrefix">The URI prefix for all incoming HTTP requests.</param>
-        public CPOServer(HTTPServer       HTTPServer,
-                         HTTPHostname     HTTPHostname                   = null,
-                         String           URIPrefix                      = DefaultURIPrefix,
-                         HTTPContentType  ServerContentType              = null,
-                         Boolean          ServerRegisterHTTPRootService  = true)
+        public CPOServer(HTTPServer<RoamingNetworks, RoamingNetwork>  HTTPServer,
+                         HTTPHostname                                 HTTPHostname                   = null,
+                         String                                       URIPrefix                      = DefaultURIPrefix,
+                         HTTPContentType                              ServerContentType              = null,
+                         Boolean                                      ServerRegisterHTTPRootService  = true)
         {
 
             #region Initial checks
