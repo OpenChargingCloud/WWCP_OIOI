@@ -454,8 +454,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             #endregion
 
             this.APIKey            = APIKey;
-            this.URIPrefix         = URIPrefix.IsNotNullOrEmpty() ? URIPrefix : DefaultURIPrefix;
-            this.DefaultPartnerId  = DefaultPartnerId.HasValue ? DefaultPartnerId.Value : Partner_Id.Parse("1");
+            this.URIPrefix         = URIPrefix.       IsNotNullOrEmpty() ? URIPrefix              : DefaultURIPrefix;
+            this.DefaultPartnerId  = DefaultPartnerId.HasValue           ? DefaultPartnerId.Value : Partner_Id.Parse("GraphDefined");
 
             this.Logger            = new CPOClientLogger(this,
                                                          LoggingContext,

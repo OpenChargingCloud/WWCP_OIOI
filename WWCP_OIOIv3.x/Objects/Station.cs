@@ -382,11 +382,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                    new JProperty("connectors",                JSONArray.Create(
                                                                   Connectors.Select(connector => connector.ToJSON())
                                                               )),
-                   new JProperty("open-hour-notes",           ""),
+                   OpeningTime != null
+                       ? new JProperty("open-hour-notes",     JSONArray.Create(
+                                                              ))
+                       : null,
 
                    Notes.IsNotNullOrEmpty()
                        ? new JProperty("notes",               Notes)
-                       : null,
+                       : new JProperty("notes",               ""),
 
                    new JProperty("is-reservable",             IsReservable),
 

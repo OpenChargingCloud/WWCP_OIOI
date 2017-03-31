@@ -116,6 +116,7 @@ namespace org.GraphDefined.WWCP
                                               String                                                              ServerLoggingContext                            = OIOIv3_x.CPO.CPOServerLogger.DefaultContext,
                                               Func<String, String, String>                                        LogFileCreator                                  = null,
 
+                                              OIOIv3_x.CPO.CustomOperatorIdMapperDelegate                         CustomOperatorIdMapper                          = null,
                                               OIOIv3_x.CPO.CustomEVSEIdMapperDelegate                             CustomEVSEIdMapper                              = null,
                                               OIOIv3_x.CPO.ChargingStation2StationDelegate                        EVSE2Station                                    = null,
                                               OIOIv3_x.CPO.EVSEStatusUpdate2ConnectorStatusUpdateDelegate         EVSEStatusUpdate2ConnectorStatusUpdate          = null,
@@ -185,6 +186,7 @@ namespace org.GraphDefined.WWCP
                                                                      ServerLoggingContext,
                                                                      LogFileCreator,
 
+                                                                     CustomOperatorIdMapper,
                                                                      CustomEVSEIdMapper,
                                                                      EVSE2Station,
                                                                      EVSEStatusUpdate2ConnectorStatusUpdate,
@@ -286,6 +288,7 @@ namespace org.GraphDefined.WWCP
                                               String                                                       ServerLoggingContext                            = OIOIv3_x.CPO.CPOServerLogger.DefaultContext,
                                               Func<String, String, String>                                 LogFileCreator                                  = null,
 
+                                              OIOIv3_x.CPO.CustomOperatorIdMapperDelegate                  CustomOperatorIdMapper                          = null,
                                               OIOIv3_x.CPO.CustomEVSEIdMapperDelegate                      CustomEVSEIdMapper                              = null,
                                               OIOIv3_x.CPO.ChargingStation2StationDelegate                 EVSE2Station                                    = null,
                                               OIOIv3_x.CPO.EVSEStatusUpdate2ConnectorStatusUpdateDelegate  EVSEStatusUpdate2ConnectorStatusUpdate          = null,
@@ -358,6 +361,7 @@ namespace org.GraphDefined.WWCP
                                                                      ServerLoggingContext,
                                                                      LogFileCreator,
 
+                                                                     CustomOperatorIdMapper,
                                                                      CustomEVSEIdMapper,
                                                                      EVSE2Station,
                                                                      EVSEStatusUpdate2ConnectorStatusUpdate,

@@ -38,7 +38,17 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <summary>
         /// The default request timeout for this client.
         /// </summary>
-        TimeSpan? RequestTimeout { get; }
+        TimeSpan?        RequestTimeout     { get; }
+
+        /// <summary>
+        /// The API key for all requests.
+        /// </summary>
+        String           APIKey             { get; }
+
+        /// <summary>
+        /// The default communication partner identification for all requests.
+        /// </summary>
+        Partner_Id       DefaultPartnerId   { get; }
 
         #endregion
 

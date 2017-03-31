@@ -81,9 +81,6 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             if (Station == null)
                 throw new ArgumentNullException(nameof(Station), "The given charging station must not be null!");
 
-            //if (PartnerIdentifier == null)
-            //    PartnerIdentifier = CPOClient.DefaultPartnerId;
-
             #endregion
 
             this.Station            = Station;

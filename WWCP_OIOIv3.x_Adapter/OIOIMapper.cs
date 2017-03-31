@@ -215,23 +215,25 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// Convert a WWCP charging station into a corresponding OIOI charging station.
         /// </summary>
         /// <param name="ChargingStation">A WWCP charging station.</param>
-        /// <param name="CustomEVSEIdMapper">A custom WWCP EVSE Id to OIOI connector Id mapper.</param>
+        /// <param name="CustomOperatorIdMapper">A custom WWCP charging station operator identification to OIOI charging station operator identification mapper.</param>
+        /// <param name="CustomEVSEIdMapper">A custom WWCP EVSE identification to OIOI connector identification mapper.</param>
         /// <param name="ChargingStation2Station">A delegate to process a charging station, e.g. before pushing it to a roaming provider.</param>
         /// <returns>The corresponding OIOI charging station.</returns>
         public static Station ToOIOI(this ChargingStation                 ChargingStation,
-                                     CPO.CustomEVSEIdMapperDelegate       CustomEVSEIdMapper      = null,
-                                     CPO.ChargingStation2StationDelegate  ChargingStation2Station = null)
+                                     CPO.CustomOperatorIdMapperDelegate   CustomOperatorIdMapper   = null,
+                                     CPO.CustomEVSEIdMapperDelegate       CustomEVSEIdMapper       = null,
+                                     CPO.ChargingStation2StationDelegate  ChargingStation2Station  = null)
         {
 
-            var _Station = new Station(ChargingStation.Id.ToOIOI(),
-                                       ChargingStation.Name.FirstText,
+            var _Station = new Station(ChargingStation.Id.         ToOIOI(),
+                                       ChargingStation.Name.       FirstText,
                                        ChargingStation.GeoLocation.Value,
-                                       ChargingStation.Address.ToOIOI(),
+                                       ChargingStation.Address.    ToOIOI(),
                                        new Contact("Phone",
                                                    "Fax",
                                                    "Web",
                                                    "EMail"),
-                                       ChargingStation.Operator.Id,
+                                       CustomOperatorIdMapper != null ? CustomOperatorIdMapper(ChargingStation.Operator.Id) : ChargingStation.Operator.Id,
                                        ChargingStation.OpeningTimes != null ? ChargingStation.OpeningTimes.IsOpen24Hours : true,
                                        ChargingStation.EVSEs.Select(evse => evse.ToOIOI(CustomEVSEIdMapper)),
                                        ChargingStation.Description.FirstText,
@@ -343,9 +345,6 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         }
 
         #endregion
-
-
-
 
 
     }

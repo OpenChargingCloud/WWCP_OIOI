@@ -53,6 +53,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         private        readonly  IRemotePushStatus                                _IRemotePushStatus;
 
+        private        readonly  CustomOperatorIdMapperDelegate                   _CustomOperatorIdMapper;
+
         private        readonly  CustomEVSEIdMapperDelegate                       _CustomEVSEIdMapper;
 
         private        readonly  ChargingStation2StationDelegate                  _ChargingStation2Station;
@@ -97,7 +99,6 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         private                 IncludeChargingStationDelegate                    _IncludeChargingStations;
 
         public readonly static  TimeSpan                                          DefaultRequestTimeout  = TimeSpan.FromSeconds(30);
-        public readonly static  Partner_Id                                        DefaultPartnerId       = Partner_Id.Parse("DE*8PS");
         public readonly static  eMobilityProvider_Id                              DefaultProviderId      = eMobilityProvider_Id.Parse("DE*8PS");
 
         #endregion
@@ -597,6 +598,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                               RoamingNetwork                                  RoamingNetwork,
 
                               CPORoaming                                      CPORoaming,
+                              CustomOperatorIdMapperDelegate                  CustomOperatorIdMapper                   = null,
                               CustomEVSEIdMapperDelegate                      CustomEVSEIdMapper                       = null,
                               ChargingStation2StationDelegate                 ChargingStation2Station                  = null,
                               EVSEStatusUpdate2ConnectorStatusUpdateDelegate  EVSEStatusUpdate2ConnectorStatusUpdate   = null,
@@ -635,6 +637,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             this._IRemotePushStatus                               = this as IRemotePushStatus;
 
             this.CPORoaming                                       = CPORoaming;
+            this._CustomOperatorIdMapper                          = CustomOperatorIdMapper;
             this._CustomEVSEIdMapper                              = CustomEVSEIdMapper;
             this._ChargingStation2Station                         = ChargingStation2Station;
             this._EVSEStatusUpdate2ConnectorStatusUpdateDelegate  = EVSEStatusUpdate2ConnectorStatusUpdate;
@@ -938,6 +941,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                               String                                          ServerLoggingContext                     = CPOServerLogger.DefaultContext,
                               Func<String, String, String>                    LogFileCreator                           = null,
 
+                              CustomOperatorIdMapperDelegate                  CustomOperatorIdMapper                   = null,
                               CustomEVSEIdMapperDelegate                      CustomEVSEIdMapper                       = null,
                               ChargingStation2StationDelegate                 ChargingStation2Station                  = null,
                               EVSEStatusUpdate2ConnectorStatusUpdateDelegate  EVSEStatusUpdate2ConnectorStatusUpdate   = null,
@@ -966,6 +970,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                                   ServerLoggingContext,
                                   LogFileCreator),
 
+                   CustomOperatorIdMapper,
                    CustomEVSEIdMapper,
                    ChargingStation2Station,
                    EVSEStatusUpdate2ConnectorStatusUpdate,
@@ -1064,6 +1069,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                               String                                          ServerLoggingContext                     = CPOServerLogger.DefaultContext,
                               Func<String, String, String>                    LogFileCreator                           = null,
 
+                              CustomOperatorIdMapperDelegate                  CustomOperatorIdMapper                   = null,
                               CustomEVSEIdMapperDelegate                      CustomEVSEIdMapper                       = null,
                               ChargingStation2StationDelegate                 ChargingStation2Station                  = null,
                               EVSEStatusUpdate2ConnectorStatusUpdateDelegate  EVSEStatusUpdate2ConnectorStatusUpdate   = null,
@@ -1116,6 +1122,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
                                   DNSClient),
 
+                   CustomOperatorIdMapper,
                    CustomEVSEIdMapper,
                    ChargingStation2Station,
                    EVSEStatusUpdate2ConnectorStatusUpdate,
@@ -1204,7 +1211,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                                                  {
 
                                                      return new Tuple<ChargingStation, Station>(station,
-                                                                                                station.ToOIOI(_CustomEVSEIdMapper,
+                                                                                                station.ToOIOI(_CustomOperatorIdMapper,
+                                                                                                               _CustomEVSEIdMapper,
                                                                                                                _ChargingStation2Station));
 
                                                  }
@@ -1267,7 +1275,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
                 var responses = await Task.WhenAll(_Stations.
                                                        Select(station => CPORoaming.StationPost(station.Item2,
-                                                                                                DefaultPartnerId,
+                                                                                                CPOClient.DefaultPartnerId,
 
                                                                                                 Timestamp,
                                                                                                 CancellationToken,
@@ -1471,7 +1479,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
                 var responses = await Task.WhenAll(_ConnectorStatus.
                                                        Select(status => CPORoaming.ConnectorPostStatus(status.Item2,
-                                                                                                       DefaultPartnerId,
+                                                                                                       CPOClient.DefaultPartnerId,
 
                                                                                                        Timestamp,
                                                                                                        CancellationToken,

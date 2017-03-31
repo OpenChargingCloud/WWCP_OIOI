@@ -66,7 +66,35 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <summary>
         /// The default request timeout for this client.
         /// </summary>
-        public TimeSpan?        RequestTimeout    { get; }
+        public TimeSpan?        RequestTimeout
+        {
+            get
+            {
+                return CPOClient.RequestTimeout;
+            }
+        }
+
+                /// <summary>
+        /// The API key for all requests.
+        /// </summary>
+        public String           APIKey
+        {
+            get
+            {
+                return CPOClient.APIKey;
+            }
+        }
+
+        /// <summary>
+        /// The default communication partner identification for all requests.
+        /// </summary>
+        public Partner_Id       DefaultPartnerId
+        {
+            get
+            {
+                return CPOClient.DefaultPartnerId;
+            }
+        }
 
         #endregion
 

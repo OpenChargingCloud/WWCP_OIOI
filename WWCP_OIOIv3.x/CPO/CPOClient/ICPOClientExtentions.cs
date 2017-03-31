@@ -18,10 +18,8 @@
 #region Usings
 
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
@@ -37,7 +35,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
     public static class ICPOClientExtentions
     {
 
-        #region StationPost(Station, PartnerId, ...)
+        #region StationPost        (Station,         PartnerId, ...)
 
         /// <summary>
         /// Upload the given charging station.
@@ -53,7 +51,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             StationPost(this ICPOClient     ICPOClient,
                         Station             Station,
-                        Partner_Id          PartnerId,
+                        Partner_Id?         PartnerId           = null,
 
                         DateTime?           Timestamp           = null,
                         CancellationToken?  CancellationToken   = null,
@@ -62,7 +60,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
 
                 => await ICPOClient.StationPost(new StationPostRequest(Station,
-                                                                       PartnerId,
+                                                                       PartnerId ?? ICPOClient.DefaultPartnerId,
 
                                                                        Timestamp,
                                                                        CancellationToken,
@@ -87,7 +85,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             ConnectorPostStatus(this ICPOClient      ICPOClient,
                                 ConnectorStatus      ConnectorStatus,
-                                Partner_Id           PartnerId,
+                                Partner_Id?          PartnerId              = null,
 
                                 DateTime?            Timestamp              = null,
                                 CancellationToken?   CancellationToken      = null,
@@ -95,7 +93,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                                 TimeSpan?            RequestTimeout         = null)
 
             => await ICPOClient.ConnectorPostStatus(new ConnectorPostStatusRequest(ConnectorStatus,
-                                                                                   PartnerId,
+                                                                                   PartnerId ?? ICPOClient.DefaultPartnerId,
 
                                                                                    Timestamp,
                                                                                    CancellationToken,
@@ -104,7 +102,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         #endregion
 
-        #region ConnectorPostStatus(Id, Status, PartnerId, ...)
+        #region ConnectorPostStatus(Id, Status,      PartnerId, ...)
 
         /// <summary>
         /// Update the status of a charging connector on the OIOI server.
@@ -122,7 +120,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             ConnectorPostStatus(this ICPOClient       ICPOClient,
                                 Connector_Id          Id,
                                 ConnectorStatusTypes  Status,
-                                Partner_Id            PartnerId,
+                                Partner_Id?           PartnerId              = null,
 
                                 DateTime?             Timestamp              = null,
                                 CancellationToken?    CancellationToken      = null,
@@ -131,7 +129,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             => await ICPOClient.ConnectorPostStatus(new ConnectorPostStatusRequest(Id,
                                                                                    Status,
-                                                                                   PartnerId,
+                                                                                   PartnerId ?? ICPOClient.DefaultPartnerId,
 
                                                                                    Timestamp,
                                                                                    CancellationToken,
@@ -140,7 +138,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         #endregion
 
-        #region RFIDVerify(RFIDId, ...)
+        #region RFIDVerify (RFIDId, ...)
 
         /// <summary>
         /// Verifying a RFID identification via the OIOI server.
@@ -171,7 +169,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         #endregion
 
-        #region RFIDVerify(RFIDId, ...)
+        #region SessionPost(Session, ...)
 
         /// <summary>
         /// Upload the given charging session onto the OIOI server.
