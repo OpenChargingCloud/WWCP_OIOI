@@ -42,7 +42,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
     /// <summary>
     /// An OIOI CPO Server.
     /// </summary>
-    public class CPOServer : HTTPServer
+    public class CPOServer
     {
 
         #region Data
@@ -155,6 +155,75 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// An event sent whenever a response to a session stop request was sent.
         /// </summary>
         public event OnSessionStopResponseDelegate  OnSessionStopResponse;
+
+        #endregion
+
+
+        // Generic HTTP server logging
+
+        #region RequestLog
+
+        /// <summary>
+        /// An event called whenever a request came in.
+        /// </summary>
+        public event RequestLogHandler RequestLog
+        {
+
+            add
+            {
+                HTTPServer.RequestLog += value;
+            }
+
+            remove
+            {
+                HTTPServer.RequestLog -= value;
+            }
+
+        }
+
+        #endregion
+
+        #region AccessLog
+
+        /// <summary>
+        /// An event called whenever a request could successfully be processed.
+        /// </summary>
+        public event AccessLogHandler AccessLog
+        {
+
+            add
+            {
+                HTTPServer.AccessLog += value;
+            }
+
+            remove
+            {
+                HTTPServer.AccessLog -= value;
+            }
+
+        }
+
+        #endregion
+
+        #region ErrorLog
+
+        /// <summary>
+        /// An event called whenever a request resulted in an error.
+        /// </summary>
+        public event ErrorLogHandler ErrorLog
+        {
+
+            add
+            {
+                HTTPServer.ErrorLog += value;
+            }
+
+            remove
+            {
+                HTTPServer.ErrorLog -= value;
+            }
+
+        }
 
         #endregion
 
@@ -931,6 +1000,47 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         #endregion
 
+
+
+
+        // Start/stop the HTTP server(s)...
+
+        #region Start()
+
+        public void Start()
+        {
+            HTTPServer.Start();
+        }
+
+        #endregion
+
+        #region Start(Delay, InBackground = true)
+
+        public void Start(TimeSpan Delay, Boolean InBackground = true)
+        {
+            HTTPServer.Start(Delay, InBackground);
+        }
+
+        #endregion
+
+        #region Shutdown(Message = null, Wait = true)
+
+        public void Shutdown(String Message = null, Boolean Wait = true)
+        {
+            HTTPServer.Shutdown(Message, Wait);
+        }
+
+        #endregion
+
+
+        #region Dispose()
+
+        public void Dispose()
+        {
+            HTTPServer.Dispose();
+        }
+
+        #endregion
 
     }
 
