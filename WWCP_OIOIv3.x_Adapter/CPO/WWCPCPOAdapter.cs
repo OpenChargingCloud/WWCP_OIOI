@@ -4761,8 +4761,6 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
             #endregion
 
-            result = null;
-
             return result;
 
         }
@@ -4917,8 +4915,6 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             }
 
             #endregion
-
-            result = null;
 
             return result;
 
