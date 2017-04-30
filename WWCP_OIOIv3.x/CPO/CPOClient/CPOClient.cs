@@ -426,7 +426,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                          TimeSpan?                            RequestTimeout              = null,
                          DNSClient                            DNSClient                   = null,
                          String                               LoggingContext              = CPOClientLogger.DefaultContext,
-                         Func<String, String, String>         LogFileCreator              = null)
+                         LogfileCreatorDelegate               LogFileCreator              = null)
 
             : base(ClientId,
                    Hostname,

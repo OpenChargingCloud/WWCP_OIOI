@@ -114,7 +114,7 @@ namespace org.GraphDefined.WWCP
 
                                               String                                                              ClientLoggingContext                            = OIOIv3_x.CPO.CPOClient.CPOClientLogger.DefaultContext,
                                               String                                                              ServerLoggingContext                            = OIOIv3_x.CPO.CPOServerLogger.DefaultContext,
-                                              Func<String, String, String>                                        LogFileCreator                                  = null,
+                                              LogfileCreatorDelegate                                              LogFileCreator                                  = null,
 
                                               OIOIv3_x.CPO.CustomOperatorIdMapperDelegate                         CustomOperatorIdMapper                          = null,
                                               OIOIv3_x.CPO.CustomEVSEIdMapperDelegate                             CustomEVSEIdMapper                              = null,
@@ -286,7 +286,7 @@ namespace org.GraphDefined.WWCP
 
                                               String                                                       ClientLoggingContext                            = OIOIv3_x.CPO.CPOClient.CPOClientLogger.DefaultContext,
                                               String                                                       ServerLoggingContext                            = OIOIv3_x.CPO.CPOServerLogger.DefaultContext,
-                                              Func<String, String, String>                                 LogFileCreator                                  = null,
+                                              LogfileCreatorDelegate                                       LogFileCreator                                  = null,
 
                                               OIOIv3_x.CPO.CustomOperatorIdMapperDelegate                  CustomOperatorIdMapper                          = null,
                                               OIOIv3_x.CPO.CustomEVSEIdMapperDelegate                      CustomEVSEIdMapper                              = null,

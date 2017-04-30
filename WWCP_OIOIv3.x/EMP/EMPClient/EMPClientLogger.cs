@@ -68,9 +68,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.EMP
             /// <param name="EMPClient">A OIOI EMP Client.</param>
             /// <param name="Context">A context of this API.</param>
             /// <param name="LogFileCreator">A delegate to create a log file from the given context and log file name.</param>
-            public EMPClientLogger(EMPClient                    EMPClient,
-                                   String                       Context         = DefaultContext,
-                                   Func<String, String, String> LogFileCreator  = null)
+            public EMPClientLogger(EMPClient               EMPClient,
+                                   String                  Context         = DefaultContext,
+                                   LogfileCreatorDelegate  LogFileCreator  = null)
 
                 : this(EMPClient,
                        Context.IsNotNullOrEmpty() ? Context : DefaultContext,
@@ -109,25 +109,25 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.EMP
             /// <param name="LogHTTPError_toHTTPSSE">A delegate to log HTTP errors to a HTTP client sent events source.</param>
             /// 
             /// <param name="LogFileCreator">A delegate to create a log file from the given context and log file name.</param>
-            public EMPClientLogger(EMPClient                     EMPClient,
-                                   String                        Context,
+            public EMPClientLogger(EMPClient                   EMPClient,
+                                   String                      Context,
 
-                                   HTTPRequestLoggerDelegate     LogHTTPRequest_toConsole,
-                                   HTTPResponseLoggerDelegate    LogHTTPResponse_toConsole,
-                                   HTTPRequestLoggerDelegate     LogHTTPRequest_toDisc,
-                                   HTTPResponseLoggerDelegate    LogHTTPResponse_toDisc,
+                                   HTTPRequestLoggerDelegate   LogHTTPRequest_toConsole,
+                                   HTTPResponseLoggerDelegate  LogHTTPResponse_toConsole,
+                                   HTTPRequestLoggerDelegate   LogHTTPRequest_toDisc,
+                                   HTTPResponseLoggerDelegate  LogHTTPResponse_toDisc,
 
-                                   HTTPRequestLoggerDelegate     LogHTTPRequest_toNetwork   = null,
-                                   HTTPResponseLoggerDelegate    LogHTTPResponse_toNetwork  = null,
-                                   HTTPRequestLoggerDelegate     LogHTTPRequest_toHTTPSSE   = null,
-                                   HTTPResponseLoggerDelegate    LogHTTPResponse_toHTTPSSE  = null,
+                                   HTTPRequestLoggerDelegate   LogHTTPRequest_toNetwork    = null,
+                                   HTTPResponseLoggerDelegate  LogHTTPResponse_toNetwork   = null,
+                                   HTTPRequestLoggerDelegate   LogHTTPRequest_toHTTPSSE    = null,
+                                   HTTPResponseLoggerDelegate  LogHTTPResponse_toHTTPSSE   = null,
 
-                                   HTTPResponseLoggerDelegate    LogHTTPError_toConsole     = null,
-                                   HTTPResponseLoggerDelegate    LogHTTPError_toDisc        = null,
-                                   HTTPResponseLoggerDelegate    LogHTTPError_toNetwork     = null,
-                                   HTTPResponseLoggerDelegate    LogHTTPError_toHTTPSSE     = null,
+                                   HTTPResponseLoggerDelegate  LogHTTPError_toConsole      = null,
+                                   HTTPResponseLoggerDelegate  LogHTTPError_toDisc         = null,
+                                   HTTPResponseLoggerDelegate  LogHTTPError_toNetwork      = null,
+                                   HTTPResponseLoggerDelegate  LogHTTPError_toHTTPSSE      = null,
 
-                                   Func<String, String, String>  LogFileCreator             = null)
+                                   LogfileCreatorDelegate      LogFileCreator              = null)
 
                 : base(Context.IsNotNullOrEmpty() ? Context : DefaultContext,
 

@@ -49,9 +49,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         #region Data
 
-        private        readonly  IRemotePushData                                  _IRemotePushData;
+        private        readonly  ISendData                                  _ISendData;
 
-        private        readonly  IRemotePushStatus                                _IRemotePushStatus;
+        private        readonly  ISendStatus                                _ISendStatus;
 
         private        readonly  CustomOperatorIdMapperDelegate                   _CustomOperatorIdMapper;
 
@@ -105,7 +105,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         #region Properties
 
-        IId IRemoteAuthorizeStartStop.AuthId
+        IId ISendAuthorizeStartStop.AuthId
             => Id;
 
         #region Name
@@ -404,7 +404,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         #region Missing events
 
-        event OnAuthorizeStartRequestDelegate IRemoteAuthorizeStartStop.OnAuthorizeStartRequest
+        event OnAuthorizeStartRequestDelegate ISendAuthorizeStartStop.OnAuthorizeStartRequest
         {
             add
             {
@@ -417,7 +417,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             }
         }
 
-        event OnAuthorizeStartResponseDelegate IRemoteAuthorizeStartStop.OnAuthorizeStartResponse
+        event OnAuthorizeStartResponseDelegate ISendAuthorizeStartStop.OnAuthorizeStartResponse
         {
             add
             {
@@ -430,7 +430,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             }
         }
 
-        event OnAuthorizeEVSEStartRequestDelegate IRemoteAuthorizeStartStop.OnAuthorizeEVSEStartRequest
+        event OnAuthorizeEVSEStartRequestDelegate ISendAuthorizeStartStop.OnAuthorizeEVSEStartRequest
         {
             add
             {
@@ -443,7 +443,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             }
         }
 
-        event OnAuthorizeEVSEStartResponseDelegate IRemoteAuthorizeStartStop.OnAuthorizeEVSEStartResponse
+        event OnAuthorizeEVSEStartResponseDelegate ISendAuthorizeStartStop.OnAuthorizeEVSEStartResponse
         {
             add
             {
@@ -456,7 +456,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             }
         }
 
-        event OnAuthorizeChargingStationStartRequestDelegate IRemoteAuthorizeStartStop.OnAuthorizeChargingStationStartRequest
+        event OnAuthorizeChargingStationStartRequestDelegate ISendAuthorizeStartStop.OnAuthorizeChargingStationStartRequest
         {
             add
             {
@@ -469,7 +469,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             }
         }
 
-        event OnAuthorizeChargingStationStartResponseDelegate IRemoteAuthorizeStartStop.OnAuthorizeChargingStationStartResponse
+        event OnAuthorizeChargingStationStartResponseDelegate ISendAuthorizeStartStop.OnAuthorizeChargingStationStartResponse
         {
             add
             {
@@ -482,7 +482,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             }
         }
 
-        event OnAuthorizeStopRequestDelegate IRemoteAuthorizeStartStop.OnAuthorizeStopRequest
+        event OnAuthorizeStopRequestDelegate ISendAuthorizeStartStop.OnAuthorizeStopRequest
         {
             add
             {
@@ -495,7 +495,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             }
         }
 
-        event OnAuthorizeStopResponseDelegate IRemoteAuthorizeStartStop.OnAuthorizeStopResponse
+        event OnAuthorizeStopResponseDelegate ISendAuthorizeStartStop.OnAuthorizeStopResponse
         {
             add
             {
@@ -508,7 +508,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             }
         }
 
-        event OnAuthorizeEVSEStopRequestDelegate IRemoteAuthorizeStartStop.OnAuthorizeEVSEStopRequest
+        event OnAuthorizeEVSEStopRequestDelegate ISendAuthorizeStartStop.OnAuthorizeEVSEStopRequest
         {
             add
             {
@@ -521,7 +521,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             }
         }
 
-        event OnAuthorizeEVSEStopResponseDelegate IRemoteAuthorizeStartStop.OnAuthorizeEVSEStopResponse
+        event OnAuthorizeEVSEStopResponseDelegate ISendAuthorizeStartStop.OnAuthorizeEVSEStopResponse
         {
             add
             {
@@ -534,7 +534,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             }
         }
 
-        event OnAuthorizeChargingStationStopRequestDelegate IRemoteAuthorizeStartStop.OnAuthorizeChargingStationStopRequest
+        event OnAuthorizeChargingStationStopRequestDelegate ISendAuthorizeStartStop.OnAuthorizeChargingStationStopRequest
         {
             add
             {
@@ -547,7 +547,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             }
         }
 
-        event OnAuthorizeChargingStationStopResponseDelegate IRemoteAuthorizeStartStop.OnAuthorizeChargingStationStopResponse
+        event OnAuthorizeChargingStationStopResponseDelegate ISendAuthorizeStartStop.OnAuthorizeChargingStationStopResponse
         {
             add
             {
@@ -633,8 +633,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             #endregion
 
             this.Name = Name;
-            this._IRemotePushData                                 = this as IRemotePushData;
-            this._IRemotePushStatus                               = this as IRemotePushStatus;
+            this._ISendData                                 = this as ISendData;
+            this._ISendStatus                               = this as ISendStatus;
 
             this.CPORoaming                                       = CPORoaming;
             this._CustomOperatorIdMapper                          = CustomOperatorIdMapper;
@@ -939,7 +939,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                               CPOClient                                       CPOClient,
                               CPOServer                                       CPOServer,
                               String                                          ServerLoggingContext                     = CPOServerLogger.DefaultContext,
-                              Func<String, String, String>                    LogFileCreator                           = null,
+                              LogfileCreatorDelegate                          LogFileCreator                           = null,
 
                               CustomOperatorIdMapperDelegate                  CustomOperatorIdMapper                   = null,
                               CustomEVSEIdMapperDelegate                      CustomEVSEIdMapper                       = null,
@@ -1067,7 +1067,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
                               String                                          ClientLoggingContext                     = CPOClient.CPOClientLogger.DefaultContext,
                               String                                          ServerLoggingContext                     = CPOServerLogger.DefaultContext,
-                              Func<String, String, String>                    LogFileCreator                           = null,
+                              LogfileCreatorDelegate                          LogFileCreator                           = null,
 
                               CustomOperatorIdMapperDelegate                  CustomOperatorIdMapper                   = null,
                               CustomEVSEIdMapperDelegate                      CustomEVSEIdMapper                       = null,
@@ -1574,7 +1574,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.SetStaticData(EVSE                EVSE,
+            ISendData.SetStaticData(EVSE                EVSE,
                                           TransmissionTypes   TransmissionType,
 
                                           DateTime?           Timestamp,
@@ -1665,7 +1665,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.AddStaticData(EVSE                EVSE,
+            ISendData.AddStaticData(EVSE                EVSE,
                                           TransmissionTypes   TransmissionType,
 
                                           DateTime?           Timestamp,
@@ -1760,7 +1760,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.UpdateStaticData(EVSE                EVSE,
+            ISendData.UpdateStaticData(EVSE                EVSE,
                                              String              PropertyName,
                                              Object              OldValue,
                                              Object              NewValue,
@@ -1854,7 +1854,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.DeleteStaticData(EVSE                EVSE,
+            ISendData.DeleteStaticData(EVSE                EVSE,
                                              TransmissionTypes   TransmissionType,
 
                                              DateTime?           Timestamp,
@@ -1946,7 +1946,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.SetStaticData(IEnumerable<EVSE>   EVSEs,
+            ISendData.SetStaticData(IEnumerable<EVSE>   EVSEs,
 
                                           DateTime?           Timestamp,
                                           CancellationToken?  CancellationToken,
@@ -1988,7 +1988,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.AddStaticData(IEnumerable<EVSE>   EVSEs,
+            ISendData.AddStaticData(IEnumerable<EVSE>   EVSEs,
 
                                           DateTime?           Timestamp,
                                           CancellationToken?  CancellationToken,
@@ -2030,7 +2030,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.UpdateStaticData(IEnumerable<EVSE>   EVSEs,
+            ISendData.UpdateStaticData(IEnumerable<EVSE>   EVSEs,
 
                                              DateTime?           Timestamp,
                                              CancellationToken?  CancellationToken,
@@ -2072,7 +2072,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.DeleteStaticData(IEnumerable<EVSE>   EVSEs,
+            ISendData.DeleteStaticData(IEnumerable<EVSE>   EVSEs,
 
                                              DateTime?           Timestamp,
                                              CancellationToken?  CancellationToken,
@@ -2102,7 +2102,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         #endregion
 
 
-        #region UpdateEVSEAdminStatus(AdminStatusUpdates, TransmissionType = Enqueued, ...)
+        #region UpdateAdminStatus(AdminStatusUpdates, TransmissionType = Enqueued, ...)
 
         /// <summary>
         /// Update the given enumeration of EVSE admin status updates.
@@ -2116,20 +2116,20 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         Task<Acknowledgement>
 
-            IRemotePushStatus.UpdateEVSEAdminStatus(IEnumerable<EVSEAdminStatusUpdate>  AdminStatusUpdates,
-                                                    TransmissionTypes                   TransmissionType,
+            ISendStatus.UpdateAdminStatus(IEnumerable<EVSEAdminStatusUpdate>  AdminStatusUpdates,
+                                          TransmissionTypes                   TransmissionType,
 
-                                                    DateTime?                           Timestamp,
-                                                    CancellationToken?                  CancellationToken,
-                                                    EventTracking_Id                    EventTrackingId,
-                                                    TimeSpan?                           RequestTimeout)
+                                          DateTime?                           Timestamp,
+                                          CancellationToken?                  CancellationToken,
+                                          EventTracking_Id                    EventTrackingId,
+                                          TimeSpan?                           RequestTimeout)
 
 
                 => Task.FromResult(new Acknowledgement(ResultType.NoOperation));
 
         #endregion
 
-        #region UpdateEVSEStatus     (StatusUpdates,      TransmissionType = Enqueued, ...)
+        #region UpdateStatus     (StatusUpdates,      TransmissionType = Enqueued, ...)
 
         /// <summary>
         /// Update the given enumeration of EVSE status updates.
@@ -2143,13 +2143,13 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushStatus.UpdateEVSEStatus(IEnumerable<EVSEStatusUpdate>  StatusUpdates,
-                                               TransmissionTypes              TransmissionType,
+            ISendStatus.UpdateStatus(IEnumerable<EVSEStatusUpdate>  StatusUpdates,
+                                     TransmissionTypes              TransmissionType,
 
-                                               DateTime?                      Timestamp,
-                                               CancellationToken?             CancellationToken,
-                                               EventTracking_Id               EventTrackingId,
-                                               TimeSpan?                      RequestTimeout)
+                                     DateTime?                      Timestamp,
+                                     CancellationToken?             CancellationToken,
+                                     EventTracking_Id               EventTrackingId,
+                                     TimeSpan?                      RequestTimeout)
 
         {
 
@@ -2244,7 +2244,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.SetStaticData(ChargingStation     ChargingStation,
+            ISendData.SetStaticData(ChargingStation     ChargingStation,
                                           TransmissionTypes   TransmissionType,
 
                                           DateTime?           Timestamp,
@@ -2335,7 +2335,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.AddStaticData(ChargingStation     ChargingStation,
+            ISendData.AddStaticData(ChargingStation     ChargingStation,
                                           TransmissionTypes   TransmissionType,
 
                                           DateTime?           Timestamp,
@@ -2429,7 +2429,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.UpdateStaticData(ChargingStation     ChargingStation,
+            ISendData.UpdateStaticData(ChargingStation     ChargingStation,
                                              String              PropertyName,
                                              Object              OldValue,
                                              Object              NewValue,
@@ -2522,7 +2522,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.DeleteStaticData(ChargingStation     ChargingStation,
+            ISendData.DeleteStaticData(ChargingStation     ChargingStation,
 
                                              DateTime?           Timestamp,
                                              CancellationToken?  CancellationToken,
@@ -2565,7 +2565,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.SetStaticData(IEnumerable<ChargingStation>  ChargingStations,
+            ISendData.SetStaticData(IEnumerable<ChargingStation>  ChargingStations,
 
                                           DateTime?                     Timestamp,
                                           CancellationToken?            CancellationToken,
@@ -2607,7 +2607,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.AddStaticData(IEnumerable<ChargingStation>  ChargingStations,
+            ISendData.AddStaticData(IEnumerable<ChargingStation>  ChargingStations,
 
                                           DateTime?                     Timestamp,
                                           CancellationToken?            CancellationToken,
@@ -2649,7 +2649,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.UpdateStaticData(IEnumerable<ChargingStation>  ChargingStations,
+            ISendData.UpdateStaticData(IEnumerable<ChargingStation>  ChargingStations,
 
                                              DateTime?                     Timestamp,
                                              CancellationToken?            CancellationToken,
@@ -2691,7 +2691,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.DeleteStaticData(IEnumerable<ChargingStation>  ChargingStations,
+            ISendData.DeleteStaticData(IEnumerable<ChargingStation>  ChargingStations,
 
                                              DateTime?                     Timestamp,
                                              CancellationToken?            CancellationToken,
@@ -2721,7 +2721,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         #endregion
 
 
-        #region UpdateChargingStationAdminStatus(AdminStatusUpdates, TransmissionType = Enqueued, ...)
+        #region UpdateAdminStatus(AdminStatusUpdates, TransmissionType = Enqueued, ...)
 
         /// <summary>
         /// Update the given enumeration of charging station admin status updates.
@@ -2735,20 +2735,20 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         Task<Acknowledgement>
 
-            IRemotePushStatus.UpdateChargingStationAdminStatus(IEnumerable<ChargingStationAdminStatusUpdate>  AdminStatusUpdates,
-                                                               TransmissionTypes                              TransmissionType,
+            ISendStatus.UpdateAdminStatus(IEnumerable<ChargingStationAdminStatusUpdate>  AdminStatusUpdates,
+                                          TransmissionTypes                              TransmissionType,
 
-                                                               DateTime?                                      Timestamp,
-                                                               CancellationToken?                             CancellationToken,
-                                                               EventTracking_Id                               EventTrackingId,
-                                                               TimeSpan?                                      RequestTimeout)
+                                          DateTime?                                      Timestamp,
+                                          CancellationToken?                             CancellationToken,
+                                          EventTracking_Id                               EventTrackingId,
+                                          TimeSpan?                                      RequestTimeout)
 
 
                 => Task.FromResult(new Acknowledgement(ResultType.NoOperation));
 
         #endregion
 
-        #region UpdateChargingStationStatus     (StatusUpdates,      TransmissionType = Enqueued, ...)
+        #region UpdateStatus     (StatusUpdates,      TransmissionType = Enqueued, ...)
 
         /// <summary>
         /// Update the given enumeration of charging station status updates.
@@ -2762,13 +2762,13 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         Task<Acknowledgement>
 
-            IRemotePushStatus.UpdateChargingStationStatus(IEnumerable<ChargingStationStatusUpdate>  StatusUpdates,
-                                                          TransmissionTypes                         TransmissionType,
+            ISendStatus.UpdateStatus(IEnumerable<ChargingStationStatusUpdate>  StatusUpdates,
+                                     TransmissionTypes                         TransmissionType,
 
-                                                          DateTime?                                 Timestamp,
-                                                          CancellationToken?                        CancellationToken,
-                                                          EventTracking_Id                          EventTrackingId,
-                                                          TimeSpan?                                 RequestTimeout)
+                                     DateTime?                                 Timestamp,
+                                     CancellationToken?                        CancellationToken,
+                                     EventTracking_Id                          EventTrackingId,
+                                     TimeSpan?                                 RequestTimeout)
 
 
                 => Task.FromResult(new Acknowledgement(ResultType.NoOperation));
@@ -2793,7 +2793,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.SetStaticData(ChargingPool        ChargingPool,
+            ISendData.SetStaticData(ChargingPool        ChargingPool,
                                           TransmissionTypes   TransmissionType,
 
                                           DateTime?           Timestamp,
@@ -2889,7 +2889,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.AddStaticData(ChargingPool        ChargingPool,
+            ISendData.AddStaticData(ChargingPool        ChargingPool,
                                           TransmissionTypes   TransmissionType,
 
                                           DateTime?           Timestamp,
@@ -2988,7 +2988,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.UpdateStaticData(ChargingPool        ChargingPool,
+            ISendData.UpdateStaticData(ChargingPool        ChargingPool,
                                              String              PropertyName,
                                              Object              OldValue,
                                              Object              NewValue,
@@ -3086,7 +3086,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.DeleteStaticData(ChargingPool        ChargingPool,
+            ISendData.DeleteStaticData(ChargingPool        ChargingPool,
 
                                              DateTime?           Timestamp,
                                              CancellationToken?  CancellationToken,
@@ -3129,7 +3129,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.SetStaticData(IEnumerable<ChargingPool>  ChargingPools,
+            ISendData.SetStaticData(IEnumerable<ChargingPool>  ChargingPools,
 
                                           DateTime?                  Timestamp,
                                           CancellationToken?         CancellationToken,
@@ -3171,7 +3171,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.AddStaticData(IEnumerable<ChargingPool>  ChargingPools,
+            ISendData.AddStaticData(IEnumerable<ChargingPool>  ChargingPools,
 
                                           DateTime?                  Timestamp,
                                           CancellationToken?         CancellationToken,
@@ -3213,7 +3213,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.UpdateStaticData(IEnumerable<ChargingPool>  ChargingPools,
+            ISendData.UpdateStaticData(IEnumerable<ChargingPool>  ChargingPools,
 
                                              DateTime?                  Timestamp,
                                              CancellationToken?         CancellationToken,
@@ -3255,7 +3255,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.DeleteStaticData(IEnumerable<ChargingPool>  ChargingPools,
+            ISendData.DeleteStaticData(IEnumerable<ChargingPool>  ChargingPools,
 
                                              DateTime?                  Timestamp,
                                              CancellationToken?         CancellationToken,
@@ -3285,7 +3285,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         #endregion
 
 
-        #region UpdateChargingPoolAdminStatus(AdminStatusUpdates, TransmissionType = Enqueued, ...)
+        #region UpdateAdminStatus(AdminStatusUpdates, TransmissionType = Enqueued, ...)
 
         /// <summary>
         /// Update the given enumeration of charging pool admin status updates.
@@ -3299,13 +3299,13 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         Task<Acknowledgement>
 
-            IRemotePushStatus.UpdateChargingPoolAdminStatus(IEnumerable<ChargingPoolAdminStatusUpdate>  AdminStatusUpdates,
-                                                            TransmissionTypes                           TransmissionType,
+            ISendStatus.UpdateAdminStatus(IEnumerable<ChargingPoolAdminStatusUpdate>  AdminStatusUpdates,
+                                                TransmissionTypes                           TransmissionType,
 
-                                                            DateTime?                                   Timestamp,
-                                                            CancellationToken?                          CancellationToken,
-                                                            EventTracking_Id                            EventTrackingId,
-                                                            TimeSpan?                                   RequestTimeout)
+                                                DateTime?                                   Timestamp,
+                                                CancellationToken?                          CancellationToken,
+                                                EventTracking_Id                            EventTrackingId,
+                                                TimeSpan?                                   RequestTimeout)
 
 
                 => Task.FromResult(new Acknowledgement(ResultType.NoOperation));
@@ -3326,13 +3326,13 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         Task<Acknowledgement>
 
-            IRemotePushStatus.UpdateChargingPoolStatus(IEnumerable<ChargingPoolStatusUpdate>  StatusUpdates,
-                                                       TransmissionTypes                      TransmissionType,
+            ISendStatus.UpdateStatus(IEnumerable<ChargingPoolStatusUpdate>  StatusUpdates,
+                                     TransmissionTypes                      TransmissionType,
 
-                                                       DateTime?                              Timestamp,
-                                                       CancellationToken?                     CancellationToken,
-                                                       EventTracking_Id                       EventTrackingId,
-                                                       TimeSpan?                              RequestTimeout)
+                                     DateTime?                              Timestamp,
+                                     CancellationToken?                     CancellationToken,
+                                     EventTracking_Id                       EventTrackingId,
+                                     TimeSpan?                              RequestTimeout)
 
 
                 => Task.FromResult(new Acknowledgement(ResultType.NoOperation));
@@ -3356,7 +3356,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.SetStaticData(ChargingStationOperator  ChargingStationOperator,
+            ISendData.SetStaticData(ChargingStationOperator  ChargingStationOperator,
 
                                           DateTime?                Timestamp,
                                           CancellationToken?       CancellationToken,
@@ -3398,7 +3398,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.AddStaticData(ChargingStationOperator  ChargingStationOperator,
+            ISendData.AddStaticData(ChargingStationOperator  ChargingStationOperator,
 
                                           DateTime?                Timestamp,
                                           CancellationToken?       CancellationToken,
@@ -3440,7 +3440,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.UpdateStaticData(ChargingStationOperator  ChargingStationOperator,
+            ISendData.UpdateStaticData(ChargingStationOperator  ChargingStationOperator,
 
                                              DateTime?                Timestamp,
                                              CancellationToken?       CancellationToken,
@@ -3482,7 +3482,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.DeleteStaticData(ChargingStationOperator  ChargingStationOperator,
+            ISendData.DeleteStaticData(ChargingStationOperator  ChargingStationOperator,
 
                                              DateTime?                Timestamp,
                                              CancellationToken?       CancellationToken,
@@ -3525,7 +3525,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.SetStaticData(IEnumerable<ChargingStationOperator>  ChargingStationOperators,
+            ISendData.SetStaticData(IEnumerable<ChargingStationOperator>  ChargingStationOperators,
 
                                           DateTime?                             Timestamp,
                                           CancellationToken?                    CancellationToken,
@@ -3567,7 +3567,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.AddStaticData(IEnumerable<ChargingStationOperator>  ChargingStationOperators,
+            ISendData.AddStaticData(IEnumerable<ChargingStationOperator>  ChargingStationOperators,
 
                                           DateTime?                             Timestamp,
                                           CancellationToken?                    CancellationToken,
@@ -3609,7 +3609,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.UpdateStaticData(IEnumerable<ChargingStationOperator>  ChargingStationOperators,
+            ISendData.UpdateStaticData(IEnumerable<ChargingStationOperator>  ChargingStationOperators,
 
                                              DateTime?                             Timestamp,
                                              CancellationToken?                    CancellationToken,
@@ -3651,7 +3651,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.DeleteStaticData(IEnumerable<ChargingStationOperator>  ChargingStationOperators,
+            ISendData.DeleteStaticData(IEnumerable<ChargingStationOperator>  ChargingStationOperators,
 
                                              DateTime?                             Timestamp,
                                              CancellationToken?                    CancellationToken,
@@ -3681,7 +3681,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         #endregion
 
 
-        #region UpdateChargingStationOperatorAdminStatus(AdminStatusUpdates, TransmissionType = Enqueued, ...)
+        #region UpdateAdminStatus(AdminStatusUpdates, TransmissionType = Enqueued, ...)
 
         /// <summary>
         /// Update the given enumeration of charging station operator admin status updates.
@@ -3695,20 +3695,20 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         Task<Acknowledgement>
 
-            IRemotePushStatus.UpdateChargingStationOperatorAdminStatus(IEnumerable<ChargingStationOperatorAdminStatusUpdate>  AdminStatusUpdates,
-                                                                       TransmissionTypes                                      TransmissionType,
+            ISendStatus.UpdateAdminStatus(IEnumerable<ChargingStationOperatorAdminStatusUpdate>  AdminStatusUpdates,
+                                                TransmissionTypes                                      TransmissionType,
 
-                                                                       DateTime?                                              Timestamp,
-                                                                       CancellationToken?                                     CancellationToken,
-                                                                       EventTracking_Id                                       EventTrackingId,
-                                                                       TimeSpan?                                              RequestTimeout)
+                                                DateTime?                                              Timestamp,
+                                                CancellationToken?                                     CancellationToken,
+                                                EventTracking_Id                                       EventTrackingId,
+                                                TimeSpan?                                              RequestTimeout)
 
 
                 => Task.FromResult(new Acknowledgement(ResultType.NoOperation));
 
         #endregion
 
-        #region UpdateChargingStationOperatorStatus     (StatusUpdates,      TransmissionType = Enqueued, ...)
+        #region UpdateStatus     (StatusUpdates,      TransmissionType = Enqueued, ...)
 
         /// <summary>
         /// Update the given enumeration of charging station operator status updates.
@@ -3722,13 +3722,13 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         Task<Acknowledgement>
 
-            IRemotePushStatus.UpdateChargingStationOperatorStatus(IEnumerable<ChargingStationOperatorStatusUpdate>  StatusUpdates,
-                                                                  TransmissionTypes                                 TransmissionType,
+            ISendStatus.UpdateStatus(IEnumerable<ChargingStationOperatorStatusUpdate>  StatusUpdates,
+                                     TransmissionTypes                                 TransmissionType,
 
-                                                                  DateTime?                                         Timestamp,
-                                                                  CancellationToken?                                CancellationToken,
-                                                                  EventTracking_Id                                  EventTrackingId,
-                                                                  TimeSpan?                                         RequestTimeout)
+                                     DateTime?                                         Timestamp,
+                                     CancellationToken?                                CancellationToken,
+                                     EventTracking_Id                                  EventTrackingId,
+                                     TimeSpan?                                         RequestTimeout)
 
 
                 => Task.FromResult(new Acknowledgement(ResultType.NoOperation));
@@ -3752,7 +3752,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.SetStaticData(RoamingNetwork      RoamingNetwork,
+            ISendData.SetStaticData(RoamingNetwork      RoamingNetwork,
 
                                           DateTime?           Timestamp,
                                           CancellationToken?  CancellationToken,
@@ -3794,7 +3794,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.AddStaticData(RoamingNetwork      RoamingNetwork,
+            ISendData.AddStaticData(RoamingNetwork      RoamingNetwork,
 
                                           DateTime?           Timestamp,
                                           CancellationToken?  CancellationToken,
@@ -3836,7 +3836,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.UpdateStaticData(RoamingNetwork      RoamingNetwork,
+            ISendData.UpdateStaticData(RoamingNetwork      RoamingNetwork,
 
                                              DateTime?           Timestamp,
                                              CancellationToken?  CancellationToken,
@@ -3878,7 +3878,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<Acknowledgement>
 
-            IRemotePushData.DeleteStaticData(RoamingNetwork      RoamingNetwork,
+            ISendData.DeleteStaticData(RoamingNetwork      RoamingNetwork,
 
                                              DateTime?           Timestamp,
                                              CancellationToken?  CancellationToken,
@@ -3908,7 +3908,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         #endregion
 
 
-        #region UpdateRoamingNetworkAdminStatus(AdminStatusUpdates, TransmissionType = Enqueued, ...)
+        #region UpdateAdminStatus(AdminStatusUpdates, TransmissionType = Enqueued, ...)
 
         /// <summary>
         /// Update the given enumeration of roaming network admin status updates.
@@ -3922,20 +3922,20 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         Task<Acknowledgement>
 
-            IRemotePushStatus.UpdateRoamingNetworkAdminStatus(IEnumerable<RoamingNetworkAdminStatusUpdate>  AdminStatusUpdates,
-                                                              TransmissionTypes                             TransmissionType,
+            ISendStatus.UpdateAdminStatus(IEnumerable<RoamingNetworkAdminStatusUpdate>  AdminStatusUpdates,
+                                          TransmissionTypes                             TransmissionType,
 
-                                                              DateTime?                                     Timestamp,
-                                                              CancellationToken?                            CancellationToken,
-                                                              EventTracking_Id                              EventTrackingId,
-                                                              TimeSpan?                                     RequestTimeout)
+                                          DateTime?                                     Timestamp,
+                                          CancellationToken?                            CancellationToken,
+                                          EventTracking_Id                              EventTrackingId,
+                                          TimeSpan?                                     RequestTimeout)
 
 
                 => Task.FromResult(new Acknowledgement(ResultType.NoOperation));
 
         #endregion
 
-        #region UpdateRoamingNetworkStatus     (StatusUpdates,      TransmissionType = Enqueued, ...)
+        #region UpdateStatus     (StatusUpdates,      TransmissionType = Enqueued, ...)
 
         /// <summary>
         /// Update the given enumeration of roaming network status updates.
@@ -3949,13 +3949,13 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         Task<Acknowledgement>
 
-            IRemotePushStatus.UpdateRoamingNetworkStatus(IEnumerable<RoamingNetworkStatusUpdate>  StatusUpdates,
-                                                         TransmissionTypes                        TransmissionType,
+            ISendStatus.UpdateStatus(IEnumerable<RoamingNetworkStatusUpdate>  StatusUpdates,
+                                     TransmissionTypes                        TransmissionType,
 
-                                                         DateTime?                                Timestamp,
-                                                         CancellationToken?                       CancellationToken,
-                                                         EventTracking_Id                         EventTrackingId,
-                                                         TimeSpan?                                RequestTimeout)
+                                     DateTime?                                Timestamp,
+                                     CancellationToken?                       CancellationToken,
+                                     EventTracking_Id                         EventTrackingId,
+                                     TimeSpan?                                RequestTimeout)
 
 
                 => Task.FromResult(new Acknowledgement(ResultType.NoOperation));
@@ -4025,6 +4025,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                 OnAuthorizeStartRequest?.Invoke(StartTime,
                                                 Timestamp.Value,
                                                 this,
+                                                Id.ToString(),
                                                 EventTrackingId,
                                                 RoamingNetwork.Id,
                                                 OperatorId,
@@ -4101,6 +4102,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                 OnAuthorizeStartResponse?.Invoke(Endtime,
                                                  Timestamp.Value,
                                                  this,
+                                                 Id.ToString(),
                                                  EventTrackingId,
                                                  RoamingNetwork.Id,
                                                  OperatorId,
@@ -4185,6 +4187,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                 OnAuthorizeEVSEStartRequest?.Invoke(StartTime,
                                                     Timestamp.Value,
                                                     this,
+                                                    Id.ToString(),
                                                     EventTrackingId,
                                                     RoamingNetwork.Id,
                                                     OperatorId,
@@ -4262,6 +4265,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                 OnAuthorizeEVSEStartResponse?.Invoke(Endtime,
                                                      Timestamp.Value,
                                                      this,
+                                                     Id.ToString(),
                                                      EventTrackingId,
                                                      RoamingNetwork.Id,
                                                      OperatorId,
@@ -4347,6 +4351,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                 OnAuthorizeChargingStationStartRequest?.Invoke(StartTime,
                                                                Timestamp.Value,
                                                                this,
+                                                               Id.ToString(),
                                                                EventTrackingId,
                                                                RoamingNetwork.Id,
                                                                OperatorId,
@@ -4424,6 +4429,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                 OnAuthorizeChargingStationStartResponse?.Invoke(Endtime,
                                                                 Timestamp.Value,
                                                                 this,
+                                                                Id.ToString(),
                                                                 EventTrackingId,
                                                                 RoamingNetwork.Id,
                                                                 OperatorId,
@@ -4509,6 +4515,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                 OnAuthorizeChargingPoolStartRequest?.Invoke(StartTime,
                                                             Timestamp.Value,
                                                             this,
+                                                            Id.ToString(),
                                                             EventTrackingId,
                                                             RoamingNetwork.Id,
                                                             OperatorId,
@@ -4586,6 +4593,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                 OnAuthorizeChargingPoolStartResponse?.Invoke(Endtime,
                                                              Timestamp.Value,
                                                              this,
+                                                             Id.ToString(),
                                                              EventTrackingId,
                                                              RoamingNetwork.Id,
                                                              OperatorId,
@@ -4671,6 +4679,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                 OnAuthorizeStopRequest?.Invoke(StartTime,
                                                Timestamp.Value,
                                                this,
+                                               Id.ToString(),
                                                EventTrackingId,
                                                RoamingNetwork.Id,
                                                OperatorId,
@@ -4744,6 +4753,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                 OnAuthorizeStopResponse?.Invoke(Endtime,
                                                 Timestamp.Value,
                                                 this,
+                                                Id.ToString(),
                                                 EventTrackingId,
                                                 RoamingNetwork.Id,
                                                 OperatorId,
@@ -4824,6 +4834,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                 OnAuthorizeEVSEStopRequest?.Invoke(StartTime,
                                                    Timestamp.Value,
                                                    this,
+                                                   Id.ToString(),
                                                    EventTrackingId,
                                                    RoamingNetwork.Id,
                                                    OperatorId,
@@ -4898,6 +4909,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                 OnAuthorizeEVSEStopResponse?.Invoke(Endtime,
                                                     Timestamp.Value,
                                                     this,
+                                                    Id.ToString(),
                                                     EventTrackingId,
                                                     RoamingNetwork.Id,
                                                     OperatorId,
@@ -4980,6 +4992,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                 OnAuthorizeChargingStationStopRequest?.Invoke(StartTime,
                                                               Timestamp.Value,
                                                               this,
+                                                              Id.ToString(),
                                                               EventTrackingId,
                                                               RoamingNetwork.Id,
                                                               OperatorId,
@@ -5054,6 +5067,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                 OnAuthorizeChargingStationStopResponse?.Invoke(Endtime,
                                                                Timestamp.Value,
                                                                this,
+                                                               Id.ToString(),
                                                                EventTrackingId,
                                                                RoamingNetwork.Id,
                                                                OperatorId,
@@ -5136,6 +5150,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                 OnAuthorizeChargingPoolStopRequest?.Invoke(StartTime,
                                                            Timestamp.Value,
                                                            this,
+                                                           Id.ToString(),
                                                            EventTrackingId,
                                                            RoamingNetwork.Id,
                                                            OperatorId,
@@ -5210,6 +5225,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                 OnAuthorizeChargingPoolStopResponse?.Invoke(Endtime,
                                                             Timestamp.Value,
                                                             this,
+                                                            Id.ToString(),
                                                             EventTrackingId,
                                                             RoamingNetwork.Id,
                                                             OperatorId,
@@ -5293,6 +5309,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                     OnEnqueueSendCDRsRequest?.Invoke(DateTime.Now,
                                                      Timestamp.Value,
                                                      this,
+                                                     Id.ToString(),
                                                      EventTrackingId,
                                                      RoamingNetwork.Id,
                                                      ChargeDetailRecords,
@@ -5331,6 +5348,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                 OnSendCDRsRequest?.Invoke(StartTime,
                                           Timestamp.Value,
                                           this,
+                                          Id.ToString(),
                                           EventTrackingId,
                                           RoamingNetwork.Id,
                                           ChargeDetailRecords,
@@ -5579,8 +5597,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                 {
 
                     var AddOrSetStaticDataTask = _ServiceRunId == 1
-                                                     ? (this as IRemotePushData).SetStaticData(ChargingStationsToAddQueueCopy.Value, EventTrackingId: EventTrackingId)
-                                                     : (this as IRemotePushData).AddStaticData(ChargingStationsToAddQueueCopy.Value, EventTrackingId: EventTrackingId);
+                                                     ? (this as ISendData).SetStaticData(ChargingStationsToAddQueueCopy.Value, EventTrackingId: EventTrackingId)
+                                                     : (this as ISendData).AddStaticData(ChargingStationsToAddQueueCopy.Value, EventTrackingId: EventTrackingId);
 
                     AddOrSetStaticDataTask.Wait();
 
@@ -5602,7 +5620,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                     if (EVSEsWithoutNewEVSEs.Length > 0)
                     {
 
-                        var UpdateStaticDataTask = (this as IRemotePushData).UpdateStaticData(EVSEsWithoutNewEVSEs, EventTrackingId: EventTrackingId);
+                        var UpdateStaticDataTask = (this as ISendData).UpdateStaticData(EVSEsWithoutNewEVSEs, EventTrackingId: EventTrackingId);
 
                         UpdateStaticDataTask.Wait();
 
@@ -5639,7 +5657,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                     if (ChargingStationsToRemove.Length > 0)
                     {
 
-                        var ChargingStationsToRemoveTask = (this as IRemotePushData).DeleteStaticData(ChargingStationsToRemove, EventTrackingId: EventTrackingId);
+                        var ChargingStationsToRemoveTask = (this as ISendData).DeleteStaticData(ChargingStationsToRemove, EventTrackingId: EventTrackingId);
 
                         ChargingStationsToRemoveTask.Wait();
 

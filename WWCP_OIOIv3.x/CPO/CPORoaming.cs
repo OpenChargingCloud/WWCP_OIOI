@@ -765,10 +765,10 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="CPOServer">A CPO sever.</param>
         /// <param name="ServerLoggingContext">An optional context for logging server methods.</param>
         /// <param name="LogFileCreator">A delegate to create a log file from the given context and log file name.</param>
-        public CPORoaming(CPOClient                     CPOClient,
-                          CPOServer                     CPOServer,
-                          String                        ServerLoggingContext  = CPOServerLogger.DefaultContext,
-                          Func<String, String, String>  LogFileCreator        = null)
+        public CPORoaming(CPOClient               CPOClient,
+                          CPOServer               CPOServer,
+                          String                  ServerLoggingContext  = CPOServerLogger.DefaultContext,
+                          LogfileCreatorDelegate  LogFileCreator        = null)
         {
 
             this.CPOClient        = CPOClient;
@@ -828,7 +828,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
                           String                               ClientLoggingContext            = CPOClient.CPOClientLogger.DefaultContext,
                           String                               ServerLoggingContext            = CPOServerLogger.DefaultContext,
-                          Func<String, String, String>         LogFileCreator                  = null,
+                          LogfileCreatorDelegate               LogFileCreator                  = null,
 
                           DNSClient                            DNSClient                       = null)
 
