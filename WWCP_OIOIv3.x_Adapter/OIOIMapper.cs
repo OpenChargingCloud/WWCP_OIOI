@@ -60,7 +60,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
             => new Address(WWCPAddress.Street,
                            WWCPAddress.HouseNumber,
-                           WWCPAddress.City.FirstText,
+                           WWCPAddress.City.FirstText(),
                            WWCPAddress.PostalCode,
                            WWCPAddress.Country);
 
@@ -226,7 +226,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         {
 
             var _Station = new Station(ChargingStation.Id.         ToOIOI(),
-                                       ChargingStation.Name.       FirstText,
+                                       ChargingStation.Name.       FirstText(),
                                        ChargingStation.GeoLocation.Value,
                                        ChargingStation.Address.    ToOIOI(),
                                        new Contact("Phone",
@@ -236,7 +236,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                                        CustomOperatorIdMapper != null ? CustomOperatorIdMapper(ChargingStation.Operator.Id) : ChargingStation.Operator.Id,
                                        ChargingStation.OpeningTimes != null ? ChargingStation.OpeningTimes.IsOpen24Hours : true,
                                        ChargingStation.EVSEs.Select(evse => evse.ToOIOI(CustomEVSEIdMapper)),
-                                       ChargingStation.Description.FirstText,
+                                       ChargingStation.Description.FirstText(),
                                        ChargingStation.OpeningTimes);
 
             return ChargingStation2Station != null

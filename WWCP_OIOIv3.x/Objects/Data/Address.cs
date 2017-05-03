@@ -367,7 +367,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
             => String.Concat(Street, " ", StreetNumber, ", ",
                              ZIP,    " ", City,         ", ",
-                             Country.CountryName.FirstText);
+                             Country.CountryName.FirstText());
 
         #endregion
 
