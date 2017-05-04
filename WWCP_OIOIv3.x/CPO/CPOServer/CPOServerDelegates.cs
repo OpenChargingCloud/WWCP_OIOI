@@ -28,6 +28,8 @@ using org.GraphDefined.Vanaheimr.Illias;
 namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 {
 
+    public delegate Boolean ServerAPIKeyValidatorDelegate(String APIKey);
+
     #region OnSessionStartRequest/-Response
 
     /// <summary>

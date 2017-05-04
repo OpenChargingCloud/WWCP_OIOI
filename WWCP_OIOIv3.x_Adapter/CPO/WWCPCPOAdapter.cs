@@ -1061,6 +1061,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                               IPPort                                          ServerTCPPort                            = null,
                               X509Certificate2                                X509Certificate                          = null,
                               String                                          ServerURIPrefix                          = CPOServer.DefaultURIPrefix,
+                              ServerAPIKeyValidatorDelegate                   ServerAPIKeyValidator                    = null,
                               HTTPContentType                                 ServerContentType                        = null,
                               Boolean                                         ServerRegisterHTTPRootService            = true,
                               Boolean                                         ServerAutoStart                          = false,
@@ -1112,6 +1113,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                                   ServerTCPPort,
                                   X509Certificate,
                                   ServerURIPrefix,
+                                  ServerAPIKeyValidator,
                                   ServerContentType,
                                   ServerRegisterHTTPRootService,
                                   false,
@@ -1261,17 +1263,19 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             TimeSpan         Runtime;
             Acknowledgement  result;
 
-            if (DisablePushData)
+            if (DisablePushData || _Stations.Length == 0)
             {
-                Endtime = DateTime.Now;
-                Runtime = Endtime - StartTime;
-                result = new Acknowledgement(ResultType.NoOperation);  //AuthStartChargingStationResult.OutOfService(Id, SessionId, Runtime);
+                Endtime  = DateTime.Now;
+                Runtime  = Endtime - StartTime;
+                result   = new Acknowledgement(ResultType.NoOperation,
+                                               Warnings: Warnings);
             }
 
             else
             {
 
-                result = new Acknowledgement(ResultType.NoOperation);
+                result = new Acknowledgement(ResultType.NoOperation,
+                                             Warnings: Warnings);
 
                 var responses = await Task.WhenAll(_Stations.
                                                        Select(station => CPORoaming.StationPost(station.Item2,

@@ -65,19 +65,26 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// Create a new OIOI contact.
         /// </summary>
         /// <param name="Phone">A phone number.</param>
-        /// <param name="Fax">A fax number.</param>
-        /// <param name="Web">An URI.</param>
-        /// <param name="EMail">An e-mail address.</param>
+        /// <param name="Fax">An optional fax number.</param>
+        /// <param name="Web">An optional URI.</param>
+        /// <param name="EMail">An optional e-mail address.</param>
         public Contact(String  Phone,
-                       String  Fax,
-                       String  Web,
-                       String  EMail)
+                       String  Fax    = null,
+                       String  Web    = null,
+                       String  EMail  = null)
         {
 
+            #region Initial checks
+
+            if (Phone.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(Phone), "The given phone number must not be null or empty!");
+
+            #endregion
+
             this.Phone  = Phone.Trim();
-            this.Fax    = Fax.  Trim();
-            this.Web    = Web.  Trim();
-            this.EMail  = EMail.Trim();
+            this.Fax    = Fax.  IsNotNullOrEmpty() ? Fax.  Trim() : null;
+            this.Web    = Web.  IsNotNullOrEmpty() ? Web.  Trim() : null;
+            this.EMail  = EMail.IsNotNullOrEmpty() ? EMail.Trim() : null;
 
         }
 
@@ -92,6 +99,26 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         //     "web":    "www.example.com",
         //     "email":  "contact@example.com"
         // }
+
+        #endregion
+
+        #region (static) Parse(ContactText)
+
+        /// <summary>
+        /// Parse the given text representation of an OIOI contact.
+        /// </summary>
+        /// <param name="ContactText">The text to parse.</param>
+        public static Contact Parse(String ContactText)
+        {
+
+            Contact _Contact;
+
+            if (TryParse(ContactText, out _Contact))
+                return _Contact;
+
+            return null;
+
+        }
 
         #endregion
 
@@ -115,21 +142,39 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
         #endregion
 
-        #region (static) Parse(ContactText)
+        #region (static) TryParse(ContactJSON, out Contact, OnException = null)
 
         /// <summary>
-        /// Parse the given text representation of an OIOI contact.
+        /// Try to parse the given JSON representation of an OIOI contact.
         /// </summary>
-        /// <param name="ContactText">The text to parse.</param>
-        public static Contact Parse(String ContactText)
+        /// <param name="ContactJSON">The JSON to parse.</param>
+        /// <param name="Contact">The parsed contact.</param>
+        /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
+        public static Boolean TryParse(JObject              ContactJSON,
+                                       out Contact          Contact,
+                                       OnExceptionDelegate  OnException  = null)
         {
 
-            Contact _Contact;
+            try
+            {
 
-            if (TryParse(ContactText, out _Contact))
-                return _Contact;
+                Contact = new Contact(ContactJSON.MapValueOrFail   ("phone", phone => phone.Value<String>().Trim()),
+                                      ContactJSON.MapValueOrDefault("fax",   phone => phone.Value<String>().Trim()),
+                                      ContactJSON.MapValueOrDefault("web",   phone => phone.Value<String>().Trim()),
+                                      ContactJSON.MapValueOrDefault("email", phone => phone.Value<String>().Trim()));
 
-            return null;
+                return true;
+
+            }
+            catch (Exception e)
+            {
+
+                OnException?.Invoke(DateTime.Now, ContactJSON, e);
+
+                Contact = null;
+                return false;
+
+            }
 
         }
 
@@ -170,44 +215,6 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
 
         #endregion
 
-        #region (static) TryParse(ContactJSON, out Contact, OnException = null)
-
-        /// <summary>
-        /// Try to parse the given JSON representation of an OIOI contact.
-        /// </summary>
-        /// <param name="ContactJSON">The JSON to parse.</param>
-        /// <param name="Contact">The parsed contact.</param>
-        /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static Boolean TryParse(JObject              ContactJSON,
-                                       out Contact          Contact,
-                                       OnExceptionDelegate  OnException  = null)
-        {
-
-            try
-            {
-
-                Contact = new Contact(ContactJSON.ValueOrDefault("phone", String.Empty).Value<String>().Trim(),
-                                      ContactJSON.ValueOrDefault("fax",   String.Empty).Value<String>().Trim(),
-                                      ContactJSON.ValueOrDefault("web",   String.Empty).Value<String>().Trim(),
-                                      ContactJSON.ValueOrDefault("email", String.Empty).Value<String>().Trim());
-
-                return true;
-
-            }
-            catch (Exception e)
-            {
-
-                OnException?.Invoke(DateTime.Now, ContactJSON, e);
-
-                Contact = null;
-                return false;
-
-            }
-
-        }
-
-        #endregion
-
         #region ToJSON()
 
         /// <summary>
@@ -216,10 +223,20 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         public JObject ToJSON()
 
             => JSONObject.Create(
-                   new JProperty("phone",  Phone),
-                   new JProperty("fax",    Fax),
-                   new JProperty("web",    Web),
-                   new JProperty("email",  EMail)
+                   new JProperty("phone",        Phone),
+
+                   Fax.IsNotNullOrEmpty()
+                       ? new JProperty("fax",    Fax)
+                       : null,
+
+                   Web.IsNotNullOrEmpty()
+                       ? new JProperty("web",    Web)
+                       : null,
+
+                   EMail.IsNotNullOrEmpty()
+                       ? new JProperty("email",  EMail)
+                       : null
+
                );
 
         #endregion
@@ -288,7 +305,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
             if ((Object) Contact == null)
                 return false;
 
-            return this.Equals(Contact);
+            return Equals(Contact);
 
         }
 
@@ -308,9 +325,15 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
                 return false;
 
             return Phone. Equals(Contact.Phone) &&
-                   Fax.   Equals(Contact.Fax)   &&
-                   Web.   Equals(Contact.Web)   &&
-                   EMail. Equals(Contact.EMail);
+
+                   (Fax.  IsNullOrEmpty() == Contact.Fax.  IsNullOrEmpty() ||
+                    Fax.  IsNotNullOrEmpty() && Contact.Fax.  IsNotNullOrEmpty() && Fax   == Contact.Fax) &&
+
+                   (Web.  IsNullOrEmpty() == Contact.Web.  IsNullOrEmpty() ||
+                    Web.  IsNotNullOrEmpty() && Contact.Web.  IsNotNullOrEmpty() && Web   == Contact.Fax) &&
+
+                   (EMail.IsNullOrEmpty() == Contact.EMail.IsNullOrEmpty() ||
+                    EMail.IsNotNullOrEmpty() && Contact.EMail.IsNotNullOrEmpty() && EMail == Contact.Fax);
 
         }
 
@@ -329,10 +352,19 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
             unchecked
             {
 
-                return Phone. GetHashCode() * 23 ^
-                       Fax.   GetHashCode() * 17 ^
-                       Web.   GetHashCode() * 11 ^
-                       EMail. GetHashCode();
+                return Phone.GetHashCode() * 7 ^
+
+                       (Fax.IsNotNullOrEmpty()
+                            ? Fax.GetHashCode() * 5
+                            : 0) ^
+
+                       (Web.IsNotNullOrEmpty()
+                            ? Web.GetHashCode() * 3
+                            : 0) ^
+
+                       (EMail.IsNotNullOrEmpty()
+                            ? EMail.GetHashCode()
+                            : 0);
 
             }
         }
@@ -346,7 +378,10 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// </summary>
         public override String ToString()
 
-            => String.Concat(Web, " / ", EMail);
+            => String.Concat(Phone,
+                             Fax.  IsNotNullOrEmpty() ? ", " + Fax   : "",
+                             Web.  IsNotNullOrEmpty() ? ", " + Web   : "",
+                             EMail.IsNotNullOrEmpty() ? ", " + EMail : "");
 
         #endregion
 

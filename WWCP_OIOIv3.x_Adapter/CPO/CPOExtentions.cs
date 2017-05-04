@@ -108,6 +108,7 @@ namespace org.GraphDefined.WWCP
                                               IPPort                                                              ServerTCPPort                                   = null,
                                               X509Certificate2                                                    X509Certificate                                 = null,
                                               String                                                              ServerURIPrefix                                 = OIOIv3_x.CPO.CPOServer.DefaultURIPrefix,
+                                              OIOIv3_x.CPO.ServerAPIKeyValidatorDelegate                          ServerAPIKeyValidator                           = null,
                                               HTTPContentType                                                     ServerContentType                               = null,
                                               Boolean                                                             ServerRegisterHTTPRootService                   = true,
                                               Boolean                                                             ServerAutoStart                                 = false,
@@ -178,6 +179,7 @@ namespace org.GraphDefined.WWCP
                                                                      ServerTCPPort,
                                                                      X509Certificate,
                                                                      ServerURIPrefix,
+                                                                     ServerAPIKeyValidator,
                                                                      ServerContentType,
                                                                      ServerRegisterHTTPRootService,
                                                                      ServerAutoStart,
@@ -281,6 +283,7 @@ namespace org.GraphDefined.WWCP
 
                                               HTTPHostname                                                 HTTPHostname                                    = null,
                                               String                                                       ServerURIPrefix                                 = null,
+                                              OIOIv3_x.CPO.ServerAPIKeyValidatorDelegate                   ServerAPIKeyValidator                           = null,
                                               HTTPContentType                                              ServerContentType                               = null,
                                               Boolean                                                      ServerRegisterHTTPRootService                   = true,
 
@@ -354,7 +357,8 @@ namespace org.GraphDefined.WWCP
 
                                                                      new OIOIv3_x.CPO.CPOServer(HTTPServer,
                                                                                                 HTTPHostname,
-                                                                                                URIPrefix,
+                                                                                                ServerURIPrefix,
+                                                                                                ServerAPIKeyValidator,
                                                                                                 ServerContentType,
                                                                                                 ServerRegisterHTTPRootService),
 

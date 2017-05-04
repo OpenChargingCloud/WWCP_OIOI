@@ -67,6 +67,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// </summary>
         public new static readonly TimeSpan  DefaultQueryTimeout    = TimeSpan.FromMinutes(1);
 
+
+        private ServerAPIKeyValidatorDelegate  APIKeyValidator;
+
         #endregion
 
         #region Properties
@@ -255,27 +258,28 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// 
         /// <param name="DNSClient">The DNS client to use.</param>
         /// <param name="Autostart">Start the HTTP server thread immediately (default: no).</param>
-        public CPOServer(String                            DefaultServerName                 = DefaultHTTPServerName,
-                         HTTPHostname                      HTTPHostname                      = null,
-                         IPPort                            HTTPPort                          = null,
-                         X509Certificate2                  X509Certificate                   = null,
-                         String                            URIPrefix                         = DefaultURIPrefix,
-                         HTTPContentType                   ServerContentType                 = null,
-                         Boolean                           ServerRegisterHTTPRootService     = true,
+        public CPOServer(String                            DefaultServerName                  = DefaultHTTPServerName,
+                         HTTPHostname                      HTTPHostname                       = null,
+                         IPPort                            HTTPPort                           = null,
+                         X509Certificate2                  X509Certificate                    = null,
+                         String                            URIPrefix                          = DefaultURIPrefix,
+                         ServerAPIKeyValidatorDelegate     APIKeyValidator                    = null,
+                         HTTPContentType                   ServerContentType                  = null,
+                         Boolean                           ServerRegisterHTTPRootService      = true,
 
-                         IEnumerable<Assembly>             CallingAssemblies                 = null,
-                         String                            ServerThreadName                  = null,
-                         ThreadPriority                    ServerThreadPriority              = ThreadPriority.AboveNormal,
-                         Boolean                           ServerThreadIsBackground          = true,
-                         ConnectionIdBuilder               ConnectionIdBuilder               = null,
-                         ConnectionThreadsNameBuilder      ConnectionThreadsNameBuilder      = null,
-                         ConnectionThreadsPriorityBuilder  ConnectionThreadsPriorityBuilder  = null,
-                         Boolean                           ConnectionThreadsAreBackground    = true,
-                         TimeSpan?                         ConnectionTimeout                 = null,
-                         UInt32                            MaxClientConnections              = TCPServer.__DefaultMaxClientConnections,
+                         IEnumerable<Assembly>             CallingAssemblies                  = null,
+                         String                            ServerThreadName                   = null,
+                         ThreadPriority                    ServerThreadPriority               = ThreadPriority.AboveNormal,
+                         Boolean                           ServerThreadIsBackground           = true,
+                         ConnectionIdBuilder               ConnectionIdBuilder                = null,
+                         ConnectionThreadsNameBuilder      ConnectionThreadsNameBuilder       = null,
+                         ConnectionThreadsPriorityBuilder  ConnectionThreadsPriorityBuilder   = null,
+                         Boolean                           ConnectionThreadsAreBackground     = true,
+                         TimeSpan?                         ConnectionTimeout                  = null,
+                         UInt32                            MaxClientConnections               = TCPServer.__DefaultMaxClientConnections,
 
-                         DNSClient                         DNSClient                         = null,
-                         Boolean                           Autostart                         = false)
+                         DNSClient                         DNSClient                          = null,
+                         Boolean                           Autostart                          = false)
 
             : this(new HTTPServer<RoamingNetworks, RoamingNetwork>(HTTPPort ?? DefaultHTTPServerPort,
                                                                    DefaultServerName.IsNotNullOrEmpty() ? DefaultServerName : DefaultHTTPServerName,
@@ -294,6 +298,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                                                                    false),
                    HTTPHostname,
                    URIPrefix,
+                   APIKeyValidator,
                    ServerContentType,
                    ServerRegisterHTTPRootService)
 
@@ -337,7 +342,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
         #endregion
 
-        #region CPOServer(HTTPServer, HTTPHostname = null, URIPrefix = DefaultURIPrefix)
+        #region CPOServer(HTTPServer, HTTPHostname = null, URIPrefix = DefaultURIPrefix, APIKeyValidator = null, ...)
 
         /// <summary>
         /// Create a new OIOI CPO Server using the given parameters.
@@ -346,10 +351,11 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <param name="HTTPHostname">An optional HTTP hostname.</param>
         /// <param name="URIPrefix">The URI prefix for all incoming HTTP requests.</param>
         public CPOServer(HTTPServer<RoamingNetworks, RoamingNetwork>  HTTPServer,
-                         HTTPHostname                                 HTTPHostname                   = null,
-                         String                                       URIPrefix                      = DefaultURIPrefix,
-                         HTTPContentType                              ServerContentType              = null,
-                         Boolean                                      ServerRegisterHTTPRootService  = true)
+                         HTTPHostname                                 HTTPHostname                    = null,
+                         String                                       URIPrefix                       = DefaultURIPrefix,
+                         ServerAPIKeyValidatorDelegate                APIKeyValidator                 = null,
+                         HTTPContentType                              ServerContentType               = null,
+                         Boolean                                      ServerRegisterHTTPRootService   = true)
         {
 
             #region Initial checks
@@ -365,6 +371,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             this.HTTPServer         = HTTPServer;
             this.HTTPHostname       = HTTPHostname;
             this.URIPrefix          = URIPrefix.IsNotNullOrEmpty() ? URIPrefix : DefaultURIPrefix;
+            this.APIKeyValidator    = APIKeyValidator;
             this.DNSClient          = HTTPServer.DNSClient;
             this.ServerContentType  = ServerContentType ?? HTTPContentType.JSON_UTF8;
 
