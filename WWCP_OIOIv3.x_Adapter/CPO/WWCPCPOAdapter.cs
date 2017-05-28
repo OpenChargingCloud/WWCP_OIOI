@@ -1404,8 +1404,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
             var Warnings = new List<String>();
 
             var _ConnectorStatus = EVSEStatusUpdates.
-                                       Where       (evsestatusupdate => _IncludeChargingStations(RoamingNetwork.GetEVSEbyId(evsestatusupdate.Id).ChargingStation)).
-                                       ToLookup    (evsestatusupdate => evsestatusupdate.Id,
+                                       Where       (evsestatusupdate => _IncludeChargingStations(evsestatusupdate.EVSE.ChargingStation)).
+                                       ToLookup    (evsestatusupdate => evsestatusupdate.EVSE.Id,
                                                     evsestatusupdate => evsestatusupdate).
                                        ToDictionary(group            => group.Key,
                                                     group            => group.AsEnumerable().OrderByDescending(item => item.NewStatus.Timestamp)).
@@ -1951,11 +1951,12 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         async Task<Acknowledgement>
 
             ISendData.SetStaticData(IEnumerable<EVSE>   EVSEs,
+                                    TransmissionTypes   TransmissionType,
 
-                                          DateTime?           Timestamp,
-                                          CancellationToken?  CancellationToken,
-                                          EventTracking_Id    EventTrackingId,
-                                          TimeSpan?           RequestTimeout)
+                                    DateTime?           Timestamp,
+                                    CancellationToken?  CancellationToken,
+                                    EventTracking_Id    EventTrackingId,
+                                    TimeSpan?           RequestTimeout)
 
         {
 
@@ -1993,11 +1994,12 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         async Task<Acknowledgement>
 
             ISendData.AddStaticData(IEnumerable<EVSE>   EVSEs,
+                                    TransmissionTypes   TransmissionType,
 
-                                          DateTime?           Timestamp,
-                                          CancellationToken?  CancellationToken,
-                                          EventTracking_Id    EventTrackingId,
-                                          TimeSpan?           RequestTimeout)
+                                    DateTime?           Timestamp,
+                                    CancellationToken?  CancellationToken,
+                                    EventTracking_Id    EventTrackingId,
+                                    TimeSpan?           RequestTimeout)
 
         {
 
@@ -2035,11 +2037,12 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         async Task<Acknowledgement>
 
             ISendData.UpdateStaticData(IEnumerable<EVSE>   EVSEs,
+                                       TransmissionTypes   TransmissionType,
 
-                                             DateTime?           Timestamp,
-                                             CancellationToken?  CancellationToken,
-                                             EventTracking_Id    EventTrackingId,
-                                             TimeSpan?           RequestTimeout)
+                                       DateTime?           Timestamp,
+                                       CancellationToken?  CancellationToken,
+                                       EventTracking_Id    EventTrackingId,
+                                       TimeSpan?           RequestTimeout)
 
         {
 
@@ -2077,11 +2080,12 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         async Task<Acknowledgement>
 
             ISendData.DeleteStaticData(IEnumerable<EVSE>   EVSEs,
+                                       TransmissionTypes   TransmissionType,
 
-                                             DateTime?           Timestamp,
-                                             CancellationToken?  CancellationToken,
-                                             EventTracking_Id    EventTrackingId,
-                                             TimeSpan?           RequestTimeout)
+                                       DateTime?           Timestamp,
+                                       CancellationToken?  CancellationToken,
+                                       EventTracking_Id    EventTrackingId,
+                                       TimeSpan?           RequestTimeout)
 
         {
 
@@ -5757,14 +5761,14 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
                     EVSEStatusChangesFastQueue.Value = new List<EVSEStatusUpdate>(
                                                                  EVSEStatusUpdatesQueue.
-                                                                     Where(evsestatuschange => !ChargingStationsToAddQueue.Any(station => station.EVSEs.Any(evse => evse.Id == evsestatuschange.Id)))
+                                                                     Where(evsestatuschange => !ChargingStationsToAddQueue.Any(station => station.EVSEs.Any(evse => evse == evsestatuschange.EVSE)))
                                                              );
 
                     #endregion
 
                     #region Copy all "EVSEstatus changes" of __new___ EVSEs into the "delayed" queue...
 
-                    var _EVSEStatusChangesDelayed = EVSEStatusUpdatesQueue.Where(evsestatuschange => ChargingStationsToAddQueue.Any(station => station.EVSEs.Any(evse => evse.Id == evsestatuschange.Id))).ToArray();
+                    var _EVSEStatusChangesDelayed = EVSEStatusUpdatesQueue.Where(evsestatuschange => ChargingStationsToAddQueue.Any(station => station.EVSEs.Any(evse => evse == evsestatuschange.EVSE))).ToArray();
 
                     if (_EVSEStatusChangesDelayed.Length > 0)
                         EVSEStatusUpdatesDelayedQueue.AddRange(_EVSEStatusChangesDelayed);

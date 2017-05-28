@@ -120,7 +120,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.UnitTests
                                                                                 requestbuilder.ContentType  = HTTPContentType.JSON_UTF8;
                                                                                 requestbuilder.Accept.Add(HTTPContentType.JSON_UTF8);
                                                                             }),
-                                                                             Timeout: Timeout,
+                                                                             RequestTimeout: Timeout,
                                                                              CancellationToken: new CancellationTokenSource().Token))
 
             {
@@ -153,7 +153,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.UnitTests
                                                                                        requestbuilder.ContentType  = HTTPContentType.JSON_UTF8;
                                                                                        requestbuilder.Accept.Add(HTTPContentType.JSON_UTF8);
                                                                                    }),
-                                                                                    Timeout: Timeout,
+                                                                                    RequestTimeout: Timeout,
                                                                                     CancellationToken: new CancellationTokenSource().Token))
 
                 {
