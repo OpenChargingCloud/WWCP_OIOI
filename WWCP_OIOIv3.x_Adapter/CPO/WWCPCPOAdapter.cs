@@ -408,6 +408,13 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         #endregion
 
 
+        public delegate void FlushServiceQueuesDelegate(WWCPCPOAdapter Sender, TimeSpan Every);
+
+        public event FlushServiceQueuesDelegate FlushServiceQueuesEvent;
+
+        public event FlushServiceQueuesDelegate FlushFastStatusQueuesEvent;
+
+
         #region Missing events
 
         event OnAuthorizeStartRequestDelegate ISendAuthorizeStartStop.OnAuthorizeStartRequest
@@ -5531,7 +5538,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         public async Task FlushServiceQueues()
         {
 
-            DebugX.Log("FlushServiceQueues, as every " + _ServiceCheckEvery + "ms!");
+            FlushServiceQueuesEvent?.Invoke(this, TimeSpan.FromMilliseconds(_ServiceCheckEvery));
 
             #region Make a thread local copy of all data
 
@@ -5762,7 +5769,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         public async Task FlushFastStatusQueues()
         {
 
-            DebugX.Log("FlushFastStatusQueues, as every " + _StatusCheckEvery + "ms!");
+            FlushFastStatusQueuesEvent?.Invoke(this, TimeSpan.FromMilliseconds(_StatusCheckEvery));
 
             //ToDo: AsyncLocal is currently not implemented in Mono!
             //var EVSEStatusQueueCopy = new AsyncLocal<List<EVSEStatusChange>>();
