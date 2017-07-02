@@ -86,7 +86,7 @@ namespace org.GraphDefined.WWCP
         /// <param name="OIOIConfigurator">An optional delegate to configure the new OIOI roaming provider after its creation.</param>
         /// <param name="Configurator">An optional delegate to configure the new roaming provider after its creation.</param>
         /// <param name="DNSClient">An optional DNS client to use.</param>
-        public static ICSORoamingProvider
+        public static OIOIv3_x.CPO.WWCPCPOAdapter
 
             CreateOIOIv3_x_CPORoamingProvider(this RoamingNetwork                                                 RoamingNetwork,
                                               CSORoamingProvider_Id                                               Id,
@@ -214,7 +214,7 @@ namespace org.GraphDefined.WWCP
 
             return RoamingNetwork.
                        CreateNewRoamingProvider(NewRoamingProvider,
-                                                Configurator);
+                                                Configurator) as OIOIv3_x.CPO.WWCPCPOAdapter;
 
         }
 
@@ -263,7 +263,7 @@ namespace org.GraphDefined.WWCP
         /// <param name="OIOIConfigurator">An optional delegate to configure the new OIOI roaming provider after its creation.</param>
         /// <param name="Configurator">An optional delegate to configure the new roaming provider after its creation.</param>
         /// <param name="DNSClient">An optional DNS client to use.</param>
-        public static ICSORoamingProvider
+        public static OIOIv3_x.CPO.WWCPCPOAdapter
 
             CreateOIOIv3_x_CPORoamingProvider(this RoamingNetwork                                          RoamingNetwork,
                                               CSORoamingProvider_Id                                        Id,
@@ -387,7 +387,7 @@ namespace org.GraphDefined.WWCP
 
             return RoamingNetwork.
                        CreateNewRoamingProvider(NewRoamingProvider,
-                                                Configurator);
+                                                Configurator) as OIOIv3_x.CPO.WWCPCPOAdapter;
 
         }
 
