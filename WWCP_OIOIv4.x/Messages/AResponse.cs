@@ -17,6 +17,8 @@
 
 #region Usings
 
+using Newtonsoft.Json.Linq;
+using org.GraphDefined.Vanaheimr.Hermod;
 using System;
 using System.Collections.Generic;
 
@@ -43,6 +45,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// The request leading to this response.
         /// </summary>
         public TRequest                             Request             { get; }
+
+        /// <summary>
+        /// The response code of the corresponding ConnectorPostStatus request.
+        /// </summary>
+        public ResponseCodes                        Code                { get; }
+
+        /// <summary>
+        /// The response message of the corresponding ConnectorPostStatus request.
+        /// </summary>
+        public String                               Message             { get; }
 
         /// <summary>
         /// An optional read-only dictionary of customer-specific key-value pairs.
@@ -73,16 +85,22 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// Create a new generic OIOI response.
         /// </summary>
         /// <param name="Request">The OIOI request leading to this result.</param>
+        /// <param name="Code">The response code of the corresponding ConnectorPostStatus request.</param>
+        /// <param name="Message">The response message of the corresponding ConnectorPostStatus request.</param>
         /// <param name="CustomData">An optional read-only dictionary of customer-specific key-value pairs.</param>
         /// <param name="CustomMapper">An optional mapper for customer-specific key-value pairs.</param>
         /// <param name="ResponseTimestamp">An optional timestamp of the response message creation.</param>
         protected AResponse(TRequest                             Request,
+                            ResponseCodes                        Code,
+                            String                               Message,
                             IReadOnlyDictionary<String, Object>  CustomData         = null,
                             Action<TResponse>                    CustomMapper       = null,
                             DateTime?                            ResponseTimestamp  = null)
         {
 
             this.Request            = Request;
+            this.Code               = Code;
+            this.Message            = Message;
             this.CustomData         = CustomData;
             this.CustomMapper       = CustomMapper;
             this.ResponseTimestamp  = ResponseTimestamp ?? DateTime.Now;
@@ -92,13 +110,75 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         #endregion
 
 
-        #region IEquatable<AResponse> Members
+        #region (virtual) ToJSON()
 
         /// <summary>
-        /// Compare two responses for equality.
+        /// Return a JSON-representation of this object.
         /// </summary>
-        /// <param name="AResponse">Another abstract generic OIOI response.</param>
-        public abstract Boolean Equals(TResponse AResponse);
+        public virtual JObject ToJSON()
+
+            => JSONObject.Create(
+                   new JProperty("result", JSONObject.Create(
+
+                       new JProperty("code",     (UInt32) Code),
+                       new JProperty("message",  Message)
+
+                   ))
+               );
+
+        #endregion
+
+
+        #region IEquatable<AResponse> Members
+
+        #region Equals(TResponse)
+
+        /// <summary>
+        /// Compares two responses for equality.
+        /// </summary>
+        /// <param name="TResponse">Another generic response.</param>
+        /// <returns>True if both match; False otherwise.</returns>
+        public virtual Boolean Equals(TResponse TResponse)
+        {
+
+            if (TResponse == null)
+                return false;
+
+            return Code.   Equals(TResponse.Code) &&
+                   Message.Equals(TResponse.Message);
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region GetHashCode()
+
+        /// <summary>
+        /// Return the HashCode of this object.
+        /// </summary>
+        /// <returns>The HashCode of this object.</returns>
+        public override Int32 GetHashCode()
+        {
+            unchecked
+            {
+
+                return Code.   GetHashCode() * 3 ^
+                       Message.GetHashCode();
+
+            }
+        }
+
+        #endregion
+
+        #region (override) ToString()
+
+        /// <summary>
+        /// Return a string representation of this object.
+        /// </summary>
+        public override String ToString()
+            => String.Concat(GetType().Name, " response: ", Code.ToString(), " / ", Message);
 
         #endregion
 

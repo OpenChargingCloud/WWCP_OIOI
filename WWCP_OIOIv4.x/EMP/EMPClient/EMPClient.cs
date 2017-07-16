@@ -561,7 +561,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                                                      SendJSONError(timestamp, this, httpresponse.Content);
 
                                                      return new HTTPResponse<StationGetSurfaceResponse>(httpresponse,
-                                                                                                        new StationGetSurfaceResponse(Request, new Station[0]),
+                                                                                                        new StationGetSurfaceResponse(Request,
+                                                                                                                                      ResponseCodes.SystemError,
+                                                                                                                                      "Invalid JSON response!",
+                                                                                                                                      new Station[0]),
                                                                                                         IsFault: true);
 
                                                  },
@@ -575,7 +578,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                                                      SendHTTPError(timestamp, this, httpresponse);
 
                                                      return new HTTPResponse<StationGetSurfaceResponse>(httpresponse,
-                                                                                                        new StationGetSurfaceResponse(Request, new Station[0]),
+                                                                                                        new StationGetSurfaceResponse(Request,
+                                                                                                                                      ResponseCodes.SystemError,
+                                                                                                                                      "Invalid HTTP response!",
+                                                                                                                                      new Station[0]),
                                                                                                         IsFault: true);
 
                                                  },
@@ -588,7 +594,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
                                                      SendException(timestamp, sender, exception);
 
-                                                     return HTTPResponse<StationGetSurfaceResponse>.ExceptionThrown(new StationGetSurfaceResponse(Request, new Station[0]),
+                                                     return HTTPResponse<StationGetSurfaceResponse>.ExceptionThrown(new StationGetSurfaceResponse(Request,
+                                                                                                                                                  ResponseCodes.SystemError,
+                                                                                                                                                  "Exception occured!",
+                                                                                                                                                  new Station[0]),
                                                                                                                     Exception:  exception);
 
                                                  }
@@ -601,7 +610,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
 
             if (result == null)
-                result = HTTPResponse<StationGetSurfaceResponse>.OK(new StationGetSurfaceResponse(Request, new Station[0]));
+                result = HTTPResponse<StationGetSurfaceResponse>.OK(new StationGetSurfaceResponse(Request,
+                                                                                                  ResponseCodes.SystemError,
+                                                                                                  "Invalid response!",
+                                                                                                  new Station[0]));
 
             #region Send OnStationGetSurfaceResponse event
 
@@ -730,7 +742,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                                                      SendJSONError(timestamp, this, httpresponse.Content);
 
                                                      return new HTTPResponse<SessionStartResponse>(httpresponse,
-                                                                                                   new SessionStartResponse(Request, false),
+                                                                                                   new SessionStartResponse(Request,
+                                                                                                                            ResponseCodes.SystemError,
+                                                                                                                            "Invalid JSON response!"),
                                                                                                    IsFault: true);
 
                                                  },
@@ -744,7 +758,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                                                      SendHTTPError(timestamp, this, httpresponse);
 
                                                      return new HTTPResponse<SessionStartResponse>(httpresponse,
-                                                                                                   new SessionStartResponse(Request, false),
+                                                                                                   new SessionStartResponse(Request,
+                                                                                                                            ResponseCodes.SystemError,
+                                                                                                                            "Invalid HTTP response!"),
                                                                                                    IsFault: true);
 
                                                  },
@@ -757,7 +773,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
                                                      SendException(timestamp, sender, exception);
 
-                                                     return HTTPResponse<SessionStartResponse>.ExceptionThrown(new SessionStartResponse(Request, false),
+                                                     return HTTPResponse<SessionStartResponse>.ExceptionThrown(new SessionStartResponse(Request,
+                                                                                                                                        ResponseCodes.SystemError,
+                                                                                                                                        "Exception occured!"),
                                                                                                                Exception:  exception);
 
                                                  }
@@ -770,7 +788,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
 
             if (result == null)
-                result = HTTPResponse<SessionStartResponse>.OK(new SessionStartResponse(Request, false));
+                result = HTTPResponse<SessionStartResponse>.OK(new SessionStartResponse(Request,
+                                                                                        ResponseCodes.SystemError,
+                                                                                        "Invalid response!"));
 
             #region Send OnSessionStartResponse event
 
@@ -897,7 +917,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                                                      SendJSONError(timestamp, this, httpresponse.Content);
 
                                                      return new HTTPResponse<SessionStopResponse>(httpresponse,
-                                                                                                  new SessionStopResponse(Request, false),
+                                                                                                  new SessionStopResponse(Request,
+                                                                                                                          ResponseCodes.SystemError,
+                                                                                                                          "Invalid JSON response!"),
                                                                                                   IsFault: true);
 
                                                  },
@@ -911,7 +933,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                                                      SendHTTPError(timestamp, this, httpresponse);
 
                                                      return new HTTPResponse<SessionStopResponse>(httpresponse,
-                                                                                                  new SessionStopResponse(Request, false),
+                                                                                                  new SessionStopResponse(Request,
+                                                                                                                          ResponseCodes.SystemError,
+                                                                                                                          "Invalid HTTP response!"),
                                                                                                   IsFault: true);
 
                                                  },
@@ -924,7 +948,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
                                                      SendException(timestamp, sender, exception);
 
-                                                     return HTTPResponse<SessionStopResponse>.ExceptionThrown(new SessionStopResponse(Request, false),
+                                                     return HTTPResponse<SessionStopResponse>.ExceptionThrown(new SessionStopResponse(Request,
+                                                                                                                                      ResponseCodes.SystemError,
+                                                                                                                                      "Exception occured!"),
                                                                                                               Exception:  exception);
 
                                                  }
@@ -937,7 +963,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
 
             if (result == null)
-                result = HTTPResponse<SessionStopResponse>.OK(new SessionStopResponse(Request, false));
+                result = HTTPResponse<SessionStopResponse>.OK(new SessionStopResponse(Request,
+                                                                                      ResponseCodes.SystemError,
+                                                                                      "Invalid response!"));
 
             #region Send OnSessionStopResponse event
 

@@ -37,20 +37,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  StationPostResponse>
     {
 
-        #region Properties
-
-        /// <summary>
-        /// The response code of the corresponding StationPost request.
-        /// </summary>
-        public ResponseCodes  Code       { get; }
-
-        /// <summary>
-        /// The response message of the corresponding StationPost request.
-        /// </summary>
-        public String         Message    { get; }
-
-        #endregion
-
         #region Constructor(s)
 
         /// <summary>
@@ -68,15 +54,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                    Action<StationPostResponse>          CustomMapper  = null)
 
             : base(Request,
+                   Code,
+                   Message,
                    CustomData,
                    CustomMapper)
 
-        {
-
-            this.Code     = Code;
-            this.Message  = Message;
-
-        }
+        { }
 
         #endregion
 
@@ -107,10 +90,14 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                 OnExceptionDelegate                                 OnException   = null)
         {
 
-            StationPostResponse _StationPostResponse;
-
-            if (TryParse(Request, JSON, out _StationPostResponse, CustomMapper, OnException))
+            if (TryParse(Request,
+                         JSON,
+                         out StationPostResponse _StationPostResponse,
+                         CustomMapper,
+                         OnException))
+            {
                 return _StationPostResponse;
+            }
 
             return null;
 
@@ -135,9 +122,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             try
             {
 
-                var InnerJSON  = JSON["result"];
+                var ResultJSON  = JSON["result"];
 
-                if (InnerJSON == null)
+                if (ResultJSON == null)
                 {
                     StationPostResponse = null;
                     return false;
@@ -145,8 +132,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 StationPostResponse = new StationPostResponse(
                                           Request,
-                                          (ResponseCodes) InnerJSON["code"].Value<Int32>(),
-                                          InnerJSON["message"].Value<String>()
+                                          (ResponseCodes) ResultJSON["code"].Value<Int32>(),
+                                          ResultJSON["message"].Value<String>()
                                       );
 
                 if (CustomMapper != null)
@@ -159,7 +146,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             catch (Exception e)
             {
 
-                OnException?.Invoke(DateTime.Now, JSON, e);
+                OnException?.Invoke(DateTime.UtcNow, JSON, e);
 
                 StationPostResponse = null;
                 return false;
@@ -167,24 +154,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             }
 
         }
-
-        #endregion
-
-        #region ToJSON()
-
-        /// <summary>
-        /// Return a JSON-representation of this object.
-        /// </summary>
-        public JObject ToJSON()
-
-            => new JObject(
-                   new JProperty("result", JSONObject.Create(
-
-                       new JProperty("code",     (UInt32) Code),
-                       new JProperty("message",  Message)
-
-                   ))
-               );
 
         #endregion
 
@@ -257,43 +226,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         #endregion
 
-        #region Equals(StationPostResponse)
-
-        /// <summary>
-        /// Compares two responses for equality.
-        /// </summary>
-        /// <param name="StationPostResponse">A response to compare with.</param>
-        /// <returns>True if both match; False otherwise.</returns>
-        public override Boolean Equals(StationPostResponse StationPostResponse)
-        {
-
-            if ((Object) StationPostResponse == null)
-                return false;
-
-            return Code.   Equals(StationPostResponse.Code) &&
-                   Message.Equals(StationPostResponse.Message);
-
-        }
-
-        #endregion
-
-        #endregion
-
-        #region GetHashCode()
-
-        /// <summary>
-        /// Return the HashCode of this object.
-        /// </summary>
-        /// <returns>The HashCode of this object.</returns>
-        public override Int32 GetHashCode()
-        {
-            unchecked
-            {
-                return Code.   GetHashCode() ^
-                       Message.GetHashCode();
-            }
-        }
-
         #endregion
 
         #region (override) ToString()
@@ -347,7 +279,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             public Builder(StationPostResponse Response = null)
 
-                : base(Response.Request,
+                : base(Response?.Request,
                        Response)
 
             {
@@ -370,18 +302,19 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            #region ToImmutable()
+            #region (implicit) "ToImmutable()"
 
             /// <summary>
             /// Return an immutable StationPost response.
             /// </summary>
-            public StationPostResponse ToImmutable()
+            /// <param name="Builder">A StationPost response builder.</param>
+            public static implicit operator StationPostResponse(Builder Builder)
 
-                => new StationPostResponse(Request,
-                                           Code,
-                                           Message,
-                                           CustomData,
-                                           CustomMapper);
+                => new StationPostResponse(Builder.Request,
+                                           Builder.Code,
+                                           Builder.Message,
+                                           Builder.CustomData,
+                                           Builder.CustomMapper);
 
             #endregion
 

@@ -29,7 +29,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
     public delegate TB CustomMapper2Delegate<TB>(TB ResponseBuilder);
 
-    public delegate T CustomMapperDelegate<T, TB>(JObject JSON, TB ResponseBuilder);
+    public delegate T  CustomMapperDelegate<T, TB>(JObject JSON, TB ResponseBuilder);
 
 
     /// <summary>
@@ -40,6 +40,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         where TResponse : class
 
     {
+
+        /// <summary>
+        /// The response code of the corresponding request.
+        /// </summary>
+        ResponseCodes                        Code                { get; }
+
+        /// <summary>
+        /// The response message of the corresponding request.
+        /// </summary>
+        String                               Message             { get; }
 
         /// <summary>
         /// An optional read-only dictionary of customer-specific key-value pairs.

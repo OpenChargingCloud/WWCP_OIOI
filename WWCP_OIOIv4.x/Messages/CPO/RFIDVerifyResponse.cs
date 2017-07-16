@@ -30,6 +30,9 @@ using org.GraphDefined.Vanaheimr.Hermod;
 namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 {
 
+#pragma warning disable CS0659
+#pragma warning disable CS0661
+
     /// <summary>
     /// An OIOI RFIDVerify response.
     /// </summary>
@@ -37,38 +40,29 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                 RFIDVerifyResponse>
     {
 
-        #region Properties
-
-        /// <summary>
-        /// The response of the corresponding RFIDVerify request.
-        /// </summary>
-        public Boolean  Success   { get; }
-
-        #endregion
-
         #region Constructor(s)
 
         /// <summary>
         /// Create a new OIOI RFIDVerify response.
         /// </summary>
         /// <param name="Request">The session post request leading to this response.</param>
-        /// <param name="Success">The response of the corresponding RFIDVerify request.</param>
+        /// <param name="Code">The response code of the corresponding RFIDVerify request.</param>
+        /// <param name="Message">The response message of the corresponding RFIDVerify request.</param>
         /// <param name="CustomData">An optional read-only dictionary of customer-specific key-value pairs.</param>
         /// <param name="CustomMapper">An optional mapper for customer-specific key-value pairs.</param>
         public RFIDVerifyResponse(RFIDVerifyRequest                    Request,
-                                  Boolean                              Success,
+                                  ResponseCodes                        Code,
+                                  String                               Message,
                                   IReadOnlyDictionary<String, Object>  CustomData    = null,
                                   Action<RFIDVerifyResponse>           CustomMapper  = null)
 
             : base(Request,
+                   Code,
+                   Message,
                    CustomData,
                    CustomMapper)
 
-        {
-
-            this.Success  = Success;
-
-        }
+        { }
 
         #endregion
 
@@ -76,8 +70,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         #region Documentation
 
         // {
-        //     "rfid-verify": {
-        //         "verified": true
+        //     "result": {
+        //         "code":    0,
+        //         "message": "Success."
         //     }
         // }
 
@@ -98,10 +93,14 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                OnExceptionDelegate                                OnException   = null)
         {
 
-            RFIDVerifyResponse _RFIDVerifyResponse;
-
-            if (TryParse(Request, JSON, out _RFIDVerifyResponse, CustomMapper, OnException))
+            if (TryParse(Request,
+                         JSON,
+                         out RFIDVerifyResponse _RFIDVerifyResponse,
+                         CustomMapper,
+                         OnException))
+            {
                 return _RFIDVerifyResponse;
+            }
 
             return null;
 
@@ -129,9 +128,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             try
             {
 
-                var InnerJSON  = JSON["rfid-verify"];
+                var ResultJSON  = JSON["result"];
 
-                if (InnerJSON == null)
+                if (ResultJSON == null)
                 {
                     RFIDVerifyResponse = null;
                     return false;
@@ -139,7 +138,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 RFIDVerifyResponse = new RFIDVerifyResponse(
                                          Request,
-                                         InnerJSON["verified"].Value<Boolean>() == true
+                                         (ResponseCodes) ResultJSON["code"].Value<Int32>(),
+                                         ResultJSON["message"].Value<String>()
                                      );
 
                 if (CustomMapper != null)
@@ -152,7 +152,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             catch (Exception e)
             {
 
-                OnException?.Invoke(DateTime.Now, JSON, e);
+                OnException?.Invoke(DateTime.UtcNow, JSON, e);
 
                 RFIDVerifyResponse = null;
                 return false;
@@ -160,23 +160,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             }
 
         }
-
-        #endregion
-
-        #region ToJSON()
-
-        /// <summary>
-        /// Return a JSON-representation of this object.
-        /// </summary>
-        public JObject ToJSON()
-
-            => new JObject(
-                   new JProperty("rfid-verify", JSONObject.Create(
-
-                       new JProperty("verified", Success)
-
-                   ))
-               );
 
         #endregion
 
@@ -249,41 +232,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         #endregion
 
-        #region Equals(RFIDVerifyResponse)
-
-        /// <summary>
-        /// Compares two responses for equality.
-        /// </summary>
-        /// <param name="RFIDVerifyResponse">A response to compare with.</param>
-        /// <returns>True if both match; False otherwise.</returns>
-        public override Boolean Equals(RFIDVerifyResponse RFIDVerifyResponse)
-        {
-
-            if ((Object) RFIDVerifyResponse == null)
-                return false;
-
-            return Success.Equals(RFIDVerifyResponse.Success);
-
-        }
-
-        #endregion
-
-        #endregion
-
-        #region GetHashCode()
-
-        /// <summary>
-        /// Return the HashCode of this object.
-        /// </summary>
-        /// <returns>The HashCode of this object.</returns>
-        public override Int32 GetHashCode()
-        {
-            unchecked
-            {
-                return Success.GetHashCode();
-            }
-        }
-
         #endregion
 
         #region (override) ToString()
@@ -292,7 +240,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// Return a string representation of this object.
         /// </summary>
         public override String ToString()
-            => "RFIDVerify response: " + Success.ToString();
+            => String.Concat("RFIDVerify response: ", Code.ToString(), " / ", Message);
 
         #endregion
 
@@ -316,15 +264,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                 RFIDVerifyResponse>
         {
 
-            #region Properties
-
-            /// <summary>
-            /// The response of the operation.
-            /// </summary>
-            public Boolean  Success   { get; set; }
-
-            #endregion
-
             #region Constructor(s)
 
             internal Builder(RFIDVerifyResponse Response = null)
@@ -332,35 +271,23 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 : base(Response?.Request,
                        Response)
 
-            {
-
-                if (Response != null)
-                {
-
-                    this.Request  = Response.Request;
-                    this.Success  = Response.Success;
-
-                    if (Response.CustomData != null)
-                        foreach (var item in Response.CustomData)
-                            CustomData.Add(item.Key, item.Value);
-
-                }
-
-            }
+            { }
 
             #endregion
 
-            #region ToImmutable()
+            #region (implicit) "ToImmutable()"
 
             /// <summary>
             /// Return an immutable RFIDVerify response.
             /// </summary>
-            public RFIDVerifyResponse ToImmutable()
+            /// <param name="Builder">A RFIDVerify response builder.</param>
+            public static implicit operator RFIDVerifyResponse(Builder Builder)
 
-                => new RFIDVerifyResponse(Request,
-                                          Success,
-                                          CustomData,
-                                          CustomMapper);
+                => new RFIDVerifyResponse(Builder.Request,
+                                          Builder.Code,
+                                          Builder.Message,
+                                          Builder.CustomData,
+                                          Builder.CustomMapper);
 
             #endregion
 
@@ -369,5 +296,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         #endregion
 
     }
+
+#pragma warning restore CS0661
+#pragma warning restore CS0659
 
 }

@@ -30,6 +30,9 @@ using org.GraphDefined.Vanaheimr.Hermod;
 namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 {
 
+#pragma warning disable CS0659
+#pragma warning disable CS0661
+
     /// <summary>
     /// An OIOI SessionStop result.
     /// </summary>
@@ -37,38 +40,29 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                                                  SessionStopResponse>
     {
 
-        #region Properties
-
-        /// <summary>
-        /// The result of the corresponding SessionStop request.
-        /// </summary>
-        public Boolean  Success   { get; }
-
-        #endregion
-
         #region Constructor(s)
 
         /// <summary>
-        /// Create a new OIOI SessionStop result.
+        /// Create a new SessionStop result.
         /// </summary>
         /// <param name="Request">The session post request leading to this response.</param>
-        /// <param name="Success">The result of the corresponding SessionStop request.</param>
+        /// <param name="Code">The response code of the corresponding SessionStop request.</param>
+        /// <param name="Message">The response message of the corresponding SessionStop request.</param>
         /// <param name="CustomData">A read-only dictionary of custom key-value pairs.</param>
         /// <param name="CustomMapper">An optional mapper for customer-specific semi-structured data.</param>
-        public SessionStopResponse(SessionStopRequest                    Request,
-                                    Boolean                              Success,
-                                    IReadOnlyDictionary<String, Object>  CustomData    = null,
-                                    Action<SessionStopResponse>          CustomMapper  = null)
+        public SessionStopResponse(SessionStopRequest                   Request,
+                                   ResponseCodes                        Code,
+                                   String                               Message,
+                                   IReadOnlyDictionary<String, Object>  CustomData    = null,
+                                   Action<SessionStopResponse>          CustomMapper  = null)
 
             : base(Request,
+                   Code,
+                   Message,
                    CustomData,
                    CustomMapper)
 
-        {
-
-            this.Success      = Success;
-
-        }
+        { }
 
         #endregion
 
@@ -76,8 +70,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         #region Documentation
 
         // {
-        //     "session-stop": {
-        //         "success": true
+        //     "result": {
+        //         "code":    0,
+        //         "message": "Success."
         //     }
         // }
 
@@ -98,10 +93,14 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                                                 OnExceptionDelegate                                 OnException   = null)
         {
 
-            SessionStopResponse _SessionStopResponse;
-
-            if (TryParse(Request, JSON, out _SessionStopResponse, CustomMapper, OnException))
+            if (TryParse(Request,
+                         JSON,
+                         out SessionStopResponse _SessionStopResponse,
+                         CustomMapper,
+                         OnException))
+            {
                 return _SessionStopResponse;
+            }
 
             return null;
 
@@ -112,10 +111,13 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         #region (static) TryParse(Request, JSON, out Acknowledgement, CustomMapper = null, OnException = null)
 
         /// <summary>
-        /// Parse the given JSON representation of an OIOI SessionStop response.
+        /// Parse the given JSON representation of a SessionStop response.
         /// </summary>
+        /// <param name="Request">The corresponding SessionStop request.</param>
         /// <param name="JSON">The JSON to parse.</param>
         /// <param name="SessionStopResponse">The parsed SessionStop response</param>
+        /// <param name="CustomMapper">An optional delegate to customize the transformation.</param>
+        /// <param name="OnException">A delegate to handle exceptions.</param>
         public static Boolean TryParse(SessionStopRequest                                  Request,
                                        JObject                                             JSON,
                                        out SessionStopResponse                             SessionStopResponse,
@@ -126,18 +128,19 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
             try
             {
 
-                var InnerJSON  = JSON["session-stop"];
+                var ResultJSON  = JSON["result"];
 
-                if (InnerJSON == null)
+                if (ResultJSON == null)
                 {
                     SessionStopResponse = null;
                     return false;
                 }
 
                 SessionStopResponse = new SessionStopResponse(
-                                           Request,
-                                           InnerJSON["success"].Value<Boolean>() == true
-                                       );
+                                          Request,
+                                          (ResponseCodes) ResultJSON["code"].Value<Int32>(),
+                                          ResultJSON["message"].Value<String>()
+                                      );
 
                 if (CustomMapper != null)
                     SessionStopResponse = CustomMapper(JSON,
@@ -149,7 +152,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
             catch (Exception e)
             {
 
-                OnException?.Invoke(DateTime.Now, JSON, e);
+                OnException?.Invoke(DateTime.UtcNow, JSON, e);
 
                 SessionStopResponse = null;
                 return false;
@@ -157,23 +160,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
             }
 
         }
-
-        #endregion
-
-        #region ToJSON()
-
-        /// <summary>
-        /// Return a JSON-representation of this object.
-        /// </summary>
-        public JObject ToJSON()
-
-            => new JObject(
-                   new JProperty("session-stop", JSONObject.Create(
-
-                       new JProperty("success",  Success)
-
-                   ))
-               );
 
         #endregion
 
@@ -245,41 +231,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
         #endregion
 
-        #region Equals(SessionStopResponse)
-
-        /// <summary>
-        /// Compares two responses for equality.
-        /// </summary>
-        /// <param name="SessionStopResponse">A response to compare with.</param>
-        /// <returns>True if both match; False otherwise.</returns>
-        public override Boolean Equals(SessionStopResponse SessionStopResponse)
-        {
-
-            if ((Object) SessionStopResponse == null)
-                return false;
-
-            return Success.Equals(SessionStopResponse.Success);
-
-        }
-
-        #endregion
-
-        #endregion
-
-        #region GetHashCode()
-
-        /// <summary>
-        /// Return the HashCode of this object.
-        /// </summary>
-        /// <returns>The HashCode of this object.</returns>
-        public override Int32 GetHashCode()
-        {
-            unchecked
-            {
-                return Success.GetHashCode();
-            }
-        }
-
         #endregion
 
         #region (override) ToString()
@@ -288,9 +239,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         /// Return a string representation of this object.
         /// </summary>
         public override String ToString()
-
-            => String.Concat("SessionStop response: ",
-                             Success.ToString());
+            => String.Concat("SessionStop response: ", Code.ToString(), " / ", Message);
 
         #endregion
 
@@ -314,58 +263,30 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                                                 SessionStopResponse>
         {
 
-            #region Properties
-
-            /// <summary>
-            /// The result of the operation.
-            /// </summary>
-            public Boolean                     Success       { get; set; }
-
-            /// <summary>
-            /// Explains what the problem was, whenever 'success' was false.
-            /// </summary>
-            public String                      Reason        { get; set; }
-
-            public Dictionary<String, Object>  CustomData    { get; set; }
-
-            #endregion
-
             #region Constructor(s)
 
             public Builder(SessionStopResponse Response = null)
 
-                : base(Response.Request,
+                : base(Response?.Request,
                        Response)
 
-            {
-
-                if (Response != null)
-                {
-
-                    this.Success     = Response.Success;
-                    this.CustomData  = new Dictionary<String, Object>();
-
-                    if (Response.CustomData != null)
-                        foreach (var item in Response.CustomData)
-                            CustomData.Add(item.Key, item.Value);
-
-                }
-
-            }
+            { }
 
             #endregion
 
-            #region ToImmutable()
+            #region (implicit) "ToImmutable()"
 
             /// <summary>
             /// Return an immutable SessionStop response.
             /// </summary>
-            public SessionStopResponse ToImmutable()
+            /// <param name="Builder">A SessionStop response builder.</param>
+            public static implicit operator SessionStopResponse(Builder Builder)
 
-                => new SessionStopResponse(Request,
-                                           Success,
-                                           CustomData,
-                                           CustomMapper);
+                => new SessionStopResponse(Builder.Request,
+                                           Builder.Code,
+                                           Builder.Message,
+                                           Builder.CustomData,
+                                           Builder.CustomMapper);
 
             #endregion
 
@@ -374,5 +295,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         #endregion
 
     }
+
+#pragma warning restore CS0661
+#pragma warning restore CS0659
 
 }

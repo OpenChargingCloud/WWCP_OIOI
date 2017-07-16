@@ -30,6 +30,9 @@ using org.GraphDefined.Vanaheimr.Hermod;
 namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 {
 
+#pragma warning disable CS0659
+#pragma warning disable CS0661
+
     /// <summary>
     /// An OIOI SessionPost response.
     /// </summary>
@@ -37,46 +40,29 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  SessionPostResponse>
     {
 
-        #region Properties
-
-        /// <summary>
-        /// The response of the corresponding SessionPost request.
-        /// </summary>
-        public Boolean  Success   { get; }
-
-        /// <summary>
-        /// Explains what the problem was, whenever 'success' was false.
-        /// </summary>
-        public String   Reason    { get; }
-
-        #endregion
-
         #region Constructor(s)
 
         /// <summary>
         /// Create a new OIOI SessionPost response.
         /// </summary>
         /// <param name="Request">The session post request leading to this response.</param>
-        /// <param name="Success">The response of the corresponding SessionPost request.</param>
-        /// <param name="Reason">Explains what the problem was, whenever 'success' was false.</param>
+        /// <param name="Code">The response code of the corresponding SessionPost request.</param>
+        /// <param name="Message">The response message of the corresponding SessionPost request.</param>
         /// <param name="CustomData">An optional read-only dictionary of customer-specific key-value pairs.</param>
         /// <param name="CustomMapper">An optional mapper for customer-specific key-value pairs.</param>
         public SessionPostResponse(SessionPostRequest                   Request,
-                                   Boolean                              Success,
-                                   String                               Reason        = null,
+                                   ResponseCodes                        Code,
+                                   String                               Message,
                                    IReadOnlyDictionary<String, Object>  CustomData    = null,
                                    Action<SessionPostResponse>          CustomMapper  = null)
 
             : base(Request,
+                   Code,
+                   Message,
                    CustomData,
                    CustomMapper)
 
-        {
-
-            this.Success  = Success;
-            this.Reason   = Reason;
-
-        }
+        { }
 
         #endregion
 
@@ -84,9 +70,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         #region Documentation
 
         // {
-        //     "session": {
-        //         "success": true,
-        //         "reason":  null
+        //     "result": {
+        //         "code":    0,
+        //         "message": "Success."
         //     }
         // }
 
@@ -107,10 +93,14 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                 OnExceptionDelegate                                 OnException   = null)
         {
 
-            SessionPostResponse _SessionPostResponse;
-
-            if (TryParse(Request, JSON, out _SessionPostResponse, CustomMapper, OnException))
+            if (TryParse(Request,
+                         JSON,
+                         out SessionPostResponse _SessionPostResponse,
+                         CustomMapper,
+                         OnException))
+            {
                 return _SessionPostResponse;
+            }
 
             return null;
 
@@ -138,9 +128,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             try
             {
 
-                var InnerJSON  = JSON["session"];
+                var ResultJSON  = JSON["result"];
 
-                if (InnerJSON == null)
+                if (ResultJSON == null)
                 {
                     SessionPostResponse = null;
                     return false;
@@ -148,8 +138,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 SessionPostResponse = new SessionPostResponse(
                                           Request,
-                                          InnerJSON["success"].Value<Boolean>() == true,
-                                          InnerJSON["reason" ].Value<String>()
+                                          (ResponseCodes) ResultJSON["code"].Value<Int32>(),
+                                          ResultJSON["message"].Value<String>()
                                       );
 
                 if (CustomMapper != null)
@@ -162,7 +152,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             catch (Exception e)
             {
 
-                OnException?.Invoke(DateTime.Now, JSON, e);
+                OnException?.Invoke(DateTime.UtcNow, JSON, e);
 
                 SessionPostResponse = null;
                 return false;
@@ -170,27 +160,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             }
 
         }
-
-        #endregion
-
-        #region ToJSON()
-
-        /// <summary>
-        /// Return a JSON-representation of this object.
-        /// </summary>
-        public JObject ToJSON()
-
-            => new JObject(
-                   new JProperty("session", JSONObject.Create(
-
-                       new JProperty("success", Success),
-
-                       Reason.IsNotNullOrEmpty()
-                           ? new JProperty("reason", Reason)
-                           : null
-
-                   ))
-               );
 
         #endregion
 
@@ -263,41 +232,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         #endregion
 
-        #region Equals(SessionPostResponse)
-
-        /// <summary>
-        /// Compares two responses for equality.
-        /// </summary>
-        /// <param name="SessionPostResponse">A response to compare with.</param>
-        /// <returns>True if both match; False otherwise.</returns>
-        public override Boolean Equals(SessionPostResponse SessionPostResponse)
-        {
-
-            if ((Object) SessionPostResponse == null)
-                return false;
-
-            return Success.Equals(SessionPostResponse.Success);
-
-        }
-
-        #endregion
-
-        #endregion
-
-        #region GetHashCode()
-
-        /// <summary>
-        /// Return the HashCode of this object.
-        /// </summary>
-        /// <returns>The HashCode of this object.</returns>
-        public override Int32 GetHashCode()
-        {
-            unchecked
-            {
-                return Success.GetHashCode();
-            }
-        }
-
         #endregion
 
         #region (override) ToString()
@@ -306,7 +240,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// Return a string representation of this object.
         /// </summary>
         public override String ToString()
-            => "SessionPost response: " + Success.ToString();
+            => String.Concat("SessionPost response: ", Code.ToString(), " / ", Message);
 
         #endregion
 
@@ -330,20 +264,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                 SessionPostResponse>
         {
 
-            #region Properties
-
-            /// <summary>
-            /// The response of the operation.
-            /// </summary>
-            public Boolean  Success   { get; set; }
-
-            /// <summary>
-            /// Explains what the problem was, whenever 'success' was false.
-            /// </summary>
-            public String   Reason    { get; set; }
-
-            #endregion
-
             #region Constructor(s)
 
             internal Builder(SessionPostResponse Response = null)
@@ -351,37 +271,23 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 : base(Response?.Request,
                        Response)
 
-            {
-
-                if (Response != null)
-                {
-
-                    this.Request       = Response.Request;
-                    this.Response      = Response;
-                    this.Success       = Response.Success;
-
-                    if (Response.CustomData != null)
-                        foreach (var item in Response.CustomData)
-                            CustomData.Add(item.Key, item.Value);
-
-                }
-
-            }
+            { }
 
             #endregion
 
-            #region ToImmutable()
+            #region (implicit) "ToImmutable()"
 
             /// <summary>
             /// Return an immutable SessionPost response.
             /// </summary>
-            public SessionPostResponse ToImmutable()
+            /// <param name="Builder">A SessionPost response builder.</param>
+            public static implicit operator SessionPostResponse(Builder Builder)
 
-                => new SessionPostResponse(Request,
-                                           Success,
-                                           Reason,
-                                           CustomData,
-                                           CustomMapper);
+                => new SessionPostResponse(Builder.Request,
+                                           Builder.Code,
+                                           Builder.Message,
+                                           Builder.CustomData,
+                                           Builder.CustomMapper);
 
             #endregion
 
@@ -390,5 +296,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         #endregion
 
     }
+
+#pragma warning restore CS0661
+#pragma warning restore CS0659
 
 }

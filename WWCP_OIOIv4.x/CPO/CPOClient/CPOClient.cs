@@ -786,7 +786,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  ResponseLogDelegate:  OnConnectorPostStatusHTTPResponse,
                                                  CancellationToken:    Request.CancellationToken,
                                                  EventTrackingId:      Request.EventTrackingId,
-                                                 RequestTimeout:       Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout,
+                                                 RequestTimeout:       Request.RequestTimeout ?? RequestTimeout,
 
                                                  #region OnSuccess
 
@@ -983,7 +983,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                      SendJSONError(timestamp, this, httpresponse.Content);
 
                                                      return new HTTPResponse<RFIDVerifyResponse>(httpresponse,
-                                                                                                 new RFIDVerifyResponse(Request, false),
+                                                                                                 new RFIDVerifyResponse(Request,
+                                                                                                                        ResponseCodes.SystemError,
+                                                                                                                        "Invalid JSON response!"),
                                                                                                  IsFault: true);
 
                                                  },
@@ -1001,7 +1003,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                      SendHTTPError(timestamp, this, httpresponse);
 
                                                      return new HTTPResponse<RFIDVerifyResponse>(httpresponse,
-                                                                                                 new RFIDVerifyResponse(Request, false),
+                                                                                                 new RFIDVerifyResponse(Request,
+                                                                                                                        ResponseCodes.SystemError,
+                                                                                                                        "Invalid HTTP response!"),
                                                                                                  IsFault: true);
 
                                                  },
@@ -1014,7 +1018,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                      SendException(timestamp, sender, exception);
 
-                                                     return HTTPResponse<RFIDVerifyResponse>.ExceptionThrown(new RFIDVerifyResponse(Request, false),
+                                                     return HTTPResponse<RFIDVerifyResponse>.ExceptionThrown(new RFIDVerifyResponse(Request,
+                                                                                                                                    ResponseCodes.SystemError,
+                                                                                                                                    "Exception occured!"),
                                                                                                              Exception: exception);
 
                                                  }
@@ -1027,7 +1033,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
 
             if (result == null)
-                result = HTTPResponse<RFIDVerifyResponse>.OK(new RFIDVerifyResponse(Request, false));
+                result = HTTPResponse<RFIDVerifyResponse>.OK(new RFIDVerifyResponse(Request,
+                                                                                    ResponseCodes.SystemError,
+                                                                                    "Invalid response!"));
 
             #region Send OnRFIDVerifyResponse event
 
@@ -1150,7 +1158,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                      SendJSONError(timestamp, this, httpresponse.Content);
 
                                                      return new HTTPResponse<SessionPostResponse>(httpresponse,
-                                                                                                  new SessionPostResponse(Request, false),
+                                                                                                  new SessionPostResponse(Request,
+                                                                                                                          ResponseCodes.SystemError,
+                                                                                                                          "Invalid JSON response!"),
                                                                                                   IsFault: true);
 
                                                  },
@@ -1168,8 +1178,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                      SendHTTPError(timestamp, this, httpresponse);
 
                                                      return new HTTPResponse<SessionPostResponse>(httpresponse,
-                                                                                                                  new SessionPostResponse(Request, false),
-                                                                                                                  IsFault: true);
+                                                                                                  new SessionPostResponse(Request,
+                                                                                                                          ResponseCodes.SystemError,
+                                                                                                                          "Invalid HTTP response!"),
+                                                                                                  IsFault: true);
 
                                                  },
 
@@ -1181,8 +1193,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                      SendException(timestamp, sender, exception);
 
-                                                     return HTTPResponse<SessionPostResponse>.ExceptionThrown(new SessionPostResponse(Request, false),
-                                                                                                                              Exception: exception);
+                                                     return HTTPResponse<SessionPostResponse>.ExceptionThrown(new SessionPostResponse(Request,
+                                                                                                                                      ResponseCodes.SystemError,
+                                                                                                                                      "Exception occured!"),
+                                                                                                              Exception: exception);
 
                                                  }
 
@@ -1194,7 +1208,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
 
             if (result == null)
-                result = HTTPResponse<SessionPostResponse>.OK(new SessionPostResponse(Request, false));
+                result = HTTPResponse<SessionPostResponse>.OK(new SessionPostResponse(Request,
+                                                                                      ResponseCodes.SystemError,
+                                                                                      "Invalid response!"));
 
             #region Send OnRFIDVerifyResponse event
 

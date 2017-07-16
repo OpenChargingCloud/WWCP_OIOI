@@ -52,15 +52,21 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         /// Create a new OIOI StationGetSurface response.
         /// </summary>
         /// <param name="Request">The session post request leading to this response.</param>
+        /// <param name="Code">The response code of the corresponding SessionStop request.</param>
+        /// <param name="Message">The response message of the corresponding SessionStop request.</param>
         /// <param name="Stations">An enumeration of charging stations.</param>
         /// <param name="CustomData">An optional read-only dictionary of customer-specific key-value pairs.</param>
         /// <param name="CustomMapper">An optional mapper for customer-specific key-value pairs.</param>
         public StationGetSurfaceResponse(StationGetSurfaceRequest             Request,
+                                         ResponseCodes                        Code,
+                                         String                               Message,
                                          IEnumerable<Station>                 Stations,
                                          IReadOnlyDictionary<String, Object>  CustomData    = null,
                                          Action<StationGetSurfaceResponse>    CustomMapper  = null)
 
             : base(Request,
+                   Code,
+                   Message,
                    CustomData,
                    CustomMapper)
 
@@ -75,6 +81,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
         #region Documentation
 
+        //ToDo: This JSON does not look like the "normal" station JSON!
+
         // {
         //     "stations": [
         //
@@ -84,7 +92,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         //             "latitude":                51.516123,
         //             "longitude":                6.322554,
         //             "dynamic_status_summary":  null,
-        //             "owner_type":              null
+        //             "owner_type":              null,
+        //             "last-static-change":      "2017-01-13T18:07:23+01:00",
+        //             "connector-statuses": {
+        //                 "165946":              "Available",
+        //                 "165947":              "Available"
+        //             }
         //         },
         //
         //         {
@@ -93,10 +106,20 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         //             "latitude":                51.51599,
         //             "longitude":               6.322551,
         //             "dynamic_status_summary":  null,
-        //             "owner_type":              null
+        //             "owner_type":              null,
+        //             "last-static-change":      "2017-01-13T18:07:23+01:00",
+        //             "connector-statuses": {
+        //                 "142867":              "Unknown"
+        //             }
         //         }
         //
-        //     ]
+        //     ],
+        //
+        //     "result": {
+        //         "code":    0,
+        //         "message": "Success."
+        //     }
+        //
         // }
 
         #endregion
@@ -116,10 +139,14 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                                                       OnExceptionDelegate                                       OnException   = null)
         {
 
-            StationGetSurfaceResponse _StationGetSurfaceResponse;
-
-            if (TryParse(Request, JSON, out _StationGetSurfaceResponse, CustomMapper, OnException))
+            if (TryParse(Request,
+                         JSON,
+                         out StationGetSurfaceResponse _StationGetSurfaceResponse,
+                         CustomMapper,
+                         OnException))
+            {
                 return _StationGetSurfaceResponse;
+            }
 
             return null;
 
@@ -147,17 +174,26 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
             try
             {
 
-                var InnerJSON  = JSON["stations"];
+                var ResultJSON  = JSON["result"];
 
-                if (InnerJSON == null)
+                if (ResultJSON == null)
                 {
                     StationGetSurfaceResponse = null;
                     return false;
                 }
 
+
+                var Stations = JSON["stations"];
+
+
                 StationGetSurfaceResponse = new StationGetSurfaceResponse(
                                                 Request,
-                                                InnerJSON.SafeSelect(station => Station.Parse(station as JObject))
+                                                (ResponseCodes) ResultJSON["code"].Value<Int32>(),
+                                                ResultJSON["message"].Value<String>(),
+
+                                                //ToDo: Implement "Station.Parse(...)"!
+                                                ResultJSON.SafeSelect(station => Station.Parse(station as JObject))
+
                                             );
 
                 if (CustomMapper != null)
@@ -170,7 +206,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
             catch (Exception e)
             {
 
-                OnException?.Invoke(DateTime.Now, JSON, e);
+                OnException?.Invoke(DateTime.UtcNow, JSON, e);
 
                 StationGetSurfaceResponse = null;
                 return false;
@@ -186,11 +222,21 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         /// <summary>
         /// Return a JSON-representation of this object.
         /// </summary>
-        public JObject ToJSON()
+        public override JObject ToJSON()
 
-            => new JObject(
+            => JSONObject.Create(
+
                    new JProperty("stations",
-                                 new JArray(Stations.SafeSelect(station => station.ToJSON())))
+                       new JArray(Stations.SafeSelect(station => station.ToJSON()))
+                   ),
+
+                   new JProperty("result", JSONObject.Create(
+
+                       new JProperty("code",     (UInt32)Code),
+                       new JProperty("message",  Message)
+
+                   ))
+
                );
 
         #endregion
@@ -277,7 +323,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
             if ((Object) StationGetSurfaceResponse == null)
                 return false;
 
-            return Stations.Equals(StationGetSurfaceResponse.Stations);
+            return Code.    Equals(StationGetSurfaceResponse.Code)    &&
+                   Message. Equals(StationGetSurfaceResponse.Message) &&
+
+                   //ToDo: Implement Deep-Equals()!
+                   Stations.Equals(StationGetSurfaceResponse.Stations);
 
         }
 
@@ -295,7 +345,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         {
             unchecked
             {
-                return Stations.GetHashCode();
+
+                return Code.    GetHashCode() * 5 ^
+                       Message. GetHashCode() * 3 ^
+                       Stations.GetHashCode();
+
             }
         }
 
@@ -349,34 +403,26 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
             {
 
-                if (Response != null)
-                {
-
-                    this.Request   = Response.Request;
-                    this.Response  = Response;
-                    this.Stations  = Response.Stations;
-
-                    if (Response.CustomData != null)
-                        foreach (var item in Response.CustomData)
-                            CustomData.Add(item.Key, item.Value);
-
-                }
+                this.Stations  = Response?.Stations;
 
             }
 
             #endregion
 
-            #region ToImmutable()
+            #region (implicit) "ToImmutable()"
 
             /// <summary>
             /// Return an immutable StationGetSurface response.
             /// </summary>
-            public StationGetSurfaceResponse ToImmutable()
+            /// <param name="Builder">A StationGetSurface response builder.</param>
+            public static implicit operator StationGetSurfaceResponse(Builder Builder)
 
-                => new StationGetSurfaceResponse(Request,
-                                                 Stations,
-                                                 CustomData,
-                                                 CustomMapper);
+                => new StationGetSurfaceResponse(Builder.Request,
+                                                 Builder.Code,
+                                                 Builder.Message,
+                                                 Builder.Stations,
+                                                 Builder.CustomData,
+                                                 Builder.CustomMapper);
 
             #endregion
 

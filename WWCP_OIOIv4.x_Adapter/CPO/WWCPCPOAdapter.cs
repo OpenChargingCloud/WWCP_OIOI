@@ -4097,7 +4097,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 if (response.HTTPStatusCode == HTTPStatusCode.OK &&
                     response.Content        != null              &&
-                    response.Content.Success)
+                    response.Content.Code   == ResponseCodes.Success)
                 {
 
                     result = AuthStartResult.Authorized(
@@ -4265,7 +4265,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 if (response.HTTPStatusCode == HTTPStatusCode.OK &&
                     response.Content        != null              &&
-                    response.Content.Success)
+                    response.Content.Code   == ResponseCodes.Success)
                 {
 
                     result = AuthStartEVSEResult.Authorized(
@@ -4434,7 +4434,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 if (response.HTTPStatusCode == HTTPStatusCode.OK &&
                     response.Content        != null              &&
-                    response.Content.Success)
+                    response.Content.Code   == ResponseCodes.Success)
                 {
 
                     result = AuthStartChargingStationResult.Authorized(
@@ -4603,7 +4603,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 if (response.HTTPStatusCode == HTTPStatusCode.OK &&
                     response.Content        != null              &&
-                    response.Content.Success)
+                    response.Content.Code   == ResponseCodes.Success)
                 {
 
                     result = AuthStartChargingPoolResult.Authorized(
@@ -4766,7 +4766,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 if (response.HTTPStatusCode == HTTPStatusCode.OK &&
                     response.Content        != null              &&
-                    response.Content.Success)
+                    response.Content.Code   == ResponseCodes.Success)
                 {
 
                     result = AuthStopResult.Authorized(
@@ -4922,7 +4922,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 if (response.HTTPStatusCode == HTTPStatusCode.OK &&
                     response.Content        != null              &&
-                    response.Content.Success)
+                    response.Content.Code   == ResponseCodes.Success)
                 {
 
                     result = AuthStopEVSEResult.Authorized(
@@ -5080,7 +5080,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 if (response.HTTPStatusCode == HTTPStatusCode.OK &&
                     response.Content        != null              &&
-                    response.Content.Success)
+                    response.Content.Code   == ResponseCodes.Success)
                 {
 
                     result = AuthStopChargingStationResult.Authorized(
@@ -5238,7 +5238,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 if (response.HTTPStatusCode == HTTPStatusCode.OK &&
                     response.Content        != null              &&
-                    response.Content.Success)
+                    response.Content.Code   == ResponseCodes.Success)
                 {
 
                     result = AuthStopChargingPoolResult.Authorized(

@@ -30,26 +30,15 @@ using org.GraphDefined.Vanaheimr.Hermod;
 namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 {
 
+#pragma warning disable CS0659
+#pragma warning disable CS0661
+
     /// <summary>
     /// An OIOI ConnectorPostStatus response.
     /// </summary>
     public class ConnectorPostStatusResponse : AResponse<ConnectorPostStatusRequest,
                                                          ConnectorPostStatusResponse>
     {
-
-        #region Properties
-
-        /// <summary>
-        /// The response code of the corresponding ConnectorPostStatus request.
-        /// </summary>
-        public ResponseCodes  Code       { get; }
-
-        /// <summary>
-        /// The response message of the corresponding ConnectorPostStatus request.
-        /// </summary>
-        public String         Message    { get; }
-
-        #endregion
 
         #region Constructor(s)
 
@@ -68,15 +57,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                            Action<ConnectorPostStatusResponse>  CustomMapper  = null)
 
             : base(Request,
+                   Code,
+                   Message,
                    CustomData,
                    CustomMapper)
 
-        {
-
-            this.Code     = Code;
-            this.Message  = Message;
-
-        }
+        { }
 
         #endregion
 
@@ -85,7 +71,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         // {
         //     "result": {
-        //         "code": 0,
+        //         "code":    0,
         //         "message": "Success."
         //     }
         // }
@@ -107,10 +93,14 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                         OnExceptionDelegate                                         OnException   = null)
         {
 
-            ConnectorPostStatusResponse _ConnectorPostStatusResponse;
-
-            if (TryParse(Request, JSON, out _ConnectorPostStatusResponse, CustomMapper, OnException))
+            if (TryParse(Request,
+                         JSON,
+                         out ConnectorPostStatusResponse _ConnectorPostStatusResponse,
+                         CustomMapper,
+                         OnException))
+            {
                 return _ConnectorPostStatusResponse;
+            }
 
             return null;
 
@@ -138,9 +128,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             try
             {
 
-                var InnerJSON = JSON["result"];
+                var ResultJSON = JSON["result"];
 
-                if (InnerJSON == null)
+                if (ResultJSON == null)
                 {
                     ConnectorPostStatusResponse = null;
                     return false;
@@ -148,8 +138,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 ConnectorPostStatusResponse = new ConnectorPostStatusResponse(
                                                   Request,
-                                                  (ResponseCodes) InnerJSON["code"].Value<Int32>(),
-                                                  InnerJSON["message"].Value<String>()
+                                                  (ResponseCodes) ResultJSON["code"].Value<Int32>(),
+                                                  ResultJSON["message"].Value<String>()
                                               );
 
                 if (CustomMapper != null)
@@ -162,7 +152,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             catch (Exception e)
             {
 
-                OnException?.Invoke(DateTime.Now, JSON, e);
+                OnException?.Invoke(DateTime.UtcNow, JSON, e);
 
                 ConnectorPostStatusResponse = null;
                 return false;
@@ -170,24 +160,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             }
 
         }
-
-        #endregion
-
-        #region ToJSON()
-
-        /// <summary>
-        /// Return a JSON-representation of this object.
-        /// </summary>
-        public JObject ToJSON()
-
-            => new JObject(
-                   new JProperty("result", JSONObject.Create(
-
-                       new JProperty("code",     (UInt32) Code),
-                       new JProperty("message",  Message)
-
-                   ))
-               );
 
         #endregion
 
@@ -260,43 +232,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         #endregion
 
-        #region Equals(ConnectorPostStatusResponse)
-
-        /// <summary>
-        /// Compares two responses for equality.
-        /// </summary>
-        /// <param name="ConnectorPostStatusResponse">A response to compare with.</param>
-        /// <returns>True if both match; False otherwise.</returns>
-        public override Boolean Equals(ConnectorPostStatusResponse ConnectorPostStatusResponse)
-        {
-
-            if ((Object) ConnectorPostStatusResponse == null)
-                return false;
-
-            return Code.   Equals(ConnectorPostStatusResponse.Code) &&
-                   Message.Equals(ConnectorPostStatusResponse.Message);
-
-        }
-
-        #endregion
-
-        #endregion
-
-        #region GetHashCode()
-
-        /// <summary>
-        /// Return the HashCode of this object.
-        /// </summary>
-        /// <returns>The HashCode of this object.</returns>
-        public override Int32 GetHashCode()
-        {
-            unchecked
-            {
-                return Code.   GetHashCode() ^
-                       Message.GetHashCode();
-            }
-        }
-
         #endregion
 
         #region (override) ToString()
@@ -330,22 +265,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                 ConnectorPostStatusResponse>
         {
 
-            #region Properties
-
-            /// <summary>
-            /// The response code of the corresponding StationPost request.
-            /// </summary>
-            public ResponseCodes               Code         { get; set; }
-
-            /// <summary>
-            /// The response message of the corresponding StationPost request.
-            /// </summary>
-            public String                      Message      { get; set; }
-
-            public Dictionary<String, Object>  CustomData   { get; set; }
-
-            #endregion
-
             #region Constructor(s)
 
             internal Builder(ConnectorPostStatusResponse Response = null)
@@ -361,7 +280,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                     this.Request     = Response.Request;
                     this.Code        = Response.Code;
                     this.Message     = Response.Message;
-                    this.CustomData  = new Dictionary<String, Object>();
 
                     if (Response.CustomData != null)
                         foreach (var item in Response.CustomData)
@@ -373,18 +291,19 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            #region ToImmutable()
+            #region (implicit) "ToImmutable()"
 
             /// <summary>
             /// Return an immutable ConnectorPostStatus response.
             /// </summary>
-            public ConnectorPostStatusResponse ToImmutable()
+            /// <param name="Builder">A ConnectorPostStatus response builder.</param>
+            public static implicit operator ConnectorPostStatusResponse(Builder Builder)
 
-                => new ConnectorPostStatusResponse(Request,
-                                                   Code,
-                                                   Message,
-                                                   CustomData,
-                                                   CustomMapper);
+                => new ConnectorPostStatusResponse(Builder.Request,
+                                                   Builder.Code,
+                                                   Builder.Message,
+                                                   Builder.CustomData,
+                                                   Builder.CustomMapper);
 
             #endregion
 
@@ -393,5 +312,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         #endregion
 
     }
+
+#pragma warning restore CS0661
+#pragma warning restore CS0659
 
 }

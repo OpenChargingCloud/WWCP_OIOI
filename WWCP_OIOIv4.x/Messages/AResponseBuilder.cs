@@ -37,7 +37,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
     {
 
-        #region Data
+        #region Properties
 
         /// <summary>
         /// The request leading to this response.
@@ -45,9 +45,19 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         public TRequest                    Request        { get; set; }
 
         /// <summary>
-        /// The response.
+        /// The response code of the corresponding StationPost request.
         /// </summary>
-        public TResponse                   Response       { get; set; }
+        public ResponseCodes               Code           { get; set; }
+
+        /// <summary>
+        /// The response message of the corresponding StationPost request.
+        /// </summary>
+        public String                      Message        { get; set; }
+
+        ///// <summary>
+        ///// The response.
+        ///// </summary>
+        //public TResponse                   Response       { get; set; }
 
         /// <summary>
         /// An optional dictionary of customer-specific key-value pairs.
@@ -83,20 +93,15 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         {
 
             this.Request       = Request;
-
-            if (Response != null)
-            {
-
-                this.Response      = Response;
-
-                if (Response.CustomData != null)
-                    foreach (var item in Response.CustomData)
-                        CustomData.Add(item.Key, item.Value);
-
-            }
+            this.Code          = Response != null ? Response.Code : ResponseCodes.SystemError;
+            this.Message       = Response?.Message;
 
             this.CustomData    = CustomData ?? new Dictionary<String, Object>();
             this.CustomMapper  = CustomMapper;
+
+            if (Response?.CustomData != null)
+                foreach (var item in Response.CustomData)
+                    CustomData.Add(item.Key, item.Value);
 
         }
 
