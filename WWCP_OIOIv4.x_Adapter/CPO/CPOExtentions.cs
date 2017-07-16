@@ -38,7 +38,7 @@ namespace org.GraphDefined.WWCP
     public static class CPOExtentions
     {
 
-        #region CreateOIOIv3_x_CPORoamingProvider(this RoamingNetwork, Id, Name, RemoteHostname, ... , Action = null)
+        #region CreateOIOIv4_x_CPORoamingProvider(this RoamingNetwork, Id, Name, RemoteHostname, ... , Action = null)
 
         /// <summary>
         /// Create and register a new electric vehicle roaming provider
@@ -86,9 +86,9 @@ namespace org.GraphDefined.WWCP
         /// <param name="OIOIConfigurator">An optional delegate to configure the new OIOI roaming provider after its creation.</param>
         /// <param name="Configurator">An optional delegate to configure the new roaming provider after its creation.</param>
         /// <param name="DNSClient">An optional DNS client to use.</param>
-        public static OIOIv3_x.CPO.WWCPCPOAdapter
+        public static OIOIv4_x.CPO.WWCPCPOAdapter
 
-            CreateOIOIv3_x_CPORoamingProvider(this RoamingNetwork                                                 RoamingNetwork,
+            CreateOIOIv4_x_CPORoamingProvider(this RoamingNetwork                                                 RoamingNetwork,
                                               CSORoamingProvider_Id                                               Id,
                                               I18NString                                                          Name,
 
@@ -99,33 +99,33 @@ namespace org.GraphDefined.WWCP
                                               RemoteCertificateValidationCallback                                 RemoteCertificateValidator                      = null,
                                               LocalCertificateSelectionCallback                                   LocalCertificateSelector                        = null,
                                               X509Certificate                                                     ClientCert                                      = null,
-                                              String                                                              URIPrefix                                       = OIOIv3_x.CPO.CPOClient.DefaultURIPrefix,
-                                              OIOIv3_x.Partner_Id?                                                DefaultPartnerId                                = null,
-                                              String                                                              HTTPUserAgent                                   = OIOIv3_x.CPO.CPOClient.DefaultHTTPUserAgent,
+                                              String                                                              URIPrefix                                       = OIOIv4_x.CPO.CPOClient.DefaultURIPrefix,
+                                              OIOIv4_x.Partner_Id?                                                DefaultPartnerId                                = null,
+                                              String                                                              HTTPUserAgent                                   = OIOIv4_x.CPO.CPOClient.DefaultHTTPUserAgent,
                                               TimeSpan?                                                           QueryTimeout                                    = null,
 
-                                              String                                                              ServerName                                      = OIOIv3_x.CPO.CPOServer.DefaultHTTPServerName,
+                                              String                                                              ServerName                                      = OIOIv4_x.CPO.CPOServer.DefaultHTTPServerName,
                                               HTTPHostname                                                        HTTPHostname                                    = null,
                                               IPPort                                                              ServerTCPPort                                   = null,
                                               X509Certificate2                                                    X509Certificate                                 = null,
-                                              String                                                              ServerURIPrefix                                 = OIOIv3_x.CPO.CPOServer.DefaultURIPrefix,
-                                              OIOIv3_x.CPO.ServerAPIKeyValidatorDelegate                          ServerAPIKeyValidator                           = null,
+                                              String                                                              ServerURIPrefix                                 = OIOIv4_x.CPO.CPOServer.DefaultURIPrefix,
+                                              OIOIv4_x.CPO.ServerAPIKeyValidatorDelegate                          ServerAPIKeyValidator                           = null,
                                               HTTPContentType                                                     ServerContentType                               = null,
                                               Boolean                                                             ServerRegisterHTTPRootService                   = true,
                                               Boolean                                                             ServerAutoStart                                 = false,
 
-                                              String                                                              ClientLoggingContext                            = OIOIv3_x.CPO.CPOClient.CPOClientLogger.DefaultContext,
-                                              String                                                              ServerLoggingContext                            = OIOIv3_x.CPO.CPOServerLogger.DefaultContext,
+                                              String                                                              ClientLoggingContext                            = OIOIv4_x.CPO.CPOClient.CPOClientLogger.DefaultContext,
+                                              String                                                              ServerLoggingContext                            = OIOIv4_x.CPO.CPOServerLogger.DefaultContext,
                                               LogfileCreatorDelegate                                              LogFileCreator                                  = null,
 
-                                              OIOIv3_x.CPO.CustomOperatorIdMapperDelegate                         CustomOperatorIdMapper                          = null,
-                                              OIOIv3_x.CPO.CustomEVSEIdMapperDelegate                             CustomEVSEIdMapper                              = null,
-                                              OIOIv3_x.CPO.ChargingStation2StationDelegate                        EVSE2Station                                    = null,
-                                              OIOIv3_x.CPO.EVSEStatusUpdate2ConnectorStatusUpdateDelegate         EVSEStatusUpdate2ConnectorStatusUpdate          = null,
-                                              OIOIv3_x.CPO.ChargeDetailRecord2SessionDelegate                     WWCPChargeDetailRecord2OIOIChargeDetailRecord   = null,
-                                              OIOIv3_x.CPO.Station2JSONDelegate                                   Station2JSON                                    = null,
-                                              OIOIv3_x.CPO.ConnectorStatus2JSONDelegate                           ConnectorStatus2JSON                            = null,
-                                              OIOIv3_x.CPO.Session2JSONDelegate                                   ChargeDetailRecord2JSON                         = null,
+                                              OIOIv4_x.CPO.CustomOperatorIdMapperDelegate                         CustomOperatorIdMapper                          = null,
+                                              OIOIv4_x.CPO.CustomEVSEIdMapperDelegate                             CustomEVSEIdMapper                              = null,
+                                              OIOIv4_x.CPO.ChargingStation2StationDelegate                        EVSE2Station                                    = null,
+                                              OIOIv4_x.CPO.EVSEStatusUpdate2ConnectorStatusUpdateDelegate         EVSEStatusUpdate2ConnectorStatusUpdate          = null,
+                                              OIOIv4_x.CPO.ChargeDetailRecord2SessionDelegate                     WWCPChargeDetailRecord2OIOIChargeDetailRecord   = null,
+                                              OIOIv4_x.CPO.Station2JSONDelegate                                   Station2JSON                                    = null,
+                                              OIOIv4_x.CPO.ConnectorStatus2JSONDelegate                           ConnectorStatus2JSON                            = null,
+                                              OIOIv4_x.CPO.Session2JSONDelegate                                   ChargeDetailRecord2JSON                         = null,
 
                                               ChargingStationOperator                                             DefaultOperator                                 = null,
                                               ChargingStationOperatorNameSelectorDelegate                         OperatorNameSelector                            = null,
@@ -138,7 +138,7 @@ namespace org.GraphDefined.WWCP
                                               Boolean                                                             DisableAuthentication                           = false,
                                               Boolean                                                             DisableSendChargeDetailRecords                  = false,
 
-                                              Action<OIOIv3_x.CPO.WWCPCPOAdapter>                                 OIOIConfigurator                                = null,
+                                              Action<OIOIv4_x.CPO.WWCPCPOAdapter>                                 OIOIConfigurator                                = null,
                                               Action<ICSORoamingProvider>                                         Configurator                                    = null,
                                               DNSClient                                                           DNSClient                                       = null)
 
@@ -160,7 +160,7 @@ namespace org.GraphDefined.WWCP
 
             #endregion
 
-            var NewRoamingProvider = new OIOIv3_x.CPO.WWCPCPOAdapter(Id,
+            var NewRoamingProvider = new OIOIv4_x.CPO.WWCPCPOAdapter(Id,
                                                                      Name,
                                                                      RoamingNetwork,
 
@@ -216,13 +216,13 @@ namespace org.GraphDefined.WWCP
 
             return RoamingNetwork.
                        CreateNewRoamingProvider(NewRoamingProvider,
-                                                Configurator) as OIOIv3_x.CPO.WWCPCPOAdapter;
+                                                Configurator) as OIOIv4_x.CPO.WWCPCPOAdapter;
 
         }
 
         #endregion
 
-        #region CreateOIOIv3_x_CPORoamingProvider(this RoamingNetwork, Id, Name, SOAPServer, RemoteHostname, ...)
+        #region CreateOIOIv4_x_CPORoamingProvider(this RoamingNetwork, Id, Name, SOAPServer, RemoteHostname, ...)
 
         /// <summary>
         /// Create and register a new electric vehicle roaming provider
@@ -265,9 +265,9 @@ namespace org.GraphDefined.WWCP
         /// <param name="OIOIConfigurator">An optional delegate to configure the new OIOI roaming provider after its creation.</param>
         /// <param name="Configurator">An optional delegate to configure the new roaming provider after its creation.</param>
         /// <param name="DNSClient">An optional DNS client to use.</param>
-        public static OIOIv3_x.CPO.WWCPCPOAdapter
+        public static OIOIv4_x.CPO.WWCPCPOAdapter
 
-            CreateOIOIv3_x_CPORoamingProvider(this RoamingNetwork                                          RoamingNetwork,
+            CreateOIOIv4_x_CPORoamingProvider(this RoamingNetwork                                          RoamingNetwork,
                                               CSORoamingProvider_Id                                        Id,
                                               I18NString                                                   Name,
                                               HTTPServer<RoamingNetworks, RoamingNetwork>                  HTTPServer,
@@ -279,29 +279,29 @@ namespace org.GraphDefined.WWCP
                                               LocalCertificateSelectionCallback                            LocalCertificateSelector                        = null,
                                               X509Certificate                                              ClientCert                                      = null,
                                               String                                                       RemoteHTTPVirtualHost                           = null,
-                                              String                                                       URIPrefix                                       = OIOIv3_x.CPO.CPOClient.DefaultURIPrefix,
-                                              OIOIv3_x.Partner_Id?                                         DefaultPartnerId                                = null,
-                                              String                                                       HTTPUserAgent                                   = OIOIv3_x.CPO.CPOClient.DefaultHTTPUserAgent,
+                                              String                                                       URIPrefix                                       = OIOIv4_x.CPO.CPOClient.DefaultURIPrefix,
+                                              OIOIv4_x.Partner_Id?                                         DefaultPartnerId                                = null,
+                                              String                                                       HTTPUserAgent                                   = OIOIv4_x.CPO.CPOClient.DefaultHTTPUserAgent,
                                               TimeSpan?                                                    QueryTimeout                                    = null,
 
                                               HTTPHostname                                                 HTTPHostname                                    = null,
                                               String                                                       ServerURIPrefix                                 = null,
-                                              OIOIv3_x.CPO.ServerAPIKeyValidatorDelegate                   ServerAPIKeyValidator                           = null,
+                                              OIOIv4_x.CPO.ServerAPIKeyValidatorDelegate                   ServerAPIKeyValidator                           = null,
                                               HTTPContentType                                              ServerContentType                               = null,
                                               Boolean                                                      ServerRegisterHTTPRootService                   = true,
 
-                                              String                                                       ClientLoggingContext                            = OIOIv3_x.CPO.CPOClient.CPOClientLogger.DefaultContext,
-                                              String                                                       ServerLoggingContext                            = OIOIv3_x.CPO.CPOServerLogger.DefaultContext,
+                                              String                                                       ClientLoggingContext                            = OIOIv4_x.CPO.CPOClient.CPOClientLogger.DefaultContext,
+                                              String                                                       ServerLoggingContext                            = OIOIv4_x.CPO.CPOServerLogger.DefaultContext,
                                               LogfileCreatorDelegate                                       LogFileCreator                                  = null,
 
-                                              OIOIv3_x.CPO.CustomOperatorIdMapperDelegate                  CustomOperatorIdMapper                          = null,
-                                              OIOIv3_x.CPO.CustomEVSEIdMapperDelegate                      CustomEVSEIdMapper                              = null,
-                                              OIOIv3_x.CPO.ChargingStation2StationDelegate                 EVSE2Station                                    = null,
-                                              OIOIv3_x.CPO.EVSEStatusUpdate2ConnectorStatusUpdateDelegate  EVSEStatusUpdate2ConnectorStatusUpdate          = null,
-                                              OIOIv3_x.CPO.ChargeDetailRecord2SessionDelegate              WWCPChargeDetailRecord2OIOIChargeDetailRecord   = null,
-                                              OIOIv3_x.CPO.Station2JSONDelegate                            Station2JSON                                    = null,
-                                              OIOIv3_x.CPO.ConnectorStatus2JSONDelegate                    ConnectorStatus2JSON                            = null,
-                                              OIOIv3_x.CPO.Session2JSONDelegate                            ChargeDetailRecord2JSON                         = null,
+                                              OIOIv4_x.CPO.CustomOperatorIdMapperDelegate                  CustomOperatorIdMapper                          = null,
+                                              OIOIv4_x.CPO.CustomEVSEIdMapperDelegate                      CustomEVSEIdMapper                              = null,
+                                              OIOIv4_x.CPO.ChargingStation2StationDelegate                 EVSE2Station                                    = null,
+                                              OIOIv4_x.CPO.EVSEStatusUpdate2ConnectorStatusUpdateDelegate  EVSEStatusUpdate2ConnectorStatusUpdate          = null,
+                                              OIOIv4_x.CPO.ChargeDetailRecord2SessionDelegate              WWCPChargeDetailRecord2OIOIChargeDetailRecord   = null,
+                                              OIOIv4_x.CPO.Station2JSONDelegate                            Station2JSON                                    = null,
+                                              OIOIv4_x.CPO.ConnectorStatus2JSONDelegate                    ConnectorStatus2JSON                            = null,
+                                              OIOIv4_x.CPO.Session2JSONDelegate                            ChargeDetailRecord2JSON                         = null,
 
                                               IncludeChargingStationDelegate                               IncludeChargingStations                         = null,
 
@@ -313,7 +313,7 @@ namespace org.GraphDefined.WWCP
                                               Boolean                                                      DisableAuthentication                           = false,
                                               Boolean                                                      DisableSendChargeDetailRecords                  = false,
 
-                                              Action<OIOIv3_x.CPO.WWCPCPOAdapter>                          OIOIConfigurator                                = null,
+                                              Action<OIOIv4_x.CPO.WWCPCPOAdapter>                          OIOIConfigurator                                = null,
                                               Action<ICSORoamingProvider>                                  Configurator                                    = null,
                                               DNSClient                                                    DNSClient                                       = null)
 
@@ -339,11 +339,11 @@ namespace org.GraphDefined.WWCP
 
             #endregion
 
-            var NewRoamingProvider = new OIOIv3_x.CPO.WWCPCPOAdapter(Id,
+            var NewRoamingProvider = new OIOIv4_x.CPO.WWCPCPOAdapter(Id,
                                                                      Name,
                                                                      RoamingNetwork,
 
-                                                                     new OIOIv3_x.CPO.CPOClient(Id.ToString(),
+                                                                     new OIOIv4_x.CPO.CPOClient(Id.ToString(),
                                                                                                 RemoteHostname,
                                                                                                 APIKey,
                                                                                                 RemoteTCPPort,
@@ -359,7 +359,7 @@ namespace org.GraphDefined.WWCP
                                                                                                 ClientLoggingContext,
                                                                                                 LogFileCreator),
 
-                                                                     new OIOIv3_x.CPO.CPOServer(HTTPServer,
+                                                                     new OIOIv4_x.CPO.CPOServer(HTTPServer,
                                                                                                 HTTPHostname,
                                                                                                 ServerURIPrefix,
                                                                                                 ServerAPIKeyValidator,
@@ -391,7 +391,7 @@ namespace org.GraphDefined.WWCP
 
             return RoamingNetwork.
                        CreateNewRoamingProvider(NewRoamingProvider,
-                                                Configurator) as OIOIv3_x.CPO.WWCPCPOAdapter;
+                                                Configurator) as OIOIv4_x.CPO.WWCPCPOAdapter;
 
         }
 

@@ -33,7 +33,7 @@ using org.GraphDefined.Vanaheimr.Hermod.SOAP;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
+namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 {
 
     /// <summary>
@@ -57,7 +57,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
         /// <summary>
         /// The default HTTP client URI prefix.
         /// </summary>
-        public const               String  DefaultURIPrefix      = "/api/v3/request";
+        public const               String  DefaultURIPrefix      = "/api/v4/request";
 
         #endregion
 
@@ -612,7 +612,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                                                  ResponseLogDelegate:  OnStationPostHTTPResponse,
                                                  CancellationToken:    Request.CancellationToken,
                                                  EventTrackingId:      Request.EventTrackingId,
-                                                 RequestTimeout:       Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout,
+                                                 RequestTimeout:       Request.RequestTimeout ?? RequestTimeout,
 
                                                  #region OnSuccess
 
@@ -632,7 +632,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                                                      SendJSONError(timestamp, this, httpresponse.Content);
 
                                                      return new HTTPResponse<StationPostResponse>(httpresponse,
-                                                                                                  new StationPostResponse(Request, false),
+                                                                                                  new StationPostResponse(Request,
+                                                                                                                          ResponseCodes.SystemError,
+                                                                                                                          "Invalid JSON response!"),
                                                                                                   IsFault: true);
 
                                                  },
@@ -646,7 +648,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                                                      SendHTTPError(timestamp, this, httpresponse);
 
                                                      return new HTTPResponse<StationPostResponse>(httpresponse,
-                                                                                                  new StationPostResponse(Request, false),
+                                                                                                  new StationPostResponse(Request,
+                                                                                                                          ResponseCodes.SystemError,
+                                                                                                                          "Invalid HTTP response!"),
                                                                                                   IsFault: true);
 
                                                  },
@@ -659,7 +663,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
                                                      SendException(timestamp, sender, exception);
 
-                                                     return HTTPResponse<StationPostResponse>.ExceptionThrown(new StationPostResponse(Request, false),
+                                                     return HTTPResponse<StationPostResponse>.ExceptionThrown(new StationPostResponse(Request,
+                                                                                                                                      ResponseCodes.SystemError,
+                                                                                                                                      "Exception occured!"),
                                                                                                               Exception:  exception);
 
                                                  }
@@ -672,7 +678,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
 
             if (result == null)
-                result = HTTPResponse<StationPostResponse>.OK(new StationPostResponse(Request, false));
+                result = HTTPResponse<StationPostResponse>.OK(new StationPostResponse(Request,
+                                                                                      ResponseCodes.SystemError,
+                                                                                      "Invalid response!"));
 
             #region Send OnStationPostResponse event
 
@@ -798,7 +806,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                                                      SendJSONError(timestamp, this, httpresponse.Content);
 
                                                      return new HTTPResponse<ConnectorPostStatusResponse>(httpresponse,
-                                                                                                          new ConnectorPostStatusResponse(Request, false),
+                                                                                                          new ConnectorPostStatusResponse(Request,
+                                                                                                                                          ResponseCodes.SystemError,
+                                                                                                                                          "Invalid JSON response!"),
                                                                                                           IsFault: true);
 
                                                  },
@@ -815,7 +825,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
                                                      SendHTTPError(timestamp, this, httpresponse);
 
                                                      return new HTTPResponse<ConnectorPostStatusResponse>(httpresponse,
-                                                                                                          new ConnectorPostStatusResponse(Request, false),
+                                                                                                          new ConnectorPostStatusResponse(Request,
+                                                                                                                                          ResponseCodes.SystemError,
+                                                                                                                                          "Invalid HTTP response!"),
                                                                                                           IsFault: true);
 
                                                  },
@@ -828,7 +840,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
                                                      SendException(timestamp, sender, exception);
 
-                                                     return HTTPResponse<ConnectorPostStatusResponse>.ExceptionThrown(new ConnectorPostStatusResponse(Request, false),
+                                                     return HTTPResponse<ConnectorPostStatusResponse>.ExceptionThrown(new ConnectorPostStatusResponse(Request,
+                                                                                                                                                      ResponseCodes.SystemError,
+                                                                                                                                                      "Exception occured!"),
                                                                                                                       Exception:  exception);
 
                                                  }
@@ -841,7 +855,9 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
 
 
             if (result == null)
-                result = HTTPResponse<ConnectorPostStatusResponse>.OK(new ConnectorPostStatusResponse(Request, false));
+                result = HTTPResponse<ConnectorPostStatusResponse>.OK(new ConnectorPostStatusResponse(Request,
+                                                                                                      ResponseCodes.SystemError,
+                                                                                                      "Invalid response!"));
 
             #region Send OnConnectorPostStatusResponse event
 

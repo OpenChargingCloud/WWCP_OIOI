@@ -29,13 +29,15 @@ using org.GraphDefined.Vanaheimr.Hermod;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv3_x
+namespace org.GraphDefined.WWCP.OIOIv4_x
 {
 
     /// <summary>
     /// An OIOI Charging Station.
     /// </summary>
-    public class Station : IEquatable<Station>
+    public class Station : IEquatable<Station>,
+                           IComparable<Station>,
+                           IComparable
     {
 
         #region Properties
@@ -154,13 +156,13 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         Boolean                             IsGreenPowerAvailable       { get; }
 
         /// <summary>
-        /// ?
+        /// Whether or not a user can authorize with the proprietary “Plugin-Charge” method.
         /// </summary>
         [Optional]
         Boolean                             IsPlugInCharge              { get; }
 
         /// <summary>
-        /// ?
+        /// Whether the station is under a roof, for example in a parking garage.
         /// </summary>
         [Optional]
         Boolean                             IsRoofed                    { get; }
@@ -203,8 +205,8 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         /// <param name="IsFreeCharge">Whether the charging is free of any charge/costs.</param>
         /// <param name="TotalParking">The number of parking spots that are available at the charging station.</param>
         /// <param name="IsGreenPowerAvailable">Whether the charging energy is coming from renewable sources.</param>
-        /// <param name="IsPlugInCharge">?</param>
-        /// <param name="IsRoofed">?</param>
+        /// <param name="IsPlugInCharge">Whether or not a user can authorize with the proprietary “Plugin-Charge” method.</param>
+        /// <param name="IsRoofed">Whether the station is under a roof, for example in a parking garage.</param>
         /// <param name="IsPrivate">Whether the charging station is privately owned.</param>
         /// <param name="Deleted">Soft delete this charging station and its related connectors.</param>
         public Station(Station_Id                  Id,
@@ -458,6 +460,116 @@ namespace org.GraphDefined.WWCP.OIOIv3_x
         public static Boolean operator != (Station Station1, Station Station2)
 
             => !(Station1 == Station2);
+
+        #endregion
+
+        #region Operator <  (Station1, Station2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="Station1">An Station.</param>
+        /// <param name="Station2">Another Station.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator <(Station Station1, Station Station2)
+        {
+
+            if ((Object)Station1 == null)
+                throw new ArgumentNullException("The given Station1 must not be null!");
+
+            return Station1.CompareTo(Station2) < 0;
+
+        }
+
+        #endregion
+
+        #region Operator <= (Station1, Station2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="Station1">An Station.</param>
+        /// <param name="Station2">Another Station.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator <=(Station Station1, Station Station2)
+            => !(Station1 > Station2);
+
+        #endregion
+
+        #region Operator >  (Station1, Station2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="Station1">An Station.</param>
+        /// <param name="Station2">Another Station.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator >(Station Station1, Station Station2)
+        {
+
+            if ((Object)Station1 == null)
+                throw new ArgumentNullException("The given Station1 must not be null!");
+
+            return Station1.CompareTo(Station2) > 0;
+
+        }
+
+        #endregion
+
+        #region Operator >= (Station1, Station2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="Station1">An Station.</param>
+        /// <param name="Station2">Another Station.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator >=(Station Station1, Station Station2)
+            => !(Station1 < Station2);
+
+        #endregion
+
+        #endregion
+
+        #region IComparable<Station> Members
+
+        #region CompareTo(Object)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="Object">An object to compare with.</param>
+        public Int32 CompareTo(Object Object)
+        {
+
+            if (Object == null)
+                throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
+
+            var Station = Object as Station;
+            if ((Object) Station == null)
+                throw new ArgumentException("The given object is not an Station!");
+
+            return CompareTo(Station);
+
+        }
+
+        #endregion
+
+        #region CompareTo(Station)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="Station">An Station to compare with.</param>
+        public Int32 CompareTo(Station Station)
+        {
+
+            if ((Object) Station == null)
+                throw new ArgumentNullException(nameof(Station), "The given Station must not be null!");
+
+            return Id.CompareTo(Station.Id);
+
+        }
 
         #endregion
 

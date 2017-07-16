@@ -36,7 +36,7 @@ using org.GraphDefined.Vanaheimr.Hermod.SOAP;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv3_x.EMP
+namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 {
 
     /// <summary>
@@ -60,7 +60,7 @@ namespace org.GraphDefined.WWCP.OIOIv3_x.EMP
         /// <summary>
         /// The default HTTP client URI prefix.
         /// </summary>
-        public const               String  DefaultURIPrefix      = "/api/v3/request";
+        public const               String  DefaultURIPrefix      = "/api/v4/request";
 
         #endregion
 

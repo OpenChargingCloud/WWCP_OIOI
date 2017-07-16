@@ -30,7 +30,7 @@ using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv3_x.CPO
+namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 {
 
     /// <summary>
