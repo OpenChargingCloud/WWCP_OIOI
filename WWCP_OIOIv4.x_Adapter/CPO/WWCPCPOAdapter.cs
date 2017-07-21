@@ -1204,7 +1204,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
 
             if (!Timestamp.HasValue)
-                Timestamp = DateTime.Now;
+                Timestamp = DateTime.UtcNow;
 
             if (!CancellationToken.HasValue)
                 CancellationToken = new CancellationTokenSource().Token;
@@ -1249,7 +1249,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #region Send OnStationPostWWCPRequest event
 
-            var StartTime = DateTime.Now;
+            var StartTime = DateTime.UtcNow;
 
             try
             {
@@ -1280,7 +1280,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             if (DisablePushData || _Stations.Length == 0)
             {
-                Endtime  = DateTime.Now;
+                Endtime  = DateTime.UtcNow;
                 Runtime  = Endtime - StartTime;
                 result   = new Acknowledgement(ResultType.NoOperation,
                                                Warnings: Warnings);
@@ -1305,7 +1305,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
 
 
-                Endtime = DateTime.Now;
+                Endtime = DateTime.UtcNow;
                 Runtime = Endtime - StartTime;
 
                 //if (response.HTTPStatusCode == HTTPStatusCode.OK &&
@@ -1401,7 +1401,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
 
             if (!Timestamp.HasValue)
-                Timestamp = DateTime.Now;
+                Timestamp = DateTime.UtcNow;
 
             if (!CancellationToken.HasValue)
                 CancellationToken = new CancellationTokenSource().Token;
@@ -1457,7 +1457,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #region Send OnEVSEStatusPush event
 
-            var StartTime = DateTime.Now;
+            var StartTime = DateTime.UtcNow;
 
             try
             {
@@ -1488,7 +1488,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             if (DisablePushStatus)
             {
-                Endtime = DateTime.Now;
+                Endtime = DateTime.UtcNow;
                 Runtime = Endtime - StartTime;
                 result = new Acknowledgement(ResultType.NoOperation);  //AuthStartChargingStationResult.OutOfService(Id, SessionId, Runtime);
             }
@@ -1507,7 +1507,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                        ToArray()).
                                                        ConfigureAwait(false);
 
-                Endtime = DateTime.Now;
+                Endtime = DateTime.UtcNow;
                 Runtime = Endtime - StartTime;
 
                 result = new Acknowledgement(ResultType.NoOperation);
@@ -1620,7 +1620,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 //try
                 //{
 
-                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.Now,
+                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.UtcNow,
                 //                                    Timestamp.Value,
                 //                                    this,
                 //                                    EventTrackingId,
@@ -1711,7 +1711,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 //try
                 //{
 
-                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.Now,
+                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.UtcNow,
                 //                                    Timestamp.Value,
                 //                                    this,
                 //                                    EventTrackingId,
@@ -1809,7 +1809,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 //try
                 //{
 
-                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.Now,
+                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.UtcNow,
                 //                                    Timestamp.Value,
                 //                                    this,
                 //                                    EventTrackingId,
@@ -1900,7 +1900,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 //try
                 //{
 
-                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.Now,
+                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.UtcNow,
                 //                                    Timestamp.Value,
                 //                                    this,
                 //                                    EventTrackingId,
@@ -2186,7 +2186,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 //try
                 //{
 
-                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.Now,
+                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.UtcNow,
                 //                                    Timestamp.Value,
                 //                                    this,
                 //                                    EventTrackingId,
@@ -2294,7 +2294,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 //try
                 //{
 
-                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.Now,
+                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.UtcNow,
                 //                                    Timestamp.Value,
                 //                                    this,
                 //                                    EventTrackingId,
@@ -2385,7 +2385,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 //try
                 //{
 
-                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.Now,
+                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.UtcNow,
                 //                                    Timestamp.Value,
                 //                                    this,
                 //                                    EventTrackingId,
@@ -2482,7 +2482,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 //try
                 //{
 
-                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.Now,
+                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.UtcNow,
                 //                                    Timestamp.Value,
                 //                                    this,
                 //                                    EventTrackingId,
@@ -2843,7 +2843,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 //try
                 //{
 
-                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.Now,
+                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.UtcNow,
                 //                                    Timestamp.Value,
                 //                                    this,
                 //                                    EventTrackingId,
@@ -2939,7 +2939,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 //try
                 //{
 
-                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.Now,
+                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.UtcNow,
                 //                                    Timestamp.Value,
                 //                                    this,
                 //                                    EventTrackingId,
@@ -3041,7 +3041,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 //try
                 //{
 
-                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.Now,
+                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.UtcNow,
                 //                                    Timestamp.Value,
                 //                                    this,
                 //                                    EventTrackingId,
@@ -4025,7 +4025,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
 
             if (!Timestamp.HasValue)
-                Timestamp = DateTime.Now;
+                Timestamp = DateTime.UtcNow;
 
             if (!CancellationToken.HasValue)
                 CancellationToken = new CancellationTokenSource().Token;
@@ -4040,7 +4040,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #region Send OnAuthorizeStartRequest event
 
-            var StartTime = DateTime.Now;
+            var StartTime = DateTime.UtcNow;
 
             try
             {
@@ -4072,12 +4072,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             if (DisableAuthentication)
             {
-                Endtime  = DateTime.Now;
+                Endtime  = DateTime.UtcNow;
                 Runtime  = Endtime - StartTime;
-                result   = AuthStartResult.OutOfService(Id,
-                                                        this,
-                                                        SessionId,
-                                                        Runtime);
+                result   = AuthStartResult.AdminDown(Id,
+                                                     this,
+                                                     SessionId,
+                                                     Runtime);
             }
 
             else
@@ -4092,7 +4092,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                     RequestTimeout).ConfigureAwait(false);
 
 
-                Endtime  = DateTime.Now;
+                Endtime  = DateTime.UtcNow;
                 Runtime  = Endtime - StartTime;
 
                 if (response.HTTPStatusCode == HTTPStatusCode.OK &&
@@ -4192,7 +4192,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
 
             if (!Timestamp.HasValue)
-                Timestamp = DateTime.Now;
+                Timestamp = DateTime.UtcNow;
 
             if (!CancellationToken.HasValue)
                 CancellationToken = new CancellationTokenSource().Token;
@@ -4207,7 +4207,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #region Send OnAuthorizeEVSEStartRequest event
 
-            var StartTime = DateTime.Now;
+            var StartTime = DateTime.UtcNow;
 
             try
             {
@@ -4240,12 +4240,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             if (DisableAuthentication)
             {
-                Endtime  = DateTime.Now;
+                Endtime  = DateTime.UtcNow;
                 Runtime  = Endtime - StartTime;
-                result   = AuthStartEVSEResult.OutOfService(Id,
-                                                            this,
-                                                            SessionId,
-                                                            Runtime);
+                result   = AuthStartEVSEResult.AdminDown(Id,
+                                                         this,
+                                                         SessionId,
+                                                         Runtime);
             }
 
             else
@@ -4260,7 +4260,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                      RequestTimeout).ConfigureAwait(false);
 
 
-                Endtime  = DateTime.Now;
+                Endtime  = DateTime.UtcNow;
                 Runtime  = Endtime - StartTime;
 
                 if (response.HTTPStatusCode == HTTPStatusCode.OK &&
@@ -4361,7 +4361,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
 
             if (!Timestamp.HasValue)
-                Timestamp = DateTime.Now;
+                Timestamp = DateTime.UtcNow;
 
             if (!CancellationToken.HasValue)
                 CancellationToken = new CancellationTokenSource().Token;
@@ -4376,7 +4376,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #region Send OnAuthorizeChargingStationStartRequest event
 
-            var StartTime = DateTime.Now;
+            var StartTime = DateTime.UtcNow;
 
             try
             {
@@ -4409,12 +4409,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             if (DisableAuthentication)
             {
-                Endtime  = DateTime.Now;
+                Endtime  = DateTime.UtcNow;
                 Runtime  = Endtime - StartTime;
-                result   = AuthStartChargingStationResult.OutOfService(Id,
-                                                                       this,
-                                                                       SessionId,
-                                                                       Runtime);
+                result   = AuthStartChargingStationResult.AdminDown(Id,
+                                                                    this,
+                                                                    SessionId,
+                                                                    Runtime);
             }
 
             else
@@ -4429,7 +4429,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                      RequestTimeout).ConfigureAwait(false);
 
 
-                Endtime  = DateTime.Now;
+                Endtime  = DateTime.UtcNow;
                 Runtime  = Endtime - StartTime;
 
                 if (response.HTTPStatusCode == HTTPStatusCode.OK &&
@@ -4530,7 +4530,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
 
             if (!Timestamp.HasValue)
-                Timestamp = DateTime.Now;
+                Timestamp = DateTime.UtcNow;
 
             if (!CancellationToken.HasValue)
                 CancellationToken = new CancellationTokenSource().Token;
@@ -4545,7 +4545,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #region Send OnAuthorizeChargingPoolStartRequest event
 
-            var StartTime = DateTime.Now;
+            var StartTime = DateTime.UtcNow;
 
             try
             {
@@ -4578,12 +4578,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             if (DisableAuthentication)
             {
-                Endtime  = DateTime.Now;
+                Endtime  = DateTime.UtcNow;
                 Runtime  = Endtime - StartTime;
-                result   = AuthStartChargingPoolResult.OutOfService(Id,
-                                                                    this,
-                                                                    SessionId,
-                                                                    Runtime);
+                result   = AuthStartChargingPoolResult.AdminDown(Id,
+                                                                 this,
+                                                                 SessionId,
+                                                                 Runtime);
             }
 
             else
@@ -4598,7 +4598,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                      RequestTimeout).ConfigureAwait(false);
 
 
-                Endtime  = DateTime.Now;
+                Endtime  = DateTime.UtcNow;
                 Runtime  = Endtime - StartTime;
 
                 if (response.HTTPStatusCode == HTTPStatusCode.OK &&
@@ -4699,7 +4699,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
 
             if (!Timestamp.HasValue)
-                Timestamp = DateTime.Now;
+                Timestamp = DateTime.UtcNow;
 
             if (!CancellationToken.HasValue)
                 CancellationToken = new CancellationTokenSource().Token;
@@ -4714,7 +4714,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #region Send OnAuthorizeStopRequest event
 
-            var StartTime = DateTime.Now;
+            var StartTime = DateTime.UtcNow;
 
             try
             {
@@ -4745,9 +4745,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             if (DisableAuthentication)
             {
-                Endtime  = DateTime.Now;
+                Endtime  = DateTime.UtcNow;
                 Runtime  = Endtime - StartTime;
-                result   = AuthStopResult.OutOfService(Id, SessionId, Runtime);
+                result   = AuthStopResult.AdminDown(Id,
+                                                    this,
+                                                    SessionId,
+                                                    Runtime);
             }
 
             else
@@ -4761,7 +4764,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                            RequestTimeout).ConfigureAwait(false);
 
 
-                Endtime  = DateTime.Now;
+                Endtime  = DateTime.UtcNow;
                 Runtime  = Endtime - StartTime;
 
                 if (response.HTTPStatusCode == HTTPStatusCode.OK &&
@@ -4771,6 +4774,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                     result = AuthStopResult.Authorized(
                                  Id,
+                                 this,
                                  SessionId,
                                  ProviderId: DefaultProviderId,
                                  Runtime:    Runtime
@@ -4780,6 +4784,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 else
                     result = AuthStopResult.NotAuthorized(
                                  Id,
+                                 this,
                                  SessionId,
                                  ProviderId: DefaultProviderId,
                                  Runtime:    Runtime
@@ -4854,7 +4859,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
 
             if (!Timestamp.HasValue)
-                Timestamp = DateTime.Now;
+                Timestamp = DateTime.UtcNow;
 
             if (!CancellationToken.HasValue)
                 CancellationToken = new CancellationTokenSource().Token;
@@ -4869,7 +4874,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #region Send OnAuthorizeEVSEStopRequest event
 
-            var StartTime = DateTime.Now;
+            var StartTime = DateTime.UtcNow;
 
             try
             {
@@ -4901,9 +4906,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             if (DisableAuthentication)
             {
-                Endtime  = DateTime.Now;
+                Endtime  = DateTime.UtcNow;
                 Runtime  = Endtime - StartTime;
-                result   = AuthStopEVSEResult.OutOfService(Id, SessionId, Runtime);
+                result   = AuthStopEVSEResult.AdminDown(Id,
+                                                        this,
+                                                        SessionId,
+                                                        Runtime);
             }
 
             else
@@ -4917,7 +4925,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                             RequestTimeout).ConfigureAwait(false);
 
 
-                Endtime  = DateTime.Now;
+                Endtime  = DateTime.UtcNow;
                 Runtime  = Endtime - StartTime;
 
                 if (response.HTTPStatusCode == HTTPStatusCode.OK &&
@@ -4927,6 +4935,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                     result = AuthStopEVSEResult.Authorized(
                                  Id,
+                                 this,
                                  SessionId,
                                  ProviderId: DefaultProviderId,
                                  Runtime:    Runtime
@@ -4936,6 +4945,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 else
                     result = AuthStopEVSEResult.NotAuthorized(
                                  Id,
+                                 this,
                                  SessionId,
                                  ProviderId: DefaultProviderId,
                                  Runtime:    Runtime
@@ -5012,7 +5022,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
 
             if (!Timestamp.HasValue)
-                Timestamp = DateTime.Now;
+                Timestamp = DateTime.UtcNow;
 
             if (!CancellationToken.HasValue)
                 CancellationToken = new CancellationTokenSource().Token;
@@ -5027,7 +5037,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #region Send OnAuthorizeChargingStationStopRequest event
 
-            var StartTime = DateTime.Now;
+            var StartTime = DateTime.UtcNow;
 
             try
             {
@@ -5059,9 +5069,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             if (DisableAuthentication)
             {
-                Endtime  = DateTime.Now;
+                Endtime  = DateTime.UtcNow;
                 Runtime  = Endtime - StartTime;
-                result   = AuthStopChargingStationResult.OutOfService(Id, SessionId, Runtime);
+                result   = AuthStopChargingStationResult.AdminDown(Id,
+                                                                   this,
+                                                                   SessionId,
+                                                                   Runtime);
             }
 
             else
@@ -5075,7 +5088,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                             RequestTimeout).ConfigureAwait(false);
 
 
-                Endtime  = DateTime.Now;
+                Endtime  = DateTime.UtcNow;
                 Runtime  = Endtime - StartTime;
 
                 if (response.HTTPStatusCode == HTTPStatusCode.OK &&
@@ -5085,6 +5098,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                     result = AuthStopChargingStationResult.Authorized(
                                  Id,
+                                 this,
                                  SessionId,
                                  ProviderId: DefaultProviderId,
                                  Runtime:    Runtime
@@ -5094,6 +5108,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 else
                     result = AuthStopChargingStationResult.NotAuthorized(
                                  Id,
+                                 this,
                                  SessionId,
                                  ProviderId: DefaultProviderId,
                                  Runtime:    Runtime
@@ -5170,7 +5185,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
 
             if (!Timestamp.HasValue)
-                Timestamp = DateTime.Now;
+                Timestamp = DateTime.UtcNow;
 
             if (!CancellationToken.HasValue)
                 CancellationToken = new CancellationTokenSource().Token;
@@ -5185,7 +5200,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #region Send OnAuthorizeChargingPoolStopRequest event
 
-            var StartTime = DateTime.Now;
+            var StartTime = DateTime.UtcNow;
 
             try
             {
@@ -5217,9 +5232,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             if (DisableAuthentication)
             {
-                Endtime  = DateTime.Now;
+                Endtime  = DateTime.UtcNow;
                 Runtime  = Endtime - StartTime;
-                result   = AuthStopChargingPoolResult.OutOfService(Id, SessionId, Runtime);
+                result   = AuthStopChargingPoolResult.AdminDown(Id,
+                                                                this,
+                                                                SessionId,
+                                                                Runtime);
             }
 
             else
@@ -5233,7 +5251,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                             RequestTimeout).ConfigureAwait(false);
 
 
-                Endtime  = DateTime.Now;
+                Endtime  = DateTime.UtcNow;
                 Runtime  = Endtime - StartTime;
 
                 if (response.HTTPStatusCode == HTTPStatusCode.OK &&
@@ -5243,6 +5261,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                     result = AuthStopChargingPoolResult.Authorized(
                                  Id,
+                                 this,
                                  SessionId,
                                  ProviderId: DefaultProviderId,
                                  Runtime:    Runtime
@@ -5252,6 +5271,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 else
                     result = AuthStopChargingPoolResult.NotAuthorized(
                                  Id,
+                                 this,
                                  SessionId,
                                  ProviderId: DefaultProviderId,
                                  Runtime:    Runtime
@@ -5326,7 +5346,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
 
             if (!Timestamp.HasValue)
-                Timestamp = DateTime.Now;
+                Timestamp = DateTime.UtcNow;
 
             if (!CancellationToken.HasValue)
                 CancellationToken = new CancellationTokenSource().Token;
@@ -5349,7 +5369,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 try
                 {
 
-                    OnEnqueueSendCDRsRequest?.Invoke(DateTime.Now,
+                    OnEnqueueSendCDRsRequest?.Invoke(DateTime.UtcNow,
                                                      Timestamp.Value,
                                                      this,
                                                      Id.ToString(),
@@ -5383,7 +5403,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #region Send OnSendCDRsRequest event
 
-            var StartTime = DateTime.Now;
+            var StartTime = DateTime.UtcNow;
 
             try
             {
@@ -5414,7 +5434,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             if (DisableSendChargeDetailRecords)
             {
-                Endtime  = DateTime.Now;
+                Endtime  = DateTime.UtcNow;
                 Runtime  = Endtime - StartTime;
                 result   = SendCDRsResult.OutOfService(Id, Runtime: Runtime);
             }
@@ -5452,7 +5472,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 //}
 
-                //Endtime  = DateTime.Now;
+                //Endtime  = DateTime.UtcNow;
                 //Runtime  = Endtime - StartTime;
 
                 //if      (SendCDRsResults.All(cdrresult => cdrresult.Value.Status == SendCDRsResultType.Forwarded))
@@ -5525,7 +5545,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 DebugX.LogT("ServiceCheckTimer => " + e.Message);
 
-                OnWWCPCPOAdapterException?.Invoke(DateTime.Now,
+                OnWWCPCPOAdapterException?.Invoke(DateTime.UtcNow,
                                                   this,
                                                   e);
 
@@ -5717,7 +5737,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                     var SendCDRResults = await SendChargeDetailRecords(ChargeDetailRecordsQueueCopy.Value,
                                                                        TransmissionTypes.Direct,
-                                                                       DateTime.Now,
+                                                                       DateTime.UtcNow,
                                                                        new CancellationTokenSource().Token,
                                                                        EventTrackingId,
                                                                        DefaultRequestTimeout).ConfigureAwait(false);
@@ -5756,7 +5776,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 DebugX.LogT("StatusCheckTimer => " + e.Message);
 
-                OnWWCPCPOAdapterException?.Invoke(DateTime.Now,
+                OnWWCPCPOAdapterException?.Invoke(DateTime.UtcNow,
                                                   this,
                                                   e);
 
