@@ -56,7 +56,8 @@ namespace org.GraphDefined.WWCP
         /// <param name="ClientCert">The TLS client certificate to use.</param>
         /// <param name="RemoteHTTPVirtualHost">An optional HTTP virtual hostname of the remote OIOI service.</param>
         /// <param name="HTTPUserAgent">An optional HTTP user agent identification string for this HTTP client.</param>
-        /// <param name="QueryTimeout">An optional timeout for upstream queries.</param>
+        /// <param name="RequestTimeout">An optional timeout for upstream queries.</param>
+        /// <param name="MaxNumberOfRetries">The default number of maximum transmission retries.</param>
         /// 
         /// <param name="ServerName"> An optional identification string for the HTTP server.</param>
         /// <param name="ServerTCPPort">An optional TCP port for the HTTP server.</param>
@@ -102,7 +103,8 @@ namespace org.GraphDefined.WWCP
                                               String                                                              URIPrefix                                       = OIOIv4_x.CPO.CPOClient.DefaultURIPrefix,
                                               OIOIv4_x.Partner_Id?                                                DefaultPartnerId                                = null,
                                               String                                                              HTTPUserAgent                                   = OIOIv4_x.CPO.CPOClient.DefaultHTTPUserAgent,
-                                              TimeSpan?                                                           QueryTimeout                                    = null,
+                                              TimeSpan?                                                           RequestTimeout                                  = null,
+                                              Byte?                                                               MaxNumberOfRetries                              = OIOIv4_x.CPO.CPOClient.DefaultMaxNumberOfRetries,
 
                                               String                                                              ServerName                                      = OIOIv4_x.CPO.CPOServer.DefaultHTTPServerName,
                                               HTTPHostname                                                        HTTPHostname                                    = null,
@@ -174,7 +176,8 @@ namespace org.GraphDefined.WWCP
                                                                      URIPrefix,
                                                                      DefaultPartnerId,
                                                                      HTTPUserAgent,
-                                                                     QueryTimeout,
+                                                                     RequestTimeout,
+                                                                     MaxNumberOfRetries,
 
                                                                      ServerName,
                                                                      HTTPHostname,
@@ -242,7 +245,8 @@ namespace org.GraphDefined.WWCP
         /// <param name="ClientCert">The TLS client certificate to use.</param>
         /// <param name="RemoteHTTPVirtualHost">An optional HTTP virtual hostname of the remote OIOI service.</param>
         /// <param name="HTTPUserAgent">An optional HTTP user agent identification string for this HTTP client.</param>
-        /// <param name="QueryTimeout">An optional timeout for upstream queries.</param>
+        /// <param name="RequestTimeout">An optional timeout for upstream queries.</param>
+        /// <param name="MaxNumberOfRetries">The default number of maximum transmission retries.</param>
         /// 
         /// <param name="ClientLoggingContext">An optional context for logging client methods.</param>
         /// <param name="ServerLoggingContext">An optional context for logging server methods.</param>
@@ -282,7 +286,8 @@ namespace org.GraphDefined.WWCP
                                               String                                                       URIPrefix                                       = OIOIv4_x.CPO.CPOClient.DefaultURIPrefix,
                                               OIOIv4_x.Partner_Id?                                         DefaultPartnerId                                = null,
                                               String                                                       HTTPUserAgent                                   = OIOIv4_x.CPO.CPOClient.DefaultHTTPUserAgent,
-                                              TimeSpan?                                                    QueryTimeout                                    = null,
+                                              TimeSpan?                                                    RequestTimeout                                  = null,
+                                              Byte?                                                        MaxNumberOfRetries                              = OIOIv4_x.CPO.CPOClient.DefaultMaxNumberOfRetries,
 
                                               HTTPHostname                                                 HTTPHostname                                    = null,
                                               String                                                       ServerURIPrefix                                 = null,
@@ -354,7 +359,8 @@ namespace org.GraphDefined.WWCP
                                                                                                 URIPrefix,
                                                                                                 HTTPUserAgent,
                                                                                                 DefaultPartnerId,
-                                                                                                QueryTimeout,
+                                                                                                RequestTimeout,
+                                                                                                MaxNumberOfRetries,
                                                                                                 DNSClient,
                                                                                                 ClientLoggingContext,
                                                                                                 LogFileCreator),

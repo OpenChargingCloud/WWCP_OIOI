@@ -792,6 +792,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="RemoteHTTPVirtualHost">An optional HTTP virtual hostname of the remote OIOI service.</param>
         /// <param name="HTTPUserAgent">An optional HTTP user agent identification string for this HTTP client.</param>
         /// <param name="RequestTimeout">An optional timeout for upstream queries.</param>
+        /// <param name="MaxNumberOfRetries">The default number of maximum transmission retries.</param>
         /// 
         /// <param name="ServerName">An optional identification string for the HTTP server.</param>
         /// <param name="ServerTCPPort">An optional TCP port for the HTTP server.</param>
@@ -817,6 +818,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                           Partner_Id?                          DefaultPartnerId                = null,
                           String                               HTTPUserAgent                   = CPOClient.DefaultHTTPUserAgent,
                           TimeSpan?                            RequestTimeout                  = null,
+                          Byte?                                MaxNumberOfRetries              = CPOClient.DefaultMaxNumberOfRetries,
 
                           String                               ServerName                      = CPOServer.DefaultHTTPServerName,
                           HTTPHostname                         HTTPHostname                    = null,
@@ -846,6 +848,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                  HTTPUserAgent,
                                  DefaultPartnerId,
                                  RequestTimeout,
+                                 MaxNumberOfRetries,
                                  DNSClient,
                                  ClientLoggingContext,
                                  LogFileCreator),

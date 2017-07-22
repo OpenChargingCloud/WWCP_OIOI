@@ -336,6 +336,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         /// <param name="URIPrefix">The default URI prefix.</param>
         /// <param name="DefaultPartnerId">The default communication partner identification.</param>
         /// <param name="RequestTimeout">An optional timeout for upstream queries.</param>
+        /// <param name="MaxNumberOfRetries">The default number of maximum transmission retries.</param>
         /// <param name="DNSClient">An optional DNS client to use.</param>
         /// <param name="LoggingContext">An optional context for logging client methods.</param>
         /// <param name="LogFileCreator">A delegate to create a log file from the given context and log file name.</param>
@@ -351,6 +352,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                          String                               HTTPUserAgent                = DefaultHTTPUserAgent,
                          Partner_Id?                          DefaultPartnerId             = null,
                          TimeSpan?                            RequestTimeout               = null,
+                         Byte?                                MaxNumberOfRetries           = DefaultMaxNumberOfRetries,
                          DNSClient                            DNSClient                    = null,
                          String                               LoggingContext               = EMPClientLogger.DefaultContext,
                          LogfileCreatorDelegate               LogFileCreator               = null)
@@ -364,6 +366,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                    HTTPVirtualHost,
                    HTTPUserAgent,
                    RequestTimeout,
+                   MaxNumberOfRetries,
                    DNSClient)
 
         {
@@ -410,6 +413,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         /// <param name="HTTPUserAgent">An optional HTTP user agent identification string for this HTTP client.</param>
         /// <param name="DefaultPartnerId">The default communication partner identification.</param>
         /// <param name="RequestTimeout">An optional timeout for upstream queries.</param>
+        /// <param name="MaxNumberOfRetries">The default number of maximum transmission retries.</param>
         /// <param name="DNSClient">An optional DNS client to use.</param>
         public EMPClient(String                               ClientId,
                          EMPClientLogger                      Logger,
@@ -424,6 +428,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                          String                               HTTPUserAgent                = DefaultHTTPUserAgent,
                          Partner_Id?                          DefaultPartnerId             = null,
                          TimeSpan?                            RequestTimeout               = null,
+                         Byte?                                MaxNumberOfRetries           = DefaultMaxNumberOfRetries,
                          DNSClient                            DNSClient                    = null)
 
             : base(ClientId,
@@ -435,6 +440,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                    HTTPVirtualHost,
                    HTTPUserAgent,
                    RequestTimeout,
+                   MaxNumberOfRetries,
                    DNSClient)
 
         {
