@@ -100,9 +100,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                            RoamingNetwork_Id                              RoamingNetworkId,
                                                            UInt64                                         NumberOfStations,
                                                            IEnumerable<Tuple<ChargingStation, Station>>   Stations,
-                                                           IEnumerable<String>                            Warnings,
                                                            TimeSpan?                                      RequestTimeout,
-                                                           Acknowledgement                                Result,
+                                                           PushDataResult                                Result,
                                                            TimeSpan                                       Runtime);
 
 
@@ -132,9 +131,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                    RoamingNetwork_Id                                       RoamingNetworkId,
                                                                    UInt64                                                  NumberOfEVSEDataRecords,
                                                                    IEnumerable<Tuple<EVSEStatusUpdate, ConnectorStatus>>   ConnectorStatus,
-                                                                   IEnumerable<String>                                     Warnings,
                                                                    TimeSpan?                                               RequestTimeout,
-                                                                   WWCP.Acknowledgement                                    Result,
+                                                                   PushStatusResult                                        Result,
                                                                    TimeSpan                                                Runtime);
 
 }
