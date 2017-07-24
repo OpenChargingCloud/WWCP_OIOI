@@ -108,10 +108,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         IId ISendAuthorizeStartStop.AuthId
             => Id;
 
-        IId ISend2RemoteChargeDetailRecords.Id
+        IId ISendChargeDetailRecords.Id
             => Id;
 
-        IEnumerable<IId> ISend2RemoteChargeDetailRecords.Ids
+        IEnumerable<IId> ISendChargeDetailRecords.Ids
             => Ids.Cast<IId>();
 
         #region Name
@@ -218,6 +218,15 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// This service can be disabled, e.g. for debugging reasons.
         /// </summary>
         public Boolean  DisablePushData                  { get; set; }
+
+        #endregion
+
+        #region DisablePushAdminStatus
+
+        /// <summary>
+        /// This service can be disabled, e.g. for debugging reasons.
+        /// </summary>
+        public Boolean  DisablePushAdminStatus           { get; set; }
 
         #endregion
 
@@ -1189,7 +1198,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        private async Task<PushDataResult>
+        private async Task<PushChargingStationDataResult>
 
             StationPost(IEnumerable<ChargingStation>  ChargingStations,
 
@@ -1203,7 +1212,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             #region Initial checks
 
             if (ChargingStations == null)
-                throw new ArgumentNullException(nameof(ChargingStations), "The given enumeration of ChargingStations must not be null!");
+                throw new ArgumentNullException(nameof(ChargingStations), "The given enumeration of charging stations must not be null!");
 
 
             if (!Timestamp.HasValue)
@@ -1277,23 +1286,34 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             #endregion
 
 
-            DateTime         Endtime;
-            TimeSpan         Runtime;
-            PushDataResult  result;
+            DateTime                       Endtime;
+            TimeSpan                       Runtime;
+            PushChargingStationDataResult  result;
 
-            if (DisablePushData || _Stations.Length == 0)
+            if (DisablePushData)
             {
+
                 Endtime  = DateTime.UtcNow;
                 Runtime  = Endtime - StartTime;
-                result   = new PushDataResult(ResultTypes.NoOperation,
-                                               Warnings: Warnings);
+                result   = PushChargingStationDataResult.AdminDown(Id,
+                                                                   this,
+                                                                   Warnings: Warnings);
+
+            }
+
+            else if (_Stations.Length == 0)
+            {
+
+                Endtime  = DateTime.UtcNow;
+                Runtime  = Endtime - StartTime;
+                result   = PushChargingStationDataResult.NoOperation(Id,
+                                                                     this,
+                                                                     Warnings: Warnings);
+
             }
 
             else
             {
-
-                result = new PushDataResult(ResultTypes.NoOperation,
-                                             Warnings: Warnings);
 
                 var responses = await Task.WhenAll(_Stations.
                                                        Select(station => CPORoaming.StationPost(station.Item2,
@@ -1307,38 +1327,54 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                        ConfigureAwait(false);
 
 
+                var results = responses.SelectCounted((i, response) => {
 
-                Endtime = DateTime.UtcNow;
-                Runtime = Endtime - StartTime;
+                                  if (response.HTTPStatusCode == HTTPStatusCode.OK &&
+                                      response.Content        != null)
+                                  {
 
-                //if (response.HTTPStatusCode == HTTPStatusCode.OK &&
-                //    response.Content        != null)
-                //{
+                                      if (response.Content.Code == ResponseCodes.Success)
+                                          return new PushSingleChargingStationDataResult(_Stations[i].Item1,
+                                                                                         PushSingleDataResultTypes.Success,
+                                                                                         new String[] { response.Content.Message });
 
-                //    if (response.Content.Result)
-                //        result = new Acknowledgement(ResultType.True,
-                //                                          response.Content.StatusCode.Description,
-                //                                          response.Content.StatusCode.AdditionalInfo.IsNotNullOrEmpty()
-                //                                              ? Warnings.AddAndReturnList(response.Content.StatusCode.AdditionalInfo)
-                //                                              : Warnings,
-                //                                          Runtime);
+                                      else
+                                          return new PushSingleChargingStationDataResult(_Stations[i].Item1,
+                                                                                         PushSingleDataResultTypes.Error,
+                                                                                         new String[] { response.Content.Message });
 
-                //    else
-                //        result = new Acknowledgement(ResultType.False,
-                //                                          response.Content.StatusCode.Description,
-                //                                          response.Content.StatusCode.AdditionalInfo.IsNotNullOrEmpty()
-                //                                              ? Warnings.AddAndReturnList(response.Content.StatusCode.AdditionalInfo)
-                //                                              : Warnings,
-                //                                          Runtime);
+                                  }
+                                  else
+                                      return new PushSingleChargingStationDataResult(_Stations[i].Item1,
+                                                                                     PushSingleDataResultTypes.Error,
+                                                                                     new String[] {
+                                                                                         response.HTTPStatusCode.ToString()
+                                                                                     }.Concat(
+                                                                                         response.HTTPBody != null
+                                                                                             ? Warnings.AddAndReturnList(response.HTTPBody.ToUTF8String())
+                                                                                             : Warnings.AddAndReturnList("No HTTP body received!")
+                                                                                     ));
 
-                //}
-                //else
-                //    result = new Acknowledgement(ResultType.False,
-                //                                      response.HTTPStatusCode.ToString(),
-                //                                      response.HTTPBody != null
-                //                                          ? Warnings.AddAndReturnList(response.HTTPBody.ToUTF8String())
-                //                                          : Warnings.AddAndReturnList("No HTTP body received!"),
-                //                                      Runtime);
+                });
+
+                Endtime  = DateTime.UtcNow;
+                Runtime  = Endtime - StartTime;
+
+                result   = results.All(_ => _.Result == PushSingleDataResultTypes.Success)
+
+                               ? PushChargingStationDataResult.Success(Id,
+                                                                       this,
+                                                                       null,
+                                                                       Warnings,
+                                                                       Runtime)
+
+                               : PushChargingStationDataResult.Error  (Id,
+                                                                       this,
+                                                                       results.Where(_ => _.Result != PushSingleDataResultTypes.Success),
+                                                                       null,
+                                                                       Warnings,
+                                                                       Runtime);
+
 
             }
 
@@ -1492,7 +1528,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             {
                 Endtime = DateTime.UtcNow;
                 Runtime = Endtime - StartTime;
-                result = new PushStatusResult(ResultTypes.NoOperation);  //AuthStartChargingStationResult.OutOfService(Id, SessionId, Runtime);
+                result = PushStatusResult.NoOperation(Id, this);  //AuthStartChargingStationResult.OutOfService(Id, SessionId, Runtime);
             }
 
             else
@@ -1512,7 +1548,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 Endtime = DateTime.UtcNow;
                 Runtime = Endtime - StartTime;
 
-                result = new PushStatusResult(ResultTypes.NoOperation);
+                result = PushStatusResult.NoOperation(Id, this);
 
                 //if (response.HTTPStatusCode == HTTPStatusCode.OK &&
                 //    response.Content        != null)
@@ -1592,15 +1628,15 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.SetStaticData(EVSE                EVSE,
-                                          TransmissionTypes   TransmissionType,
+                                    TransmissionTypes   TransmissionType,
 
-                                          DateTime?           Timestamp,
-                                          CancellationToken?  CancellationToken,
-                                          EventTracking_Id    EventTrackingId,
-                                          TimeSpan?           RequestTimeout)
+                                    DateTime?           Timestamp,
+                                    CancellationToken?  CancellationToken,
+                                    EventTracking_Id    EventTrackingId,
+                                    TimeSpan?           RequestTimeout)
 
         {
 
@@ -1652,20 +1688,23 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 }
 
-                return new PushDataResult(ResultTypes.Enqueued);
+                return PushEVSEDataResult.Enqueued(Id, this);
 
             }
 
             #endregion
 
-            return await StationPost(new ChargingStation[] { EVSE.ChargingStation },
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+            return (await StationPost(new ChargingStation[] { EVSE.ChargingStation },
 
-                                     ConfigureAwait(false);
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
+
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
@@ -1683,15 +1722,15 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.AddStaticData(EVSE                EVSE,
-                                          TransmissionTypes   TransmissionType,
+                                    TransmissionTypes   TransmissionType,
 
-                                          DateTime?           Timestamp,
-                                          CancellationToken?  CancellationToken,
-                                          EventTracking_Id    EventTrackingId,
-                                          TimeSpan?           RequestTimeout)
+                                    DateTime?           Timestamp,
+                                    CancellationToken?  CancellationToken,
+                                    EventTracking_Id    EventTrackingId,
+                                    TimeSpan?           RequestTimeout)
 
         {
 
@@ -1743,20 +1782,23 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 }
 
-                return new PushDataResult(ResultTypes.Enqueued);
+                return PushEVSEDataResult.Enqueued(Id, this);
 
             }
 
             #endregion
 
-            return await StationPost(new ChargingStation[] { EVSE.ChargingStation },
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+            return (await StationPost(new ChargingStation[] { EVSE.ChargingStation },
 
-                                     ConfigureAwait(false);
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
+
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
@@ -1778,18 +1820,18 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.UpdateStaticData(EVSE                EVSE,
-                                             String              PropertyName,
-                                             Object              OldValue,
-                                             Object              NewValue,
-                                             TransmissionTypes   TransmissionType,
+                                       String              PropertyName,
+                                       Object              OldValue,
+                                       Object              NewValue,
+                                       TransmissionTypes   TransmissionType,
 
-                                             DateTime?           Timestamp,
-                                             CancellationToken?  CancellationToken,
-                                             EventTracking_Id    EventTrackingId,
-                                             TimeSpan?           RequestTimeout)
+                                       DateTime?           Timestamp,
+                                       CancellationToken?  CancellationToken,
+                                       EventTracking_Id    EventTrackingId,
+                                       TimeSpan?           RequestTimeout)
 
         {
 
@@ -1841,20 +1883,23 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 }
 
-                return new PushDataResult(ResultTypes.Enqueued);
+                return PushEVSEDataResult.Enqueued(Id, this);
 
             }
 
             #endregion
 
-            return await StationPost(new ChargingStation[] { EVSE.ChargingStation },
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+            return (await StationPost(new ChargingStation[] { EVSE.ChargingStation },
 
-                                     ConfigureAwait(false);
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
+
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
@@ -1872,7 +1917,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.DeleteStaticData(EVSE                EVSE,
                                              TransmissionTypes   TransmissionType,
@@ -1932,21 +1977,23 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 }
 
-                return new PushDataResult(ResultTypes.Enqueued);
+                return PushEVSEDataResult.Enqueued(Id, this);
 
             }
 
             #endregion
 
 
-            return await StationPost(new ChargingStation[] { EVSE.ChargingStation },
+            return (await StationPost(new ChargingStation[] { EVSE.ChargingStation },
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
 
-                                     ConfigureAwait(false);
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
@@ -1964,7 +2011,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.SetStaticData(IEnumerable<EVSE>   EVSEs,
                                     TransmissionTypes   TransmissionType,
@@ -1983,14 +2030,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return await StationPost(EVSEs.Select(evse => evse.ChargingStation).Distinct(),
+            return (await StationPost(EVSEs.Select(evse => evse.ChargingStation).Distinct(),
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
 
-                                     ConfigureAwait(false);
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
@@ -2007,7 +2056,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.AddStaticData(IEnumerable<EVSE>   EVSEs,
                                     TransmissionTypes   TransmissionType,
@@ -2026,14 +2075,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return await StationPost(EVSEs.Select(evse => evse.ChargingStation).Distinct(),
+            return (await StationPost(EVSEs.Select(evse => evse.ChargingStation).Distinct(),
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
 
-                                     ConfigureAwait(false);
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
@@ -2050,7 +2101,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.UpdateStaticData(IEnumerable<EVSE>   EVSEs,
                                        TransmissionTypes   TransmissionType,
@@ -2069,14 +2120,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return await StationPost(EVSEs.Select(evse => evse.ChargingStation).Distinct(),
+            return (await StationPost(EVSEs.Select(evse => evse.ChargingStation).Distinct(),
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
 
-                                     ConfigureAwait(false);
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
@@ -2093,7 +2146,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.DeleteStaticData(IEnumerable<EVSE>   EVSEs,
                                        TransmissionTypes   TransmissionType,
@@ -2112,14 +2165,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return await StationPost(EVSEs.Select(evse => evse.ChargingStation).Distinct(),
+            return (await StationPost(EVSEs.Select(evse => evse.ChargingStation).Distinct(),
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
 
-                                     ConfigureAwait(false);
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
@@ -2138,18 +2193,18 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        Task<PushStatusResult>
+        Task<PushAdminStatusResult>
 
-            ISendStatus.UpdateAdminStatus(IEnumerable<EVSEAdminStatusUpdate>  AdminStatusUpdates,
-                                          TransmissionTypes                   TransmissionType,
+            ISendAdminStatus.UpdateAdminStatus(IEnumerable<EVSEAdminStatusUpdate>  AdminStatusUpdates,
+                                               TransmissionTypes                   TransmissionType,
 
-                                          DateTime?                           Timestamp,
-                                          CancellationToken?                  CancellationToken,
-                                          EventTracking_Id                    EventTrackingId,
-                                          TimeSpan?                           RequestTimeout)
+                                               DateTime?                           Timestamp,
+                                               CancellationToken?                  CancellationToken,
+                                               EventTracking_Id                    EventTrackingId,
+                                               TimeSpan?                           RequestTimeout)
 
 
-                => Task.FromResult(new PushStatusResult(ResultTypes.NoOperation));
+                => Task.FromResult(PushAdminStatusResult.NoOperation(Id, this));
 
         #endregion
 
@@ -2226,11 +2281,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                         Monitor.Exit(StatusCheckLock);
                     }
 
-                    return new PushStatusResult(ResultTypes.Enqueued);
+                    return PushStatusResult.Enqueued(Id, this);
 
                 }
 
-                return new PushStatusResult(ResultTypes.LockTimeout);
+                return PushStatusResult.LockTimeout(Id, this);
 
             }
 
@@ -2266,15 +2321,15 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.SetStaticData(ChargingStation     ChargingStation,
-                                          TransmissionTypes   TransmissionType,
+                                    TransmissionTypes   TransmissionType,
 
-                                          DateTime?           Timestamp,
-                                          CancellationToken?  CancellationToken,
-                                          EventTracking_Id    EventTrackingId,
-                                          TimeSpan?           RequestTimeout)
+                                    DateTime?           Timestamp,
+                                    CancellationToken?  CancellationToken,
+                                    EventTracking_Id    EventTrackingId,
+                                    TimeSpan?           RequestTimeout)
 
         {
 
@@ -2326,20 +2381,23 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 }
 
-                return new PushDataResult(ResultTypes.Enqueued);
+                return PushEVSEDataResult.Enqueued(Id, this);
 
             }
 
             #endregion
 
-            return await StationPost(new ChargingStation[] { ChargingStation },
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+            return (await StationPost(new ChargingStation[] { ChargingStation },
 
-                                     ConfigureAwait(false);
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
+
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
@@ -2357,15 +2415,15 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.AddStaticData(ChargingStation     ChargingStation,
-                                          TransmissionTypes   TransmissionType,
+                                    TransmissionTypes   TransmissionType,
 
-                                          DateTime?           Timestamp,
-                                          CancellationToken?  CancellationToken,
-                                          EventTracking_Id    EventTrackingId,
-                                          TimeSpan?           RequestTimeout)
+                                    DateTime?           Timestamp,
+                                    CancellationToken?  CancellationToken,
+                                    EventTracking_Id    EventTrackingId,
+                                    TimeSpan?           RequestTimeout)
 
         {
 
@@ -2417,20 +2475,22 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 }
 
-                return new PushDataResult(ResultTypes.Enqueued);
+                return PushEVSEDataResult.Enqueued(Id, this);
 
             }
 
             #endregion
 
-            return await StationPost(new ChargingStation[] { ChargingStation },
+            return (await StationPost(new ChargingStation[] { ChargingStation },
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
 
-                                     ConfigureAwait(false);
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
@@ -2451,18 +2511,18 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.UpdateStaticData(ChargingStation     ChargingStation,
-                                             String              PropertyName,
-                                             Object              OldValue,
-                                             Object              NewValue,
-                                             TransmissionTypes   TransmissionType,
+                                       String              PropertyName,
+                                       Object              OldValue,
+                                       Object              NewValue,
+                                       TransmissionTypes   TransmissionType,
 
-                                             DateTime?           Timestamp,
-                                             CancellationToken?  CancellationToken,
-                                             EventTracking_Id    EventTrackingId,
-                                             TimeSpan?           RequestTimeout)
+                                       DateTime?           Timestamp,
+                                       CancellationToken?  CancellationToken,
+                                       EventTracking_Id    EventTrackingId,
+                                       TimeSpan?           RequestTimeout)
 
         {
 
@@ -2514,44 +2574,48 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 }
 
-                return new PushDataResult(ResultTypes.Enqueued);
+                return PushEVSEDataResult.Enqueued(Id, this);
 
             }
 
             #endregion
 
-            return await StationPost(new ChargingStation[] { ChargingStation },
+            return (await StationPost(new ChargingStation[] { ChargingStation },
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
 
-                                     ConfigureAwait(false);
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
         #endregion
 
-        #region DeleteStaticData(ChargingStation, ...)
+        #region DeleteStaticData(ChargingStation, TransmissionType = Enqueued, ...)
 
         /// <summary>
         /// Delete the EVSE data of the given charging station from the static EVSE data at the OIOI server.
         /// </summary>
         /// <param name="ChargingStation">A charging station.</param>
+        /// <param name="TransmissionType">Whether to send the charging pool update directly or enqueue it for a while.</param>
         /// 
         /// <param name="Timestamp">The optional timestamp of the request.</param>
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.DeleteStaticData(ChargingStation     ChargingStation,
+                                       TransmissionTypes   TransmissionType,
 
-                                             DateTime?           Timestamp,
-                                             CancellationToken?  CancellationToken,
-                                             EventTracking_Id    EventTrackingId,
-                                             TimeSpan?           RequestTimeout)
+                                       DateTime?           Timestamp,
+                                       CancellationToken?  CancellationToken,
+                                       EventTracking_Id    EventTrackingId,
+                                       TimeSpan?           RequestTimeout)
 
         {
 
@@ -2562,39 +2626,43 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return await StationPost(new ChargingStation[] { ChargingStation },
+            return (await StationPost(new ChargingStation[] { ChargingStation },
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
 
-                                     ConfigureAwait(false);
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
         #endregion
 
 
-        #region SetStaticData   (ChargingStations, ...)
+        #region SetStaticData   (ChargingStations, TransmissionType = Enqueued, ...)
 
         /// <summary>
-        /// Set the EVSE data of the given enumeration of charging stations as new static EVSE data at the OIOI server.
+        /// Set the EVSE data of the given enumeration of charging stations as new static EVSE data at the OICP server.
         /// </summary>
         /// <param name="ChargingStations">An enumeration of charging stations.</param>
+        /// <param name="TransmissionType">Whether to send the charging station update directly or enqueue it for a while.</param>
         /// 
         /// <param name="Timestamp">The optional timestamp of the request.</param>
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.SetStaticData(IEnumerable<ChargingStation>  ChargingStations,
+                                    TransmissionTypes             TransmissionType,
 
-                                          DateTime?                     Timestamp,
-                                          CancellationToken?            CancellationToken,
-                                          EventTracking_Id              EventTrackingId,
-                                          TimeSpan?                     RequestTimeout)
+                                    DateTime?                     Timestamp,
+                                    CancellationToken?            CancellationToken,
+                                    EventTracking_Id              EventTrackingId,
+                                    TimeSpan?                     RequestTimeout)
 
         {
 
@@ -2605,38 +2673,43 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return await StationPost(ChargingStations,
+            return (await StationPost(ChargingStations,
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
 
-                                     ConfigureAwait(false);
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
         #endregion
 
-        #region AddStaticData   (ChargingStations, ...)
+        #region AddStaticData   (ChargingStations, TransmissionType = Enqueued, ...)
 
         /// <summary>
-        /// Add the EVSE data of the given enumeration of charging stations to the static EVSE data at the OIOI server.
+        /// Add the EVSE data of the given enumeration of charging stations to the static EVSE data at the OICP server.
         /// </summary>
         /// <param name="ChargingStations">An enumeration of charging stations.</param>
+        /// <param name="TransmissionType">Whether to send the charging station update directly or enqueue it for a while.</param>
         /// 
         /// <param name="Timestamp">The optional timestamp of the request.</param>
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.AddStaticData(IEnumerable<ChargingStation>  ChargingStations,
+                                    TransmissionTypes             TransmissionType,
 
-                                          DateTime?                     Timestamp,
-                                          CancellationToken?            CancellationToken,
-                                          EventTracking_Id              EventTrackingId,
-                                          TimeSpan?                     RequestTimeout)
+
+                                    DateTime?                     Timestamp,
+                                    CancellationToken?            CancellationToken,
+                                    EventTracking_Id              EventTrackingId,
+                                    TimeSpan?                     RequestTimeout)
 
         {
 
@@ -2647,38 +2720,42 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return await StationPost(ChargingStations,
+            return (await StationPost(ChargingStations,
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
 
-                                     ConfigureAwait(false);
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
         #endregion
 
-        #region UpdateStaticData(ChargingStations, ...)
+        #region UpdateStaticData(ChargingStations, TransmissionType = Enqueued, ...)
 
         /// <summary>
-        /// Update the EVSE data of the given enumeration of charging stations within the static EVSE data at the OIOI server.
+        /// Update the EVSE data of the given enumeration of charging stations within the static EVSE data at the OICP server.
         /// </summary>
         /// <param name="ChargingStations">An enumeration of charging stations.</param>
+        /// <param name="TransmissionType">Whether to send the charging station update directly or enqueue it for a while.</param>
         /// 
         /// <param name="Timestamp">The optional timestamp of the request.</param>
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.UpdateStaticData(IEnumerable<ChargingStation>  ChargingStations,
+                                       TransmissionTypes             TransmissionType,
 
-                                             DateTime?                     Timestamp,
-                                             CancellationToken?            CancellationToken,
-                                             EventTracking_Id              EventTrackingId,
-                                             TimeSpan?                     RequestTimeout)
+                                       DateTime?                     Timestamp,
+                                       CancellationToken?            CancellationToken,
+                                       EventTracking_Id              EventTrackingId,
+                                       TimeSpan?                     RequestTimeout)
 
         {
 
@@ -2689,38 +2766,42 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return await StationPost(ChargingStations,
+            return (await StationPost(ChargingStations,
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
 
-                                     ConfigureAwait(false);
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
         #endregion
 
-        #region DeleteStaticData(ChargingStations, ...)
+        #region DeleteStaticData(ChargingStations, TransmissionType = Enqueued, ...)
 
         /// <summary>
-        /// Delete the EVSE data of the given enumeration of charging stations from the static EVSE data at the OIOI server.
+        /// Delete the EVSE data of the given enumeration of charging stations from the static EVSE data at the OICP server.
         /// </summary>
         /// <param name="ChargingStations">An enumeration of charging stations.</param>
+        /// <param name="TransmissionType">Whether to send the charging station update directly or enqueue it for a while.</param>
         /// 
         /// <param name="Timestamp">The optional timestamp of the request.</param>
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.DeleteStaticData(IEnumerable<ChargingStation>  ChargingStations,
+                                       TransmissionTypes             TransmissionType,
 
-                                             DateTime?                     Timestamp,
-                                             CancellationToken?            CancellationToken,
-                                             EventTracking_Id              EventTrackingId,
-                                             TimeSpan?                     RequestTimeout)
+                                       DateTime?                     Timestamp,
+                                       CancellationToken?            CancellationToken,
+                                       EventTracking_Id              EventTrackingId,
+                                       TimeSpan?                     RequestTimeout)
 
         {
 
@@ -2731,14 +2812,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return await StationPost(ChargingStations, //ToDo: Mark them as deleted!
+            return (await StationPost(ChargingStations, //ToDo: Mark them as deleted!
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
 
-                                     ConfigureAwait(false);
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
@@ -2757,18 +2840,18 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        Task<PushStatusResult>
+        Task<PushAdminStatusResult>
 
-            ISendStatus.UpdateAdminStatus(IEnumerable<ChargingStationAdminStatusUpdate>  AdminStatusUpdates,
-                                          TransmissionTypes                              TransmissionType,
+            ISendAdminStatus.UpdateAdminStatus(IEnumerable<ChargingStationAdminStatusUpdate>  AdminStatusUpdates,
+                                               TransmissionTypes                              TransmissionType,
 
-                                          DateTime?                                      Timestamp,
-                                          CancellationToken?                             CancellationToken,
-                                          EventTracking_Id                               EventTrackingId,
-                                          TimeSpan?                                      RequestTimeout)
+                                               DateTime?                                      Timestamp,
+                                               CancellationToken?                             CancellationToken,
+                                               EventTracking_Id                               EventTrackingId,
+                                               TimeSpan?                                      RequestTimeout)
 
 
-                => Task.FromResult(new PushStatusResult(ResultTypes.NoOperation));
+                => Task.FromResult(PushAdminStatusResult.NoOperation(Id, this));
 
         #endregion
 
@@ -2795,7 +2878,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                      TimeSpan?                                 RequestTimeout)
 
 
-                => Task.FromResult(new PushStatusResult(ResultTypes.NoOperation));
+                => Task.FromResult(PushStatusResult.NoOperation(Id, this));
 
         #endregion
 
@@ -2815,15 +2898,15 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.SetStaticData(ChargingPool        ChargingPool,
-                                          TransmissionTypes   TransmissionType,
+                                    TransmissionTypes   TransmissionType,
 
-                                          DateTime?           Timestamp,
-                                          CancellationToken?  CancellationToken,
-                                          EventTracking_Id    EventTrackingId,
-                                          TimeSpan?           RequestTimeout)
+                                    DateTime?           Timestamp,
+                                    CancellationToken?  CancellationToken,
+                                    EventTracking_Id    EventTrackingId,
+                                    TimeSpan?           RequestTimeout)
 
         {
 
@@ -2880,20 +2963,23 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 }
 
-                return new PushDataResult(ResultTypes.Enqueued);
+                return PushEVSEDataResult.Enqueued(Id, this);
 
             }
 
             #endregion
 
-            return await StationPost(ChargingPool.ChargingStations,
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+            return (await StationPost(ChargingPool.ChargingStations,
 
-                                     ConfigureAwait(false);
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
+
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
@@ -2911,15 +2997,15 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.AddStaticData(ChargingPool        ChargingPool,
-                                          TransmissionTypes   TransmissionType,
+                                    TransmissionTypes   TransmissionType,
 
-                                          DateTime?           Timestamp,
-                                          CancellationToken?  CancellationToken,
-                                          EventTracking_Id    EventTrackingId,
-                                          TimeSpan?           RequestTimeout)
+                                    DateTime?           Timestamp,
+                                    CancellationToken?  CancellationToken,
+                                    EventTracking_Id    EventTrackingId,
+                                    TimeSpan?           RequestTimeout)
 
         {
 
@@ -2976,20 +3062,23 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 }
 
-                return new PushDataResult(ResultTypes.Enqueued);
+                return PushEVSEDataResult.Enqueued(Id, this);
 
             }
 
             #endregion
 
-            return await StationPost(ChargingPool.ChargingStations,
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+            return (await StationPost(ChargingPool.ChargingStations,
 
-                                     ConfigureAwait(false);
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
+
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
@@ -3010,18 +3099,18 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.UpdateStaticData(ChargingPool        ChargingPool,
-                                             String              PropertyName,
-                                             Object              OldValue,
-                                             Object              NewValue,
-                                             TransmissionTypes   TransmissionType,
+                                       String              PropertyName,
+                                       Object              OldValue,
+                                       Object              NewValue,
+                                       TransmissionTypes   TransmissionType,
 
-                                             DateTime?           Timestamp,
-                                             CancellationToken?  CancellationToken,
-                                             EventTracking_Id    EventTrackingId,
-                                             TimeSpan?           RequestTimeout)
+                                       DateTime?           Timestamp,
+                                       CancellationToken?  CancellationToken,
+                                       EventTracking_Id    EventTrackingId,
+                                       TimeSpan?           RequestTimeout)
 
         {
 
@@ -3078,44 +3167,49 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 }
 
-                return new PushDataResult(ResultTypes.Enqueued);
+                return PushEVSEDataResult.Enqueued(Id, this);
 
             }
 
             #endregion
 
-            return await StationPost(ChargingPool.ChargingStations,
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+            return (await StationPost(ChargingPool.ChargingStations,
 
-                                     ConfigureAwait(false);
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
+
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
         #endregion
 
-        #region DeleteStaticData(ChargingPool, ...)
+        #region DeleteStaticData(ChargingPool, TransmissionType = Enqueued, ...)
 
         /// <summary>
         /// Delete the EVSE data of the given charging pool from the static EVSE data at the OIOI server.
         /// </summary>
         /// <param name="ChargingPool">A charging pool.</param>
+        /// <param name="TransmissionType">Whether to send the charging pool update directly or enqueue it for a while.</param>
         /// 
         /// <param name="Timestamp">The optional timestamp of the request.</param>
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.DeleteStaticData(ChargingPool        ChargingPool,
+                                       TransmissionTypes   TransmissionType,
 
-                                             DateTime?           Timestamp,
-                                             CancellationToken?  CancellationToken,
-                                             EventTracking_Id    EventTrackingId,
-                                             TimeSpan?           RequestTimeout)
+                                       DateTime?           Timestamp,
+                                       CancellationToken?  CancellationToken,
+                                       EventTracking_Id    EventTrackingId,
+                                       TimeSpan?           RequestTimeout)
 
         {
 
@@ -3126,39 +3220,44 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return await StationPost(ChargingPool.ChargingStations,
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+            return (await StationPost(ChargingPool.ChargingStations, // Mark as deleted?
 
-                                     ConfigureAwait(false);
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
+
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
         #endregion
 
 
-        #region SetStaticData   (ChargingPools, ...)
+        #region SetStaticData   (ChargingPools, TransmissionType = Enqueued, ...)
 
         /// <summary>
-        /// Set the EVSE data of the given enumeration of charging pools as new static EVSE data at the OIOI server.
+        /// Set the EVSE data of the given enumeration of charging pools as new static EVSE data at the OICP server.
         /// </summary>
         /// <param name="ChargingPools">An enumeration of charging pools.</param>
+        /// <param name="TransmissionType">Whether to send the charging pool update directly or enqueue it for a while.</param>
         /// 
         /// <param name="Timestamp">The optional timestamp of the request.</param>
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.SetStaticData(IEnumerable<ChargingPool>  ChargingPools,
+                                    TransmissionTypes          TransmissionType,
 
-                                          DateTime?                  Timestamp,
-                                          CancellationToken?         CancellationToken,
-                                          EventTracking_Id           EventTrackingId,
-                                          TimeSpan?                  RequestTimeout)
+                                    DateTime?                  Timestamp,
+                                    CancellationToken?         CancellationToken,
+                                    EventTracking_Id           EventTrackingId,
+                                    TimeSpan?                  RequestTimeout)
 
         {
 
@@ -3169,38 +3268,43 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return await StationPost(ChargingPools.SafeSelectMany(pool => pool.ChargingStations),
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+            return (await StationPost(ChargingPools.SafeSelectMany(pool => pool.ChargingStations),
 
-                                     ConfigureAwait(false);
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
+
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
         #endregion
 
-        #region AddStaticData   (ChargingPools, ...)
+        #region AddStaticData   (ChargingPools, TransmissionType = Enqueued, ...)
 
         /// <summary>
-        /// Add the EVSE data of the given enumeration of charging pools to the static EVSE data at the OIOI server.
+        /// Add the EVSE data of the given enumeration of charging pools to the static EVSE data at the OICP server.
         /// </summary>
         /// <param name="ChargingPools">An enumeration of charging pools.</param>
+        /// <param name="TransmissionType">Whether to send the charging pool update directly or enqueue it for a while.</param>
         /// 
         /// <param name="Timestamp">The optional timestamp of the request.</param>
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.AddStaticData(IEnumerable<ChargingPool>  ChargingPools,
+                                    TransmissionTypes          TransmissionType,
 
-                                          DateTime?                  Timestamp,
-                                          CancellationToken?         CancellationToken,
-                                          EventTracking_Id           EventTrackingId,
-                                          TimeSpan?                  RequestTimeout)
+                                    DateTime?                  Timestamp,
+                                    CancellationToken?         CancellationToken,
+                                    EventTracking_Id           EventTrackingId,
+                                    TimeSpan?                  RequestTimeout)
 
         {
 
@@ -3211,38 +3315,42 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return await StationPost(ChargingPools.SafeSelectMany(pool => pool.ChargingStations),
+            return (await StationPost(ChargingPools.SafeSelectMany(pool => pool.ChargingStations),
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
 
-                                     ConfigureAwait(false);
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
         #endregion
 
-        #region UpdateStaticData(ChargingPools, ...)
+        #region UpdateStaticData(ChargingPools, TransmissionType = Enqueued, ...)
 
         /// <summary>
-        /// Update the EVSE data of the given enumeration of charging pools within the static EVSE data at the OIOI server.
+        /// Update the EVSE data of the given enumeration of charging pools within the static EVSE data at the OICP server.
         /// </summary>
         /// <param name="ChargingPools">An enumeration of charging pools.</param>
+        /// <param name="TransmissionType">Whether to send the charging pool update directly or enqueue it for a while.</param>
         /// 
         /// <param name="Timestamp">The optional timestamp of the request.</param>
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.UpdateStaticData(IEnumerable<ChargingPool>  ChargingPools,
+                                       TransmissionTypes          TransmissionType,
 
-                                             DateTime?                  Timestamp,
-                                             CancellationToken?         CancellationToken,
-                                             EventTracking_Id           EventTrackingId,
-                                             TimeSpan?                  RequestTimeout)
+                                       DateTime?                  Timestamp,
+                                       CancellationToken?         CancellationToken,
+                                       EventTracking_Id           EventTrackingId,
+                                       TimeSpan?                  RequestTimeout)
 
         {
 
@@ -3253,38 +3361,43 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return await StationPost(ChargingPools.SafeSelectMany(pool => pool.ChargingStations),
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+            return (await StationPost(ChargingPools.SafeSelectMany(pool => pool.ChargingStations),
 
-                                     ConfigureAwait(false);
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
+
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
         #endregion
 
-        #region DeleteStaticData(ChargingPools, ...)
+        #region DeleteStaticData(ChargingPools, TransmissionType = Enqueued, ...)
 
         /// <summary>
-        /// Delete the EVSE data of the given enumeration of charging pools from the static EVSE data at the OIOI server.
+        /// Delete the EVSE data of the given enumeration of charging pools from the static EVSE data at the OICP server.
         /// </summary>
         /// <param name="ChargingPools">An enumeration of charging pools.</param>
+        /// <param name="TransmissionType">Whether to send the charging pool update directly or enqueue it for a while.</param>
         /// 
         /// <param name="Timestamp">The optional timestamp of the request.</param>
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.DeleteStaticData(IEnumerable<ChargingPool>  ChargingPools,
+                                       TransmissionTypes          TransmissionType,
 
-                                             DateTime?                  Timestamp,
-                                             CancellationToken?         CancellationToken,
-                                             EventTracking_Id           EventTrackingId,
-                                             TimeSpan?                  RequestTimeout)
+                                       DateTime?                  Timestamp,
+                                       CancellationToken?         CancellationToken,
+                                       EventTracking_Id           EventTrackingId,
+                                       TimeSpan?                  RequestTimeout)
 
         {
 
@@ -3295,14 +3408,17 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return await StationPost(ChargingPools.SafeSelectMany(pool => pool.ChargingStations),
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+            return (await StationPost(ChargingPools.SafeSelectMany(pool => pool.ChargingStations),
 
-                                     ConfigureAwait(false);
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
+
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
@@ -3321,22 +3437,22 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        Task<PushStatusResult>
+        Task<PushAdminStatusResult>
 
-            ISendStatus.UpdateAdminStatus(IEnumerable<ChargingPoolAdminStatusUpdate>  AdminStatusUpdates,
-                                                TransmissionTypes                           TransmissionType,
+            ISendAdminStatus.UpdateAdminStatus(IEnumerable<ChargingPoolAdminStatusUpdate>  AdminStatusUpdates,
+                                               TransmissionTypes                           TransmissionType,
 
-                                                DateTime?                                   Timestamp,
-                                                CancellationToken?                          CancellationToken,
-                                                EventTracking_Id                            EventTrackingId,
-                                                TimeSpan?                                   RequestTimeout)
+                                               DateTime?                                   Timestamp,
+                                               CancellationToken?                          CancellationToken,
+                                               EventTracking_Id                            EventTrackingId,
+                                               TimeSpan?                                   RequestTimeout)
 
 
-                => Task.FromResult(new PushStatusResult(ResultTypes.NoOperation));
+                => Task.FromResult(PushAdminStatusResult.NoOperation(Id, this));
 
         #endregion
 
-        #region UpdateChargingPoolStatus     (StatusUpdates,      TransmissionType = Enqueued, ...)
+        #region UpdateStatus     (StatusUpdates,      TransmissionType = Enqueued, ...)
 
         /// <summary>
         /// Update the given enumeration of charging pool status updates.
@@ -3359,7 +3475,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                      TimeSpan?                              RequestTimeout)
 
 
-                => Task.FromResult(new PushStatusResult(ResultTypes.NoOperation));
+                => Task.FromResult(PushStatusResult.NoOperation(Id, this));
 
         #endregion
 
@@ -3378,7 +3494,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.SetStaticData(ChargingStationOperator  ChargingStationOperator,
 
@@ -3396,14 +3512,17 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return await StationPost(ChargingStationOperator.ChargingStations,
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+            return (await StationPost(ChargingStationOperator.ChargingStations,
 
-                                     ConfigureAwait(false);
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
+
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
@@ -3420,7 +3539,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.AddStaticData(ChargingStationOperator  ChargingStationOperator,
 
@@ -3438,14 +3557,17 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return await StationPost(ChargingStationOperator.ChargingStations,
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+            return (await StationPost(ChargingStationOperator.ChargingStations,
 
-                                     ConfigureAwait(false);
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
+
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
@@ -3462,7 +3584,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.UpdateStaticData(ChargingStationOperator  ChargingStationOperator,
 
@@ -3480,14 +3602,17 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return await StationPost(ChargingStationOperator.ChargingStations,
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+            return (await StationPost(ChargingStationOperator.ChargingStations,
 
-                                     ConfigureAwait(false);
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
+
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
@@ -3504,7 +3629,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.DeleteStaticData(ChargingStationOperator  ChargingStationOperator,
 
@@ -3522,14 +3647,17 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return await StationPost(ChargingStationOperator.ChargingStations,
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+            return (await StationPost(ChargingStationOperator.ChargingStations,
 
-                                     ConfigureAwait(false);
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
+
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
@@ -3547,7 +3675,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.SetStaticData(IEnumerable<ChargingStationOperator>  ChargingStationOperators,
 
@@ -3565,14 +3693,17 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return await StationPost(ChargingStationOperators.SafeSelectMany(stationoperator => stationoperator.ChargingStations),
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+            return (await StationPost(ChargingStationOperators.SafeSelectMany(stationoperator => stationoperator.ChargingStations),
 
-                                     ConfigureAwait(false);
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
+
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
@@ -3589,7 +3720,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.AddStaticData(IEnumerable<ChargingStationOperator>  ChargingStationOperators,
 
@@ -3607,14 +3738,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return await StationPost(ChargingStationOperators.SafeSelectMany(stationoperator => stationoperator.ChargingStations),
+            return (await StationPost(ChargingStationOperators.SafeSelectMany(stationoperator => stationoperator.ChargingStations),
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
 
-                                     ConfigureAwait(false);
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
@@ -3631,7 +3764,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.UpdateStaticData(IEnumerable<ChargingStationOperator>  ChargingStationOperators,
 
@@ -3649,14 +3782,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return await StationPost(ChargingStationOperators.SafeSelectMany(stationoperator => stationoperator.ChargingStations),
+            return (await StationPost(ChargingStationOperators.SafeSelectMany(stationoperator => stationoperator.ChargingStations),
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
 
-                                     ConfigureAwait(false);
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
@@ -3673,7 +3808,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.DeleteStaticData(IEnumerable<ChargingStationOperator>  ChargingStationOperators,
 
@@ -3691,14 +3826,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return await StationPost(ChargingStationOperators.SafeSelectMany(stationoperator => stationoperator.ChargingStations),
+            return (await StationPost(ChargingStationOperators.SafeSelectMany(stationoperator => stationoperator.ChargingStations),
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
 
-                                     ConfigureAwait(false);
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
@@ -3717,18 +3854,18 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        Task<PushStatusResult>
+        Task<PushAdminStatusResult>
 
-            ISendStatus.UpdateAdminStatus(IEnumerable<ChargingStationOperatorAdminStatusUpdate>  AdminStatusUpdates,
-                                                TransmissionTypes                                      TransmissionType,
+            ISendAdminStatus.UpdateAdminStatus(IEnumerable<ChargingStationOperatorAdminStatusUpdate>  AdminStatusUpdates,
+                                               TransmissionTypes                                      TransmissionType,
 
-                                                DateTime?                                              Timestamp,
-                                                CancellationToken?                                     CancellationToken,
-                                                EventTracking_Id                                       EventTrackingId,
-                                                TimeSpan?                                              RequestTimeout)
+                                               DateTime?                                              Timestamp,
+                                               CancellationToken?                                     CancellationToken,
+                                               EventTracking_Id                                       EventTrackingId,
+                                               TimeSpan?                                              RequestTimeout)
 
 
-                => Task.FromResult(new PushStatusResult(ResultTypes.NoOperation));
+                => Task.FromResult(PushAdminStatusResult.NoOperation(Id, this));
 
         #endregion
 
@@ -3755,7 +3892,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                      TimeSpan?                                         RequestTimeout)
 
 
-                => Task.FromResult(new PushStatusResult(ResultTypes.NoOperation));
+                => Task.FromResult(PushStatusResult.NoOperation(Id, this));
 
         #endregion
 
@@ -3774,7 +3911,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.SetStaticData(RoamingNetwork      RoamingNetwork,
 
@@ -3792,14 +3929,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return await StationPost(RoamingNetwork.ChargingStations,
+            return (await StationPost(RoamingNetwork.ChargingStations,
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
 
-                                     ConfigureAwait(false);
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
@@ -3816,7 +3955,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.AddStaticData(RoamingNetwork      RoamingNetwork,
 
@@ -3834,14 +3973,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return await StationPost(RoamingNetwork.ChargingStations,
+            return (await StationPost(RoamingNetwork.ChargingStations,
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
 
-                                     ConfigureAwait(false);
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
@@ -3858,7 +3999,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.UpdateStaticData(RoamingNetwork      RoamingNetwork,
 
@@ -3876,14 +4017,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return await StationPost(RoamingNetwork.ChargingStations,
+            return (await StationPost(RoamingNetwork.ChargingStations,
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
 
-                                     ConfigureAwait(false);
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
@@ -3900,7 +4043,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushDataResult>
+        async Task<PushEVSEDataResult>
 
             ISendData.DeleteStaticData(RoamingNetwork      RoamingNetwork,
 
@@ -3918,14 +4061,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return await StationPost(RoamingNetwork.ChargingStations,
+            return (await StationPost(RoamingNetwork.ChargingStations,
 
-                                     Timestamp,
-                                     CancellationToken,
-                                     EventTrackingId,
-                                     RequestTimeout).
+                                      Timestamp,
+                                      CancellationToken,
+                                      EventTrackingId,
+                                      RequestTimeout).
 
-                                     ConfigureAwait(false);
+                          ConfigureAwait(false)).
+
+                          ToPushEVSEDataResult();
 
         }
 
@@ -3944,18 +4089,18 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        Task<PushStatusResult>
+        Task<PushAdminStatusResult>
 
-            ISendStatus.UpdateAdminStatus(IEnumerable<RoamingNetworkAdminStatusUpdate>  AdminStatusUpdates,
-                                          TransmissionTypes                             TransmissionType,
+            ISendAdminStatus.UpdateAdminStatus(IEnumerable<RoamingNetworkAdminStatusUpdate>  AdminStatusUpdates,
+                                               TransmissionTypes                             TransmissionType,
 
-                                          DateTime?                                     Timestamp,
-                                          CancellationToken?                            CancellationToken,
-                                          EventTracking_Id                              EventTrackingId,
-                                          TimeSpan?                                     RequestTimeout)
+                                               DateTime?                                     Timestamp,
+                                               CancellationToken?                            CancellationToken,
+                                               EventTracking_Id                              EventTrackingId,
+                                               TimeSpan?                                     RequestTimeout)
 
 
-                => Task.FromResult(new PushStatusResult(ResultTypes.NoOperation));
+                => Task.FromResult(PushAdminStatusResult.NoOperation(Id, this));
 
         #endregion
 
@@ -3982,7 +4127,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                      TimeSpan?                                RequestTimeout)
 
 
-                => Task.FromResult(new PushStatusResult(ResultTypes.NoOperation));
+                => Task.FromResult(PushStatusResult.NoOperation(Id, this));
 
         #endregion
 
@@ -5396,7 +5541,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 }
 
-                return SendCDRsResult.Enqueued(Id);
+                return SendCDRsResult.Enqueued(Id, this);
 
             }
 
@@ -5435,9 +5580,14 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             if (DisableSendChargeDetailRecords)
             {
+
                 Endtime  = DateTime.UtcNow;
                 Runtime  = Endtime - StartTime;
-                result   = SendCDRsResult.OutOfService(Id, Runtime: Runtime);
+                result   = SendCDRsResult.AdminDown(Id,
+                                                    this,
+                                                    ChargeDetailRecords,
+                                                    Runtime: Runtime);
+
             }
 
             #endregion

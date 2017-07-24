@@ -101,7 +101,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                            UInt64                                         NumberOfStations,
                                                            IEnumerable<Tuple<ChargingStation, Station>>   Stations,
                                                            TimeSpan?                                      RequestTimeout,
-                                                           PushDataResult                                Result,
+                                                           PushChargingStationDataResult                  Result,
                                                            TimeSpan                                       Runtime);
 
 
