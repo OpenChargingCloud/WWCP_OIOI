@@ -4369,6 +4369,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                     EVSEId,
                                                     ChargingProduct,
                                                     SessionId,
+                                                    new ISendAuthorizeStartStop[0],
                                                     RequestTimeout);
 
             }
@@ -4452,6 +4453,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                      EVSEId,
                                                      ChargingProduct,
                                                      SessionId,
+                                                     new ISendAuthorizeStartStop[0],
                                                      RequestTimeout,
                                                      result,
                                                      Runtime);
