@@ -103,7 +103,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
             this.Message            = Message;
             this.CustomData         = CustomData;
             this.CustomMapper       = CustomMapper;
-            this.ResponseTimestamp  = ResponseTimestamp ?? DateTime.Now;
+            this.ResponseTimestamp  = ResponseTimestamp ?? DateTime.UtcNow;
 
         }
 

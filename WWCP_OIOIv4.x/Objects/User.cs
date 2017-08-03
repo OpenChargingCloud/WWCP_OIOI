@@ -163,7 +163,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
             catch (Exception e)
             {
 
-                OnException?.Invoke(DateTime.Now, UserText, e);
+                OnException?.Invoke(DateTime.UtcNow, UserText, e);
 
                 User = null;
                 return false;
@@ -208,7 +208,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
             catch (Exception e)
             {
 
-                OnException?.Invoke(DateTime.Now, UserJSON, e);
+                OnException?.Invoke(DateTime.UtcNow, UserJSON, e);
 
                 User = null;
                 return false;

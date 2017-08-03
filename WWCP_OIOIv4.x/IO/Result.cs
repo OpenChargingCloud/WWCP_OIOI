@@ -139,7 +139,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
             catch (Exception e)
             {
 
-                OnException?.Invoke(DateTime.Now, ResultText, e);
+                OnException?.Invoke(DateTime.UtcNow, ResultText, e);
 
                 Result = null;
                 return false;
@@ -180,7 +180,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
             catch (Exception e)
             {
 
-                OnException?.Invoke(DateTime.Now, ResultJSON, e);
+                OnException?.Invoke(DateTime.UtcNow, ResultJSON, e);
 
                 Result = null;
                 return false;

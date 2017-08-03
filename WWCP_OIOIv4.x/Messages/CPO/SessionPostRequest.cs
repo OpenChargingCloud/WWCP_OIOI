@@ -176,7 +176,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             catch (Exception e)
             {
 
-                OnException?.Invoke(DateTime.Now, SessionPostRequestJSON, e);
+                OnException?.Invoke(DateTime.UtcNow, SessionPostRequestJSON, e);
 
                 SessionPostRequest = null;
                 return false;
@@ -212,7 +212,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             }
             catch (Exception e)
             {
-                OnException?.Invoke(DateTime.Now, SessionPostRequestText, e);
+                OnException?.Invoke(DateTime.UtcNow, SessionPostRequestText, e);
             }
 
             SessionPostRequest = null;

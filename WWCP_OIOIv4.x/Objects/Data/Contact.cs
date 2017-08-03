@@ -169,7 +169,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
             catch (Exception e)
             {
 
-                OnException?.Invoke(DateTime.Now, ContactJSON, e);
+                OnException?.Invoke(DateTime.UtcNow, ContactJSON, e);
 
                 Contact = null;
                 return false;
@@ -204,7 +204,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
             catch (Exception e)
             {
 
-                OnException?.Invoke(DateTime.Now, ContactText, e);
+                OnException?.Invoke(DateTime.UtcNow, ContactText, e);
 
                 Contact = null;
                 return false;

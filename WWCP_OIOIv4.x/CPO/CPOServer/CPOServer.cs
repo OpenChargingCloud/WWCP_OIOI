@@ -465,7 +465,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  #region Send HTTP event
 
-                                                 OnSessionStartHTTPRequest?.Invoke(DateTime.Now,
+                                                 OnSessionStartHTTPRequest?.Invoke(DateTime.UtcNow,
                                                                                    this.HTTPServer,
                                                                                    Request);
 
@@ -547,7 +547,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  #region Send event
 
-                                                 OnSessionStartRequest?.Invoke(DateTime.Now,
+                                                 OnSessionStartRequest?.Invoke(DateTime.UtcNow,
                                                                                Request.Timestamp,
                                                                                this,
                                                                                EventTracking_Id.New,
@@ -578,7 +578,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  //    _RemoteStartEVSEResult  = (await Task.WhenAll(OnSessionStartLocal.
                                                  //                                                      GetInvocationList().
                                                  //                                                      Select(subscriber => (subscriber as OnSessionStartDelegate)
-                                                 //                                                          (DateTime.Now,
+                                                 //                                                          (DateTime.UtcNow,
                                                  //                                                           this,
                                                  //                                                           eMobilityAccountId,
                                                  //                                                           ConnectorId,
@@ -626,7 +626,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  #region Send events
 
-                                                 OnSessionStartResponse?.    Invoke(DateTime.Now,
+                                                 OnSessionStartResponse?.    Invoke(DateTime.UtcNow,
                                                                                     Request.Timestamp,
                                                                                     this,
                                                                                     EventTracking_Id.New,
@@ -636,9 +636,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                                     ConnectorId,
                                                                                     PaymentReference,
                                                                                     SessionStartResult,
-                                                                                    Request.Timestamp - DateTime.Now);
+                                                                                    Request.Timestamp - DateTime.UtcNow);
 
-                                                 OnSessionStartHTTPResponse?.Invoke(DateTime.Now,
+                                                 OnSessionStartHTTPResponse?.Invoke(DateTime.UtcNow,
                                                                                     this.HTTPServer,
                                                                                     Request,
                                                                                     _HTTPResponse);
@@ -719,7 +719,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  #region Send HTTP event
 
-                                                 OnSessionStopHTTPRequest?.Invoke(DateTime.Now,
+                                                 OnSessionStopHTTPRequest?.Invoke(DateTime.UtcNow,
                                                                                   this.HTTPServer,
                                                                                   Request);
 
@@ -801,7 +801,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  #region Send event
 
-                                                 OnSessionStopRequest?.Invoke(DateTime.Now,
+                                                 OnSessionStopRequest?.Invoke(DateTime.UtcNow,
                                                                               Request.Timestamp,
                                                                               this,
                                                                               EventTracking_Id.New,
@@ -834,7 +834,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  //    _RemoteEVSEStopResult  = (await Task.WhenAll(OnSessionStopLocal.
                                                  //                                                     GetInvocationList().
                                                  //                                                     Select(subscriber => (subscriber as OnSessionStopDelegate)
-                                                 //                                                         (DateTime.Now,
+                                                 //                                                         (DateTime.UtcNow,
                                                  //                                                          this,
                                                  //                                                          ConnectorId,
                                                  //                                                          SessionId,
@@ -882,7 +882,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  #region Send events
 
-                                                 OnSessionStopResponse?.    Invoke(DateTime.Now,
+                                                 OnSessionStopResponse?.    Invoke(DateTime.UtcNow,
                                                                                    Request.Timestamp,
                                                                                    this,
                                                                                    EventTracking_Id.New,
@@ -892,9 +892,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                                    ConnectorId,
                                                                                    SessionId,
                                                                                    SessionStopResult,
-                                                                                   Request.Timestamp - DateTime.Now);
+                                                                                   Request.Timestamp - DateTime.UtcNow);
 
-                                                 OnSessionStopHTTPResponse?.Invoke(DateTime.Now,
+                                                 OnSessionStopHTTPResponse?.Invoke(DateTime.UtcNow,
                                                                                    this.HTTPServer,
                                                                                    Request,
                                                                                    _HTTPResponse);
@@ -955,7 +955,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             => new HTTPResponseBuilder(HTTPRequest) {
                    HTTPStatusCode  = HTTPStatusCode,
                    Server          = HTTPRequest.HTTPServer.DefaultServerName,
-                   Date            = DateTime.Now,
+                   Date            = DateTime.UtcNow,
                    ContentType     = HTTPContentType.JSON_UTF8,
                    Content         = OIOIResult.ToUTF8Bytes(),
                    Connection      = "close"
@@ -974,7 +974,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                HTTPStatusCode,
                                                OIOIResult);
 
-            OnSessionStartHTTPResponse?.Invoke(DateTime.Now,
+            OnSessionStartHTTPResponse?.Invoke(DateTime.UtcNow,
                                                this.HTTPServer,
                                                HTTPRequest,
                                                _HTTPResponse);
@@ -996,7 +996,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                HTTPStatusCode,
                                                OIOIResult);
 
-            OnSessionStopHTTPResponse?.Invoke(DateTime.Now,
+            OnSessionStopHTTPResponse?.Invoke(DateTime.UtcNow,
                                               this.HTTPServer,
                                               HTTPRequest,
                                               _HTTPResponse);

@@ -694,7 +694,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             this.ChargingStationsToRemoveQueue                    = new HashSet<ChargingStation>();
             this.EVSEStatusUpdatesQueue                           = new List<EVSEStatusUpdate>();
             this.EVSEStatusUpdatesDelayedQueue                    = new List<EVSEStatusUpdate>();
-            this.ChargeDetailRecordsQueue                          = new List<ChargeDetailRecord>();
+            this.ChargeDetailRecordsQueue                         = new List<ChargeDetailRecord>();
 
 
             // Link events...
@@ -1069,15 +1069,17 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               RoamingNetwork                                  RoamingNetwork,
 
                               String                                          RemoteHostname,
-                              String                                          APIKey,
+                              APIKey                                          APIKey,
+                              Partner_Id                                      DefaultPartnerId,
                               IPPort                                          RemoteTCPPort                            = null,
                               RemoteCertificateValidationCallback             RemoteCertificateValidator               = null,
                               LocalCertificateSelectionCallback               LocalCertificateSelector                 = null,
                               X509Certificate                                 ClientCert                               = null,
                               String                                          RemoteHTTPVirtualHost                    = null,
                               String                                          URIPrefix                                = CPOClient.DefaultURIPrefix,
-                              Partner_Id?                                     DefaultPartnerId                         = null,
                               String                                          HTTPUserAgent                            = CPOClient.DefaultHTTPUserAgent,
+                              IncludeStationsDelegate                         IncludeStations                          = null,
+                              IncludeStationIdsDelegate                       IncludeStationIds                        = null,
                               TimeSpan?                                       RequestTimeout                           = null,
                               Byte?                                           MaxNumberOfRetries                       = CPOClient.DefaultMaxNumberOfRetries,
 
@@ -1124,14 +1126,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                    new CPORoaming(Id.ToString(),
                                   RemoteHostname,
                                   APIKey,
+                                  DefaultPartnerId,
                                   RemoteTCPPort,
                                   RemoteCertificateValidator,
                                   LocalCertificateSelector,
                                   ClientCert,
                                   RemoteHTTPVirtualHost,
                                   URIPrefix,
-                                  DefaultPartnerId,
                                   HTTPUserAgent,
+                                  IncludeStations,
+                                  IncludeStationIds,
                                   RequestTimeout,
                                   MaxNumberOfRetries,
 

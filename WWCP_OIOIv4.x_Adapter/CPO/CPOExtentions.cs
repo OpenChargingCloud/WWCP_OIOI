@@ -24,7 +24,6 @@ using System.Security.Cryptography.X509Certificates;
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Hermod.DNS;
-using org.GraphDefined.Vanaheimr.Hermod.SOAP;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 
 #endregion
@@ -94,15 +93,17 @@ namespace org.GraphDefined.WWCP
                                               I18NString                                                          Name,
 
                                               String                                                              RemoteHostname,
-                                              String                                                              APIKey,
+                                              OIOIv4_x.APIKey                                                     APIKey,
+                                              OIOIv4_x.Partner_Id                                                 DefaultPartnerId,
                                               IPPort                                                              RemoteTCPPort                                   = null,
                                               String                                                              RemoteHTTPVirtualHost                           = null,
                                               RemoteCertificateValidationCallback                                 RemoteCertificateValidator                      = null,
                                               LocalCertificateSelectionCallback                                   LocalCertificateSelector                        = null,
                                               X509Certificate                                                     ClientCert                                      = null,
                                               String                                                              URIPrefix                                       = OIOIv4_x.CPO.CPOClient.DefaultURIPrefix,
-                                              OIOIv4_x.Partner_Id?                                                DefaultPartnerId                                = null,
                                               String                                                              HTTPUserAgent                                   = OIOIv4_x.CPO.CPOClient.DefaultHTTPUserAgent,
+                                              OIOIv4_x.IncludeStationsDelegate                                    IncludeStations                                 = null,
+                                              OIOIv4_x.IncludeStationIdsDelegate                                  IncludeStationIds                               = null,
                                               TimeSpan?                                                           RequestTimeout                                  = null,
                                               Byte?                                                               MaxNumberOfRetries                              = OIOIv4_x.CPO.CPOClient.DefaultMaxNumberOfRetries,
 
@@ -168,14 +169,16 @@ namespace org.GraphDefined.WWCP
 
                                                                      RemoteHostname,
                                                                      APIKey,
+                                                                     DefaultPartnerId,
                                                                      RemoteTCPPort,
                                                                      RemoteCertificateValidator,
                                                                      LocalCertificateSelector,
                                                                      ClientCert,
                                                                      RemoteHTTPVirtualHost,
                                                                      URIPrefix,
-                                                                     DefaultPartnerId,
                                                                      HTTPUserAgent,
+                                                                     IncludeStations,
+                                                                     IncludeStationIds,
                                                                      RequestTimeout,
                                                                      MaxNumberOfRetries,
 
@@ -225,7 +228,7 @@ namespace org.GraphDefined.WWCP
 
         #endregion
 
-        #region CreateOIOIv4_x_CPORoamingProvider(this RoamingNetwork, Id, Name, SOAPServer, RemoteHostname, ...)
+        #region CreateOIOIv4_x_CPORoamingProvider(this RoamingNetwork, Id, Name, HTTPServer, RemoteHostname, ...)
 
         /// <summary>
         /// Create and register a new electric vehicle roaming provider
@@ -236,7 +239,7 @@ namespace org.GraphDefined.WWCP
         /// <param name="RoamingNetwork">A WWCP roaming network.</param>
         /// <param name="Id">The unique identification of the roaming provider.</param>
         /// <param name="Name">The offical (multi-language) name of the roaming provider.</param>
-        /// <param name="SOAPServer">An optional identification string for the HTTP server.</param>
+        /// <param name="HTTPServer">An optional identification string for the HTTP server.</param>
         /// <param name="ServerURIPrefix">An optional prefix for the HTTP URIs.</param>
         /// 
         /// <param name="RemoteHostname">The hostname of the remote OIOI service.</param>
@@ -277,15 +280,18 @@ namespace org.GraphDefined.WWCP
                                               HTTPServer<RoamingNetworks, RoamingNetwork>                  HTTPServer,
 
                                               String                                                       RemoteHostname,
-                                              String                                                       APIKey,
+                                              OIOIv4_x.APIKey                                              APIKey,
+                                              OIOIv4_x.Partner_Id                                          DefaultPartnerId,
+
                                               IPPort                                                       RemoteTCPPort                                   = null,
                                               RemoteCertificateValidationCallback                          RemoteCertificateValidator                      = null,
                                               LocalCertificateSelectionCallback                            LocalCertificateSelector                        = null,
                                               X509Certificate                                              ClientCert                                      = null,
                                               String                                                       RemoteHTTPVirtualHost                           = null,
                                               String                                                       URIPrefix                                       = OIOIv4_x.CPO.CPOClient.DefaultURIPrefix,
-                                              OIOIv4_x.Partner_Id?                                         DefaultPartnerId                                = null,
                                               String                                                       HTTPUserAgent                                   = OIOIv4_x.CPO.CPOClient.DefaultHTTPUserAgent,
+                                              OIOIv4_x.IncludeStationsDelegate                             IncludeStations                                 = null,
+                                              OIOIv4_x.IncludeStationIdsDelegate                           IncludeStationIds                               = null,
                                               TimeSpan?                                                    RequestTimeout                                  = null,
                                               Byte?                                                        MaxNumberOfRetries                              = OIOIv4_x.CPO.CPOClient.DefaultMaxNumberOfRetries,
 
@@ -351,6 +357,7 @@ namespace org.GraphDefined.WWCP
                                                                      new OIOIv4_x.CPO.CPOClient(Id.ToString(),
                                                                                                 RemoteHostname,
                                                                                                 APIKey,
+                                                                                                DefaultPartnerId,
                                                                                                 RemoteTCPPort,
                                                                                                 RemoteCertificateValidator,
                                                                                                 LocalCertificateSelector,
@@ -358,7 +365,8 @@ namespace org.GraphDefined.WWCP
                                                                                                 RemoteHTTPVirtualHost,
                                                                                                 URIPrefix,
                                                                                                 HTTPUserAgent,
-                                                                                                DefaultPartnerId,
+                                                                                                IncludeStations,
+                                                                                                IncludeStationIds,
                                                                                                 RequestTimeout,
                                                                                                 MaxNumberOfRetries,
                                                                                                 DNSClient,

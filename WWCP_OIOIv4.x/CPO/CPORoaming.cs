@@ -74,10 +74,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             }
         }
 
-                /// <summary>
+        /// <summary>
         /// The API key for all requests.
         /// </summary>
-        public String           APIKey
+        public APIKey           APIKey
         {
             get
             {
@@ -808,15 +808,17 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="DNSClient">An optional DNS client to use.</param>
         public CPORoaming(String                               ClientId,
                           String                               RemoteHostname,
-                          String                               APIKey,
+                          APIKey                               APIKey,
+                          Partner_Id                           DefaultPartnerId,
                           IPPort                               RemoteTCPPort                   = null,
                           RemoteCertificateValidationCallback  RemoteCertificateValidator      = null,
                           LocalCertificateSelectionCallback    LocalCertificateSelector        = null,
                           X509Certificate                      ClientCert                      = null,
                           String                               RemoteHTTPVirtualHost           = null,
                           String                               URIPrefix                       = CPOClient.DefaultURIPrefix,
-                          Partner_Id?                          DefaultPartnerId                = null,
                           String                               HTTPUserAgent                   = CPOClient.DefaultHTTPUserAgent,
+                          IncludeStationsDelegate              IncludeStations                 = null,
+                          IncludeStationIdsDelegate            IncludeStationIds               = null,
                           TimeSpan?                            RequestTimeout                  = null,
                           Byte?                                MaxNumberOfRetries              = CPOClient.DefaultMaxNumberOfRetries,
 
@@ -839,6 +841,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             : this(new CPOClient(ClientId,
                                  RemoteHostname,
                                  APIKey,
+                                 DefaultPartnerId,
                                  RemoteTCPPort,
                                  RemoteCertificateValidator,
                                  LocalCertificateSelector,
@@ -846,7 +849,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                  RemoteHTTPVirtualHost,
                                  URIPrefix,
                                  HTTPUserAgent,
-                                 DefaultPartnerId,
+                                 IncludeStations,
+                                 IncludeStationIds,
                                  RequestTimeout,
                                  MaxNumberOfRetries,
                                  DNSClient,
@@ -885,11 +889,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// Upload a charging station onto the OIOI server.
         /// </summary>
         /// <param name="Request">A StationPost request.</param>
-        public async Task<HTTPResponse<StationPostResponse>>
+        public Task<HTTPResponse<StationPostResponse>>
 
             StationPost(StationPostRequest Request)
 
-                => await CPOClient.StationPost(Request);
+                => CPOClient.StationPost(Request);
 
         #endregion
 
@@ -899,11 +903,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// Update the status of a charging connector on the OIOI server.
         /// </summary>
         /// <param name="Request">A StationPost request.</param>
-        public async Task<HTTPResponse<ConnectorPostStatusResponse>>
+        public Task<HTTPResponse<ConnectorPostStatusResponse>>
 
             ConnectorPostStatus(ConnectorPostStatusRequest Request)
 
-                => await CPOClient.ConnectorPostStatus(Request);
+                => CPOClient.ConnectorPostStatus(Request);
 
         #endregion
 
@@ -913,11 +917,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// Verify a RFID identification via the OIOI server.
         /// </summary>
         /// <param name="Request">A RFIDVerify request.</param>
-        public async Task<HTTPResponse<RFIDVerifyResponse>>
+        public Task<HTTPResponse<RFIDVerifyResponse>>
 
             RFIDVerify(RFIDVerifyRequest Request)
 
-                => await CPOClient.RFIDVerify(Request);
+                => CPOClient.RFIDVerify(Request);
 
         #endregion
 
@@ -927,11 +931,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// Upload the given charging session onto the OIOI server.
         /// </summary>
         /// <param name="Request">A SessionPost request.</param>
-        public async Task<HTTPResponse<SessionPostResponse>>
+        public Task<HTTPResponse<SessionPostResponse>>
 
             SessionPost(SessionPostRequest Request)
 
-                => await CPOClient.SessionPost(Request);
+                => CPOClient.SessionPost(Request);
 
         #endregion
 

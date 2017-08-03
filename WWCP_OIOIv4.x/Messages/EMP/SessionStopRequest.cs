@@ -193,7 +193,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
             catch (Exception e)
             {
 
-                OnException?.Invoke(DateTime.Now, SessionStopRequestJSON, e);
+                OnException?.Invoke(DateTime.UtcNow, SessionStopRequestJSON, e);
 
                 SessionStopRequest = null;
                 return false;
@@ -229,7 +229,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
             }
             catch (Exception e)
             {
-                OnException?.Invoke(DateTime.Now, SessionStopRequestText, e);
+                OnException?.Invoke(DateTime.UtcNow, SessionStopRequestText, e);
             }
 
             SessionStopRequest = null;

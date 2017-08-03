@@ -160,7 +160,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             catch (Exception e)
             {
 
-                OnException?.Invoke(DateTime.Now, RFIDVerifyRequestJSON, e);
+                OnException?.Invoke(DateTime.UtcNow, RFIDVerifyRequestJSON, e);
 
                 RFIDVerifyRequest = null;
                 return false;
@@ -196,7 +196,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             }
             catch (Exception e)
             {
-                OnException?.Invoke(DateTime.Now, RFIDVerifyRequestText, e);
+                OnException?.Invoke(DateTime.UtcNow, RFIDVerifyRequestText, e);
             }
 
             RFIDVerifyRequest = null;

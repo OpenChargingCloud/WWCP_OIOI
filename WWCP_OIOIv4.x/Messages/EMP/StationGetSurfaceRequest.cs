@@ -244,7 +244,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
             catch (Exception e)
             {
 
-                OnException?.Invoke(DateTime.Now, StationGetSurfaceRequestJSON, e);
+                OnException?.Invoke(DateTime.UtcNow, StationGetSurfaceRequestJSON, e);
 
                 StationGetSurfaceRequest = null;
                 return false;
@@ -280,7 +280,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
             }
             catch (Exception e)
             {
-                OnException?.Invoke(DateTime.Now, StationGetSurfaceRequestText, e);
+                OnException?.Invoke(DateTime.UtcNow, StationGetSurfaceRequestText, e);
             }
 
             StationGetSurfaceRequest = null;

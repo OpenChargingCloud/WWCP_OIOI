@@ -28,19 +28,6 @@ using org.GraphDefined.Vanaheimr.Illias;
 namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 {
 
-    /// <summary>
-    /// A delegate for filtering charging stations.
-    /// </summary>
-    /// <param name="Station">A OIOI charging station.</param>
-    public delegate Boolean IncludeStationsDelegate       (Station          Station);
-
-    /// <summary>
-    /// A delegate for filtering connector status records.
-    /// </summary>
-    /// <param name="ConnectorStatus">An OIOI connector status.</param>
-    public delegate Boolean IncludeConnectorStatusDelegate(ConnectorStatus  ConnectorStatus);
-
-
     #region OnStationPostRequest/-Response
 
     /// <summary>
@@ -158,6 +145,5 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                        TimeSpan                                Duration);
 
     #endregion
-
 
 }

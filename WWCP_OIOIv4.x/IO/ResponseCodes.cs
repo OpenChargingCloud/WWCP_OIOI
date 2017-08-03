@@ -73,6 +73,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         InvalidPartnerIdentifier                                = 211,
         APIKeyNotAllowedToAccessTheRequestedResource            = 220,
         InvalidRequestFormat                                    = 230,
+        InvalidHTTPResponse                                     = 1240,
+        InvalidResponseFormat                                   = 1241,
 
         // 3xx - Operator and EVSE Errors
         System_Error                                            = 300,

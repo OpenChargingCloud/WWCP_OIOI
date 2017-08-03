@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Delegates.cs" />
     <Compile Include="CPO\CPOClient\CPOClient.cs" />
     <Compile Include="CPO\CPOClient\CPOClientDelegates.cs" />
     <Compile Include="CPO\CPOClient\CPOClientLogger.cs" />
@@ -91,6 +92,7 @@
     <Compile Include="Objects\Data\Connector_Id.cs" />
     <Compile Include="Objects\Data\Contact.cs" />
     <Compile Include="Objects\Data\IdentifierTypes.cs" />
+    <Compile Include="Objects\Data\APIKey.cs" />
     <Compile Include="Objects\Data\Partner_Id.cs" />
     <Compile Include="Objects\Data\PaymentReference.cs" />
     <Compile Include="Objects\Data\RFID_Id.cs" />
@@ -132,6 +134,9 @@
   <ItemGroup>
     <None Include="Errata.md" />
     <None Include="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="EMP\EMPServer\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

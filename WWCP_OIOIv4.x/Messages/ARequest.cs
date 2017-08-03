@@ -84,7 +84,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
                         TimeSpan?           RequestTimeout      = null)
         {
 
-            this.Timestamp          = Timestamp.        HasValue ? Timestamp            : DateTime.Now;
+            this.Timestamp          = Timestamp.        HasValue ? Timestamp            : DateTime.UtcNow;
             this.CancellationToken  = CancellationToken.HasValue ? CancellationToken    : new CancellationTokenSource().Token;
             this.EventTrackingId    = EventTrackingId ?? EventTracking_Id.New;
             this.RequestTimeout     = RequestTimeout.   HasValue ? RequestTimeout.Value : DefaultRequestTimeout;

@@ -24,6 +24,7 @@ using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
+using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 
 #endregion
 
@@ -31,7 +32,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 {
 
     /// <summary>
-    /// An OIOI StationPost result.
+    /// An OIOI StationPost response.
     /// </summary>
     public class StationPostResponse : AResponse<StationPostRequest,
                                                  StationPostResponse>
@@ -156,6 +157,43 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         }
 
         #endregion
+
+
+
+        public static StationPostResponse
+
+            Success(StationPostRequest                   Request,
+                    String                               Message     = null,
+                    IReadOnlyDictionary<String, Object>  CustomData  = null)
+
+                => new StationPostResponse(Request,
+                                           ResponseCodes.Success,
+                                           Message ?? "Success.",
+                                           CustomData);
+
+        public static StationPostResponse
+
+            InvalidRequestFormat(StationPostRequest                   Request,
+                                 String                               Message,
+                                 IReadOnlyDictionary<String, Object>  CustomData  = null)
+
+                => new StationPostResponse(Request,
+                                           ResponseCodes.InvalidRequestFormat,
+                                           Message,
+                                           CustomData);
+
+
+        public static StationPostResponse
+
+            InvalidResponseFormat(StationPostRequest                   Request,
+                                  HTTPResponse                         JSONResponse  = null,
+                                  IReadOnlyDictionary<String, Object>  CustomData    = null)
+
+                => new StationPostResponse(Request,
+                                           ResponseCodes.InvalidResponseFormat,
+                                           JSONResponse?.ToString(),
+                                           CustomData);
+
 
 
         #region Operator overloading

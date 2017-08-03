@@ -26,6 +26,7 @@ using Newtonsoft.Json.Linq;
 using org.GraphDefined.Vanaheimr.Aegir;
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
+using org.GraphDefined.Vanaheimr.Hermod.JSON;
 
 #endregion
 
@@ -364,60 +365,70 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
             return null;
         }
 
-        #region ToJSON()
+        #region ToJSON(CustomStationSerializer = null, CustomConnectorSerializer = null)
 
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
-        public JObject ToJSON()
+        /// <param name="CustomStationSerializer">A delegate to serialize custom Station JSON objects.</param>
+        /// <param name="CustomConnectorSerializer">A delegate to serialize custom Connector JSON objects.</param>
+        public JObject ToJSON(CustomJSONSerializerDelegate<Station>    CustomStationSerializer     = null,
+                              CustomJSONSerializerDelegate<Connector>  CustomConnectorSerializer   = null)
+        {
 
-            => JSONObject.Create(
+            var JSON = JSONObject.Create(
 
-                   new JProperty("id",                        Id.ToString()),
-                   new JProperty("name",                      Name),
+                           new JProperty("id",                        Id.ToString()),
+                           new JProperty("name",                      Name),
 
-                   Description.IsNotNullOrEmpty()
-                       ? new JProperty("description",         Description)
-                       : null,
+                           Description.IsNotNullOrEmpty()
+                               ? new JProperty("description",         Description)
+                               : null,
 
-                   new JProperty("latitude",                  Latitude. Value),
-                   new JProperty("longitude",                 Longitude.Value),
+                           new JProperty("latitude",                  Latitude. Value),
+                           new JProperty("longitude",                 Longitude.Value),
 
-                   new JProperty("address",                   Address. ToJSON()),
-                   new JProperty("contact",                   Contact. ToJSON()),
-                   new JProperty("cpo-id",                    CPOId.   ToString()),
-                   new JProperty("is-open-24",                IsOpen24Hours),
-                   new JProperty("connectors",                JSONArray.Create(
-                                                                  Connectors.Select(connector => connector.ToJSON())
-                                                              )),
-                   OpeningTime != null
-                       ? new JProperty("open-hour-notes",     JSONArray.Create(
-                                                              ))
-                       : null,
+                           new JProperty("address",                   Address. ToJSON()),
+                           new JProperty("contact",                   Contact. ToJSON()),
+                           new JProperty("cpo-id",                    CPOId.   ToString()),
+                           new JProperty("is-open-24",                IsOpen24Hours),
+                           new JProperty("connectors",                JSONArray.Create(
+                                                                          Connectors.Select(connector => connector.ToJSON(CustomConnectorSerializer))
+                                                                      )),
+                           OpeningTime != null
+                               ? new JProperty("open-hour-notes",     JSONArray.Create(
+                                                                      ))
+                               : null,
 
-                   Notes.IsNotNullOrEmpty()
-                       ? new JProperty("notes",               Notes)
-                       : new JProperty("notes",               ""),
+                           Notes.IsNotNullOrEmpty()
+                               ? new JProperty("notes",               Notes)
+                               : new JProperty("notes",               ""),
 
-                   new JProperty("is-reservable",             IsReservable),
+                           new JProperty("is-reservable",             IsReservable),
 
-                   FloorLevel.HasValue
-                       ? new JProperty("floor-level",         FloorLevel.Value)
-                       : null,
+                           FloorLevel.HasValue
+                               ? new JProperty("floor-level",         FloorLevel.Value)
+                               : null,
 
-                   new JProperty("is-free-charge",            IsFreeCharge),
+                           new JProperty("is-free-charge",            IsFreeCharge),
 
-                   TotalParking.HasValue
-                       ? new JProperty("floor-level",         FloorLevel.Value)
-                       : null,
+                           TotalParking.HasValue
+                               ? new JProperty("floor-level",         FloorLevel.Value)
+                               : null,
 
-                   new JProperty("is-green-power-available",  IsGreenPowerAvailable),
-                   new JProperty("is-plugin-charge",          IsPlugInCharge),
-                   new JProperty("is-roofed",                 IsRoofed),
-                   new JProperty("is-private",                IsPrivate),
-                   new JProperty("deleted",                   Deleted)
+                           new JProperty("is-green-power-available",  IsGreenPowerAvailable),
+                           new JProperty("is-plugin-charge",          IsPlugInCharge),
+                           new JProperty("is-roofed",                 IsRoofed),
+                           new JProperty("is-private",                IsPrivate),
+                           new JProperty("deleted",                   Deleted)
 
-               );
+                       );
+
+            return CustomStationSerializer != null
+                       ? CustomStationSerializer(this, JSON)
+                       : JSON;
+
+        }
 
         #endregion
 

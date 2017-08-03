@@ -74,7 +74,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
             this.Id         = Id;
             this.Status     = Status;
-            this.Timestamp  = Timestamp.HasValue ? Timestamp.Value : DateTime.Now;
+            this.Timestamp  = Timestamp.HasValue ? Timestamp.Value : DateTime.UtcNow;
 
         }
 

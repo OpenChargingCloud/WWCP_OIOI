@@ -25,16 +25,21 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 {
 
     /// <summary>
-    /// The current OIOI version.
+    /// A delegate for filtering charging stations.
     /// </summary>
-    public static class Version
-    {
+    /// <param name="Station">A charging station.</param>
+    public delegate Boolean IncludeStationsDelegate       (Station          Station);
 
-        /// <summary>
-        /// The current OIOI version.
-        /// </summary>
-        public const String Number = "v4.x";
+    /// <summary>
+    /// A delegate for filtering charging stations identifications.
+    /// </summary>
+    /// <param name="StationId">A charging station identification.</param>
+    public delegate Boolean IncludeStationIdsDelegate     (Station_Id       StationId);
 
-    }
+    /// <summary>
+    /// A delegate for filtering connector status.
+    /// </summary>
+    /// <param name="ConnectorStatus">A connector status.</param>
+    public delegate Boolean IncludeConnectorStatusDelegate(ConnectorStatus  ConnectorStatus);
 
 }

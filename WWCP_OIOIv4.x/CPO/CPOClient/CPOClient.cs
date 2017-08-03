@@ -30,6 +30,7 @@ using org.GraphDefined.Vanaheimr.Hermod.DNS;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Hermod.JSON;
 using org.GraphDefined.Vanaheimr.Hermod.SOAP;
+using System.Linq;
 
 #endregion
 
@@ -71,7 +72,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <summary>
         /// The API key for all requests.
         /// </summary>
-        public String           APIKey             { get; }
+        public APIKey           APIKey             { get; }
 
         /// <summary>
         /// The default communication partner identification for all requests.
@@ -84,6 +85,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         public CPOClientLogger  Logger             { get; }
 
         #endregion
+
+        public IncludeStationsDelegate    IncludeStations      { get; }
+        public IncludeStationIdsDelegate  IncludeStationIds    { get; }
 
         #region Events
 
@@ -287,6 +291,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         #endregion
 
+
         #region CustomRFIDVerifyRequestMapper
 
         #region CustomRFIDVerifyRequestMapper
@@ -387,6 +392,14 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         #endregion
 
+
+
+
+        public CustomJSONSerializerDelegate<StationPostRequest> CustomStationPostRequestSerializer   { get; set; }
+        public CustomJSONSerializerDelegate<Station>            CustomStationSerializer              { get; set; }
+        public CustomJSONSerializerDelegate<Connector>          CustomConnectorSerializer            { get; set; }
+
+
         #endregion
 
         #region Constructor(s)
@@ -399,13 +412,13 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="ClientId">A unqiue identification of this client.</param>
         /// <param name="Hostname">The hostname of the remote OIOI service.</param>
         /// <param name="APIKey">The PlugSurfing API key.</param>
+        /// <param name="DefaultPartnerId">The default communication partner identification.</param>
         /// <param name="RemotePort">An optional TCP port of the remote OIOI service.</param>
         /// <param name="RemoteCertificateValidator">A delegate to verify the remote TLS certificate.</param>
         /// <param name="ClientCert">The TLS client certificate to use.</param>
         /// <param name="HTTPVirtualHost">An optional HTTP virtual hostname of the remote OIOI service.</param>
         /// <param name="HTTPUserAgent">An optional HTTP user agent identification string for this HTTP client.</param>
         /// <param name="URIPrefix">The default URI prefix.</param>
-        /// <param name="DefaultPartnerId">The default communication partner identification.</param>
         /// <param name="RequestTimeout">An optional timeout for upstream queries.</param>
         /// <param name="MaxNumberOfRetries">The default number of maximum transmission retries.</param>
         /// <param name="DNSClient">An optional DNS client to use.</param>
@@ -413,7 +426,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="LogFileCreator">A delegate to create a log file from the given context and log file name.</param>
         public CPOClient(String                               ClientId,
                          String                               Hostname,
-                         String                               APIKey,
+                         APIKey                               APIKey,
+                         Partner_Id                           DefaultPartnerId,
                          IPPort                               RemotePort                  = null,
                          RemoteCertificateValidationCallback  RemoteCertificateValidator  = null,
                          LocalCertificateSelectionCallback    LocalCertificateSelector    = null,
@@ -421,7 +435,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                          String                               HTTPVirtualHost             = null,
                          String                               URIPrefix                   = null,
                          String                               HTTPUserAgent               = DefaultHTTPUserAgent,
-                         Partner_Id?                          DefaultPartnerId            = null,
+                         IncludeStationsDelegate              IncludeStations             = null,
+                         IncludeStationIdsDelegate            IncludeStationIds           = null,
                          TimeSpan?                            RequestTimeout              = null,
                          Byte?                                MaxNumberOfRetries          = DefaultMaxNumberOfRetries,
                          DNSClient                            DNSClient                   = null,
@@ -450,18 +465,18 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             if (Hostname.IsNullOrEmpty())
                 throw new ArgumentNullException(nameof(Hostname),  "The given hostname must not be null or empty!");
 
-            if (APIKey.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(APIKey),    "The given API key must not be null or empty!");
-
             #endregion
 
-            this.APIKey            = APIKey;
-            this.URIPrefix         = URIPrefix.       IsNotNullOrEmpty() ? URIPrefix              : DefaultURIPrefix;
-            this.DefaultPartnerId  = DefaultPartnerId.HasValue           ? DefaultPartnerId.Value : Partner_Id.Parse("GraphDefined");
+            this.APIKey             = APIKey;
+            this.URIPrefix          = URIPrefix.IsNotNullOrEmpty() ? URIPrefix : DefaultURIPrefix;
+            this.DefaultPartnerId   = DefaultPartnerId;
 
-            this.Logger            = new CPOClientLogger(this,
-                                                         LoggingContext,
-                                                         LogFileCreator);
+            this.IncludeStations    = IncludeStations   ?? (station   => true);
+            this.IncludeStationIds  = IncludeStationIds ?? (stationid => true);
+
+            this.Logger             = new CPOClientLogger(this,
+                                                          LoggingContext,
+                                                          LogFileCreator);
 
         }
 
@@ -476,20 +491,21 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="Logger">A CPO client logger.</param>
         /// <param name="Hostname">The hostname of the remote OIOI service.</param>
         /// <param name="APIKey">The PlugSurfing API key.</param>
+        /// <param name="DefaultPartnerId">The default communication partner identification.</param>
         /// <param name="RemotePort">An optional TCP port of the remote OIOI service.</param>
         /// <param name="URIPrefix">The default URI prefix.</param>
         /// <param name="RemoteCertificateValidator">A delegate to verify the remote TLS certificate.</param>
         /// <param name="ClientCert">The TLS client certificate to use.</param>
         /// <param name="HTTPVirtualHost">An optional HTTP virtual hostname of the remote OIOI service.</param>
         /// <param name="HTTPUserAgent">An optional HTTP user agent identification string for this HTTP client.</param>
-        /// <param name="DefaultPartnerId">The default communication partner identification.</param>
         /// <param name="RequestTimeout">An optional timeout for upstream queries.</param>
         /// <param name="MaxNumberOfRetries">The default number of maximum transmission retries.</param>
         /// <param name="DNSClient">An optional DNS client to use.</param>
         public CPOClient(String                               ClientId,
                          CPOClientLogger                      Logger,
                          String                               Hostname,
-                         String                               APIKey,
+                         APIKey                               APIKey,
+                         Partner_Id                           DefaultPartnerId,
                          IPPort                               RemotePort                  = null,
                          String                               URIPrefix                   = null,
                          RemoteCertificateValidationCallback  RemoteCertificateValidator  = null,
@@ -497,7 +513,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                          X509Certificate                      ClientCert                  = null,
                          String                               HTTPVirtualHost             = null,
                          String                               HTTPUserAgent               = DefaultHTTPUserAgent,
-                         Partner_Id?                          DefaultPartnerId            = null,
                          TimeSpan?                            RequestTimeout              = null,
                          Byte?                                MaxNumberOfRetries          = DefaultMaxNumberOfRetries,
                          DNSClient                            DNSClient                   = null)
@@ -527,15 +542,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             if (Hostname.IsNullOrEmpty())
                 throw new ArgumentNullException(nameof(Hostname),  "The given hostname must not be null or empty!");
 
-            if (APIKey.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(APIKey),    "The given API key must not be null or empty!");
-
             #endregion
 
-            this.Logger            = Logger;
-            this.APIKey            = APIKey;
-            this.URIPrefix         = URIPrefix.IsNotNullOrEmpty() ? URIPrefix : DefaultURIPrefix;
-            this.DefaultPartnerId  = DefaultPartnerId.HasValue ? DefaultPartnerId.Value : Partner_Id.Parse("1");
+            this.URIPrefix          = URIPrefix.IsNotNullOrEmpty() ? URIPrefix : DefaultURIPrefix;
+            this.APIKey             = APIKey;
+            this.DefaultPartnerId   = DefaultPartnerId;
+
+            this.IncludeStations    = IncludeStations   ?? (station   => true);
+            this.IncludeStationIds  = IncludeStationIds ?? (stationid => true);
+
+            this.Logger             = Logger;
 
         }
 
@@ -567,25 +583,30 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 throw new ArgumentNullException(nameof(Request), "The mapped StationPost request must not be null!");
 
 
-            HTTPResponse<StationPostResponse> result = null;
+            Byte                              TransmissionRetry  = 0;
+            HTTPResponse<StationPostResponse> result             = null;
 
             #endregion
 
             #region Send OnStationPostRequest event
 
-            var StartTime = DateTime.Now;
+            var StartTime = DateTime.UtcNow;
 
             try
             {
 
-                OnStationPostRequest?.Invoke(StartTime,
-                                             Request.Timestamp.Value,
-                                             this,
-                                             ClientId,
-                                             Request.EventTrackingId,
-                                             Request.Station,
-                                             Request.PartnerIdentifier,
-                                             Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout);
+                if (OnStationPostRequest != null)
+                    await Task.WhenAll(OnStationPostRequest.GetInvocationList().
+                                       Cast<OnStationPostRequestDelegate>().
+                                       Select(e => e(StartTime,
+                                                     Request.Timestamp.Value,
+                                                     this,
+                                                     ClientId,
+                                                     Request.EventTrackingId,
+                                                     Request.Station,
+                                                     Request.PartnerIdentifier,
+                                                     Request.RequestTimeout ?? RequestTimeout.Value))).
+                                       ConfigureAwait(false);
 
             }
             catch (Exception e)
@@ -599,112 +620,152 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             // Notes: It is not allowed to change the connectors of an existing station.
             //        The station’s connectors’ IDs may not be changed once it is created.
 
-            using (var _JSONClient = new JSONClient(Hostname,
-                                                    RemotePort,
-                                                    HTTPVirtualHost,
-                                                    URIPrefix,
-                                                    RemoteCertificateValidator,
-                                                    LocalCertificateSelector,
-                                                    ClientCert,
-                                                    UserAgent,
-                                                    RequestTimeout,
-                                                    DNSClient))
+            #region No station data to push?
+
+            if (!IncludeStations  (Request.Station) ||
+                !IncludeStationIds(Request.Station.Id))
             {
 
-                result = await _JSONClient.Query(_CustomStationPostJSONRequestMapper(Request,
-                                                                                     Request.ToJSON()),
-                                                 HTTPRequestBuilder:   request => request.Set("Authorization", "key=" + APIKey),
-                                                 RequestLogDelegate:   OnStationPostHTTPRequest,
-                                                 ResponseLogDelegate:  OnStationPostHTTPResponse,
-                                                 CancellationToken:    Request.CancellationToken,
-                                                 EventTrackingId:      Request.EventTrackingId,
-                                                 RequestTimeout:       Request.RequestTimeout ?? RequestTimeout,
-
-                                                 #region OnSuccess
-
-                                                 OnSuccess: JSONResponse => JSONResponse.ConvertContent(Request,
-                                                                                                        (request, json, onexception) =>
-                                                                                                            StationPostResponse.Parse(request,
-                                                                                                                                      json,
-                                                                                                                                      CustomStationPostResponseMapper,
-                                                                                                                                      onexception)),
-
-                                                 #endregion
-
-                                                 #region OnJSONFault
-
-                                                 OnJSONFault: (timestamp, jsonclient, httpresponse) => {
-
-                                                     SendJSONError(timestamp, this, httpresponse.Content);
-
-                                                     return new HTTPResponse<StationPostResponse>(httpresponse,
-                                                                                                  new StationPostResponse(Request,
-                                                                                                                          ResponseCodes.SystemError,
-                                                                                                                          "Invalid JSON response!"),
-                                                                                                  IsFault: true);
-
-                                                 },
-
-                                                 #endregion
-
-                                                 #region OnHTTPError
-
-                                                 OnHTTPError: (timestamp, soapclient, httpresponse) => {
-
-                                                     SendHTTPError(timestamp, this, httpresponse);
-
-                                                     return new HTTPResponse<StationPostResponse>(httpresponse,
-                                                                                                  new StationPostResponse(Request,
-                                                                                                                          ResponseCodes.SystemError,
-                                                                                                                          "Invalid HTTP response!"),
-                                                                                                  IsFault: true);
-
-                                                 },
-
-                                                 #endregion
-
-                                                 #region OnException
-
-                                                 OnException: (timestamp, sender, exception) => {
-
-                                                     SendException(timestamp, sender, exception);
-
-                                                     return HTTPResponse<StationPostResponse>.ExceptionThrown(new StationPostResponse(Request,
-                                                                                                                                      ResponseCodes.SystemError,
-                                                                                                                                      "Exception occured!"),
-                                                                                                              Exception:  exception);
-
-                                                 }
-
-                                                 #endregion
-
-                                                );
+                result = HTTPResponse<StationPostResponse>.OK(
+                             StationPostResponse.Success(Request,
+                                                         "No station data to push")
+                         );
 
             }
 
+            #endregion
 
-            if (result == null)
-                result = HTTPResponse<StationPostResponse>.OK(new StationPostResponse(Request,
-                                                                                      ResponseCodes.SystemError,
-                                                                                      "Invalid response!"));
+            else do
+            {
+
+                using (var _JSONClient = new JSONClient(Hostname,
+                                                        RemotePort,
+                                                        HTTPVirtualHost,
+                                                        URIPrefix,
+                                                        RemoteCertificateValidator,
+                                                        LocalCertificateSelector,
+                                                        ClientCert,
+                                                        UserAgent,
+                                                        RequestTimeout,
+                                                        DNSClient))
+                {
+
+                    result = await _JSONClient.Query(_CustomStationPostJSONRequestMapper(Request,
+                                                                                         Request.ToJSON(CustomStationPostRequestSerializer,
+                                                                                                        CustomStationSerializer,
+                                                                                                        CustomConnectorSerializer)),
+                                                     HTTPRequestBuilder:   request => request.Set("Authorization", "key=" + APIKey),
+                                                     RequestLogDelegate:   OnStationPostHTTPRequest,
+                                                     ResponseLogDelegate:  OnStationPostHTTPResponse,
+                                                     CancellationToken:    Request.CancellationToken,
+                                                     EventTrackingId:      Request.EventTrackingId,
+                                                     RequestTimeout:       Request.RequestTimeout ?? RequestTimeout,
+                                                     NumberOfRetry:        TransmissionRetry,
+
+                                                     #region OnSuccess
+
+                                                     OnSuccess: JSONResponse => JSONResponse.ConvertContent(Request,
+                                                                                                            (request, json, onexception) =>
+                                                                                                                StationPostResponse.Parse(request,
+                                                                                                                                          json,
+                                                                                                                                          CustomStationPostResponseMapper,
+                                                                                                                                          onexception)),
+
+                                                     #endregion
+
+                                                     #region OnJSONFault
+
+                                                     OnJSONFault: (timestamp, jsonclient, httpresponse) => {
+
+                                                         SendJSONError(timestamp, this, httpresponse.Content);
+
+                                                         return new HTTPResponse<StationPostResponse>(
+                                                                    httpresponse,
+                                                                    StationPostResponse.InvalidResponseFormat(Request,
+                                                                                                              httpresponse),
+                                                                    IsFault: true);
+
+                                                     },
+
+                                                     #endregion
+
+                                                     #region OnHTTPError
+
+                                                     OnHTTPError: (timestamp, soapclient, httpresponse) => {
+
+                                                         SendHTTPError(timestamp, this, httpresponse);
+
+                                                         return new HTTPResponse<StationPostResponse>(
+                                                                    httpresponse,
+                                                                    StationPostResponse.InvalidResponseFormat(Request,
+                                                                                                              httpresponse),
+                                                                    IsFault: true);
+
+                                                     },
+
+                                                     #endregion
+
+                                                     #region OnException
+
+                                                     OnException: (timestamp, sender, exception) => {
+
+                                                         SendException(timestamp, sender, exception);
+
+                                                         return HTTPResponse<StationPostResponse>.ExceptionThrown(
+
+                                                             new StationPostResponse(Request,
+                                                                                     ResponseCodes.SystemError,
+                                                                                     "Exception occured!"),
+
+                                                             Exception:  exception);
+
+                                                     }
+
+                                                     #endregion
+
+                                                    );
+
+                }
+
+                if (result == null)
+                    result = HTTPResponse<StationPostResponse>.ClientError(
+                                 StationPostResponse.InvalidResponseFormat(
+                                     Request
+                                 )
+                             );
+
+
+                if (result == null)
+                    result = HTTPResponse<StationPostResponse>.OK(new StationPostResponse(Request,
+                                                                                          ResponseCodes.SystemError,
+                                                                                          "Invalid response!"));
+
+            }
+            while (result.HTTPStatusCode == HTTPStatusCode.RequestTimeout &&
+                   TransmissionRetry++ < MaxNumberOfRetries);
+
 
             #region Send OnStationPostResponse event
 
-            var Endtime = DateTime.Now;
+            var Endtime = DateTime.UtcNow;
 
             try
             {
 
-                OnStationPostResponse?.Invoke(Endtime,
-                                              Request.Timestamp.Value,
-                                              this,
-                                              ClientId,
-                                              Request.EventTrackingId,
-                                              Request.Station,
-                                              Request.PartnerIdentifier,
-                                              Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout,
-                                              result.Content,
-                                              Endtime - StartTime);
+                if (OnStationPostResponse != null)
+                    await Task.WhenAll(OnStationPostResponse.GetInvocationList().
+                                       Cast<OnStationPostResponseDelegate>().
+                                       Select(e => e(Endtime,
+                                                     Request.Timestamp.Value,
+                                                     this,
+                                                     ClientId,
+                                                     Request.EventTrackingId,
+                                                     Request.Station,
+                                                     Request.PartnerIdentifier,
+                                                     Request.RequestTimeout ?? RequestTimeout.Value,
+                                                     result.Content,
+                                                     Endtime - StartTime))).
+                                       ConfigureAwait(false);
 
             }
             catch (Exception e)
@@ -749,7 +810,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #region Send OnConnectorPostStatusRequest event
 
-            var StartTime = DateTime.Now;
+            var StartTime = DateTime.UtcNow;
 
             try
             {
@@ -867,7 +928,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #region Send OnConnectorPostStatusResponse event
 
-            var Endtime = DateTime.Now;
+            var Endtime = DateTime.UtcNow;
 
             try
             {
@@ -928,7 +989,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #region Send OnRFIDVerifyRequest event
 
-            var StartTime = DateTime.Now;
+            var StartTime = DateTime.UtcNow;
 
             try
             {
@@ -1045,7 +1106,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #region Send OnRFIDVerifyResponse event
 
-            var Endtime = DateTime.Now;
+            var Endtime = DateTime.UtcNow;
 
             try
             {
@@ -1103,7 +1164,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #region Send OnSessionPostRequest event
 
-            var StartTime = DateTime.Now;
+            var StartTime = DateTime.UtcNow;
 
             try
             {
@@ -1220,7 +1281,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #region Send OnRFIDVerifyResponse event
 
-            var Endtime = DateTime.Now;
+            var Endtime = DateTime.UtcNow;
 
             try
             {

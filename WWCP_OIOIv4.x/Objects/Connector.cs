@@ -23,6 +23,7 @@ using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
+using org.GraphDefined.Vanaheimr.Hermod.JSON;
 
 #endregion
 
@@ -150,7 +151,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
             catch (Exception e)
             {
 
-                OnException?.Invoke(DateTime.Now, ConnectorText, e);
+                OnException?.Invoke(DateTime.UtcNow, ConnectorText, e);
 
                 Connector = null;
                 return false;
@@ -195,7 +196,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
             catch (Exception e)
             {
 
-                OnException?.Invoke(DateTime.Now, ConnectorJSON, e);
+                OnException?.Invoke(DateTime.UtcNow, ConnectorJSON, e);
 
                 Connector = null;
                 return false;
@@ -206,18 +207,26 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
         #endregion
 
-        #region ToJSON()
+        #region ToJSON(CustomConnectorSerializer = null)
 
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
-        public JObject ToJSON()
+        /// <param name="CustomConnectorSerializer">A delegate to serialize custom Connector JSON objects.</param>
+        public JObject ToJSON(CustomJSONSerializerDelegate<Connector> CustomConnectorSerializer = null)
+        {
 
-            => JSONObject.Create(
-                   new JProperty("id",     Id.   ToString()),
-                   new JProperty("name",   Name. ToString()),
-                   new JProperty("speed",  Speed)//.ToString("N1").Replace(",", "."))
-               );
+            var JSON = JSONObject.Create(
+                           new JProperty("id",     Id.   ToString()),
+                           new JProperty("name",   Name. ToString()),
+                           new JProperty("speed",  Speed)//.ToString("N1").Replace(",", "."))
+                       );
+
+            return CustomConnectorSerializer != null
+                       ? CustomConnectorSerializer(this, JSON)
+                       : JSON;
+
+        }
 
         #endregion
 

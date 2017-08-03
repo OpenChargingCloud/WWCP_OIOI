@@ -215,7 +215,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             catch (Exception e)
             {
 
-                OnException?.Invoke(DateTime.Now, ConnectorPostStatusRequestJSON, e);
+                OnException?.Invoke(DateTime.UtcNow, ConnectorPostStatusRequestJSON, e);
 
                 ConnectorPostStatusRequest = null;
                 return false;
@@ -251,7 +251,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             }
             catch (Exception e)
             {
-                OnException?.Invoke(DateTime.Now, ConnectorPostStatusRequestText, e);
+                OnException?.Invoke(DateTime.UtcNow, ConnectorPostStatusRequestText, e);
             }
 
             ConnectorPostStatusRequest = null;

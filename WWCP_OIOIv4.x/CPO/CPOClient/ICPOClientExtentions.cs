@@ -35,7 +35,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
     public static class ICPOClientExtentions
     {
 
-        #region StationPost        (Station,         PartnerId, ...)
+        #region StationPost        (Station,         PartnerId = null, ...)
 
         /// <summary>
         /// Upload the given charging station.
@@ -47,7 +47,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        public static async Task<HTTPResponse<StationPostResponse>>
+        public static Task<HTTPResponse<StationPostResponse>>
 
             StationPost(this ICPOClient     ICPOClient,
                         Station             Station,
@@ -59,17 +59,17 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                         TimeSpan?           RequestTimeout      = null)
 
 
-                => await ICPOClient.StationPost(new StationPostRequest(Station,
-                                                                       PartnerId ?? ICPOClient.DefaultPartnerId,
+                => ICPOClient.StationPost(new StationPostRequest(Station,
+                                                                 PartnerId ?? ICPOClient.DefaultPartnerId,
 
-                                                                       Timestamp,
-                                                                       CancellationToken,
-                                                                       EventTrackingId,
-                                                                       RequestTimeout.HasValue ? RequestTimeout.Value : ICPOClient.RequestTimeout));
+                                                                 Timestamp,
+                                                                 CancellationToken,
+                                                                 EventTrackingId,
+                                                                 RequestTimeout ?? ICPOClient.RequestTimeout));
 
         #endregion
 
-        #region ConnectorPostStatus(ConnectorStatus, PartnerId, ...)
+        #region ConnectorPostStatus(ConnectorStatus, PartnerId = null, ...)
 
         /// <summary>
         /// Update the status of a charging connector on the OIOI server.
@@ -81,7 +81,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        public static async Task<HTTPResponse<ConnectorPostStatusResponse>>
+        public static Task<HTTPResponse<ConnectorPostStatusResponse>>
 
             ConnectorPostStatus(this ICPOClient      ICPOClient,
                                 ConnectorStatus      ConnectorStatus,
@@ -92,17 +92,17 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                 EventTracking_Id     EventTrackingId        = null,
                                 TimeSpan?            RequestTimeout         = null)
 
-            => await ICPOClient.ConnectorPostStatus(new ConnectorPostStatusRequest(ConnectorStatus,
-                                                                                   PartnerId ?? ICPOClient.DefaultPartnerId,
+            => ICPOClient.ConnectorPostStatus(new ConnectorPostStatusRequest(ConnectorStatus,
+                                                                             PartnerId ?? ICPOClient.DefaultPartnerId,
 
-                                                                                   Timestamp,
-                                                                                   CancellationToken,
-                                                                                   EventTrackingId,
-                                                                                   RequestTimeout.HasValue ? RequestTimeout.Value : ICPOClient.RequestTimeout));
+                                                                             Timestamp,
+                                                                             CancellationToken,
+                                                                             EventTrackingId,
+                                                                             RequestTimeout ?? ICPOClient.RequestTimeout));
 
         #endregion
 
-        #region ConnectorPostStatus(Id, Status,      PartnerId, ...)
+        #region ConnectorPostStatus(Id, Status,      PartnerId = null, ...)
 
         /// <summary>
         /// Update the status of a charging connector on the OIOI server.
@@ -115,7 +115,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        public static async Task<HTTPResponse<ConnectorPostStatusResponse>>
+        public static Task<HTTPResponse<ConnectorPostStatusResponse>>
 
             ConnectorPostStatus(this ICPOClient       ICPOClient,
                                 Connector_Id          Id,
@@ -127,14 +127,14 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                 EventTracking_Id      EventTrackingId        = null,
                                 TimeSpan?             RequestTimeout         = null)
 
-            => await ICPOClient.ConnectorPostStatus(new ConnectorPostStatusRequest(Id,
-                                                                                   Status,
-                                                                                   PartnerId ?? ICPOClient.DefaultPartnerId,
+            => ICPOClient.ConnectorPostStatus(new ConnectorPostStatusRequest(Id,
+                                                                             Status,
+                                                                             PartnerId ?? ICPOClient.DefaultPartnerId,
 
-                                                                                   Timestamp,
-                                                                                   CancellationToken,
-                                                                                   EventTrackingId,
-                                                                                   RequestTimeout.HasValue ? RequestTimeout.Value : ICPOClient.RequestTimeout));
+                                                                             Timestamp,
+                                                                             CancellationToken,
+                                                                             EventTrackingId,
+                                                                             RequestTimeout ?? ICPOClient.RequestTimeout));
 
         #endregion
 
@@ -149,7 +149,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        public static async Task<HTTPResponse<RFIDVerifyResponse>>
+        public static Task<HTTPResponse<RFIDVerifyResponse>>
 
             RFIDVerify(this ICPOClient      ICPOClient,
                        RFID_Id              RFIDId,
@@ -160,12 +160,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                        TimeSpan?            RequestTimeout      = null)
 
 
-            => await ICPOClient.RFIDVerify(new RFIDVerifyRequest(RFIDId,
+            => ICPOClient.RFIDVerify(new RFIDVerifyRequest(RFIDId,
 
-                                                                 Timestamp,
-                                                                 CancellationToken,
-                                                                 EventTrackingId,
-                                                                 RequestTimeout.HasValue ? RequestTimeout.Value : ICPOClient.RequestTimeout));
+                                                           Timestamp,
+                                                           CancellationToken,
+                                                           EventTrackingId,
+                                                           RequestTimeout ?? ICPOClient.RequestTimeout));
 
         #endregion
 
@@ -180,7 +180,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        public static async Task<HTTPResponse<SessionPostResponse>>
+        public static Task<HTTPResponse<SessionPostResponse>>
 
             SessionPost(this ICPOClient      ICPOClient,
                         Session              Session,
@@ -191,12 +191,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                         TimeSpan?            RequestTimeout      = null)
 
 
-            => await ICPOClient.SessionPost(new SessionPostRequest(Session,
+            => ICPOClient.SessionPost(new SessionPostRequest(Session,
 
-                                                                   Timestamp,
-                                                                   CancellationToken,
-                                                                   EventTrackingId,
-                                                                   RequestTimeout.HasValue ? RequestTimeout.Value : ICPOClient.RequestTimeout));
+                                                             Timestamp,
+                                                             CancellationToken,
+                                                             EventTrackingId,
+                                                             RequestTimeout ?? ICPOClient.RequestTimeout));
 
         #endregion
 

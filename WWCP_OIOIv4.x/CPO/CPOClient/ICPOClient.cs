@@ -43,7 +43,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <summary>
         /// The API key for all requests.
         /// </summary>
-        String           APIKey             { get; }
+        APIKey           APIKey             { get; }
 
         /// <summary>
         /// The default communication partner identification for all requests.

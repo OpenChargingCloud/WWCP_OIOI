@@ -23,6 +23,8 @@ using System.Threading;
 using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
+using org.GraphDefined.Vanaheimr.Hermod;
+using org.GraphDefined.Vanaheimr.Hermod.JSON;
 
 #endregion
 
@@ -237,7 +239,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             catch (Exception e)
             {
 
-                OnException?.Invoke(DateTime.Now, StationPostRequestJSON, e);
+                OnException?.Invoke(DateTime.UtcNow, StationPostRequestJSON, e);
 
                 StationPostRequest = null;
                 return false;
@@ -273,7 +275,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             }
             catch (Exception e)
             {
-                OnException?.Invoke(DateTime.Now, StationPostRequestText, e);
+                OnException?.Invoke(DateTime.UtcNow, StationPostRequestText, e);
             }
 
             StationPostRequest = null;
@@ -283,17 +285,32 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         #endregion
 
-        #region ToJSON()
+        #region ToJSON(CustomStationPostRequestSerializer = null, CustomStationSerializer = null, CustomConnectorSerializer = null)
 
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
-        public JObject ToJSON()
+        /// <param name="CustomStationPostRequestSerializer">A delegate to serialize custom StationPost request.</param>
+        /// <param name="CustomStationSerializer">A delegate to serialize custom Station JSON objects.</param>
+        /// <param name="CustomConnectorSerializer">A delegate to serialize custom Connector JSON objects.</param>
+        public JObject ToJSON(CustomJSONSerializerDelegate<StationPostRequest>  CustomStationPostRequestSerializer   = null,
+                              CustomJSONSerializerDelegate<Station>             CustomStationSerializer              = null,
+                              CustomJSONSerializerDelegate<Connector>           CustomConnectorSerializer            = null)
+        {
 
-            => new JObject(new JProperty("station-post", new JObject(
-                               new JProperty("station",             Station.          ToJSON()),
+            var JSON = JSONObject.Create(
+                           new JProperty("station-post", JSONObject.Create(
+                               new JProperty("station",             Station.          ToJSON(CustomStationSerializer,
+                                                                                             CustomConnectorSerializer)),
                                new JProperty("partner-identifier",  PartnerIdentifier.ToString())
-                           )));
+                           ))
+                       );
+
+            return CustomStationPostRequestSerializer != null
+                       ? CustomStationPostRequestSerializer(this, JSON)
+                       : JSON;
+
+        }
 
         #endregion
 

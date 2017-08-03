@@ -502,7 +502,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
             #region Send OnStationGetSurfaceRequest event
 
-            var StartTime = DateTime.Now;
+            var StartTime = DateTime.UtcNow;
 
             try
             {
@@ -623,7 +623,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
             #region Send OnStationGetSurfaceResponse event
 
-            var Endtime = DateTime.Now;
+            var Endtime = DateTime.UtcNow;
 
             try
             {
@@ -685,7 +685,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
             #region Send OnSessionStartRequest event
 
-            var StartTime = DateTime.Now;
+            var StartTime = DateTime.UtcNow;
 
             try
             {
@@ -800,7 +800,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
             #region Send OnSessionStartResponse event
 
-            var Endtime = DateTime.Now;
+            var Endtime = DateTime.UtcNow;
 
             try
             {
@@ -860,7 +860,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
             #region Send OnSessionStopRequest event
 
-            var StartTime = DateTime.Now;
+            var StartTime = DateTime.UtcNow;
 
             try
             {
@@ -975,7 +975,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
             #region Send OnSessionStopResponse event
 
-            var Endtime = DateTime.Now;
+            var Endtime = DateTime.UtcNow;
 
             try
             {
