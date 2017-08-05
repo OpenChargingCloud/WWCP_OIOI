@@ -24,6 +24,7 @@ using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
+using org.GraphDefined.Vanaheimr.Hermod.JSON;
 
 #endregion
 
@@ -114,20 +115,24 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
         #endregion
 
-        #region (static) Parse(SessionStopRequestJSON, OnException = null)
+        #region (static) Parse(SessionStopRequestJSON, CustomSessionStopRequestParser = null, OnException = null)
 
         /// <summary>
         /// Parse the given JSON representation of an OIOI Session Stop request.
         /// </summary>
         /// <param name="SessionStopRequestJSON">The JSON to parse.</param>
+        /// <param name="CustomSessionStopRequestParser">A delegate to parse custom SessionStop requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static SessionStopRequest Parse(JObject              SessionStopRequestJSON,
-                                               OnExceptionDelegate  OnException = null)
+        public static SessionStopRequest Parse(JObject                                       SessionStopRequestJSON,
+                                               CustomJSONParserDelegate<SessionStopRequest>  CustomSessionStopRequestParser   = null,
+                                               OnExceptionDelegate                           OnException                      = null)
         {
 
-            SessionStopRequest _SessionStopRequest;
+            if (TryParse(SessionStopRequestJSON,
+                         out SessionStopRequest _SessionStopRequest,
+                         CustomSessionStopRequestParser,
+                         OnException))
 
-            if (TryParse(SessionStopRequestJSON, out _SessionStopRequest, OnException))
                 return _SessionStopRequest;
 
             return null;
@@ -136,20 +141,24 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
         #endregion
 
-        #region (static) Parse(SessionStopRequestText, OnException = null)
+        #region (static) Parse(SessionStopRequestText, CustomSessionStopRequestParser = null, OnException = null)
 
         /// <summary>
         /// Parse the given text representation of an OIOI Session Stop request.
         /// </summary>
         /// <param name="SessionStopRequestText">The text to parse.</param>
+        /// <param name="CustomSessionStopRequestParser">A delegate to parse custom SessionStop requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static SessionStopRequest Parse(String               SessionStopRequestText,
-                                               OnExceptionDelegate  OnException = null)
+        public static SessionStopRequest Parse(String                                        SessionStopRequestText,
+                                               CustomJSONParserDelegate<SessionStopRequest>  CustomSessionStopRequestParser   = null,
+                                               OnExceptionDelegate                           OnException                      = null)
         {
 
-            SessionStopRequest _SessionStopRequest;
+            if (TryParse(SessionStopRequestText,
+                         out SessionStopRequest _SessionStopRequest,
+                         CustomSessionStopRequestParser,
+                         OnException))
 
-            if (TryParse(SessionStopRequestText, out _SessionStopRequest, OnException))
                 return _SessionStopRequest;
 
             return null;
@@ -158,17 +167,19 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
         #endregion
 
-        #region (static) TryParse(SessionStopRequestJSON,  out SessionStopRequest, OnException = null)
+        #region (static) TryParse(SessionStopRequestJSON, out SessionStopRequest, CustomSessionStopRequestParser = null, OnException = null)
 
         /// <summary>
         /// Try to parse the given JSON representation of an OIOI Session Stop request.
         /// </summary>
         /// <param name="SessionStopRequestJSON">The JSON to parse.</param>
         /// <param name="SessionStopRequest">The parsed Session Stop request.</param>
+        /// <param name="CustomSessionStopRequestParser">A delegate to parse custom SessionStop requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static Boolean TryParse(JObject                 SessionStopRequestJSON,
-                                       out SessionStopRequest  SessionStopRequest,
-                                       OnExceptionDelegate     OnException  = null)
+        public static Boolean TryParse(JObject                                       SessionStopRequestJSON,
+                                       out SessionStopRequest                        SessionStopRequest,
+                                       CustomJSONParserDelegate<SessionStopRequest>  CustomSessionStopRequestParser   = null,
+                                       OnExceptionDelegate                           OnException                      = null)
         {
 
             try
@@ -182,10 +193,15 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                                          Connector_Id.Parse(SessionStop["connector-id"].Value<String>()),
 
                                          SessionStop["session-id"] != null
-                                             ? new Nullable<Session_Id>(Session_Id.Parse(SessionStop["session-id"].Value<String>()))
+                                             ? new Session_Id?(Session_Id.Parse(SessionStop["session-id"].Value<String>()))
                                              : null
 
                                      );
+
+
+                if (CustomSessionStopRequestParser != null)
+                    SessionStopRequest = CustomSessionStopRequestParser(SessionStopRequestJSON,
+                                                                        SessionStopRequest);
 
                 return true;
 
@@ -204,17 +220,19 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
         #endregion
 
-        #region (static) TryParse(SessionStopText, out SessionStop, OnException = null)
+        #region (static) TryParse(SessionStopRequestText, out SessionStopRequest, CustomSessionStopRequestParser = null, OnException = null)
 
         /// <summary>
         /// Try to parse the given text representation of an OIOI Session Stop request.
         /// </summary>
         /// <param name="SessionStopRequestText">The text to parse.</param>
         /// <param name="SessionStopRequest">The parsed Session Stop request.</param>
+        /// <param name="CustomSessionStopRequestParser">A delegate to parse custom SessionStop requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static Boolean TryParse(String                  SessionStopRequestText,
-                                       out SessionStopRequest  SessionStopRequest,
-                                       OnExceptionDelegate     OnException  = null)
+        public static Boolean TryParse(String                                        SessionStopRequestText,
+                                       out SessionStopRequest                        SessionStopRequest,
+                                       CustomJSONParserDelegate<SessionStopRequest>  CustomSessionStopRequestParser   = null,
+                                       OnExceptionDelegate                           OnException                      = null)
         {
 
             try
@@ -222,6 +240,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
                 if (TryParse(JObject.Parse(SessionStopRequestText),
                              out SessionStopRequest,
+                             CustomSessionStopRequestParser,
                              OnException))
 
                     return true;
@@ -239,25 +258,34 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
         #endregion
 
-        #region ToJSON()
+        #region ToJSON(CustomSessionStopRequestSerializer = null, CustomUserSerializer = null)
 
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
-        public JObject ToJSON()
+        /// <param name="CustomSessionStopRequestSerializer">A delegate to serialize custom SessionStop requests.</param>
+        /// <param name="CustomUserSerializer">A delegate to serialize custom User JSON objects.</param>
+        public JObject ToJSON(CustomJSONSerializerDelegate<SessionStopRequest>  CustomSessionStopRequestSerializer   = null,
+                              CustomJSONSerializerDelegate<User>                CustomUserSerializer                 = null)
+        {
 
-            => new JObject(new JObject(
-                               new JProperty("session-stop", JSONObject.Create(
+            var JSON = JSONObject.Create(
+                           new JProperty("session-stop", JSONObject.Create(
 
-                                   new JProperty("user",          User.       ToJSON()),
-                                   new JProperty("connector-id",  ConnectorId.ToString()),
+                               new JProperty("user",          User.       ToJSON(CustomUserSerializer)),
+                               new JProperty("connector-id",  ConnectorId.ToString()),
 
-                                   SessionId.HasValue
-                                       ? new JProperty("session-id",  SessionId.ToString())
-                                       : null
+                               SessionId.HasValue
+                                   ? new JProperty("session-id",  SessionId.ToString())
+                                   : null
 
-                               ))
-                           ));
+                           )));
+
+            return CustomSessionStopRequestSerializer != null
+                       ? CustomSessionStopRequestSerializer(this, JSON)
+                       : JSON;
+
+        }
 
         #endregion
 

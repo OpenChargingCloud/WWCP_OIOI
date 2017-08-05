@@ -18,11 +18,13 @@
 #region Usings
 
 using System;
+using System.Collections.Generic;
 
 using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
+using org.GraphDefined.Vanaheimr.Hermod.JSON;
 
 #endregion
 
@@ -32,7 +34,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
     /// <summary>
     /// An OIOI address.
     /// </summary>
-    public class Address : IEquatable<Address>
+    public class Address : ACustomData,
+                           IEquatable<Address>,
+                           IComparable<Address>,
+                           IComparable
     {
 
         #region Properties
@@ -74,11 +79,18 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <param name="City">The name of the city.</param>
         /// <param name="ZIP">The postal code</param>
         /// <param name="Country">The country.</param>
-        public Address(String   Street,
-                       String   StreetNumber,
-                       String   City,
-                       String   ZIP,
-                       Country  Country)
+        /// 
+        /// <param name="CustomData">An optional dictionary of customer-specific data.</param>
+        public Address(String                               Street,
+                       String                               StreetNumber,
+                       String                               City,
+                       String                               ZIP,
+                       Country                              Country,
+
+                       IReadOnlyDictionary<String, Object>  CustomData   = null)
+
+            : base(CustomData)
+
         {
 
             this.Street         = Street;
@@ -104,18 +116,24 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
         #endregion
 
-        #region (static) Parse(AddressJSON)
+        #region (static) Parse(AddressJSON, CustomAddressParser = null, OnException = null)
 
         /// <summary>
         /// Parse the given JSON representation of an OIOI address.
         /// </summary>
         /// <param name="AddressJSON">The JSON to parse.</param>
-        public static Address Parse(JObject AddressJSON)
+        /// <param name="CustomAddressParser">A delegate to parse custom Address JSON elements.</param>
+        /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
+        public static Address Parse(JObject                            AddressJSON,
+                                    CustomJSONParserDelegate<Address>  CustomAddressParser   = null,
+                                    OnExceptionDelegate                OnException           = null)
         {
 
-            Address _Address;
+            if (TryParse(AddressJSON,
+                         out Address _Address,
+                         CustomAddressParser,
+                         OnException))
 
-            if (TryParse(AddressJSON, out _Address))
                 return _Address;
 
             return null;
@@ -124,18 +142,24 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
         #endregion
 
-        #region (static) Parse(AddressText)
+        #region (static) Parse(AddressText, CustomAddressParser = null, OnException = null)
 
         /// <summary>
         /// Parse the given text representation of an OIOI address.
         /// </summary>
         /// <param name="AddressText">The text to parse.</param>
-        public static Address Parse(String AddressText)
+        /// <param name="CustomAddressParser">A delegate to parse custom Address JSON elements.</param>
+        /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
+        public static Address Parse(String                             AddressText,
+                                    CustomJSONParserDelegate<Address>  CustomAddressParser   = null,
+                                    OnExceptionDelegate                OnException           = null)
         {
 
-            Address _Address;
+            if (TryParse(AddressText,
+                         out Address _Address,
+                         CustomAddressParser,
+                         OnException))
 
-            if (TryParse(AddressText, out _Address))
                 return _Address;
 
             return null;
@@ -144,17 +168,19 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
         #endregion
 
-        #region (static) TryParse(AddressText, out Address, OnException = null)
+        #region (static) TryParse(AddressText, out Address, CustomAddressParser = null, OnException = null)
 
         /// <summary>
         /// Try to parse the given text representation of an OIOI address.
         /// </summary>
         /// <param name="AddressText">The text to parse.</param>
         /// <param name="Address">The parsed address.</param>
+        /// <param name="CustomAddressParser">A delegate to parse custom Address JSON elements.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static Boolean TryParse(String               AddressText,
-                                       out Address          Address,
-                                       OnExceptionDelegate  OnException  = null)
+        public static Boolean TryParse(String                             AddressText,
+                                       out Address                        Address,
+                                       CustomJSONParserDelegate<Address>  CustomAddressParser   = null,
+                                       OnExceptionDelegate                OnException           = null)
         {
 
             try
@@ -162,6 +188,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
                 return TryParse(JObject.Parse(AddressText),
                                 out Address,
+                                CustomAddressParser,
                                 OnException);
 
             }
@@ -179,17 +206,19 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
         #endregion
 
-        #region (static) TryParse(AddressJSON, out Address, OnException = null)
+        #region (static) TryParse(AddressJSON, out Address, CustomAddressParser = null, OnException = null)
 
         /// <summary>
         /// Try to parse the given JSON representation of an OIOI Address.
         /// </summary>
         /// <param name="AddressJSON">The JSON to parse.</param>
         /// <param name="Address">The parsed address.</param>
+        /// <param name="CustomAddressParser">A delegate to parse custom Address JSON elements.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static Boolean TryParse(JObject              AddressJSON,
-                                       out Address          Address,
-                                       OnExceptionDelegate  OnException  = null)
+        public static Boolean TryParse(JObject                            AddressJSON,
+                                       out Address                        Address,
+                                       CustomJSONParserDelegate<Address>  CustomAddressParser   = null,
+                                       OnExceptionDelegate                OnException           = null)
         {
 
             try
@@ -206,6 +235,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
                                                          value => Country.ParseAlpha2Code(value.Value<String>().Trim()),
                                                          "Invalid or missing JSON property 'country'!")
                           );
+
+
+                if (CustomAddressParser != null)
+                    Address = CustomAddressParser(AddressJSON,
+                                                  Address);
 
                 return true;
 
@@ -224,20 +258,28 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
         #endregion
 
-        #region ToJSON()
+        #region ToJSON(CustomAddressSerializer = null)
 
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
-        public JObject ToJSON()
+        /// <param name="CustomAddressSerializer">A delegate to serialize custom Address JSON objects.</param>
+        public JObject ToJSON(CustomJSONSerializerDelegate<Address> CustomAddressSerializer  = null)
+        {
 
-            => JSONObject.Create(
-                   new JProperty("street",         Street),
-                   new JProperty("street-number",  StreetNumber),
-                   new JProperty("city",           City),
-                   new JProperty("zip",            ZIP),
-                   new JProperty("country",        Country.Alpha2Code)
-               );
+            var JSON = JSONObject.Create(
+                           new JProperty("street",         Street),
+                           new JProperty("street-number",  StreetNumber),
+                           new JProperty("city",           City),
+                           new JProperty("zip",            ZIP),
+                           new JProperty("country",        Country.Alpha2Code)
+                       );
+
+            return CustomAddressSerializer != null
+                       ? CustomAddressSerializer(this, JSON)
+                       : JSON;
+
+        }
 
         #endregion
 
@@ -280,6 +322,132 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         public static Boolean operator != (Address Address1, Address Address2)
 
             => !(Address1 == Address2);
+
+        #endregion
+
+        #region Operator <  (Address1, Address2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="Address1">An address.</param>
+        /// <param name="Address2">Another address.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator < (Address Address1, Address Address2)
+        {
+
+            if ((Object) Address1 == null)
+                throw new ArgumentNullException(nameof(Address1), "The given Address1 must not be null!");
+
+            return Address1.CompareTo(Address2) < 0;
+
+        }
+
+        #endregion
+
+        #region Operator <= (Address1, Address2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="Address1">An address.</param>
+        /// <param name="Address2">Another address.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator <= (Address Address1, Address Address2)
+            => !(Address1 > Address2);
+
+        #endregion
+
+        #region Operator >  (Address1, Address2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="Address1">An address.</param>
+        /// <param name="Address2">Another address.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator > (Address Address1, Address Address2)
+        {
+
+            if ((Object)Address1 == null)
+                throw new ArgumentNullException(nameof(Address1), "The given Address1 must not be null!");
+
+            return Address1.CompareTo(Address2) > 0;
+
+        }
+
+        #endregion
+
+        #region Operator >= (Address1, Address2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="Address1">An address.</param>
+        /// <param name="Address2">Another address.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator >= (Address Address1, Address Address2)
+            => !(Address1 < Address2);
+
+        #endregion
+
+        #endregion
+
+        #region IComparable<Address> Members
+
+        #region CompareTo(Object)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="Object">An object to compare with.</param>
+        public Int32 CompareTo(Object Object)
+        {
+
+            if (Object == null)
+                throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
+
+            var Address = Object as Address;
+            if ((Object)Address == null)
+                throw new ArgumentException("The given object is not an address identification!", nameof(Object));
+
+            return CompareTo(Address);
+
+        }
+
+        #endregion
+
+        #region CompareTo(Address)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="Address">An object to compare with.</param>
+        public Int32 CompareTo(Address Address)
+        {
+
+            if ((Object) Address == null)
+                throw new ArgumentNullException(nameof(Address), "The given address must not be null!");
+
+            var c = Country.     CompareTo(Address.Country);
+            if (c != 0)
+                return c;
+
+            c = ZIP.             CompareTo(Address.ZIP);
+            if (c != 0)
+                return c;
+
+            c = City.            CompareTo(Address.City);
+            if (c != 0)
+                return c;
+
+            c = Street.          CompareTo(Address.Street);
+            if (c != 0)
+                return c;
+
+            return StreetNumber. CompareTo(Address.StreetNumber);
+
+        }
 
         #endregion
 

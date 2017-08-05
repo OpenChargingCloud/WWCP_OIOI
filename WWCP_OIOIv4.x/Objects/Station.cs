@@ -34,9 +34,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 {
 
     /// <summary>
-    /// An OIOI Charging Station.
+    /// An OIOI charging station.
     /// </summary>
-    public class Station : IEquatable<Station>,
+    public class Station : ACustomData,
+                           IEquatable<Station>,
                            IComparable<Station>,
                            IComparable
     {
@@ -187,7 +188,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         #region Constructor(s)
 
         /// <summary>
-        /// Create a new OIOI charging station.
+        /// Create a new charging station.
         /// </summary>
         /// <param name="Id">The unique identification of the charging station.</param>
         /// <param name="Name">The name of the charging station.</param>
@@ -210,27 +211,33 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <param name="IsRoofed">Whether the station is under a roof, for example in a parking garage.</param>
         /// <param name="IsPrivate">Whether the charging station is privately owned.</param>
         /// <param name="Deleted">Soft delete this charging station and its related connectors.</param>
-        public Station(Station_Id                  Id,
-                       String                      Name,
-                       Latitude                    Latitude,
-                       Longitude                   Longitude,
-                       Address                     Address,
-                       Contact                     Contact,
-                       ChargingStationOperator_Id  CPOId,
-                       Boolean                     IsOpen24Hours,
-                       IEnumerable<Connector>      Connectors,
-                       String                      Description            = null,
-                       OpeningTimes                OpeningTime            = null,
-                       String                      Notes                  = null,
-                       Boolean                     IsReservable           = false,
-                       Int16?                      FloorLevel             = null,
-                       Boolean                     IsFreeCharge           = false,
-                       UInt16?                     TotalParking           = null,
-                       Boolean                     IsGreenPowerAvailable  = false,
-                       Boolean                     IsPlugInCharge         = false,
-                       Boolean                     IsRoofed               = false,
-                       Boolean                     IsPrivate              = false,
-                       Boolean                     Deleted                = false)
+        /// 
+        /// <param name="CustomData">An optional dictionary of customer-specific data.</param>
+        public Station(Station_Id                           Id,
+                       String                               Name,
+                       Latitude                             Latitude,
+                       Longitude                            Longitude,
+                       Address                              Address,
+                       Contact                              Contact,
+                       ChargingStationOperator_Id           CPOId,
+                       Boolean                              IsOpen24Hours,
+                       IEnumerable<Connector>               Connectors,
+                       String                               Description             = null,
+                       OpeningTimes                         OpeningTime             = null,
+                       String                               Notes                   = null,
+                       Boolean                              IsReservable            = false,
+                       Int16?                               FloorLevel              = null,
+                       Boolean                              IsFreeCharge            = false,
+                       UInt16?                              TotalParking            = null,
+                       Boolean                              IsGreenPowerAvailable   = false,
+                       Boolean                              IsPlugInCharge          = false,
+                       Boolean                              IsRoofed                = false,
+                       Boolean                              IsPrivate               = false,
+                       Boolean                              Deleted                 = false,
+
+                       IReadOnlyDictionary<String, Object>  CustomData              = null)
+
+            : base(CustomData)
 
         {
 
@@ -365,14 +372,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
             return null;
         }
 
-        #region ToJSON(CustomStationSerializer = null, CustomConnectorSerializer = null)
+        #region ToJSON(CustomStationSerializer = null, CustomAddressSerializer = null, CustomConnectorSerializer = null)
 
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
         /// <param name="CustomStationSerializer">A delegate to serialize custom Station JSON objects.</param>
+        /// <param name="CustomAddressSerializer">A delegate to serialize custom Address JSON objects.</param>
         /// <param name="CustomConnectorSerializer">A delegate to serialize custom Connector JSON objects.</param>
         public JObject ToJSON(CustomJSONSerializerDelegate<Station>    CustomStationSerializer     = null,
+                              CustomJSONSerializerDelegate<Address>    CustomAddressSerializer     = null,
                               CustomJSONSerializerDelegate<Connector>  CustomConnectorSerializer   = null)
         {
 
@@ -388,7 +397,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
                            new JProperty("latitude",                  Latitude. Value),
                            new JProperty("longitude",                 Longitude.Value),
 
-                           new JProperty("address",                   Address. ToJSON()),
+                           new JProperty("address",                   Address. ToJSON(CustomAddressSerializer)),
                            new JProperty("contact",                   Contact. ToJSON()),
                            new JProperty("cpo-id",                    CPOId.   ToString()),
                            new JProperty("is-open-24",                IsOpen24Hours),

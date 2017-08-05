@@ -24,6 +24,7 @@ using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
+using org.GraphDefined.Vanaheimr.Hermod.JSON;
 
 #endregion
 
@@ -31,7 +32,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 {
 
     /// <summary>
-    /// An OIOI Session Start request.
+    /// An OIOI session start request.
     /// </summary>
     public class SessionStartRequest : ARequest<SessionStartRequest>
     {
@@ -61,7 +62,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         #region Constructor(s)
 
         /// <summary>
-        /// Create an OIOI Session Start JSON/HTTP request.
+        /// Create a Session Start JSON/HTTP request.
         /// </summary>
         /// <param name="User">A customer who wants to charge.</param>
         /// <param name="ConnectorId">The connector where the customer wants to charge.</param>
@@ -115,20 +116,24 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
         #endregion
 
-        #region (static) Parse(SessionStartRequestJSON, OnException = null)
+        #region (static) Parse(SessionStartRequestJSON, CustomSessionStartRequestParser = null, OnException = null)
 
         /// <summary>
         /// Parse the given JSON representation of an OIOI Session Start request.
         /// </summary>
         /// <param name="SessionStartRequestJSON">The JSON to parse.</param>
+        /// <param name="CustomSessionStartRequestParser">A delegate to parse custom SessionStart requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static SessionStartRequest Parse(JObject              SessionStartRequestJSON,
-                                                OnExceptionDelegate  OnException = null)
+        public static SessionStartRequest Parse(JObject                                        SessionStartRequestJSON,
+                                                CustomJSONParserDelegate<SessionStartRequest>  CustomSessionStartRequestParser   = null,
+                                                OnExceptionDelegate                            OnException                       = null)
         {
 
-            SessionStartRequest _SessionStartRequest;
+            if (TryParse(SessionStartRequestJSON,
+                         out SessionStartRequest _SessionStartRequest,
+                         CustomSessionStartRequestParser,
+                         OnException))
 
-            if (TryParse(SessionStartRequestJSON, out _SessionStartRequest, OnException))
                 return _SessionStartRequest;
 
             return null;
@@ -137,20 +142,24 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
         #endregion
 
-        #region (static) Parse(SessionStartRequestText, OnException = null)
+        #region (static) Parse(SessionStartRequestText, CustomSessionStartRequestParser = null, OnException = null)
 
         /// <summary>
         /// Parse the given text representation of an OIOI Session Start request.
         /// </summary>
         /// <param name="SessionStartRequestText">The text to parse.</param>
+        /// <param name="CustomSessionStartRequestParser">A delegate to parse custom SessionStart requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static SessionStartRequest Parse(String               SessionStartRequestText,
-                                                OnExceptionDelegate  OnException = null)
+        public static SessionStartRequest Parse(String                                         SessionStartRequestText,
+                                                CustomJSONParserDelegate<SessionStartRequest>  CustomSessionStartRequestParser   = null,
+                                                OnExceptionDelegate                            OnException                       = null)
         {
 
-            SessionStartRequest _SessionStartRequest;
+            if (TryParse(SessionStartRequestText,
+                         out SessionStartRequest _SessionStartRequest,
+                         CustomSessionStartRequestParser,
+                         OnException))
 
-            if (TryParse(SessionStartRequestText, out _SessionStartRequest, OnException))
                 return _SessionStartRequest;
 
             return null;
@@ -159,17 +168,19 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
         #endregion
 
-        #region (static) TryParse(SessionStartRequestJSON,  out SessionStartRequest, OnException = null)
+        #region (static) TryParse(SessionStartRequestJSON, out SessionStartRequest, CustomSessionStartRequestParser = null, OnException = null)
 
         /// <summary>
         /// Try to parse the given JSON representation of an OIOI Session Start request.
         /// </summary>
         /// <param name="SessionStartRequestJSON">The JSON to parse.</param>
         /// <param name="SessionStartRequest">The parsed Session Start request.</param>
+        /// <param name="CustomSessionStartRequestParser">A delegate to parse custom SessionStart requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static Boolean TryParse(JObject                  SessionStartRequestJSON,
-                                       out SessionStartRequest  SessionStartRequest,
-                                       OnExceptionDelegate      OnException  = null)
+        public static Boolean TryParse(JObject                                        SessionStartRequestJSON,
+                                       out SessionStartRequest                        SessionStartRequest,
+                                       CustomJSONParserDelegate<SessionStartRequest>  CustomSessionStartRequestParser   = null,
+                                       OnExceptionDelegate                            OnException                       = null)
         {
 
             try
@@ -183,10 +194,15 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                                          Connector_Id.Parse(SessionStart["connector-id"].Value<String>()),
 
                                          SessionStart["payment-reference"] != null
-                                             ? new Nullable<PaymentReference>(OIOIv4_x.PaymentReference.Parse(SessionStart["payment-reference"].Value<String>()))
+                                             ? new PaymentReference?(OIOIv4_x.PaymentReference.Parse(SessionStart["payment-reference"].Value<String>()))
                                              : null
 
                                      );
+
+
+                if (CustomSessionStartRequestParser != null)
+                    SessionStartRequest = CustomSessionStartRequestParser(SessionStartRequestJSON,
+                                                                          SessionStartRequest);
 
                 return true;
 
@@ -205,17 +221,19 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
         #endregion
 
-        #region (static) TryParse(SessionStartText, out SessionStart, OnException = null)
+        #region (static) TryParse(SessionStartRequestText, out SessionStartRequest, CustomSessionStartRequestParser = null, OnException = null)
 
         /// <summary>
         /// Try to parse the given text representation of an OIOI Session Start request.
         /// </summary>
         /// <param name="SessionStartRequestText">The text to parse.</param>
         /// <param name="SessionStartRequest">The parsed Session Start request.</param>
+        /// <param name="CustomSessionStartRequestParser">A delegate to parse custom SessionStart requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static Boolean TryParse(String                   SessionStartRequestText,
-                                       out SessionStartRequest  SessionStartRequest,
-                                       OnExceptionDelegate      OnException  = null)
+        public static Boolean TryParse(String                                         SessionStartRequestText,
+                                       out SessionStartRequest                        SessionStartRequest,
+                                       CustomJSONParserDelegate<SessionStartRequest>  CustomSessionStartRequestParser   = null,
+                                       OnExceptionDelegate                            OnException                       = null)
         {
 
             try
@@ -223,6 +241,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
                 if (TryParse(JObject.Parse(SessionStartRequestText),
                              out SessionStartRequest,
+                             CustomSessionStartRequestParser,
                              OnException))
 
                     return true;
@@ -240,25 +259,34 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
         #endregion
 
-        #region ToJSON()
+        #region ToJSON(CustomSessionStartRequestSerializer = null, CustomUserSerializer = null)
 
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
-        public JObject ToJSON()
+        /// <param name="CustomSessionStartRequestSerializer">A delegate to serialize custom SessionStart requests.</param>
+        /// <param name="CustomUserSerializer">A delegate to serialize custom User JSON objects.</param>
+        public JObject ToJSON(CustomJSONSerializerDelegate<SessionStartRequest>  CustomSessionStartRequestSerializer   = null,
+                              CustomJSONSerializerDelegate<User>                 CustomUserSerializer                  = null)
+        {
 
-            => new JObject(new JObject(
-                               new JProperty("session-start", JSONObject.Create(
+            var JSON = JSONObject.Create(
+                           new JProperty("session-start", JSONObject.Create(
 
-                                   new JProperty("user",          User.       ToJSON()),
+                                   new JProperty("user",          User.       ToJSON(CustomUserSerializer)),
                                    new JProperty("connector-id",  ConnectorId.ToString()),
 
                                    PaymentReference.HasValue
                                        ? new JProperty("payment-reference", PaymentReference.ToString())
                                        : null
 
-                               ))
-                           ));
+                           )));
+
+            return CustomSessionStartRequestSerializer != null
+                       ? CustomSessionStartRequestSerializer(this, JSON)
+                       : JSON;
+
+        }
 
         #endregion
 

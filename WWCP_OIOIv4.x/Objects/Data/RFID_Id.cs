@@ -18,6 +18,7 @@
 #region Usings
 
 using System;
+using System.Text.RegularExpressions;
 
 using org.GraphDefined.Vanaheimr.Illias;
 
@@ -27,7 +28,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 {
 
     /// <summary>
-    /// A RFID identificator.
+    /// A RFID identification.
     /// </summary>
     public struct RFID_Id : IId,
                             IEquatable<RFID_Id>,
@@ -41,15 +42,21 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// </summary>
         private readonly String InternalId;
 
+        /// <summary>
+        /// The regular expression for parsing a RFID card identification.
+        /// </summary>
+        public static readonly Regex UID_RegEx  = new Regex("^([A-F0-9]{8})$ | ^([A-F0-9]{14})$ | ^([A-F0-9]{20})$",
+                                                            RegexOptions.IgnorePatternWhitespace);
+
         #endregion
 
         #region Properties
 
         /// <summary>
-        /// The length of the RFID identificator.
+        /// The length of the RFID identification.
         /// </summary>
         public UInt64 Length
-            => (UInt64)InternalId.Length;
+            => (UInt64) InternalId.Length;
 
         #endregion
 
@@ -58,7 +65,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <summary>
         /// Generate a new RFID identificator based on the given string.
         /// </summary>
-        /// <param name="Text">The value of the RFID identificator.</param>
+        /// <param name="Text">The value of the RFID identification.</param>
         private RFID_Id(String Text)
         {
             InternalId = Text;
@@ -70,75 +77,75 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         #region Parse(Text)
 
         /// <summary>
-        /// Parse the given string as a RFID identificator.
+        /// Parse the given string as a RFID identification.
         /// </summary>
-        /// <param name="Text">A text representation of a RFID identificator.</param>
+        /// <param name="Text">A text representation of a RFID identification.</param>
         public static RFID_Id Parse(String Text)
         {
 
+            #region Initial checks
+
             if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of a RFID identificator must not be null!");
+                throw new ArgumentNullException(nameof(Text), "The given text representation of a RFID card identification must not be null or empty!");
 
-            Text = Text.Trim();
+            #endregion
 
-            if (Text.Length == 8 ||
-                Text.Length == 14 ||
-                Text.Length == 20)
-            {
+            var MatchCollection = UID_RegEx.Matches(Text);
 
-                RFID_Id _RFIDId = default(RFID_Id);
+            if (MatchCollection.Count != 1)
+                throw new ArgumentException("Illegal text representation of a RFID identification: '" + Text + "'!", nameof(Text));
 
-                if (TryParse(Text, out _RFIDId))
-                    return _RFIDId;
-
-                throw new ArgumentException("Invalid RFID identificator!", nameof(Text));
-
-            }
-
-            throw new ArgumentException("Invalid length of the RFID identificator (only 8, 14, 20 chars allowed)!", nameof(Text));
+            return new RFID_Id(Text);
 
         }
 
         #endregion
 
-        #region TryParse(Text, out Token)
+        #region TryParse(Text, out RFIDId)
 
         /// <summary>
-        /// Parse the given string as a RFID identificator.
+        /// Parse the given string as a RFID identification.
         /// </summary>
-        /// <param name="Text">A text representation of a RFID identificator.</param>
-        /// <param name="Token">The parsed RFID identificator.</param>
-        public static Boolean TryParse(String Text, out RFID_Id Token)
+        /// <param name="Text">A text representation of a RFID identification.</param>
+        /// <param name="RFIDId">The parsed RFID identification.</param>
+        public static Boolean TryParse(String Text, out RFID_Id RFIDId)
         {
+
+            #region Initial checks
 
             if (Text.IsNullOrEmpty())
             {
-                Token = default(RFID_Id);
+                RFIDId = default(RFID_Id);
                 return false;
             }
 
-            Text = Text.Trim().ToUpper();
+            #endregion
 
-            if (Text.Length ==  8 ||
-                Text.Length == 14 ||
-                Text.Length == 20)
+            try
             {
 
-                try
+                var MatchCollection = UID_RegEx.Matches(Text);
+
+                if (MatchCollection.Count != 1)
                 {
-                    Token = new RFID_Id(Text);
-                    return true;
+                    RFIDId = default(RFID_Id);
+                    return false;
                 }
-#pragma warning disable RECS0022 // A catch clause that catches System.Exception and has an empty body
-#pragma warning disable RCS1075  // Avoid empty catch clause that catches System.Exception.
-                catch (Exception)
-#pragma warning restore RCS1075  // Avoid empty catch clause that catches System.Exception.
-#pragma warning restore RECS0022 // A catch clause that catches System.Exception and has an empty body
-                { }
+
+                RFIDId = new RFID_Id(Text);
+
+                return true;
 
             }
 
-            Token = default(RFID_Id);
+#pragma warning disable RCS1075  // Avoid empty catch clause that catches System.Exception.
+#pragma warning disable RECS0022 // A catch clause that catches System.Exception and has an empty body
+            catch (Exception)
+#pragma warning restore RECS0022 // A catch clause that catches System.Exception and has an empty body
+#pragma warning restore RCS1075  // Avoid empty catch clause that catches System.Exception.
+            { }
+
+            RFIDId = default(RFID_Id);
             return false;
 
         }

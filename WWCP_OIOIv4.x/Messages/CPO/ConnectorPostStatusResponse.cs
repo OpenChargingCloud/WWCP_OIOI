@@ -23,7 +23,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
-using org.GraphDefined.Vanaheimr.Hermod;
+using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 
 #endregion
 
@@ -50,11 +50,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="Message">The response message of the corresponding ConnectorPostStatus request.</param>
         /// <param name="CustomData">An optional read-only dictionary of customer-specific key-value pairs.</param>
         /// <param name="CustomMapper">An optional mapper for customer-specific key-value pairs.</param>
-        public ConnectorPostStatusResponse(ConnectorPostStatusRequest           Request,
-                                           ResponseCodes                        Code,
-                                           String                               Message,
-                                           IReadOnlyDictionary<String, Object>  CustomData    = null,
-                                           Action<ConnectorPostStatusResponse>  CustomMapper  = null)
+        private ConnectorPostStatusResponse(ConnectorPostStatusRequest           Request,
+                                            ResponseCodes                        Code,
+                                            String                               Message,
+                                            IReadOnlyDictionary<String, Object>  CustomData    = null,
+                                            Action<ConnectorPostStatusResponse>  CustomMapper  = null)
 
             : base(Request,
                    Code,
@@ -162,6 +162,56 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         }
 
         #endregion
+
+
+
+        public static ConnectorPostStatusResponse
+
+            Success(ConnectorPostStatusRequest           Request,
+                    String                               Message     = null,
+                    IReadOnlyDictionary<String, Object>  CustomData  = null)
+
+                => new ConnectorPostStatusResponse(Request,
+                                                   ResponseCodes.Success,
+                                                   Message ?? "Success",
+                                                   CustomData);
+
+
+        public static ConnectorPostStatusResponse
+
+            ClientRequestError(ConnectorPostStatusRequest           Request,
+                               String                               Message     = null,
+                               IReadOnlyDictionary<String, Object>  CustomData  = null)
+
+                => new ConnectorPostStatusResponse(Request,
+                                                   ResponseCodes.ClientRequestError,
+                                                   Message ?? "ClientRequestError",
+                                                   CustomData);
+
+
+        public static ConnectorPostStatusResponse
+
+            InvalidRequestFormat(ConnectorPostStatusRequest           Request,
+                                 String                               Message,
+                                 IReadOnlyDictionary<String, Object>  CustomData  = null)
+
+                => new ConnectorPostStatusResponse(Request,
+                                                   ResponseCodes.InvalidRequestFormat,
+                                                   Message,
+                                                   CustomData);
+
+
+        public static ConnectorPostStatusResponse
+
+            InvalidResponseFormat(ConnectorPostStatusRequest           Request,
+                                  HTTPResponse                         JSONResponse  = null,
+                                  IReadOnlyDictionary<String, Object>  CustomData    = null)
+
+                => new ConnectorPostStatusResponse(Request,
+                                                   ResponseCodes.InvalidResponseFormat,
+                                                   JSONResponse?.ToString(),
+                                                   CustomData);
+
 
 
         #region Operator overloading

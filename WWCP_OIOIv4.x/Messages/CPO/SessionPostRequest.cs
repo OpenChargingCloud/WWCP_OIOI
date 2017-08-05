@@ -23,6 +23,8 @@ using System.Threading;
 using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
+using org.GraphDefined.Vanaheimr.Hermod.JSON;
+using org.GraphDefined.Vanaheimr.Hermod;
 
 #endregion
 
@@ -102,20 +104,24 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         #endregion
 
-        #region (static) Parse(SessionPostRequestJSON, OnException = null)
+        #region (static) Parse(SessionPostRequestJSON, CustomSessionPostRequestParser = null, OnException = null)
 
         /// <summary>
         /// Parse the given JSON representation of an OIOI Session Post request.
         /// </summary>
         /// <param name="SessionPostRequestJSON">The JSON to parse.</param>
+        /// <param name="CustomSessionPostRequestParser">A delegate to parse custom SessionPost requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static SessionPostRequest Parse(JObject              SessionPostRequestJSON,
-                                               OnExceptionDelegate  OnException = null)
+        public static SessionPostRequest Parse(JObject                                       SessionPostRequestJSON,
+                                               CustomJSONParserDelegate<SessionPostRequest>  CustomSessionPostRequestParser   = null,
+                                               OnExceptionDelegate                           OnException                      = null)
         {
 
-            SessionPostRequest _SessionPostRequest;
+            if (TryParse(SessionPostRequestJSON,
+                         out SessionPostRequest _SessionPostRequest,
+                         CustomSessionPostRequestParser,
+                         OnException))
 
-            if (TryParse(SessionPostRequestJSON, out _SessionPostRequest, OnException))
                 return _SessionPostRequest;
 
             return null;
@@ -124,20 +130,24 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         #endregion
 
-        #region (static) Parse(SessionPostRequestText, OnException = null)
+        #region (static) Parse(SessionPostRequestText, CustomSessionPostRequestParser = null, OnException = null)
 
         /// <summary>
         /// Parse the given text representation of an OIOI Session Post request.
         /// </summary>
         /// <param name="SessionPostRequestText">The text to parse.</param>
+        /// <param name="CustomSessionPostRequestParser">A delegate to parse custom SessionPost requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static SessionPostRequest Parse(String               SessionPostRequestText,
-                                               OnExceptionDelegate  OnException = null)
+        public static SessionPostRequest Parse(String                                        SessionPostRequestText,
+                                               CustomJSONParserDelegate<SessionPostRequest>  CustomSessionPostRequestParser   = null,
+                                               OnExceptionDelegate                           OnException                      = null)
         {
 
-            SessionPostRequest _SessionPostRequest;
+            if (TryParse(SessionPostRequestText,
+                         out SessionPostRequest _SessionPostRequest,
+                         CustomSessionPostRequestParser,
+                         OnException))
 
-            if (TryParse(SessionPostRequestText, out _SessionPostRequest, OnException))
                 return _SessionPostRequest;
 
             return null;
@@ -146,17 +156,19 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         #endregion
 
-        #region (static) TryParse(SessionPostRequestJSON,  out SessionPostRequest, OnException = null)
+        #region (static) TryParse(SessionPostRequestJSON, out SessionPostRequest, CustomSessionPostRequestParser = null, OnException = null)
 
         /// <summary>
         /// Try to parse the given JSON representation of an OIOI Session Post request.
         /// </summary>
         /// <param name="SessionPostRequestJSON">The JSON to parse.</param>
         /// <param name="SessionPostRequest">The parsed Session Post request.</param>
+        /// <param name="CustomSessionPostRequestParser">A delegate to parse custom SessionPost requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static Boolean TryParse(JObject                SessionPostRequestJSON,
-                                       out SessionPostRequest  SessionPostRequest,
-                                       OnExceptionDelegate    OnException  = null)
+        public static Boolean TryParse(JObject                                       SessionPostRequestJSON,
+                                       out SessionPostRequest                        SessionPostRequest,
+                                       CustomJSONParserDelegate<SessionPostRequest>  CustomSessionPostRequestParser   = null,
+                                       OnExceptionDelegate                           OnException                      = null)
         {
 
             try
@@ -169,6 +181,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                          null
 
                                      );
+
+
+                if (CustomSessionPostRequestParser != null)
+                    SessionPostRequest = CustomSessionPostRequestParser(SessionPostRequestJSON,
+                                                                        SessionPostRequest);
 
                 return true;
 
@@ -187,17 +204,19 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         #endregion
 
-        #region (static) TryParse(SessionPostText, out SessionPost, OnException = null)
+        #region (static) TryParse(SessionPostRequestText, out SessionPostRequest, CustomSessionPostRequestParser = null, OnException = null)
 
         /// <summary>
         /// Try to parse the given text representation of an OIOI Session Post request.
         /// </summary>
         /// <param name="SessionPostRequestText">The text to parse.</param>
         /// <param name="SessionPostRequest">The parsed Session Post request.</param>
+        /// <param name="CustomSessionPostRequestParser">A delegate to parse custom SessionPost requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static Boolean TryParse(String                  SessionPostRequestText,
-                                       out SessionPostRequest  SessionPostRequest,
-                                       OnExceptionDelegate     OnException  = null)
+        public static Boolean TryParse(String                                        SessionPostRequestText,
+                                       out SessionPostRequest                        SessionPostRequest,
+                                       CustomJSONParserDelegate<SessionPostRequest>  CustomSessionPostRequestParser   = null,
+                                       OnExceptionDelegate                           OnException                      = null)
         {
 
             try
@@ -205,6 +224,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 if (TryParse(JObject.Parse(SessionPostRequestText),
                              out SessionPostRequest,
+                             CustomSessionPostRequestParser,
                              OnException))
 
                     return true;
@@ -222,16 +242,26 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         #endregion
 
-        #region ToJSON()
+        #region ToJSON(CustomSessionPostRequestSerializer = null, CustomSessionSerializer = null)
 
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
-        public JObject ToJSON()
+        /// <param name="CustomSessionPostRequestSerializer">A delegate to serialize custom CustomSessionPost requests.</param>
+        /// <param name="CustomSessionSerializer">A delegate to serialize custom Session JSON objects.</param>
+        public JObject ToJSON(CustomJSONSerializerDelegate<SessionPostRequest>  CustomSessionPostRequestSerializer   = null,
+                              CustomJSONSerializerDelegate<Session>             CustomSessionSerializer              = null)
+        {
 
-            => new JObject(new JObject(
-                               new JProperty("session-post", Session.ToJSON())
-                           ));
+            var JSON = JSONObject.Create(
+                               new JProperty("session-post",  Session.ToJSON(CustomSessionSerializer))
+                           );
+
+            return CustomSessionPostRequestSerializer != null
+                       ? CustomSessionPostRequestSerializer(this, JSON)
+                       : JSON;
+
+        }
 
         #endregion
 

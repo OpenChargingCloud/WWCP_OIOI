@@ -162,20 +162,24 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         #endregion
 
-        #region (static) Parse(StationPostRequestJSON, OnException = null)
+        #region (static) Parse(StationPostRequestJSON, CustomStationPostRequestParser = null, OnException = null)
 
         /// <summary>
         /// Parse the given JSON representation of an OIOI station post request.
         /// </summary>
         /// <param name="StationPostRequestJSON">The JSON to parse.</param>
+        /// <param name="CustomStationPostRequestParser">A delegate to parse custom StationPost requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static StationPostRequest Parse(JObject              StationPostRequestJSON,
-                                               OnExceptionDelegate  OnException = null)
+        public static StationPostRequest Parse(JObject                                       StationPostRequestJSON,
+                                               CustomJSONParserDelegate<StationPostRequest>  CustomStationPostRequestParser   = null,
+                                               OnExceptionDelegate                           OnException                      = null)
         {
 
-            StationPostRequest _StationPostRequest;
+            if (TryParse(StationPostRequestJSON,
+                         out StationPostRequest _StationPostRequest,
+                         CustomStationPostRequestParser,
+                         OnException))
 
-            if (TryParse(StationPostRequestJSON, out _StationPostRequest, OnException))
                 return _StationPostRequest;
 
             return null;
@@ -184,20 +188,24 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         #endregion
 
-        #region (static) Parse(StationPostRequestText, OnException = null)
+        #region (static) Parse(StationPostRequestText, CustomStationPostRequestParser = null, OnException = null)
 
         /// <summary>
         /// Parse the given text representation of an OIOI station post request.
         /// </summary>
         /// <param name="StationPostRequestText">The text to parse.</param>
+        /// <param name="CustomStationPostRequestParser">A delegate to parse custom StationPost requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static StationPostRequest Parse(String               StationPostRequestText,
-                                               OnExceptionDelegate  OnException = null)
+        public static StationPostRequest Parse(String                                        StationPostRequestText,
+                                               CustomJSONParserDelegate<StationPostRequest>  CustomStationPostRequestParser   = null,
+                                               OnExceptionDelegate                           OnException                      = null)
         {
 
-            StationPostRequest _StationPostRequest;
+            if (TryParse(StationPostRequestText,
+                         out StationPostRequest _StationPostRequest,
+                         CustomStationPostRequestParser,
+                         OnException))
 
-            if (TryParse(StationPostRequestText, out _StationPostRequest, OnException))
                 return _StationPostRequest;
 
             return null;
@@ -206,17 +214,19 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         #endregion
 
-        #region (static) TryParse(StationPostRequestJSON, out StationPostRequest, OnException = null)
+        #region (static) TryParse(StationPostRequestJSON, out StationPostRequest, CustomStationPostRequestParser = null, OnException = null)
 
         /// <summary>
         /// Try to parse the given JSON representation of an OIOI station post request.
         /// </summary>
         /// <param name="StationPostRequestJSON">The JSON to parse.</param>
         /// <param name="StationPostRequest">The parsed station post request.</param>
+        /// <param name="CustomStationPostRequestParser">A delegate to parse custom StationPost requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static Boolean TryParse(JObject                 StationPostRequestJSON,
-                                       out StationPostRequest  StationPostRequest,
-                                       OnExceptionDelegate     OnException  = null)
+        public static Boolean TryParse(JObject                                       StationPostRequestJSON,
+                                       out StationPostRequest                        StationPostRequest,
+                                       CustomJSONParserDelegate<StationPostRequest>  CustomStationPostRequestParser   = null,
+                                       OnExceptionDelegate                           OnException                      = null)
         {
 
             try
@@ -232,6 +242,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                          Partner_Id.Parse(PartnerId.Value<String>())
 
                                      );
+
+
+                if (CustomStationPostRequestParser != null)
+                    StationPostRequest = CustomStationPostRequestParser(StationPostRequestJSON,
+                                                                        StationPostRequest);
 
                 return true;
 
@@ -250,17 +265,19 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         #endregion
 
-        #region (static) TryParse(StationPostRequestText, out StationPostRequest, OnException = null)
+        #region (static) TryParse(StationPostRequestText, out StationPostRequest, CustomStationPostRequestParser = null, OnException = null)
 
         /// <summary>
         /// Try to parse the given text representation of an OIOI station post request.
         /// </summary>
         /// <param name="StationPostRequestText">The text to parse.</param>
         /// <param name="StationPostRequest">The parsed station post request.</param>
+        /// <param name="CustomStationPostRequestParser">A delegate to parse custom StationPost requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static Boolean TryParse(String                  StationPostRequestText,
-                                       out StationPostRequest  StationPostRequest,
-                                       OnExceptionDelegate     OnException  = null)
+        public static Boolean TryParse(String                                        StationPostRequestText,
+                                       out StationPostRequest                        StationPostRequest,
+                                       CustomJSONParserDelegate<StationPostRequest>  CustomStationPostRequestParser   = null,
+                                       OnExceptionDelegate                           OnException                      = null)
         {
 
             try
@@ -268,6 +285,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 if (TryParse(JObject.Parse(StationPostRequestText),
                              out StationPostRequest,
+                             CustomStationPostRequestParser,
                              OnException))
 
                     return true;
@@ -285,26 +303,31 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         #endregion
 
-        #region ToJSON(CustomStationPostRequestSerializer = null, CustomStationSerializer = null, CustomConnectorSerializer = null)
+        #region ToJSON(CustomStationPostRequestSerializer = null, CustomStationSerializer = null, CustomAddressSerializer = null, CustomConnectorSerializer = null)
 
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
         /// <param name="CustomStationPostRequestSerializer">A delegate to serialize custom StationPost request.</param>
         /// <param name="CustomStationSerializer">A delegate to serialize custom Station JSON objects.</param>
+        /// <param name="CustomAddressSerializer">A delegate to serialize custom Address JSON objects.</param>
         /// <param name="CustomConnectorSerializer">A delegate to serialize custom Connector JSON objects.</param>
         public JObject ToJSON(CustomJSONSerializerDelegate<StationPostRequest>  CustomStationPostRequestSerializer   = null,
                               CustomJSONSerializerDelegate<Station>             CustomStationSerializer              = null,
+                              CustomJSONSerializerDelegate<Address>             CustomAddressSerializer              = null,
                               CustomJSONSerializerDelegate<Connector>           CustomConnectorSerializer            = null)
         {
 
             var JSON = JSONObject.Create(
                            new JProperty("station-post", JSONObject.Create(
+
                                new JProperty("station",             Station.          ToJSON(CustomStationSerializer,
+                                                                                             CustomAddressSerializer,
                                                                                              CustomConnectorSerializer)),
+
                                new JProperty("partner-identifier",  PartnerIdentifier.ToString())
-                           ))
-                       );
+
+                           )));
 
             return CustomStationPostRequestSerializer != null
                        ? CustomStationPostRequestSerializer(this, JSON)

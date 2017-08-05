@@ -83,6 +83,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
         #endregion
 
+
         #region ConnectorStatusTypes
 
         public static ConnectorStatusTypes AsConnectorStatusType(this String Text)

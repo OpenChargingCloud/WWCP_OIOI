@@ -23,6 +23,7 @@ using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
+using org.GraphDefined.Vanaheimr.Hermod.JSON;
 
 #endregion
 
@@ -30,9 +31,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 {
 
     /// <summary>
-    /// An OIOI User.
+    /// An OIOI user.
     /// </summary>
-    public class User : IEquatable<User>
+    public class User : IEquatable<User>,
+                        IComparable<User>,
+                        IComparable
     {
 
         #region Properties
@@ -64,7 +67,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         #region Constructor(s)
 
         /// <summary>
-        /// Create a new OIOI connector.
+        /// Create a new user.
         /// </summary>
         /// <param name="Identifier">The identifier is something that uniquely identifies the customer, depending on the identifier type.</param>
         /// <param name="IdentifierType">How to identify the user/customer/driver.</param>
@@ -83,7 +86,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
             this.Identifier      = Identifier;
             this.IdentifierType  = IdentifierType;
-            this.Token           = Token ?? "";
+            this.Token           = Token;
 
         }
 
@@ -99,18 +102,24 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
         #endregion
 
-        #region (static) Parse(UserJSON)
+        #region (static) Parse(UserJSON, CustomUserParser = null, OnException = null)
 
         /// <summary>
         /// Parse the given JSON representation of an OIOI user.
         /// </summary>
         /// <param name="UserJSON">The JSON to parse.</param>
-        public static User Parse(JObject UserJSON)
+        /// <param name="CustomUserParser">A delegate to parse custom User JSON elements.</param>
+        /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
+        public static User Parse(JObject                         UserJSON,
+                                 CustomJSONParserDelegate<User>  CustomUserParser   = null,
+                                 OnExceptionDelegate             OnException        = null)
         {
 
-            User _User;
+            if (TryParse(UserJSON,
+                         out User _User,
+                         CustomUserParser,
+                         OnException))
 
-            if (TryParse(UserJSON, out _User))
                 return _User;
 
             return null;
@@ -119,18 +128,24 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
         #endregion
 
-        #region (static) Parse(UserText)
+        #region (static) Parse(UserText, CustomUserParser = null, OnException = null)
 
         /// <summary>
         /// Parse the given text representation of an OIOI user.
         /// </summary>
         /// <param name="UserText">The text to parse.</param>
-        public static User Parse(String UserText)
+        /// <param name="CustomUserParser">A delegate to parse custom User JSON elements.</param>
+        /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
+        public static User Parse(String                          UserText,
+                                 CustomJSONParserDelegate<User>  CustomUserParser   = null,
+                                 OnExceptionDelegate             OnException        = null)
         {
 
-            User _User;
+            if (TryParse(UserText,
+                         out User _User,
+                         CustomUserParser,
+                         OnException))
 
-            if (TryParse(UserText, out _User))
                 return _User;
 
             return null;
@@ -139,17 +154,19 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
         #endregion
 
-        #region (static) TryParse(UserText, out User, OnException = null)
+        #region (static) TryParse(UserText, out User, CustomUserParser = null, OnException = null)
 
         /// <summary>
         /// Try to parse the given text representation of an OIOI user.
         /// </summary>
         /// <param name="UserText">The text to parse.</param>
         /// <param name="User">The parsed user.</param>
+        /// <param name="CustomUserParser">A delegate to parse custom User JSON elements.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static Boolean TryParse(String               UserText,
-                                       out User             User,
-                                       OnExceptionDelegate  OnException  = null)
+        public static Boolean TryParse(String                          UserText,
+                                       out User                        User,
+                                       CustomJSONParserDelegate<User>  CustomUserParser   = null,
+                                       OnExceptionDelegate             OnException        = null)
         {
 
             try
@@ -157,6 +174,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
                 return TryParse(JObject.Parse(UserText),
                                 out User,
+                                CustomUserParser,
                                 OnException);
 
             }
@@ -174,17 +192,19 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
         #endregion
 
-        #region (static) TryParse(UserJSON, out User, OnException = null)
+        #region (static) TryParse(UserJSON, out User, CustomUserParser = null, OnException = null)
 
         /// <summary>
         /// Try to parse the given JSON representation of an OIOI user.
         /// </summary>
         /// <param name="UserJSON">The JSON to parse.</param>
         /// <param name="User">The parsed user.</param>
+        /// <param name="CustomUserParser">A delegate to parse custom User JSON elements.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static Boolean TryParse(JObject              UserJSON,
-                                       out User             User,
-                                       OnExceptionDelegate  OnException  = null)
+        public static Boolean TryParse(JObject                         UserJSON,
+                                       out User                        User,
+                                       CustomJSONParserDelegate<User>  CustomUserParser   = null,
+                                       OnExceptionDelegate             OnException        = null)
         {
 
             try
@@ -195,12 +215,17 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
                                                            "Invalid or missing JSON property 'identifier'!"),
 
                                 UserJSON.MapValueOrFail   ("identifier-type",
-                                                           value => Map(value.Value<String>()),
+                                                           value => value.Value<String>().AsIdentifierTypes(),
                                                            "Invalid or missing JSON property 'identifier-type'!"),
 
                                 UserJSON.MapValueOrDefault("token",
                                                            value => value.Value<String>(),
                                                            String.Empty));
+
+
+                if (CustomUserParser != null)
+                    User = CustomUserParser(UserJSON,
+                                            User);
 
                 return true;
 
@@ -219,69 +244,28 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
         #endregion
 
-        #region ToJSON()
+        #region ToJSON(CustomUserSerializer = null)
 
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
-        public JObject ToJSON()
-
-            => JSONObject.Create(
-
-                   new JProperty("identifier",       Identifier),
-                   new JProperty("identifier-type",  IdentifierType.ToString()),
-
-                   Token.IsNotNullOrEmpty()
-                       ? new JProperty("speed",      Token)
-                       : null
-               );
-
-        #endregion
-
-
-        #region (static) Map(IdentifierType)
-
-        public static IdentifierTypes Map(String IdentifierType)
+        /// <param name="CustomUserSerializer">A delegate to serialize custom User JSON objects.</param>
+        public JObject ToJSON(CustomJSONSerializerDelegate<User> CustomUserSerializer  = null)
         {
 
-            switch (IdentifierType)
-            {
+            var JSON = JSONObject.Create(
 
-                case "evco-id":
-                    return IdentifierTypes.EVCOId;
+                           new JProperty("identifier",       Identifier),
+                           new JProperty("identifier-type",  IdentifierType.ToString()),
 
-                case "rfid":
-                    return IdentifierTypes.RFID;
+                           Token.IsNotNullOrEmpty()
+                               ? new JProperty("speed",      Token)
+                               : null
+                       );
 
-                case "username":
-                    return IdentifierTypes.Username;
-
-                default:
-                    return IdentifierTypes.Unknown;
-
-            }
-
-        }
-
-        public static String Map(IdentifierTypes IdentifierType)
-        {
-
-            switch (IdentifierType)
-            {
-
-                case IdentifierTypes.EVCOId:
-                    return "evco-id";
-
-                case IdentifierTypes.RFID:
-                    return "rfid";
-
-                case IdentifierTypes.Username:
-                    return "username";
-
-                default:
-                    return "unknown";
-
-            }
+            return CustomUserSerializer != null
+                       ? CustomUserSerializer(this, JSON)
+                       : JSON;
 
         }
 
@@ -293,9 +277,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         #region Operator == (User1, User2)
 
         /// <summary>
-        /// Compares two users for equality.
+        /// Compares two useres for equality.
         /// </summary>
-        /// <param name="User1">A user.</param>
+        /// <param name="User1">An user.</param>
         /// <param name="User2">Another user.</param>
         /// <returns>True if both match; False otherwise.</returns>
         public static Boolean operator == (User User1, User User2)
@@ -318,14 +302,128 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         #region Operator != (User1, User2)
 
         /// <summary>
-        /// Compares two users for inequality.
+        /// Compares two useres for inequality.
         /// </summary>
-        /// <param name="User1">A user.</param>
+        /// <param name="User1">An user.</param>
         /// <param name="User2">Another user.</param>
         /// <returns>False if both match; True otherwise.</returns>
         public static Boolean operator != (User User1, User User2)
 
             => !(User1 == User2);
+
+        #endregion
+
+        #region Operator <  (User1, User2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="User1">An user.</param>
+        /// <param name="User2">Another user.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator < (User User1, User User2)
+        {
+
+            if ((Object) User1 == null)
+                throw new ArgumentNullException(nameof(User1), "The given User1 must not be null!");
+
+            return User1.CompareTo(User2) < 0;
+
+        }
+
+        #endregion
+
+        #region Operator <= (User1, User2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="User1">An user.</param>
+        /// <param name="User2">Another user.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator <= (User User1, User User2)
+            => !(User1 > User2);
+
+        #endregion
+
+        #region Operator >  (User1, User2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="User1">An user.</param>
+        /// <param name="User2">Another user.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator > (User User1, User User2)
+        {
+
+            if ((Object)User1 == null)
+                throw new ArgumentNullException(nameof(User1), "The given User1 must not be null!");
+
+            return User1.CompareTo(User2) > 0;
+
+        }
+
+        #endregion
+
+        #region Operator >= (User1, User2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="User1">An user.</param>
+        /// <param name="User2">Another user.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator >= (User User1, User User2)
+            => !(User1 < User2);
+
+        #endregion
+
+        #endregion
+
+        #region IComparable<User> Members
+
+        #region CompareTo(Object)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="Object">An object to compare with.</param>
+        public Int32 CompareTo(Object Object)
+        {
+
+            if (Object == null)
+                throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
+
+            var User = Object as User;
+            if ((Object)User == null)
+                throw new ArgumentException("The given object is not an user identification!", nameof(Object));
+
+            return CompareTo(User);
+
+        }
+
+        #endregion
+
+        #region CompareTo(User)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="User">An object to compare with.</param>
+        public Int32 CompareTo(User User)
+        {
+
+            if ((Object) User == null)
+                throw new ArgumentNullException(nameof(User), "The given user must not be null!");
+
+            var c = Identifier.CompareTo(User.Identifier);
+            if (c != 0)
+                return c;
+
+            return IdentifierType.CompareTo(User.IdentifierType);
+
+        }
 
         #endregion
 
@@ -370,7 +468,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
                 return false;
 
             return Identifier.    Equals(User.IdentifierType) &&
-                   IdentifierType.Equals(User.Identifier);
+                   IdentifierType.Equals(User.Identifier)     &&
+
+                   ((Token == null && User.Token == null) ||
+                    (Token != null && User.Token != null && Token.Equals(User.Token)));
 
         }
 

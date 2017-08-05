@@ -18,6 +18,7 @@
 #region Usings
 
 using System;
+using System.Collections.Generic;
 
 using org.GraphDefined.Vanaheimr.Illias;
 
@@ -27,10 +28,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 {
 
     /// <summary>
-    /// The current timestamped status of a connector.
+    /// The current timestamped status of an OIOI connector.
     /// </summary>
-    public struct ConnectorStatus : IEquatable <ConnectorStatus>,
-                                    IComparable<ConnectorStatus>
+    public class ConnectorStatus : ACustomData,
+                                   IEquatable <ConnectorStatus>,
+                                   IComparable<ConnectorStatus>
     {
 
         #region Properties
@@ -38,17 +40,17 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <summary>
         /// The unique identification of the connector.
         /// </summary>
-        public Connector_Id         Id          { get; }
+        public Connector_Id          Id           { get; }
 
         /// <summary>
         /// The current status of the connector.
         /// </summary>
-        public ConnectorStatusTypes  Status      { get; }
+        public ConnectorStatusTypes  Status       { get; }
 
         /// <summary>
         /// The timestamp of the current status of the connector.
         /// </summary>
-        public DateTime             Timestamp   { get; }
+        public DateTime              Timestamp    { get; }
 
         /// <summary>
         /// The timestamped status of the connector.
@@ -66,15 +68,19 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <param name="Id">The unique identification of the connector.</param>
         /// <param name="Status">The current status of the connector.</param>
         /// <param name="Timestamp">An optional timestamp of the current status of the connector.</param>
-        public ConnectorStatus(Connector_Id          Id,
-                               ConnectorStatusTypes  Status,
-                               DateTime?             Timestamp = null)
+        /// <param name="CustomData">An optional dictionary of customer-specific data.</param>
+        public ConnectorStatus(Connector_Id                         Id,
+                               ConnectorStatusTypes                 Status,
+                               DateTime?                            Timestamp    = null,
+                               IReadOnlyDictionary<String, Object>  CustomData   = null)
+
+            : base(CustomData)
 
         {
 
             this.Id         = Id;
             this.Status     = Status;
-            this.Timestamp  = Timestamp.HasValue ? Timestamp.Value : DateTime.UtcNow;
+            this.Timestamp  = Timestamp ?? DateTime.UtcNow;
 
         }
 

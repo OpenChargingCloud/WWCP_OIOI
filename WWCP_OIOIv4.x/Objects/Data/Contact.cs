@@ -23,6 +23,7 @@ using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
+using org.GraphDefined.Vanaheimr.Hermod.JSON;
 
 #endregion
 
@@ -215,29 +216,38 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
         #endregion
 
-        #region ToJSON()
+        #region ToJSON(CustomContactSerializer = null)
 
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
-        public JObject ToJSON()
+        /// <param name="CustomContactSerializer">A delegate to serialize custom Contact JSON objects.</param>
+        public JObject ToJSON(CustomJSONSerializerDelegate<Contact> CustomContactSerializer  = null)
+        {
 
-            => JSONObject.Create(
-                   new JProperty("phone",        Phone),
+            var JSON = JSONObject.Create(
 
-                   Fax.IsNotNullOrEmpty()
-                       ? new JProperty("fax",    Fax)
-                       : null,
+                           new JProperty("phone",        Phone),
 
-                   Web.IsNotNullOrEmpty()
-                       ? new JProperty("web",    Web)
-                       : null,
+                           Fax.IsNotNullOrEmpty()
+                               ? new JProperty("fax",    Fax)
+                               : null,
 
-                   EMail.IsNotNullOrEmpty()
-                       ? new JProperty("email",  EMail)
-                       : null
+                           Web.IsNotNullOrEmpty()
+                               ? new JProperty("web",    Web)
+                               : null,
 
-               );
+                           EMail.IsNotNullOrEmpty()
+                               ? new JProperty("email",  EMail)
+                               : null
+
+                       );
+
+            return CustomContactSerializer != null
+                       ? CustomContactSerializer(this, JSON)
+                       : JSON;
+
+        }
 
         #endregion
 

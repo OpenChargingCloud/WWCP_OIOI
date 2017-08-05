@@ -63,30 +63,28 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
     /// <summary>
     /// A delegate called whenever a charging connector status will be send upstream.
     /// </summary>
-    public delegate Task OnConnectorPostStatusRequestDelegate (DateTime                                      LogTimestamp,
-                                                               DateTime                                      RequestTimestamp,
-                                                               CPOClient                                     Sender,
-                                                               String                                        SenderId,
-                                                               EventTracking_Id                              EventTrackingId,
-                                                               Connector_Id                                  Id,
-                                                               ConnectorStatusTypes                          Status,
-                                                               Partner_Id                                    PartnerId,
-                                                               TimeSpan?                                     RequestTimeout);
+    public delegate Task OnConnectorPostStatusRequestDelegate (DateTime                       LogTimestamp,
+                                                               DateTime                       RequestTimestamp,
+                                                               CPOClient                      Sender,
+                                                               String                         SenderId,
+                                                               EventTracking_Id               EventTrackingId,
+                                                               ConnectorStatus                ConnectorStatus,
+                                                               Partner_Id                     PartnerId,
+                                                               TimeSpan?                      RequestTimeout);
 
     /// <summary>
     /// A delegate called whenever a charging connector status had been sent upstream.
     /// </summary>
-    public delegate Task OnConnectorPostStatusResponseDelegate(DateTime                                      LogTimestamp,
-                                                               DateTime                                      RequestTimestamp,
-                                                               CPOClient                                     Sender,
-                                                               String                                        SenderId,
-                                                               EventTracking_Id                              EventTrackingId,
-                                                               Connector_Id                                  Id,
-                                                               ConnectorStatusTypes                          Status,
-                                                               Partner_Id                                    PartnerId,
-                                                               TimeSpan?                                     RequestTimeout,
-                                                               ConnectorPostStatusResponse                   Result,
-                                                               TimeSpan                                      Duration);
+    public delegate Task OnConnectorPostStatusResponseDelegate(DateTime                       LogTimestamp,
+                                                               DateTime                       RequestTimestamp,
+                                                               CPOClient                      Sender,
+                                                               String                         SenderId,
+                                                               EventTracking_Id               EventTrackingId,
+                                                               ConnectorStatus                ConnectorStatus,
+                                                               Partner_Id                     PartnerId,
+                                                               TimeSpan?                      RequestTimeout,
+                                                               ConnectorPostStatusResponse    Result,
+                                                               TimeSpan                       Duration);
 
     #endregion
 

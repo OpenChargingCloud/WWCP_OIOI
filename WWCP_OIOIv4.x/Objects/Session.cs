@@ -18,11 +18,13 @@
 #region Usings
 
 using System;
+using System.Collections.Generic;
 
 using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
+using org.GraphDefined.Vanaheimr.Hermod.JSON;
 
 #endregion
 
@@ -30,9 +32,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 {
 
     /// <summary>
-    /// An OIOI Charging Session.
+    /// An OIOI charging session.
     /// </summary>
-    public class Session : IEquatable<Session>
+    public class Session : ACustomData,
+                           IEquatable<Session>,
+                           IComparable<Session>,
+                           IComparable
     {
 
         #region Properties
@@ -84,7 +89,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         #region Constructor(s)
 
         /// <summary>
-        /// Create a new OIOI charging session.
+        /// Create a new charging session.
         /// </summary>
         /// <param name="Id">A unique identification that identifies this session.</param>
         /// <param name="User">The unique identification of the user/customer/driver.</param>
@@ -93,13 +98,19 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <param name="ChargingInterval">The start and stop timestamps of charging.</param>
         /// <param name="EnergyConsumed">The consumed energy in kWh.</param>
         /// <param name="PartnerIdentifier">The partner identifier of the partner that shall be associated with this CDR.</param>
-        public Session(Session_Id         Id,
-                       User               User,
-                       Connector_Id       ConnectorId,
-                       StartEndDateTime   SessionInterval,
-                       StartEndDateTime?  ChargingInterval   = null,
-                       Single?            EnergyConsumed     = null,
-                       String             PartnerIdentifier  = null)
+        /// 
+        /// <param name="CustomData">An optional dictionary of customer-specific data.</param>
+        public Session(Session_Id                           Id,
+                       User                                 User,
+                       Connector_Id                         ConnectorId,
+                       StartEndDateTime                     SessionInterval,
+                       StartEndDateTime?                    ChargingInterval    = null,
+                       Single?                              EnergyConsumed      = null,
+                       String                               PartnerIdentifier   = null,
+
+                       IReadOnlyDictionary<String, Object>  CustomData          = null)
+
+            : base(CustomData)
 
         {
 
@@ -153,49 +164,57 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
         #endregion
 
-        #region ToJSON()
+        #region ToJSON(CustomSessionSerializer = null)
 
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
-        public JObject ToJSON()
+        /// <param name="CustomSessionSerializer">A delegate to serialize custom Session JSON objects.</param>
+        public JObject ToJSON(CustomJSONSerializerDelegate<Session> CustomSessionSerializer = null)
+        {
 
-            => JSONObject.Create(
+            var JSON = JSONObject.Create(
 
-                   new JProperty("user",                       User.        ToJSON()),
-                   new JProperty("session-id",                 Id.          ToString()),
-                   new JProperty("connector-id",               ConnectorId. ToString()),
-                   new JProperty("session-interval",           JSONObject.Create(
+                           new JProperty("user",                       User.        ToJSON()),
+                           new JProperty("session-id",                 Id.          ToString()),
+                           new JProperty("connector-id",               ConnectorId. ToString()),
+                           new JProperty("session-interval",           JSONObject.Create(
 
-                                                                   new JProperty("start", SessionInterval.StartTime.ToIso8601()),
+                                                                           new JProperty("start", SessionInterval.StartTime.ToIso8601()),
 
-                                                                   SessionInterval.EndTime.HasValue
-                                                                       ? new JProperty("stop", SessionInterval.EndTime.Value.ToIso8601())
-                                                                       : null
+                                                                           SessionInterval.EndTime.HasValue
+                                                                               ? new JProperty("stop", SessionInterval.EndTime.Value.ToIso8601())
+                                                                               : null
 
-                                                               )),
+                                                                       )),
 
-                   ChargingInterval.HasValue
-                       ? new JProperty("charging-interval",    JSONObject.Create(
+                           ChargingInterval.HasValue
+                               ? new JProperty("charging-interval",    JSONObject.Create(
 
-                                                                   new JProperty("start", ChargingInterval.Value.StartTime.ToIso8601()),
+                                                                           new JProperty("start", ChargingInterval.Value.StartTime.ToIso8601()),
 
-                                                                   ChargingInterval.Value.EndTime.HasValue
-                                                                       ? new JProperty("stop", ChargingInterval.Value.EndTime.Value.ToIso8601())
-                                                                       : null
+                                                                           ChargingInterval.Value.EndTime.HasValue
+                                                                               ? new JProperty("stop", ChargingInterval.Value.EndTime.Value.ToIso8601())
+                                                                               : null
 
-                                                               ))
-                       : null,
+                                                                       ))
+                               : null,
 
-                   EnergyConsumed.HasValue
-                       ? new JProperty("energy-consumed",      EnergyConsumed.Value)
-                       : null,
+                           EnergyConsumed.HasValue
+                               ? new JProperty("energy-consumed",      EnergyConsumed.Value)
+                               : null,
 
-                   PartnerIdentifier.IsNotNullOrEmpty()
-                       ?  new JProperty("partner-identifier",  PartnerIdentifier)
-                       : null
+                           PartnerIdentifier.IsNotNullOrEmpty()
+                               ?  new JProperty("partner-identifier",  PartnerIdentifier)
+                               : null
 
-               );
+                       );
+
+            return CustomSessionSerializer != null
+                       ? CustomSessionSerializer(this, JSON)
+                       : JSON;
+
+        }
 
         #endregion
 
@@ -238,6 +257,116 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         public static Boolean operator != (Session Session1, Session Session2)
 
             => !(Session1 == Session2);
+
+        #endregion
+
+        #region Operator <  (Session1, Session2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="Session1">A charging session.</param>
+        /// <param name="Session2">Another charging session.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator < (Session Session1, Session Session2)
+        {
+
+            if ((Object) Session1 == null)
+                throw new ArgumentNullException(nameof(Session1), "The given Session1 must not be null!");
+
+            return Session1.CompareTo(Session2) < 0;
+
+        }
+
+        #endregion
+
+        #region Operator <= (Session1, Session2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="Session1">A charging session.</param>
+        /// <param name="Session2">Another charging session.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator <= (Session Session1, Session Session2)
+            => !(Session1 > Session2);
+
+        #endregion
+
+        #region Operator >  (Session1, Session2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="Session1">A charging session.</param>
+        /// <param name="Session2">Another charging session.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator > (Session Session1, Session Session2)
+        {
+
+            if ((Object)Session1 == null)
+                throw new ArgumentNullException(nameof(Session1), "The given Session1 must not be null!");
+
+            return Session1.CompareTo(Session2) > 0;
+
+        }
+
+        #endregion
+
+        #region Operator >= (Session1, Session2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="Session1">A charging session.</param>
+        /// <param name="Session2">Another charging session.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator >= (Session Session1, Session Session2)
+            => !(Session1 < Session2);
+
+        #endregion
+
+        #endregion
+
+        #region IComparable<Session> Members
+
+        #region CompareTo(Object)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="Object">An object to compare with.</param>
+        public Int32 CompareTo(Object Object)
+        {
+
+            if (Object == null)
+                throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
+
+            var Session = Object as Session;
+            if ((Object)Session == null)
+                throw new ArgumentException("The given object is not an session identification!", nameof(Object));
+
+            return CompareTo(Session);
+
+        }
+
+        #endregion
+
+        #region CompareTo(Session)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="Session">An object to compare with.</param>
+        public Int32 CompareTo(Session Session)
+        {
+
+            if ((Object) Session == null)
+                throw new ArgumentNullException(nameof(Session), "The given charging session must not be null!");
+
+            return Id.CompareTo(Session.Id);
+
+        }
 
         #endregion
 

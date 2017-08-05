@@ -28,18 +28,31 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
     /// A delegate for filtering charging stations.
     /// </summary>
     /// <param name="Station">A charging station.</param>
-    public delegate Boolean IncludeStationsDelegate       (Station          Station);
+    public delegate Boolean IncludeStationDelegate             (Station               Station);
 
     /// <summary>
     /// A delegate for filtering charging stations identifications.
     /// </summary>
     /// <param name="StationId">A charging station identification.</param>
-    public delegate Boolean IncludeStationIdsDelegate     (Station_Id       StationId);
+    public delegate Boolean IncludeStationIdDelegate           (Station_Id            StationId);
+
+
+    /// <summary>
+    /// A delegate for filtering connector status.
+    /// </summary>
+    /// <param name="ConnectorId">A connector identification.</param>
+    public delegate Boolean IncludeConnectorIdDelegate         (Connector_Id          ConnectorId);
+
+    /// <summary>
+    /// A delegate for filtering connector status types.
+    /// </summary>
+    /// <param name="ConnectorStatusTypes">A connector status types.</param>
+    public delegate Boolean IncludeConnectorStatusTypesDelegate(ConnectorStatusTypes  ConnectorStatusTypes);
 
     /// <summary>
     /// A delegate for filtering connector status.
     /// </summary>
     /// <param name="ConnectorStatus">A connector status.</param>
-    public delegate Boolean IncludeConnectorStatusDelegate(ConnectorStatus  ConnectorStatus);
+    public delegate Boolean IncludeConnectorStatusDelegate     (ConnectorStatus       ConnectorStatus);
 
 }

@@ -606,7 +606,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="ConnectorStatus2JSON">A delegate to process the JSON representation of an OIOI connector status, e.g. before uploading it.</param>
         /// <param name="Session2JSON">A delegate to process the JSON representation of an OIOI session, e.g. before uploading it.</param>
         /// 
-        /// <param name="IncludeChargingStations">Only include the charging stations matching the given delegate.</param>
+        /// <param name="IncludeChargingStation">Only include the charging stations matching the given delegate.</param>
         /// 
         /// <param name="ServiceCheckEvery">The service check intervall.</param>
         /// <param name="StatusCheckEvery">The status check intervall.</param>
@@ -630,7 +630,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               ConnectorStatus2JSONDelegate                    ConnectorStatus2JSON                     = null,
                               Session2JSONDelegate                            Session2JSON                             = null,
 
-                              IncludeChargingStationDelegate                  IncludeChargingStations                  = null,
+                              IncludeChargingStationDelegate                  IncludeChargingStation                   = null,
                               TimeSpan?                                       ServiceCheckEvery                        = null,
                               TimeSpan?                                       StatusCheckEvery                         = null,
 
@@ -668,7 +668,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             this._ConnectorStatus2JSON                            = ConnectorStatus2JSON;
             this._Session2JSON                                    = Session2JSON;
 
-            this._IncludeChargingStations                         = IncludeChargingStations;
+            this._IncludeChargingStations                         = IncludeChargingStation;
 
             this._ServiceCheckEvery                               = (UInt32) (ServiceCheckEvery.HasValue
                                                                                  ? ServiceCheckEvery.Value. TotalMilliseconds
@@ -1078,8 +1078,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               String                                          RemoteHTTPVirtualHost                    = null,
                               String                                          URIPrefix                                = CPOClient.DefaultURIPrefix,
                               String                                          HTTPUserAgent                            = CPOClient.DefaultHTTPUserAgent,
-                              IncludeStationsDelegate                         IncludeStations                          = null,
-                              IncludeStationIdsDelegate                       IncludeStationIds                        = null,
+                              IncludeStationDelegate                          IncludeStation                           = null,
+                              IncludeStationIdDelegate                        IncludeStationId                         = null,
+                              IncludeConnectorIdDelegate                      IncludeConnectorId                       = null,
+                              IncludeConnectorStatusTypesDelegate             IncludeConnectorStatusType               = null,
+                              IncludeConnectorStatusDelegate                  IncludeConnectorStatus                   = null,
                               TimeSpan?                                       RequestTimeout                           = null,
                               Byte?                                           MaxNumberOfRetries                       = CPOClient.DefaultMaxNumberOfRetries,
 
@@ -1134,8 +1137,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                   RemoteHTTPVirtualHost,
                                   URIPrefix,
                                   HTTPUserAgent,
-                                  IncludeStations,
-                                  IncludeStationIds,
+                                  IncludeStation,
+                                  IncludeStationId,
+                                  IncludeConnectorId,
+                                  IncludeConnectorStatusType,
+                                  IncludeConnectorStatus,
                                   RequestTimeout,
                                   MaxNumberOfRetries,
 

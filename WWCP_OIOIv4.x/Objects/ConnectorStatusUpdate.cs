@@ -28,7 +28,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 {
 
     /// <summary>
-    /// A connector status update.
+    /// An OIOI connector status update.
     /// </summary>
     public struct ConnectorStatusUpdate : IEquatable <ConnectorStatusUpdate>,
                                           IComparable<ConnectorStatusUpdate>

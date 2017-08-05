@@ -37,6 +37,50 @@ using System.Linq;
 namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 {
 
+    public class OIOI_Exception : ApplicationException
+    {
+
+        public String  MethodName   { get; }
+
+        public OIOI_Exception(String     MethodName,
+                              String     Message,
+                              Exception  Exception)
+
+            : base(Message,
+                   Exception)
+
+        {
+
+            this.MethodName  = MethodName;
+
+        }
+
+    }
+
+    public class OIOI_CPOClientException : OIOI_Exception
+    {
+
+        public CPOClient  Client   { get; }
+
+        public OIOI_CPOClientException(CPOClient  Client,
+                                       String     MethodName,
+                                       String     Message,
+                                       Exception  Exception)
+
+            : base(MethodName,
+                   Message,
+                   Exception)
+
+        {
+
+            this.Client = Client;
+
+        }
+
+    }
+
+
+
     /// <summary>
     /// An OIOI CPO Client.
     /// </summary>
@@ -86,8 +130,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         #endregion
 
-        public IncludeStationsDelegate    IncludeStations      { get; }
-        public IncludeStationIdsDelegate  IncludeStationIds    { get; }
+        public IncludeStationDelegate               IncludeStation                { get; }
+        public IncludeStationIdDelegate             IncludeStationId              { get; }
+
+        public IncludeConnectorIdDelegate           IncludeConnectorId            { get; }
+        public IncludeConnectorStatusTypesDelegate  IncludeConnectorStatusType    { get; }
+        public IncludeConnectorStatusDelegate       IncludeConnectorStatus        { get; }
 
         #region Events
 
@@ -393,12 +441,13 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         #endregion
 
 
-
-
         public CustomJSONSerializerDelegate<StationPostRequest> CustomStationPostRequestSerializer   { get; set; }
         public CustomJSONSerializerDelegate<Station>            CustomStationSerializer              { get; set; }
+        public CustomJSONSerializerDelegate<Address>            CustomAddressSerializer              { get; set; }
         public CustomJSONSerializerDelegate<Connector>          CustomConnectorSerializer            { get; set; }
 
+        public CustomJSONSerializerDelegate<SessionPostRequest> CustomSessionPostRequestSerializer   { get; set; }
+        public CustomJSONSerializerDelegate<Session>            CustomSessionSerializer              { get; set; }
 
         #endregion
 
@@ -428,20 +477,23 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                          String                               Hostname,
                          APIKey                               APIKey,
                          Partner_Id                           DefaultPartnerId,
-                         IPPort                               RemotePort                  = null,
-                         RemoteCertificateValidationCallback  RemoteCertificateValidator  = null,
-                         LocalCertificateSelectionCallback    LocalCertificateSelector    = null,
-                         X509Certificate                      ClientCert                  = null,
-                         String                               HTTPVirtualHost             = null,
-                         String                               URIPrefix                   = null,
-                         String                               HTTPUserAgent               = DefaultHTTPUserAgent,
-                         IncludeStationsDelegate              IncludeStations             = null,
-                         IncludeStationIdsDelegate            IncludeStationIds           = null,
-                         TimeSpan?                            RequestTimeout              = null,
-                         Byte?                                MaxNumberOfRetries          = DefaultMaxNumberOfRetries,
-                         DNSClient                            DNSClient                   = null,
-                         String                               LoggingContext              = CPOClientLogger.DefaultContext,
-                         LogfileCreatorDelegate               LogFileCreator              = null)
+                         IPPort                               RemotePort                   = null,
+                         RemoteCertificateValidationCallback  RemoteCertificateValidator   = null,
+                         LocalCertificateSelectionCallback    LocalCertificateSelector     = null,
+                         X509Certificate                      ClientCert                   = null,
+                         String                               HTTPVirtualHost              = null,
+                         String                               URIPrefix                    = null,
+                         String                               HTTPUserAgent                = DefaultHTTPUserAgent,
+                         IncludeStationDelegate               IncludeStation               = null,
+                         IncludeStationIdDelegate             IncludeStationId             = null,
+                         IncludeConnectorIdDelegate           IncludeConnectorId           = null,
+                         IncludeConnectorStatusTypesDelegate  IncludeConnectorStatusType   = null,
+                         IncludeConnectorStatusDelegate       IncludeConnectorStatus       = null,
+                         TimeSpan?                            RequestTimeout               = null,
+                         Byte?                                MaxNumberOfRetries           = DefaultMaxNumberOfRetries,
+                         DNSClient                            DNSClient                    = null,
+                         String                               LoggingContext               = CPOClientLogger.DefaultContext,
+                         LogfileCreatorDelegate               LogFileCreator               = null)
 
             : base(ClientId,
                    Hostname,
@@ -467,16 +519,19 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            this.APIKey             = APIKey;
-            this.URIPrefix          = URIPrefix.IsNotNullOrEmpty() ? URIPrefix : DefaultURIPrefix;
-            this.DefaultPartnerId   = DefaultPartnerId;
+            this.APIKey                      = APIKey;
+            this.URIPrefix                   = URIPrefix.IsNotNullOrEmpty() ? URIPrefix : DefaultURIPrefix;
+            this.DefaultPartnerId            = DefaultPartnerId;
 
-            this.IncludeStations    = IncludeStations   ?? (station   => true);
-            this.IncludeStationIds  = IncludeStationIds ?? (stationid => true);
+            this.IncludeStation              = IncludeStation             ?? (station             => true);
+            this.IncludeStationId            = IncludeStationId           ?? (stationid           => true);
+            this.IncludeConnectorId          = IncludeConnectorId         ?? (connectorid         => true);
+            this.IncludeConnectorStatusType  = IncludeConnectorStatusType ?? (connectorstatustype => true);
+            this.IncludeConnectorStatus      = IncludeConnectorStatus     ?? (connectorstatus     => true);
 
-            this.Logger             = new CPOClientLogger(this,
-                                                          LoggingContext,
-                                                          LogFileCreator);
+            this.Logger                      = new CPOClientLogger(this,
+                                                                   LoggingContext,
+                                                                   LogFileCreator);
 
         }
 
@@ -506,16 +561,21 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                          String                               Hostname,
                          APIKey                               APIKey,
                          Partner_Id                           DefaultPartnerId,
-                         IPPort                               RemotePort                  = null,
-                         String                               URIPrefix                   = null,
-                         RemoteCertificateValidationCallback  RemoteCertificateValidator  = null,
-                         LocalCertificateSelectionCallback    LocalCertificateSelector    = null,
-                         X509Certificate                      ClientCert                  = null,
-                         String                               HTTPVirtualHost             = null,
-                         String                               HTTPUserAgent               = DefaultHTTPUserAgent,
-                         TimeSpan?                            RequestTimeout              = null,
-                         Byte?                                MaxNumberOfRetries          = DefaultMaxNumberOfRetries,
-                         DNSClient                            DNSClient                   = null)
+                         IPPort                               RemotePort                   = null,
+                         String                               URIPrefix                    = null,
+                         RemoteCertificateValidationCallback  RemoteCertificateValidator   = null,
+                         LocalCertificateSelectionCallback    LocalCertificateSelector     = null,
+                         X509Certificate                      ClientCert                   = null,
+                         String                               HTTPVirtualHost              = null,
+                         String                               HTTPUserAgent                = DefaultHTTPUserAgent,
+                         IncludeStationDelegate               IncludeStation               = null,
+                         IncludeStationIdDelegate             IncludeStationId             = null,
+                         IncludeConnectorIdDelegate           IncludeConnectorId           = null,
+                         IncludeConnectorStatusTypesDelegate  IncludeConnectorStatusType   = null,
+                         IncludeConnectorStatusDelegate       IncludeConnectorStatus       = null,
+                         TimeSpan?                            RequestTimeout               = null,
+                         Byte?                                MaxNumberOfRetries           = DefaultMaxNumberOfRetries,
+                         DNSClient                            DNSClient                    = null)
 
             : base(ClientId,
                    Hostname,
@@ -544,14 +604,17 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            this.URIPrefix          = URIPrefix.IsNotNullOrEmpty() ? URIPrefix : DefaultURIPrefix;
-            this.APIKey             = APIKey;
-            this.DefaultPartnerId   = DefaultPartnerId;
+            this.URIPrefix                   = URIPrefix.IsNotNullOrEmpty() ? URIPrefix : DefaultURIPrefix;
+            this.APIKey                      = APIKey;
+            this.DefaultPartnerId            = DefaultPartnerId;
 
-            this.IncludeStations    = IncludeStations   ?? (station   => true);
-            this.IncludeStationIds  = IncludeStationIds ?? (stationid => true);
+            this.IncludeStation              = IncludeStation             ?? (station             => true);
+            this.IncludeStationId            = IncludeStationId           ?? (stationid           => true);
+            this.IncludeConnectorId          = IncludeConnectorId         ?? (connectorid         => true);
+            this.IncludeConnectorStatusType  = IncludeConnectorStatusType ?? (connectorstatustype => true);
+            this.IncludeConnectorStatus      = IncludeConnectorStatus     ?? (connectorstatus     => true);
 
-            this.Logger             = Logger;
+            this.Logger                      = Logger;
 
         }
 
@@ -611,7 +674,14 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             }
             catch (Exception e)
             {
-                e.Log(nameof(CPOClient) + "." + nameof(OnStationPostRequest));
+
+                SendException(DateTime.UtcNow,
+                              this,
+                              new OIOI_CPOClientException(this,
+                                                          nameof(OnStationPostRequest),
+                                                          "Send OnStationPostRequest event failed!",
+                                                          e));
+
             }
 
             #endregion
@@ -620,129 +690,125 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             // Notes: It is not allowed to change the connectors of an existing station.
             //        The station’s connectors’ IDs may not be changed once it is created.
 
-            #region No station data to push?
-
-            if (!IncludeStations  (Request.Station) ||
-                !IncludeStationIds(Request.Station.Id))
+            if (IncludeStation  (Request.Station) &&
+                IncludeStationId(Request.Station.Id))
             {
+
+                do
+                {
+
+                    using (var _JSONClient = new JSONClient(Hostname,
+                                                            RemotePort,
+                                                            HTTPVirtualHost,
+                                                            URIPrefix,
+                                                            RemoteCertificateValidator,
+                                                            LocalCertificateSelector,
+                                                            ClientCert,
+                                                            UserAgent,
+                                                            RequestTimeout,
+                                                            DNSClient))
+                    {
+
+                        result = await _JSONClient.Query(_CustomStationPostJSONRequestMapper(Request,
+                                                                                             Request.ToJSON(CustomStationPostRequestSerializer,
+                                                                                                            CustomStationSerializer,
+                                                                                                            CustomAddressSerializer,
+                                                                                                            CustomConnectorSerializer)),
+                                                         HTTPRequestBuilder:   request => request.Set("Authorization", "key=" + APIKey),
+                                                         RequestLogDelegate:   OnStationPostHTTPRequest,
+                                                         ResponseLogDelegate:  OnStationPostHTTPResponse,
+                                                         CancellationToken:    Request.CancellationToken,
+                                                         EventTrackingId:      Request.EventTrackingId,
+                                                         RequestTimeout:       Request.RequestTimeout ?? RequestTimeout,
+                                                         NumberOfRetry:        TransmissionRetry,
+
+                                                         #region OnSuccess
+
+                                                         OnSuccess: JSONResponse => JSONResponse.ConvertContent(Request,
+                                                                                                                (request, json, onexception) =>
+                                                                                                                    StationPostResponse.Parse(request,
+                                                                                                                                              json,
+                                                                                                                                              CustomStationPostResponseMapper,
+                                                                                                                                              onexception)),
+
+                                                         #endregion
+
+                                                         #region OnJSONFault
+
+                                                         OnJSONFault: (timestamp, jsonclient, httpresponse) => {
+
+                                                             SendJSONError(timestamp, this, httpresponse.Content);
+
+                                                             return new HTTPResponse<StationPostResponse>(
+                                                                        httpresponse,
+                                                                        StationPostResponse.InvalidResponseFormat(Request,
+                                                                                                                  httpresponse),
+                                                                        IsFault: true);
+
+                                                         },
+
+                                                         #endregion
+
+                                                         #region OnHTTPError
+
+                                                         OnHTTPError: (timestamp, soapclient, httpresponse) => {
+
+                                                             SendHTTPError(timestamp, this, httpresponse);
+
+                                                             return new HTTPResponse<StationPostResponse>(
+                                                                        httpresponse,
+                                                                        StationPostResponse.InvalidResponseFormat(Request,
+                                                                                                                  httpresponse),
+                                                                        IsFault: true);
+
+                                                         },
+
+                                                         #endregion
+
+                                                         #region OnException
+
+                                                         OnException: (timestamp, sender, exception) => {
+
+                                                             SendException(timestamp, sender, exception);
+
+                                                             return HTTPResponse<StationPostResponse>.ExceptionThrown(
+
+                                                                 StationPostResponse.ClientRequestError(Request,
+                                                                                                        "Exception occured!"),
+
+                                                                 Exception: exception);
+
+                                                         }
+
+                                                         #endregion
+
+                                                        );
+
+                    }
+
+                    if (result == null)
+                        result = HTTPResponse<StationPostResponse>.ClientError(
+                                     StationPostResponse.InvalidResponseFormat(
+                                         Request
+                                     )
+                                 );
+
+                }
+                while (result.HTTPStatusCode == HTTPStatusCode.RequestTimeout &&
+                       TransmissionRetry++ < MaxNumberOfRetries);
+
+            }
+
+            #region ...or no station data to push?
+
+            else
 
                 result = HTTPResponse<StationPostResponse>.OK(
                              StationPostResponse.Success(Request,
                                                          "No station data to push")
                          );
 
-            }
-
             #endregion
-
-            else do
-            {
-
-                using (var _JSONClient = new JSONClient(Hostname,
-                                                        RemotePort,
-                                                        HTTPVirtualHost,
-                                                        URIPrefix,
-                                                        RemoteCertificateValidator,
-                                                        LocalCertificateSelector,
-                                                        ClientCert,
-                                                        UserAgent,
-                                                        RequestTimeout,
-                                                        DNSClient))
-                {
-
-                    result = await _JSONClient.Query(_CustomStationPostJSONRequestMapper(Request,
-                                                                                         Request.ToJSON(CustomStationPostRequestSerializer,
-                                                                                                        CustomStationSerializer,
-                                                                                                        CustomConnectorSerializer)),
-                                                     HTTPRequestBuilder:   request => request.Set("Authorization", "key=" + APIKey),
-                                                     RequestLogDelegate:   OnStationPostHTTPRequest,
-                                                     ResponseLogDelegate:  OnStationPostHTTPResponse,
-                                                     CancellationToken:    Request.CancellationToken,
-                                                     EventTrackingId:      Request.EventTrackingId,
-                                                     RequestTimeout:       Request.RequestTimeout ?? RequestTimeout,
-                                                     NumberOfRetry:        TransmissionRetry,
-
-                                                     #region OnSuccess
-
-                                                     OnSuccess: JSONResponse => JSONResponse.ConvertContent(Request,
-                                                                                                            (request, json, onexception) =>
-                                                                                                                StationPostResponse.Parse(request,
-                                                                                                                                          json,
-                                                                                                                                          CustomStationPostResponseMapper,
-                                                                                                                                          onexception)),
-
-                                                     #endregion
-
-                                                     #region OnJSONFault
-
-                                                     OnJSONFault: (timestamp, jsonclient, httpresponse) => {
-
-                                                         SendJSONError(timestamp, this, httpresponse.Content);
-
-                                                         return new HTTPResponse<StationPostResponse>(
-                                                                    httpresponse,
-                                                                    StationPostResponse.InvalidResponseFormat(Request,
-                                                                                                              httpresponse),
-                                                                    IsFault: true);
-
-                                                     },
-
-                                                     #endregion
-
-                                                     #region OnHTTPError
-
-                                                     OnHTTPError: (timestamp, soapclient, httpresponse) => {
-
-                                                         SendHTTPError(timestamp, this, httpresponse);
-
-                                                         return new HTTPResponse<StationPostResponse>(
-                                                                    httpresponse,
-                                                                    StationPostResponse.InvalidResponseFormat(Request,
-                                                                                                              httpresponse),
-                                                                    IsFault: true);
-
-                                                     },
-
-                                                     #endregion
-
-                                                     #region OnException
-
-                                                     OnException: (timestamp, sender, exception) => {
-
-                                                         SendException(timestamp, sender, exception);
-
-                                                         return HTTPResponse<StationPostResponse>.ExceptionThrown(
-
-                                                             new StationPostResponse(Request,
-                                                                                     ResponseCodes.SystemError,
-                                                                                     "Exception occured!"),
-
-                                                             Exception:  exception);
-
-                                                     }
-
-                                                     #endregion
-
-                                                    );
-
-                }
-
-                if (result == null)
-                    result = HTTPResponse<StationPostResponse>.ClientError(
-                                 StationPostResponse.InvalidResponseFormat(
-                                     Request
-                                 )
-                             );
-
-
-                if (result == null)
-                    result = HTTPResponse<StationPostResponse>.OK(new StationPostResponse(Request,
-                                                                                          ResponseCodes.SystemError,
-                                                                                          "Invalid response!"));
-
-            }
-            while (result.HTTPStatusCode == HTTPStatusCode.RequestTimeout &&
-                   TransmissionRetry++ < MaxNumberOfRetries);
 
 
             #region Send OnStationPostResponse event
@@ -770,7 +836,14 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             }
             catch (Exception e)
             {
-                e.Log(nameof(CPOClient) + "." + nameof(OnStationPostResponse));
+
+                SendException(DateTime.UtcNow,
+                              this,
+                              new OIOI_CPOClientException(this,
+                                                          nameof(OnStationPostResponse),
+                                                          "Send OnStationPostResponse event failed!",
+                                                          e));
+
             }
 
             #endregion
@@ -804,7 +877,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 throw new ArgumentNullException(nameof(Request), "The mapped ConnectorPostStatus request must not be null!");
 
 
-            HTTPResponse<ConnectorPostStatusResponse> result = null;
+            Byte                                      TransmissionRetry  = 0;
+            HTTPResponse<ConnectorPostStatusResponse> result             = null;
 
             #endregion
 
@@ -815,116 +889,159 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             try
             {
 
-                OnConnectorPostStatusRequest?.Invoke(StartTime,
+                if (OnConnectorPostStatusRequest != null)
+                    await Task.WhenAll(OnConnectorPostStatusRequest.GetInvocationList().
+                                       Cast<OnConnectorPostStatusRequestDelegate>().
+                                       Select(e => e(StartTime,
                                                      Request.Timestamp.Value,
                                                      this,
                                                      ClientId,
                                                      Request.EventTrackingId,
-                                                     Request.Id,
-                                                     Request.Status,
+                                                     Request.ConnectorStatus,
                                                      Request.PartnerIdentifier,
-                                                     Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout);
+                                                     Request.RequestTimeout ?? RequestTimeout.Value))).
+                                       ConfigureAwait(false);
 
             }
             catch (Exception e)
             {
-                e.Log(nameof(CPOClient) + "." + nameof(OnConnectorPostStatusRequest));
+
+                SendException(DateTime.UtcNow,
+                              this,
+                              new OIOI_CPOClientException(this,
+                                                          nameof(OnConnectorPostStatusRequest),
+                                                          "Send OnConnectorPostStatusRequest event failed!",
+                                                          e));
+
             }
 
             #endregion
 
 
-            using (var _JSONClient = new JSONClient(Hostname,
-                                                    RemotePort,
-                                                    HTTPVirtualHost,
-                                                    URIPrefix,
-                                                    RemoteCertificateValidator,
-                                                    LocalCertificateSelector,
-                                                    ClientCert,
-                                                    UserAgent,
-                                                    RequestTimeout,
-                                                    DNSClient))
+            // Note: It is not allowed to send connector status before the corresponding
+            //       charging station was acknowledged by someone at PlugSurfing.
+
+            if (IncludeConnectorId        (Request.ConnectorStatus.Id)     &&
+                IncludeConnectorStatusType(Request.ConnectorStatus.Status) &&
+                IncludeConnectorStatus    (Request.ConnectorStatus))
             {
 
-                result = await _JSONClient.Query(_CustomConnectorPostStatusJSONRequestMapper(Request,
-                                                                                             Request.ToJSON()),
-                                                 HTTPRequestBuilder:   request => request.Set("Authorization", "key=" + APIKey),
-                                                 RequestLogDelegate:   OnConnectorPostStatusHTTPRequest,
-                                                 ResponseLogDelegate:  OnConnectorPostStatusHTTPResponse,
-                                                 CancellationToken:    Request.CancellationToken,
-                                                 EventTrackingId:      Request.EventTrackingId,
-                                                 RequestTimeout:       Request.RequestTimeout ?? RequestTimeout,
+                do
+                {
 
-                                                 #region OnSuccess
+                    using (var _JSONClient = new JSONClient(Hostname,
+                                                            RemotePort,
+                                                            HTTPVirtualHost,
+                                                            URIPrefix,
+                                                            RemoteCertificateValidator,
+                                                            LocalCertificateSelector,
+                                                            ClientCert,
+                                                            UserAgent,
+                                                            RequestTimeout,
+                                                            DNSClient))
+                    {
 
-                                                 OnSuccess: JSONResponse => JSONResponse.ConvertContent(Request,
-                                                                                                        (request, json, onexception) =>
-                                                                                                            ConnectorPostStatusResponse.Parse(request,
-                                                                                                                                              json,
-                                                                                                                                              CustomConnectorPostStatusResponseMapper,
-                                                                                                                                              onexception)),
+                        result = await _JSONClient.Query(_CustomConnectorPostStatusJSONRequestMapper(Request,
+                                                                                                     Request.ToJSON()),
+                                                         HTTPRequestBuilder:   request => request.Set("Authorization", "key=" + APIKey),
+                                                         RequestLogDelegate:   OnConnectorPostStatusHTTPRequest,
+                                                         ResponseLogDelegate:  OnConnectorPostStatusHTTPResponse,
+                                                         CancellationToken:    Request.CancellationToken,
+                                                         EventTrackingId:      Request.EventTrackingId,
+                                                         RequestTimeout:       Request.RequestTimeout ?? RequestTimeout,
+                                                         NumberOfRetry:        TransmissionRetry,
 
-                                                 #endregion
+                                                         #region OnSuccess
 
-                                                 #region OnJSONFault
+                                                         OnSuccess: JSONResponse => JSONResponse.ConvertContent(Request,
+                                                                                                                (request, json, onexception) =>
+                                                                                                                    ConnectorPostStatusResponse.Parse(request,
+                                                                                                                                                      json,
+                                                                                                                                                      CustomConnectorPostStatusResponseMapper,
+                                                                                                                                                      onexception)),
 
-                                                 OnJSONFault: (timestamp, jsonclient, httpresponse) => {
+                                                         #endregion
 
-                                                     SendJSONError(timestamp, this, httpresponse.Content);
+                                                         #region OnJSONFault
 
-                                                     return new HTTPResponse<ConnectorPostStatusResponse>(httpresponse,
-                                                                                                          new ConnectorPostStatusResponse(Request,
-                                                                                                                                          ResponseCodes.SystemError,
-                                                                                                                                          "Invalid JSON response!"),
-                                                                                                          IsFault: true);
+                                                         OnJSONFault: (timestamp, jsonclient, httpresponse) => {
 
-                                                 },
+                                                             SendJSONError(timestamp, this, httpresponse.Content);
 
-                                                 #endregion
+                                                             return new HTTPResponse<ConnectorPostStatusResponse>(
+                                                                        httpresponse,
+                                                                        ConnectorPostStatusResponse.InvalidResponseFormat(Request,
+                                                                                                                          httpresponse),
+                                                                        IsFault: true);
 
-                                                 #region OnHTTPError
+                                                         },
 
-                                                 OnHTTPError: (timestamp, soapclient, httpresponse) => {
+                                                         #endregion
 
-                                                     // 404 The connector or the status were not found
-                                                     // 422 The connector could not be identified uniquely
+                                                         #region OnHTTPError
 
-                                                     SendHTTPError(timestamp, this, httpresponse);
+                                                         OnHTTPError: (timestamp, soapclient, httpresponse) => {
 
-                                                     return new HTTPResponse<ConnectorPostStatusResponse>(httpresponse,
-                                                                                                          new ConnectorPostStatusResponse(Request,
-                                                                                                                                          ResponseCodes.SystemError,
-                                                                                                                                          "Invalid HTTP response!"),
-                                                                                                          IsFault: true);
+                                                             // 404 The connector or the status were not found
+                                                             // 422 The connector could not be identified uniquely
 
-                                                 },
+                                                             SendHTTPError(timestamp, this, httpresponse);
 
-                                                 #endregion
+                                                             return new HTTPResponse<ConnectorPostStatusResponse>(
+                                                                        httpresponse,
+                                                                        ConnectorPostStatusResponse.InvalidResponseFormat(Request,
+                                                                                                                          httpresponse),
+                                                                        IsFault: true);
 
-                                                 #region OnException
+                                                         },
 
-                                                 OnException: (timestamp, sender, exception) => {
+                                                         #endregion
 
-                                                     SendException(timestamp, sender, exception);
+                                                         #region OnException
 
-                                                     return HTTPResponse<ConnectorPostStatusResponse>.ExceptionThrown(new ConnectorPostStatusResponse(Request,
-                                                                                                                                                      ResponseCodes.SystemError,
-                                                                                                                                                      "Exception occured!"),
-                                                                                                                      Exception:  exception);
+                                                         OnException: (timestamp, sender, exception) => {
 
-                                                 }
+                                                             SendException(timestamp, sender, exception);
 
-                                                 #endregion
+                                                             return HTTPResponse<ConnectorPostStatusResponse>.ExceptionThrown(
 
-                                                );
+                                                                 ConnectorPostStatusResponse.ClientRequestError(Request,
+                                                                                                                "Exception occured!"),
+
+                                                                 Exception: exception);
+
+                                                         }
+
+                                                         #endregion
+
+                                                        );
+
+                    }
+
+                    if (result == null)
+                        result = HTTPResponse<ConnectorPostStatusResponse>.ClientError(
+                                     ConnectorPostStatusResponse.InvalidResponseFormat(
+                                         Request
+                                     )
+                                 );
+
+                }
+                while (result.HTTPStatusCode == HTTPStatusCode.RequestTimeout &&
+                       TransmissionRetry++ < MaxNumberOfRetries);
 
             }
 
+            #region ...or no station data to push?
 
-            if (result == null)
-                result = HTTPResponse<ConnectorPostStatusResponse>.OK(new ConnectorPostStatusResponse(Request,
-                                                                                                      ResponseCodes.SystemError,
-                                                                                                      "Invalid response!"));
+            else
+
+                result = HTTPResponse<ConnectorPostStatusResponse>.OK(
+                             ConnectorPostStatusResponse.Success(Request,
+                                                                 "No connector status to push")
+                         );
+
+            #endregion
+
 
             #region Send OnConnectorPostStatusResponse event
 
@@ -933,22 +1050,32 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             try
             {
 
-                OnConnectorPostStatusResponse?.Invoke(Endtime,
-                                                      Request.Timestamp.Value,
-                                                      this,
-                                                      ClientId,
-                                                      Request.EventTrackingId,
-                                                      Request.Id,
-                                                      Request.Status,
-                                                      Request.PartnerIdentifier,
-                                                      Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout,
-                                                      result.Content,
-                                                      Endtime - StartTime);
+                if (OnConnectorPostStatusResponse != null)
+                    await Task.WhenAll(OnConnectorPostStatusResponse.GetInvocationList().
+                                       Cast<OnConnectorPostStatusResponseDelegate>().
+                                       Select(e => e(Endtime,
+                                                     Request.Timestamp.Value,
+                                                     this,
+                                                     ClientId,
+                                                     Request.EventTrackingId,
+                                                     Request.ConnectorStatus,
+                                                     Request.PartnerIdentifier,
+                                                     Request.RequestTimeout ?? RequestTimeout.Value,
+                                                     result.Content,
+                                                     Endtime - StartTime))).
+                                       ConfigureAwait(false);
 
             }
             catch (Exception e)
             {
-                e.Log(nameof(CPOClient) + "." + nameof(OnConnectorPostStatusResponse));
+
+                SendException(DateTime.UtcNow,
+                              this,
+                              new OIOI_CPOClientException(this,
+                                                          nameof(OnConnectorPostStatusResponse),
+                                                          "Send OnConnectorPostStatusResponse event failed!",
+                                                          e));
+
             }
 
             #endregion
@@ -983,7 +1110,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 throw new ArgumentNullException(nameof(Request), "The mapped RFIDVerify request must not be null!");
 
 
-            HTTPResponse<RFIDVerifyResponse> result = null;
+            Byte                             TransmissionRetry  = 0;
+            HTTPResponse<RFIDVerifyResponse> result             = null;
 
             #endregion
 
@@ -994,115 +1122,137 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             try
             {
 
-                OnRFIDVerifyRequest?.Invoke(StartTime,
-                                            Request.Timestamp.Value,
-                                            this,
-                                            ClientId,
-                                            Request.EventTrackingId,
-                                            Request.RFIDId,
-                                            Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout);
+                if (OnRFIDVerifyRequest != null)
+                    await Task.WhenAll(OnRFIDVerifyRequest.GetInvocationList().
+                                       Cast<OnRFIDVerifyRequestDelegate>().
+                                       Select(e => e(StartTime,
+                                                     Request.Timestamp.Value,
+                                                     this,
+                                                     ClientId,
+                                                     Request.EventTrackingId,
+                                                     Request.RFIDId,
+                                                     Request.RequestTimeout ?? RequestTimeout.Value))).
+                                       ConfigureAwait(false);
 
             }
             catch (Exception e)
             {
-                e.Log(nameof(CPOClient) + "." + nameof(OnRFIDVerifyRequest));
+
+                SendException(DateTime.UtcNow,
+                              this,
+                              new OIOI_CPOClientException(this,
+                                                          nameof(OnRFIDVerifyRequest),
+                                                          "Send OnRFIDVerifyRequest event failed!",
+                                                          e));
+
             }
 
             #endregion
 
 
-            using (var _JSONClient = new JSONClient(Hostname,
-                                                    RemotePort,
-                                                    HTTPVirtualHost,
-                                                    URIPrefix,
-                                                    RemoteCertificateValidator,
-                                                    LocalCertificateSelector,
-                                                    ClientCert,
-                                                    UserAgent,
-                                                    RequestTimeout,
-                                                    DNSClient))
+            do
             {
 
-                result = await _JSONClient.Query(_CustomRFIDVerifyJSONRequestMapper(Request,
-                                                                                    Request.ToJSON()),
-                                                 HTTPRequestBuilder:   request => request.Set("Authorization", "key=" + APIKey),
-                                                 RequestLogDelegate:   OnRFIDVerifyHTTPRequest,
-                                                 ResponseLogDelegate:  OnRFIDVerifyHTTPResponse,
-                                                 CancellationToken:    Request.CancellationToken,
-                                                 EventTrackingId:      Request.EventTrackingId,
-                                                 RequestTimeout:       Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout,
+                using (var _JSONClient = new JSONClient(Hostname,
+                                                        RemotePort,
+                                                        HTTPVirtualHost,
+                                                        URIPrefix,
+                                                        RemoteCertificateValidator,
+                                                        LocalCertificateSelector,
+                                                        ClientCert,
+                                                        UserAgent,
+                                                        RequestTimeout,
+                                                        DNSClient))
+                {
 
-                                                 #region OnSuccess
+                    result = await _JSONClient.Query(_CustomRFIDVerifyJSONRequestMapper(Request,
+                                                                                        Request.ToJSON()),
+                                                     HTTPRequestBuilder:   request => request.Set("Authorization", "key=" + APIKey),
+                                                     RequestLogDelegate:   OnRFIDVerifyHTTPRequest,
+                                                     ResponseLogDelegate:  OnRFIDVerifyHTTPResponse,
+                                                     CancellationToken:    Request.CancellationToken,
+                                                     EventTrackingId:      Request.EventTrackingId,
+                                                     RequestTimeout:       Request.RequestTimeout ?? RequestTimeout,
+                                                     NumberOfRetry:        TransmissionRetry,
 
-                                                 OnSuccess: JSONResponse => JSONResponse.ConvertContent(Request,
-                                                                                                        (request, json, onexception) =>
-                                                                                                            RFIDVerifyResponse.Parse(request,
-                                                                                                                                     json,
-                                                                                                                                     CustomRFIDVerifyResponseMapper,
-                                                                                                                                     onexception)),
+                                                     #region OnSuccess
 
-                                                 #endregion
+                                                     OnSuccess: JSONResponse => JSONResponse.ConvertContent(Request,
+                                                                                                            (request, json, onexception) =>
+                                                                                                                RFIDVerifyResponse.Parse(request,
+                                                                                                                                         json,
+                                                                                                                                         CustomRFIDVerifyResponseMapper,
+                                                                                                                                         onexception)),
 
-                                                 #region OnJSONFault
+                                                     #endregion
 
-                                                 OnJSONFault: (timestamp, jsonclient, httpresponse) => {
+                                                     #region OnJSONFault
 
-                                                     SendJSONError(timestamp, this, httpresponse.Content);
+                                                     OnJSONFault: (timestamp, jsonclient, httpresponse) => {
 
-                                                     return new HTTPResponse<RFIDVerifyResponse>(httpresponse,
-                                                                                                 new RFIDVerifyResponse(Request,
-                                                                                                                        ResponseCodes.SystemError,
-                                                                                                                        "Invalid JSON response!"),
-                                                                                                 IsFault: true);
+                                                         SendJSONError(timestamp, this, httpresponse.Content);
 
-                                                 },
+                                                         return new HTTPResponse<RFIDVerifyResponse>(
+                                                                    httpresponse,
+                                                                    RFIDVerifyResponse.InvalidResponseFormat(Request,
+                                                                                                             httpresponse),
+                                                                    IsFault: true);
 
-                                                 #endregion
+                                                     },
 
-                                                 #region OnHTTPError
+                                                     #endregion
 
-                                                 OnHTTPError: (timestamp, soapclient, httpresponse) => {
+                                                     #region OnHTTPError
 
-                                                     // 404 Not found
-                                                     // An active RFID with the given UID could not be found.
-                                                     // However, it is possible that the RFID is known, but currently blocked.
+                                                     OnHTTPError: (timestamp, soapclient, httpresponse) => {
 
-                                                     SendHTTPError(timestamp, this, httpresponse);
+                                                         // 404 The connector or the status were not found
+                                                         // 422 The connector could not be identified uniquely
 
-                                                     return new HTTPResponse<RFIDVerifyResponse>(httpresponse,
-                                                                                                 new RFIDVerifyResponse(Request,
-                                                                                                                        ResponseCodes.SystemError,
-                                                                                                                        "Invalid HTTP response!"),
-                                                                                                 IsFault: true);
+                                                         SendHTTPError(timestamp, this, httpresponse);
 
-                                                 },
+                                                         return new HTTPResponse<RFIDVerifyResponse>(
+                                                                    httpresponse,
+                                                                    RFIDVerifyResponse.InvalidResponseFormat(Request,
+                                                                                                             httpresponse),
+                                                                    IsFault: true);
 
-                                                 #endregion
+                                                     },
 
-                                                 #region OnException
+                                                     #endregion
 
-                                                 OnException: (timestamp, sender, exception) => {
+                                                     #region OnException
 
-                                                     SendException(timestamp, sender, exception);
+                                                     OnException: (timestamp, sender, exception) => {
 
-                                                     return HTTPResponse<RFIDVerifyResponse>.ExceptionThrown(new RFIDVerifyResponse(Request,
-                                                                                                                                    ResponseCodes.SystemError,
-                                                                                                                                    "Exception occured!"),
-                                                                                                             Exception: exception);
+                                                         SendException(timestamp, sender, exception);
 
-                                                 }
+                                                         return HTTPResponse<RFIDVerifyResponse>.ExceptionThrown(
 
-                                                 #endregion
+                                                             RFIDVerifyResponse.ClientRequestError(Request,
+                                                                                                   "Exception occured!"),
 
-                                                );
+                                                             Exception: exception);
+
+                                                     }
+
+                                                     #endregion
+
+                                                    );
+
+                }
+
+                if (result == null)
+                    result = HTTPResponse<RFIDVerifyResponse>.ClientError(
+                                 RFIDVerifyResponse.InvalidResponseFormat(
+                                     Request
+                                 )
+                             );
 
             }
+            while (result.HTTPStatusCode == HTTPStatusCode.RequestTimeout &&
+                       TransmissionRetry++ < MaxNumberOfRetries);
 
-
-            if (result == null)
-                result = HTTPResponse<RFIDVerifyResponse>.OK(new RFIDVerifyResponse(Request,
-                                                                                    ResponseCodes.SystemError,
-                                                                                    "Invalid response!"));
 
             #region Send OnRFIDVerifyResponse event
 
@@ -1111,20 +1261,31 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             try
             {
 
-                OnRFIDVerifyResponse?.Invoke(Endtime,
-                                             Request.Timestamp.Value,
-                                             this,
-                                             ClientId,
-                                             Request.EventTrackingId,
-                                             Request.RFIDId,
-                                             Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout,
-                                             result.Content,
-                                             Endtime - StartTime);
+                if (OnRFIDVerifyResponse != null)
+                    await Task.WhenAll(OnRFIDVerifyResponse.GetInvocationList().
+                                       Cast<OnRFIDVerifyResponseDelegate>().
+                                       Select(e => e(Endtime,
+                                                     Request.Timestamp.Value,
+                                                     this,
+                                                     ClientId,
+                                                     Request.EventTrackingId,
+                                                     Request.RFIDId,
+                                                     Request.RequestTimeout ?? RequestTimeout.Value,
+                                                     result.Content,
+                                                     Endtime - StartTime))).
+                                       ConfigureAwait(false);
 
             }
             catch (Exception e)
             {
-                e.Log(nameof(CPOClient) + "." + nameof(OnRFIDVerifyResponse));
+
+                SendException(DateTime.UtcNow,
+                              this,
+                              new OIOI_CPOClientException(this,
+                                                          nameof(OnRFIDVerifyResponse),
+                                                          "Send OnRFIDVerifyResponse event failed!",
+                                                          e));
+
             }
 
             #endregion
@@ -1158,7 +1319,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 throw new ArgumentNullException(nameof(Request), "The mapped SessionPost request must not be null!");
 
 
-            HTTPResponse<SessionPostResponse> result = null;
+            Byte                              TransmissionRetry  = 0;
+            HTTPResponse<SessionPostResponse> result             = null;
 
             #endregion
 
@@ -1169,115 +1331,138 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             try
             {
 
-                OnSessionPostRequest?.Invoke(StartTime,
-                                             Request.Timestamp.Value,
-                                             this,
-                                             ClientId,
-                                             Request.EventTrackingId,
-                                             Request.Session,
-                                             Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout);
+                if (OnSessionPostRequest != null)
+                    await Task.WhenAll(OnSessionPostRequest.GetInvocationList().
+                                       Cast<OnSessionPostRequestDelegate>().
+                                       Select(e => e(StartTime,
+                                                     Request.Timestamp.Value,
+                                                     this,
+                                                     ClientId,
+                                                     Request.EventTrackingId,
+                                                     Request.Session,
+                                                     Request.RequestTimeout ?? RequestTimeout.Value))).
+                                       ConfigureAwait(false);
 
             }
             catch (Exception e)
             {
-                e.Log(nameof(CPOClient) + "." + nameof(OnSessionPostRequest));
+
+                SendException(DateTime.UtcNow,
+                              this,
+                              new OIOI_CPOClientException(this,
+                                                          nameof(OnSessionPostRequest),
+                                                          "Send OnSessionPostRequest event failed!",
+                                                          e));
+
             }
 
             #endregion
 
 
-            using (var _JSONClient = new JSONClient(Hostname,
-                                                    RemotePort,
-                                                    HTTPVirtualHost,
-                                                    URIPrefix,
-                                                    RemoteCertificateValidator,
-                                                    LocalCertificateSelector,
-                                                    ClientCert,
-                                                    UserAgent,
-                                                    RequestTimeout,
-                                                    DNSClient))
+            do
             {
 
-                result = await _JSONClient.Query(_CustomSessionPostJSONRequestMapper(Request,
-                                                                                     Request.ToJSON()),
-                                                 HTTPRequestBuilder:   request => request.Set("Authorization", "key=" + APIKey),
-                                                 RequestLogDelegate:   OnSessionPostHTTPRequest,
-                                                 ResponseLogDelegate:  OnSessionPostHTTPResponse,
-                                                 CancellationToken:    Request.CancellationToken,
-                                                 EventTrackingId:      Request.EventTrackingId,
-                                                 RequestTimeout:       Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout,
+                using (var _JSONClient = new JSONClient(Hostname,
+                                                        RemotePort,
+                                                        HTTPVirtualHost,
+                                                        URIPrefix,
+                                                        RemoteCertificateValidator,
+                                                        LocalCertificateSelector,
+                                                        ClientCert,
+                                                        UserAgent,
+                                                        RequestTimeout,
+                                                        DNSClient))
+                {
 
-                                                 #region OnSuccess
+                    result = await _JSONClient.Query(_CustomSessionPostJSONRequestMapper(Request,
+                                                                                         Request.ToJSON(CustomSessionPostRequestSerializer,
+                                                                                                        CustomSessionSerializer)),
+                                                     HTTPRequestBuilder:   request => request.Set("Authorization", "key=" + APIKey),
+                                                     RequestLogDelegate:   OnSessionPostHTTPRequest,
+                                                     ResponseLogDelegate:  OnSessionPostHTTPResponse,
+                                                     CancellationToken:    Request.CancellationToken,
+                                                     EventTrackingId:      Request.EventTrackingId,
+                                                     RequestTimeout:       Request.RequestTimeout ?? RequestTimeout,
+                                                     NumberOfRetry:        TransmissionRetry,
 
-                                                 OnSuccess: JSONResponse => JSONResponse.ConvertContent(Request,
-                                                                                                        (request, json, onexception) =>
-                                                                                                        SessionPostResponse.Parse(request,
-                                                                                                                                  json,
-                                                                                                                                  CustomSessionPostResponseMapper,
-                                                                                                                                  onexception)),
+                                                     #region OnSuccess
 
-                                                 #endregion
+                                                     OnSuccess: JSONResponse => JSONResponse.ConvertContent(Request,
+                                                                                                            (request, json, onexception) =>
+                                                                                                            SessionPostResponse.Parse(request,
+                                                                                                                                      json,
+                                                                                                                                      CustomSessionPostResponseMapper,
+                                                                                                                                      onexception)),
 
-                                                 #region OnJSONFault
+                                                     #endregion
 
-                                                 OnJSONFault: (timestamp, jsonclient, httpresponse) => {
+                                                     #region OnJSONFault
 
-                                                     SendJSONError(timestamp, this, httpresponse.Content);
+                                                     OnJSONFault: (timestamp, jsonclient, httpresponse) => {
 
-                                                     return new HTTPResponse<SessionPostResponse>(httpresponse,
-                                                                                                  new SessionPostResponse(Request,
-                                                                                                                          ResponseCodes.SystemError,
-                                                                                                                          "Invalid JSON response!"),
-                                                                                                  IsFault: true);
+                                                         SendJSONError(timestamp, this, httpresponse.Content);
 
-                                                 },
+                                                         return new HTTPResponse<SessionPostResponse>(
+                                                                    httpresponse,
+                                                                    SessionPostResponse.InvalidResponseFormat(Request,
+                                                                                                              httpresponse),
+                                                                    IsFault: true);
 
-                                                 #endregion
+                                                     },
 
-                                                 #region OnHTTPError
+                                                     #endregion
 
-                                                 OnHTTPError: (timestamp, soapclient, httpresponse) => {
+                                                     #region OnHTTPError
 
-                                                     // 404 Not found
-                                                     // An active RFID with the given UID could not be found.
-                                                     // However, it is possible that the RFID is known, but currently blocked.
+                                                     OnHTTPError: (timestamp, soapclient, httpresponse) => {
 
-                                                     SendHTTPError(timestamp, this, httpresponse);
+                                                         // 404 The connector or the status were not found
+                                                         // 422 The connector could not be identified uniquely
 
-                                                     return new HTTPResponse<SessionPostResponse>(httpresponse,
-                                                                                                  new SessionPostResponse(Request,
-                                                                                                                          ResponseCodes.SystemError,
-                                                                                                                          "Invalid HTTP response!"),
-                                                                                                  IsFault: true);
+                                                         SendHTTPError(timestamp, this, httpresponse);
 
-                                                 },
+                                                         return new HTTPResponse<SessionPostResponse>(
+                                                                    httpresponse,
+                                                                    SessionPostResponse.InvalidResponseFormat(Request,
+                                                                                                              httpresponse),
+                                                                    IsFault: true);
 
-                                                 #endregion
+                                                     },
 
-                                                 #region OnException
+                                                     #endregion
 
-                                                 OnException: (timestamp, sender, exception) => {
+                                                     #region OnException
 
-                                                     SendException(timestamp, sender, exception);
+                                                     OnException: (timestamp, sender, exception) => {
 
-                                                     return HTTPResponse<SessionPostResponse>.ExceptionThrown(new SessionPostResponse(Request,
-                                                                                                                                      ResponseCodes.SystemError,
-                                                                                                                                      "Exception occured!"),
-                                                                                                              Exception: exception);
+                                                         SendException(timestamp, sender, exception);
 
-                                                 }
+                                                         return HTTPResponse<SessionPostResponse>.ExceptionThrown(
 
-                                                 #endregion
+                                                             SessionPostResponse.ClientRequestError(Request,
+                                                                                                    "Exception occured!"),
 
-                                                );
+                                                             Exception: exception);
+
+                                                     }
+
+                                                     #endregion
+
+                                                    );
+
+                }
+
+                if (result == null)
+                    result = HTTPResponse<SessionPostResponse>.ClientError(
+                                 SessionPostResponse.InvalidResponseFormat(
+                                     Request
+                                 )
+                             );
 
             }
+            while (result.HTTPStatusCode == HTTPStatusCode.RequestTimeout &&
+                       TransmissionRetry++ < MaxNumberOfRetries);
 
-
-            if (result == null)
-                result = HTTPResponse<SessionPostResponse>.OK(new SessionPostResponse(Request,
-                                                                                      ResponseCodes.SystemError,
-                                                                                      "Invalid response!"));
 
             #region Send OnRFIDVerifyResponse event
 
@@ -1286,20 +1471,31 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             try
             {
 
-                OnSessionPostResponse?.Invoke(Endtime,
-                                              Request.Timestamp.Value,
-                                              this,
-                                              ClientId,
-                                              Request.EventTrackingId,
-                                              Request.Session,
-                                              Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout,
-                                              result.Content,
-                                              Endtime - StartTime);
+                if (OnSessionPostResponse != null)
+                    await Task.WhenAll(OnSessionPostResponse.GetInvocationList().
+                                       Cast<OnSessionPostResponseDelegate>().
+                                       Select(e => e(Endtime,
+                                                     Request.Timestamp.Value,
+                                                     this,
+                                                     ClientId,
+                                                     Request.EventTrackingId,
+                                                     Request.Session,
+                                                     Request.RequestTimeout ?? RequestTimeout.Value,
+                                                     result.Content,
+                                                     Endtime - StartTime))).
+                                       ConfigureAwait(false);
 
             }
             catch (Exception e)
             {
-                e.Log(nameof(CPOClient) + "." + nameof(OnRFIDVerifyResponse));
+
+                SendException(DateTime.UtcNow,
+                              this,
+                              new OIOI_CPOClientException(this,
+                                                          nameof(OnRFIDVerifyResponse),
+                                                          "Send OnRFIDVerifyResponse event failed!",
+                                                          e));
+
             }
 
             #endregion

@@ -48,11 +48,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="Message">The response message of the corresponding StationPost request.</param>
         /// <param name="CustomData">A read-only dictionary of custom key-value pairs.</param>
         /// <param name="CustomMapper">An optional mapper for customer-specific semi-structured data.</param>
-        public StationPostResponse(StationPostRequest                   Request,
-                                   ResponseCodes                        Code,
-                                   String                               Message,
-                                   IReadOnlyDictionary<String, Object>  CustomData    = null,
-                                   Action<StationPostResponse>          CustomMapper  = null)
+        private StationPostResponse(StationPostRequest                   Request,
+                                    ResponseCodes                        Code,
+                                    String                               Message,
+                                    IReadOnlyDictionary<String, Object>  CustomData    = null,
+                                    Action<StationPostResponse>          CustomMapper  = null)
 
             : base(Request,
                    Code,
@@ -168,8 +168,21 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 => new StationPostResponse(Request,
                                            ResponseCodes.Success,
-                                           Message ?? "Success.",
+                                           Message ?? "Success",
                                            CustomData);
+
+
+        public static StationPostResponse
+
+            ClientRequestError(StationPostRequest                   Request,
+                               String                               Message     = null,
+                               IReadOnlyDictionary<String, Object>  CustomData  = null)
+
+                => new StationPostResponse(Request,
+                                           ResponseCodes.ClientRequestError,
+                                           Message ?? "ClientRequestError",
+                                           CustomData);
+
 
         public static StationPostResponse
 

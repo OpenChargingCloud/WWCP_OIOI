@@ -18,6 +18,7 @@
 #region Usings
 
 using System;
+using System.Collections.Generic;
 
 using Newtonsoft.Json.Linq;
 
@@ -33,7 +34,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
     /// <summary>
     /// An OIOI connector (EVSE).
     /// </summary>
-    public class Connector : IEquatable<Connector>
+    public class Connector : ACustomData,
+                             IEquatable<Connector>,
+                             IComparable<Connector>,
+                             IComparable
     {
 
         #region Properties
@@ -41,17 +45,17 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <summary>
         /// The unique identification of the connector.
         /// </summary>
-        public Connector_Id    Id        { get; }
+        public Connector_Id    Id       { get; }
 
         /// <summary>
         /// The type of the connector.
         /// </summary>
-        public ConnectorTypes  Name      { get; }
+        public ConnectorTypes  Name     { get; }
 
         /// <summary>
         /// The maximum charging speed in kW.
         /// </summary>
-        public Single          Speed     { get; }
+        public Single          Speed    { get; }
 
         #endregion
 
@@ -63,9 +67,14 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <param name="Id">The unique identification of the connector.</param>
         /// <param name="Name">The type of the connector.</param>
         /// <param name="Speed">The maximum charging speed in kW.</param>
-        public Connector(Connector_Id    Id,
-                         ConnectorTypes  Name,
-                         Single          Speed)
+        /// <param name="CustomData">An optional dictionary of customer-specific data.</param>
+        public Connector(Connector_Id                         Id,
+                         ConnectorTypes                       Name,
+                         Single                               Speed,
+                         IReadOnlyDictionary<String, Object>  CustomData   = null)
+
+            : base(CustomData)
+
         {
 
             this.Id     = Id;
@@ -87,18 +96,24 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
         #endregion
 
-        #region (static) Parse(ConnectorJSON)
+        #region (static) Parse(ConnectorJSON, CustomConnectorParser = null, OnException = null)
 
         /// <summary>
         /// Parse the given JSON representation of an OIOI connector.
         /// </summary>
         /// <param name="ConnectorJSON">The JSON to parse.</param>
-        public static Connector Parse(JObject ConnectorJSON)
+        /// <param name="CustomConnectorParser">A delegate to parse custom Connector JSON elements.</param>
+        /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
+        public static Connector Parse(JObject                              ConnectorJSON,
+                                      CustomJSONParserDelegate<Connector>  CustomConnectorParser   = null,
+                                      OnExceptionDelegate                  OnException             = null)
         {
 
-            Connector _Connector;
+            if (TryParse(ConnectorJSON,
+                         out Connector _Connector,
+                         CustomConnectorParser,
+                         OnException))
 
-            if (TryParse(ConnectorJSON, out _Connector))
                 return _Connector;
 
             return null;
@@ -107,18 +122,24 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
         #endregion
 
-        #region (static) Parse(ConnectorText)
+        #region (static) Parse(ConnectorText, CustomConnectorParser = null, OnException = null)
 
         /// <summary>
         /// Parse the given text representation of an OIOI connector.
         /// </summary>
         /// <param name="ConnectorText">The text to parse.</param>
-        public static Connector Parse(String ConnectorText)
+        /// <param name="CustomConnectorParser">A delegate to parse custom Connector JSON elements.</param>
+        /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
+        public static Connector Parse(String                               ConnectorText,
+                                      CustomJSONParserDelegate<Connector>  CustomConnectorParser   = null,
+                                      OnExceptionDelegate                  OnException             = null)
         {
 
-            Connector _Connector;
+            if (TryParse(ConnectorText,
+                         out Connector _Connector,
+                         CustomConnectorParser,
+                         OnException))
 
-            if (TryParse(ConnectorText, out _Connector))
                 return _Connector;
 
             return null;
@@ -127,17 +148,19 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
         #endregion
 
-        #region (static) TryParse(ConnectorText, out Connector, OnException = null)
+        #region (static) TryParse(ConnectorText, out Connector, CustomConnectorParser = null, OnException = null)
 
         /// <summary>
         /// Try to parse the given text representation of an OIOI connector.
         /// </summary>
         /// <param name="ConnectorText">The text to parse.</param>
         /// <param name="Connector">The parsed connector.</param>
+        /// <param name="CustomConnectorParser">A delegate to parse custom Connector JSON elements.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static Boolean TryParse(String               ConnectorText,
-                                       out Connector        Connector,
-                                       OnExceptionDelegate  OnException  = null)
+        public static Boolean TryParse(String                               ConnectorText,
+                                       out Connector                        Connector,
+                                       CustomJSONParserDelegate<Connector>  CustomConnectorParser   = null,
+                                       OnExceptionDelegate                  OnException             = null)
         {
 
             try
@@ -145,6 +168,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
                 return TryParse(JObject.Parse(ConnectorText),
                                 out Connector,
+                                CustomConnectorParser,
                                 OnException);
 
             }
@@ -162,17 +186,19 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
         #endregion
 
-        #region (static) TryParse(ConnectorJSON, out Connector, OnException = null)
+        #region (static) TryParse(ConnectorJSON, out Connector, CustomConnectorParser = null, OnException = null)
 
         /// <summary>
         /// Try to parse the given JSON representation of an OIOI connector.
         /// </summary>
         /// <param name="ConnectorJSON">The JSON to parse.</param>
         /// <param name="Connector">The parsed connector.</param>
+        /// <param name="CustomConnectorParser">A delegate to parse custom Connector JSON elements.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static Boolean TryParse(JObject              ConnectorJSON,
-                                       out Connector        Connector,
-                                       OnExceptionDelegate  OnException  = null)
+        public static Boolean TryParse(JObject                              ConnectorJSON,
+                                       out Connector                        Connector,
+                                       CustomJSONParserDelegate<Connector>  CustomConnectorParser   = null,
+                                       OnExceptionDelegate                  OnException             = null)
         {
 
             try
@@ -189,6 +215,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
                                           ConnectorJSON.MapValueOrFail("speed",
                                                                        value => value.Value<Single>(),
                                                                        "Invalid or missing JSON property 'speed'!"));
+
+
+                if (CustomConnectorParser != null)
+                    Connector = CustomConnectorParser(ConnectorJSON,
+                                                      Connector);
 
                 return true;
 
@@ -236,7 +267,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         #region Operator == (Connector1, Connector2)
 
         /// <summary>
-        /// Compares two connectors for equality.
+        /// Compares two connectores for equality.
         /// </summary>
         /// <param name="Connector1">A connector.</param>
         /// <param name="Connector2">Another connector.</param>
@@ -261,7 +292,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         #region Operator != (Connector1, Connector2)
 
         /// <summary>
-        /// Compares two connectors for inequality.
+        /// Compares two connectores for inequality.
         /// </summary>
         /// <param name="Connector1">A connector.</param>
         /// <param name="Connector2">Another connector.</param>
@@ -269,6 +300,116 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         public static Boolean operator != (Connector Connector1, Connector Connector2)
 
             => !(Connector1 == Connector2);
+
+        #endregion
+
+        #region Operator <  (Connector1, Connector2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="Connector1">A connector.</param>
+        /// <param name="Connector2">Another connector.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator < (Connector Connector1, Connector Connector2)
+        {
+
+            if ((Object) Connector1 == null)
+                throw new ArgumentNullException(nameof(Connector1), "The given Connector1 must not be null!");
+
+            return Connector1.CompareTo(Connector2) < 0;
+
+        }
+
+        #endregion
+
+        #region Operator <= (Connector1, Connector2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="Connector1">A connector.</param>
+        /// <param name="Connector2">Another connector.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator <= (Connector Connector1, Connector Connector2)
+            => !(Connector1 > Connector2);
+
+        #endregion
+
+        #region Operator >  (Connector1, Connector2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="Connector1">A connector.</param>
+        /// <param name="Connector2">Another connector.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator > (Connector Connector1, Connector Connector2)
+        {
+
+            if ((Object)Connector1 == null)
+                throw new ArgumentNullException(nameof(Connector1), "The given Connector1 must not be null!");
+
+            return Connector1.CompareTo(Connector2) > 0;
+
+        }
+
+        #endregion
+
+        #region Operator >= (Connector1, Connector2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="Connector1">A connector.</param>
+        /// <param name="Connector2">Another connector.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator >= (Connector Connector1, Connector Connector2)
+            => !(Connector1 < Connector2);
+
+        #endregion
+
+        #endregion
+
+        #region IComparable<Connector> Members
+
+        #region CompareTo(Object)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="Object">An object to compare with.</param>
+        public Int32 CompareTo(Object Object)
+        {
+
+            if (Object == null)
+                throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
+
+            var Connector = Object as Connector;
+            if ((Object)Connector == null)
+                throw new ArgumentException("The given object is not an connector identification!", nameof(Object));
+
+            return CompareTo(Connector);
+
+        }
+
+        #endregion
+
+        #region CompareTo(Connector)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="Connector">An object to compare with.</param>
+        public Int32 CompareTo(Connector Connector)
+        {
+
+            if ((Object) Connector == null)
+                throw new ArgumentNullException(nameof(Connector), "The given connector must not be null!");
+
+            return Id.CompareTo(Connector.Id);
+
+        }
 
         #endregion
 

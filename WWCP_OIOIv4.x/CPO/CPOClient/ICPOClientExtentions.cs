@@ -127,8 +127,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                 EventTracking_Id      EventTrackingId        = null,
                                 TimeSpan?             RequestTimeout         = null)
 
-            => ICPOClient.ConnectorPostStatus(new ConnectorPostStatusRequest(Id,
-                                                                             Status,
+            => ICPOClient.ConnectorPostStatus(new ConnectorPostStatusRequest(new ConnectorStatus(Id,
+                                                                                                 Status),
                                                                              PartnerId ?? ICPOClient.DefaultPartnerId,
 
                                                                              Timestamp,

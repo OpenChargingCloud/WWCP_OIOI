@@ -24,6 +24,7 @@ using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
+using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 
 #endregion
 
@@ -162,6 +163,54 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         }
 
         #endregion
+
+
+        public static SessionPostResponse
+
+            Success(SessionPostRequest                   Request,
+                    String                               Message     = null,
+                    IReadOnlyDictionary<String, Object>  CustomData  = null)
+
+                => new SessionPostResponse(Request,
+                                           ResponseCodes.Success,
+                                           Message ?? "Success",
+                                           CustomData);
+
+
+        public static SessionPostResponse
+
+            ClientRequestError(SessionPostRequest                   Request,
+                               String                               Message     = null,
+                               IReadOnlyDictionary<String, Object>  CustomData  = null)
+
+                => new SessionPostResponse(Request,
+                                           ResponseCodes.ClientRequestError,
+                                           Message ?? "ClientRequestError",
+                                           CustomData);
+
+
+        public static SessionPostResponse
+
+            InvalidRequestFormat(SessionPostRequest                   Request,
+                                 String                               Message,
+                                 IReadOnlyDictionary<String, Object>  CustomData  = null)
+
+                => new SessionPostResponse(Request,
+                                           ResponseCodes.InvalidRequestFormat,
+                                           Message,
+                                           CustomData);
+
+
+        public static SessionPostResponse
+
+            InvalidResponseFormat(SessionPostRequest                   Request,
+                                  HTTPResponse                         JSONResponse  = null,
+                                  IReadOnlyDictionary<String, Object>  CustomData    = null)
+
+                => new SessionPostResponse(Request,
+                                           ResponseCodes.InvalidResponseFormat,
+                                           JSONResponse?.ToString(),
+                                           CustomData);
 
 
         #region Operator overloading

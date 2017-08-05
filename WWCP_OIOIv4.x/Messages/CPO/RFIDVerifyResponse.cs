@@ -23,7 +23,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
-using org.GraphDefined.Vanaheimr.Hermod;
+using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 
 #endregion
 
@@ -162,6 +162,54 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         }
 
         #endregion
+
+
+        public static RFIDVerifyResponse
+
+            Success(RFIDVerifyRequest                    Request,
+                    String                               Message     = null,
+                    IReadOnlyDictionary<String, Object>  CustomData  = null)
+
+                => new RFIDVerifyResponse(Request,
+                                           ResponseCodes.Success,
+                                           Message ?? "Success",
+                                           CustomData);
+
+
+        public static RFIDVerifyResponse
+
+            ClientRequestError(RFIDVerifyRequest                    Request,
+                               String                               Message     = null,
+                               IReadOnlyDictionary<String, Object>  CustomData  = null)
+
+                => new RFIDVerifyResponse(Request,
+                                           ResponseCodes.ClientRequestError,
+                                           Message ?? "ClientRequestError",
+                                           CustomData);
+
+
+        public static RFIDVerifyResponse
+
+            InvalidRequestFormat(RFIDVerifyRequest                    Request,
+                                 String                               Message,
+                                 IReadOnlyDictionary<String, Object>  CustomData  = null)
+
+                => new RFIDVerifyResponse(Request,
+                                           ResponseCodes.InvalidRequestFormat,
+                                           Message,
+                                           CustomData);
+
+
+        public static RFIDVerifyResponse
+
+            InvalidResponseFormat(RFIDVerifyRequest                    Request,
+                                  HTTPResponse                         JSONResponse  = null,
+                                  IReadOnlyDictionary<String, Object>  CustomData    = null)
+
+                => new RFIDVerifyResponse(Request,
+                                           ResponseCodes.InvalidResponseFormat,
+                                           JSONResponse?.ToString(),
+                                           CustomData);
 
 
         #region Operator overloading
