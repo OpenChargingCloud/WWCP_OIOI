@@ -415,8 +415,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  #region Documentation
 
-                                                 
-
                                                  // HTTP Status codes
                                                  //  200 OK             Request was processed successfully
                                                  //  401 Unauthorized   The token, username or identifier type were incorrect
