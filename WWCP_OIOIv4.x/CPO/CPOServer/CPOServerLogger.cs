@@ -30,7 +30,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
     /// <summary>
     /// An OIOI CPO server logger.
     /// </summary>
-    public class CPOServerLogger : HTTPLogger
+    public class CPOServerLogger : HTTPServerLogger
     {
 
         #region Data

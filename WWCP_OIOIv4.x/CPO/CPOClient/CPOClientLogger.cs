@@ -37,7 +37,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <summary>
         /// An OIOI CPO Client (HTTP/JSON client) logger.
         /// </summary>
-        public class CPOClientLogger : HTTPLogger
+        public class CPOClientLogger : HTTPClientLogger
         {
 
             #region Data
@@ -54,7 +54,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             /// <summary>
             /// The attached OIOI CPO Client.
             /// </summary>
-            public CPOClient CPOClient { get; }
+            public ICPOClient  CPOClient   { get; }
 
             #endregion
 
@@ -68,7 +68,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             /// <param name="CPOClient">A OIOI CPO Client.</param>
             /// <param name="Context">A context of this API.</param>
             /// <param name="LogFileCreator">A delegate to create a log file from the given context and log file name.</param>
-            public CPOClientLogger(CPOClient               CPOClient,
+            public CPOClientLogger(ICPOClient              CPOClient,
                                    String                  Context         = DefaultContext,
                                    LogfileCreatorDelegate  LogFileCreator  = null)
 
@@ -109,7 +109,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             /// <param name="LogHTTPError_toHTTPSSE">A delegate to log HTTP errors to a HTTP client sent events source.</param>
             /// 
             /// <param name="LogFileCreator">A delegate to create a log file from the given context and log file name.</param>
-            public CPOClientLogger(CPOClient                   CPOClient,
+            public CPOClientLogger(ICPOClient                  CPOClient,
                                    String                      Context,
 
                                    HTTPRequestLoggerDelegate   LogHTTPRequest_toConsole,
@@ -129,7 +129,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                    LogfileCreatorDelegate      LogFileCreator              = null)
 
-                : base(Context.IsNotNullOrEmpty() ? Context : DefaultContext,
+                : base(CPOClient,
+                       Context.IsNotNullOrEmpty() ? Context : DefaultContext,
 
                        LogHTTPRequest_toConsole,
                        LogHTTPResponse_toConsole,
@@ -152,10 +153,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 #region Initial checks
 
-                if (CPOClient == null)
-                    throw new ArgumentNullException(nameof(CPOClient), "The given CPO Client must not be null!");
-
-                this.CPOClient = CPOClient;
+                this.CPOClient = CPOClient ?? throw new ArgumentNullException(nameof(CPOClient), "The given CPO Client must not be null!");
 
                 #endregion
 

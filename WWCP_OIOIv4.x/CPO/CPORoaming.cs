@@ -47,6 +47,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// </summary>
         public CPOClient        CPOClient         { get; }
 
+        public IPPort RemotePort
+            => CPOClient?.RemotePort;
+
+        public RemoteCertificateValidationCallback RemoteCertificateValidator
+            => CPOClient?.RemoteCertificateValidator;
+
         /// <summary>
         /// The CPO server.
         /// </summary>
@@ -964,6 +970,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         #endregion
 
+        public void Dispose()
+        { }
 
     }
 

@@ -62,6 +62,7 @@
     <Compile Include="EMP\EMPClient\EMPClient.cs" />
     <Compile Include="EMP\EMPClient\EMPClientDelegates.cs" />
     <Compile Include="EMP\EMPClient\EMPClientLogger.cs" />
+    <Compile Include="EMP\EMPClient\IEMPClient.cs" />
     <Compile Include="IO\JSON_IO.cs" />
     <Compile Include="IO\Result.cs" />
     <Compile Include="Messages\ARequest.cs" />

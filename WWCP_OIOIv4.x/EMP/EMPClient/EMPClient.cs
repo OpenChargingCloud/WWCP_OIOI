@@ -42,7 +42,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
     /// <summary>
     /// An OIOI EMP Client.
     /// </summary>
-    public partial class EMPClient : AJSONClient
+    public partial class EMPClient : AJSONClient,
+                                     IEMPClient
     {
 
         #region Data

@@ -80,11 +80,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
     }
 
 
-
     /// <summary>
     /// An OIOI CPO Client.
     /// </summary>
-    public partial class CPOClient : AJSONClient
+    public partial class CPOClient : AJSONClient,
+                                     ICPOClient
     {
 
         #region Data
