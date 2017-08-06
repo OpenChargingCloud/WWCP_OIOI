@@ -71,13 +71,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <param name="OIOIAddress">A address type.</param>
         public static WWCP.Address ToWWCP(this Address OIOIAddress)
 
-            => new WWCP.Address(OIOIAddress.Street,
-                                OIOIAddress.StreetNumber,
-                                null,
-                                OIOIAddress.ZIP,
-                                null,
-                                I18NString.Create(Languages.unknown, OIOIAddress.City),
-                                OIOIAddress.Country);
+            => WWCP.Address.Create(OIOIAddress.Country,
+                                   OIOIAddress.ZIP,
+                                   I18NString.Create(Languages.unknown, OIOIAddress.City),
+                                   OIOIAddress.Street,
+                                   OIOIAddress.StreetNumber);
 
         #endregion
 
