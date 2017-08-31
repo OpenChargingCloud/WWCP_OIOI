@@ -85,7 +85,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                            RoamingNetwork_Id                              RoamingNetworkId,
                                                            UInt64                                         NumberOfStations,
                                                            IEnumerable<Tuple<ChargingStation, Station>>   Stations,
-                                                           IEnumerable<String>                            Warnings,
+                                                           IEnumerable<Warning>                           Warnings,
                                                            TimeSpan?                                      RequestTimeout);
 
 
@@ -116,7 +116,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                    RoamingNetwork_Id                                       RoamingNetworkId,
                                                                    UInt64                                                  NumberOfEVSEDataRecords,
                                                                    IEnumerable<Tuple<EVSEStatusUpdate, ConnectorStatus>>   ConnectorStatus,
-                                                                   IEnumerable<String>                                     Warnings,
+                                                                   IEnumerable<Warning>                                    Warnings,
                                                                    TimeSpan?                                               RequestTimeout);
 
 
