@@ -56,7 +56,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// Maps a WWCP address to an OIOI address.
         /// </summary>
         /// <param name="WWCPAddress">A WWCP address.</param>
-        public static Address ToOIOI(this WWCP.Address WWCPAddress)
+        public static Address ToOIOI(this Vanaheimr.Hermod.Address WWCPAddress)
 
             => new Address(WWCPAddress.Street,
                            WWCPAddress.HouseNumber,
@@ -69,13 +69,13 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// Maps an OIOI address type to a WWCP address type.
         /// </summary>
         /// <param name="OIOIAddress">A address type.</param>
-        public static WWCP.Address ToWWCP(this Address OIOIAddress)
+        public static Vanaheimr.Hermod.Address ToWWCP(this Address OIOIAddress)
 
-            => WWCP.Address.Create(OIOIAddress.Country,
-                                   OIOIAddress.ZIP,
-                                   I18NString.Create(Languages.unknown, OIOIAddress.City),
-                                   OIOIAddress.Street,
-                                   OIOIAddress.StreetNumber);
+            => Vanaheimr.Hermod.Address.Create(OIOIAddress.Country,
+                                               OIOIAddress.ZIP,
+                                               I18NString.Create(Languages.unknown, OIOIAddress.City),
+                                               OIOIAddress.Street,
+                                               OIOIAddress.StreetNumber);
 
         #endregion
 
