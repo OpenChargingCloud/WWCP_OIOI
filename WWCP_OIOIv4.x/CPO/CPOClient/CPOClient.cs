@@ -679,7 +679,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               this,
                               new OIOI_CPOClientException(this,
                                                           nameof(OnStationPostRequest),
-                                                          "Send OnStationPostRequest event failed!",
+                                                          "Sending " + nameof(OnStationPostRequest) + " events failed!",
                                                           e));
 
             }
@@ -795,7 +795,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 }
                 while (result.HTTPStatusCode == HTTPStatusCode.RequestTimeout &&
-                       TransmissionRetry++ < MaxNumberOfRetries);
+                       TransmissionRetry++    < MaxNumberOfRetries);
 
             }
 
@@ -841,7 +841,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               this,
                               new OIOI_CPOClientException(this,
                                                           nameof(OnStationPostResponse),
-                                                          "Send OnStationPostResponse event failed!",
+                                                          "Sending " + nameof(OnStationPostResponse) + " events failed!",
                                                           e));
 
             }
@@ -910,7 +910,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               this,
                               new OIOI_CPOClientException(this,
                                                           nameof(OnConnectorPostStatusRequest),
-                                                          "Send OnConnectorPostStatusRequest event failed!",
+                                                          "Sending " + nameof(OnConnectorPostStatusRequest) + " events failed!",
                                                           e));
 
             }
@@ -1027,7 +1027,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 }
                 while (result.HTTPStatusCode == HTTPStatusCode.RequestTimeout &&
-                       TransmissionRetry++ < MaxNumberOfRetries);
+                       TransmissionRetry++    < MaxNumberOfRetries);
 
             }
 
@@ -1073,7 +1073,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               this,
                               new OIOI_CPOClientException(this,
                                                           nameof(OnConnectorPostStatusResponse),
-                                                          "Send OnConnectorPostStatusResponse event failed!",
+                                                          "Sending " + nameof(OnConnectorPostStatusResponse) + " events failed!",
                                                           e));
 
             }
@@ -1142,7 +1142,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               this,
                               new OIOI_CPOClientException(this,
                                                           nameof(OnRFIDVerifyRequest),
-                                                          "Send OnRFIDVerifyRequest event failed!",
+                                                          "Sending " + nameof(OnRFIDVerifyRequest) + " events failed!",
                                                           e));
 
             }
@@ -1251,7 +1251,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             }
             while (result.HTTPStatusCode == HTTPStatusCode.RequestTimeout &&
-                       TransmissionRetry++ < MaxNumberOfRetries);
+                   TransmissionRetry++    < MaxNumberOfRetries);
 
 
             #region Send OnRFIDVerifyResponse event
@@ -1283,7 +1283,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               this,
                               new OIOI_CPOClientException(this,
                                                           nameof(OnRFIDVerifyResponse),
-                                                          "Send OnRFIDVerifyResponse event failed!",
+                                                          "Sending " + nameof(OnRFIDVerifyResponse) + " events failed!",
                                                           e));
 
             }
@@ -1351,7 +1351,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               this,
                               new OIOI_CPOClientException(this,
                                                           nameof(OnSessionPostRequest),
-                                                          "Send OnSessionPostRequest event failed!",
+                                                          "Sending " + nameof(OnSessionPostRequest) + " events failed!",
                                                           e));
 
             }
@@ -1461,7 +1461,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             }
             while (result.HTTPStatusCode == HTTPStatusCode.RequestTimeout &&
-                       TransmissionRetry++ < MaxNumberOfRetries);
+                   TransmissionRetry++    < MaxNumberOfRetries);
 
 
             #region Send OnRFIDVerifyResponse event
@@ -1493,7 +1493,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               this,
                               new OIOI_CPOClientException(this,
                                                           nameof(OnRFIDVerifyResponse),
-                                                          "Send OnRFIDVerifyResponse event failed!",
+                                                          "Sending " + nameof(OnRFIDVerifyResponse) + " events failed!",
                                                           e));
 
             }

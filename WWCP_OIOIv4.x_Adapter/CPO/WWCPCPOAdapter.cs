@@ -606,7 +606,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="ConnectorStatus2JSON">A delegate to process the JSON representation of an OIOI connector status, e.g. before uploading it.</param>
         /// <param name="Session2JSON">A delegate to process the JSON representation of an OIOI session, e.g. before uploading it.</param>
         /// 
-        /// <param name="IncludeChargingStation">Only include the charging stations matching the given delegate.</param>
+        /// <param name="IncludeChargingStations">Only include the charging stations matching the given delegate.</param>
         /// 
         /// <param name="ServiceCheckEvery">The service check intervall.</param>
         /// <param name="StatusCheckEvery">The status check intervall.</param>
@@ -615,29 +615,30 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="DisablePushStatus">This service can be disabled, e.g. for debugging reasons.</param>
         /// <param name="DisableAuthentication">This service can be disabled, e.g. for debugging reasons.</param>
         /// <param name="DisableSendChargeDetailRecords">This service can be disabled, e.g. for debugging reasons.</param>
-        public WWCPCPOAdapter(CSORoamingProvider_Id                           Id,
-                              I18NString                                      Name,
-                              RoamingNetwork                                  RoamingNetwork,
+        public WWCPCPOAdapter(CSORoamingProvider_Id                            Id,
+                              I18NString                                       Name,
+                              RoamingNetwork                                   RoamingNetwork,
 
-                              CPORoaming                                      CPORoaming,
-                              CustomOperatorIdMapperDelegate                  CustomOperatorIdMapper                   = null,
-                              CustomEVSEIdMapperDelegate                      CustomEVSEIdMapper                       = null,
-                              ChargingStation2StationDelegate                 ChargingStation2Station                  = null,
-                              EVSEStatusUpdate2ConnectorStatusUpdateDelegate  EVSEStatusUpdate2ConnectorStatusUpdate   = null,
-                              ChargeDetailRecord2SessionDelegate              ChargeDetailRecord2Session               = null,
+                              CPORoaming                                       CPORoaming,
+                              CustomOperatorIdMapperDelegate                   CustomOperatorIdMapper                   = null,
+                              CustomEVSEIdMapperDelegate                       CustomEVSEIdMapper                       = null,
+                              ChargingStation2StationDelegate                  ChargingStation2Station                  = null,
+                              EVSEStatusUpdate2ConnectorStatusUpdateDelegate   EVSEStatusUpdate2ConnectorStatusUpdate   = null,
+                              ChargeDetailRecord2SessionDelegate               ChargeDetailRecord2Session               = null,
 
-                              Station2JSONDelegate                            Station2JSON                             = null,
-                              ConnectorStatus2JSONDelegate                    ConnectorStatus2JSON                     = null,
-                              Session2JSONDelegate                            Session2JSON                             = null,
+                              Station2JSONDelegate                             Station2JSON                             = null,
+                              ConnectorStatus2JSONDelegate                     ConnectorStatus2JSON                     = null,
+                              Session2JSONDelegate                             Session2JSON                             = null,
 
-                              IncludeChargingStationDelegate                  IncludeChargingStation                   = null,
-                              TimeSpan?                                       ServiceCheckEvery                        = null,
-                              TimeSpan?                                       StatusCheckEvery                         = null,
+                              IncludeChargingStationDelegate                   IncludeChargingStations                  = null,
 
-                              Boolean                                         DisablePushData                          = false,
-                              Boolean                                         DisablePushStatus                        = false,
-                              Boolean                                         DisableAuthentication                    = false,
-                              Boolean                                         DisableSendChargeDetailRecords           = false)
+                              TimeSpan?                                        ServiceCheckEvery                        = null,
+                              TimeSpan?                                        StatusCheckEvery                         = null,
+
+                              Boolean                                          DisablePushData                          = false,
+                              Boolean                                          DisablePushStatus                        = false,
+                              Boolean                                          DisableAuthentication                    = false,
+                              Boolean                                          DisableSendChargeDetailRecords           = false)
 
             : base(Id,
                    RoamingNetwork)
@@ -655,46 +656,46 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             #endregion
 
             this.Name = Name;
-            this._ISendData                                 = this as ISendData;
-            this._ISendStatus                               = this as ISendStatus;
+            this._ISendData                                        = this as ISendData;
+            this._ISendStatus                                      = this as ISendStatus;
 
-            this.CPORoaming                                       = CPORoaming;
-            this._CustomOperatorIdMapper                          = CustomOperatorIdMapper;
-            this._CustomEVSEIdMapper                              = CustomEVSEIdMapper;
-            this._ChargingStation2Station                         = ChargingStation2Station;
-            this._EVSEStatusUpdate2ConnectorStatusUpdateDelegate  = EVSEStatusUpdate2ConnectorStatusUpdate;
-            this._ChargeDetailRecord2Session                      = ChargeDetailRecord2Session;
-            this._Station2JSON                                    = Station2JSON;
-            this._ConnectorStatus2JSON                            = ConnectorStatus2JSON;
-            this._Session2JSON                                    = Session2JSON;
+            this.CPORoaming                                        = CPORoaming;
+            this._CustomOperatorIdMapper                           = CustomOperatorIdMapper;
+            this._CustomEVSEIdMapper                               = CustomEVSEIdMapper;
+            this._ChargingStation2Station                          = ChargingStation2Station;
+            this._EVSEStatusUpdate2ConnectorStatusUpdateDelegate   = EVSEStatusUpdate2ConnectorStatusUpdate;
+            this._ChargeDetailRecord2Session                       = ChargeDetailRecord2Session;
+            this._Station2JSON                                     = Station2JSON;
+            this._ConnectorStatus2JSON                             = ConnectorStatus2JSON;
+            this._Session2JSON                                     = Session2JSON;
 
-            this._IncludeChargingStations                         = IncludeChargingStation;
+            this._IncludeChargingStations                          = IncludeChargingStations;
 
-            this._ServiceCheckEvery                               = (UInt32) (ServiceCheckEvery.HasValue
-                                                                                 ? ServiceCheckEvery.Value. TotalMilliseconds
-                                                                                 : DefaultServiceCheckEvery.TotalMilliseconds);
+            this._ServiceCheckEvery                                = (UInt32) (ServiceCheckEvery.HasValue
+                                                                                  ? ServiceCheckEvery.Value. TotalMilliseconds
+                                                                                  : DefaultServiceCheckEvery.TotalMilliseconds);
 
-            this.ServiceCheckLock                                 = new Object();
-            this.ServiceCheckTimer                                = new Timer(ServiceCheck, null, 0, _ServiceCheckEvery);
+            this.ServiceCheckLock                                  = new Object();
+            this.ServiceCheckTimer                                 = new Timer(ServiceCheck, null, 0, _ServiceCheckEvery);
 
-            this._StatusCheckEvery                                = (UInt32) (StatusCheckEvery.HasValue
-                                                                                 ? StatusCheckEvery.Value.  TotalMilliseconds
-                                                                                 : DefaultStatusCheckEvery. TotalMilliseconds);
+            this._StatusCheckEvery                                 = (UInt32) (StatusCheckEvery.HasValue
+                                                                                  ? StatusCheckEvery.Value.  TotalMilliseconds
+                                                                                  : DefaultStatusCheckEvery. TotalMilliseconds);
 
-            this.StatusCheckLock                                  = new Object();
-            this.StatusCheckTimer                                 = new Timer(StatusCheck, null, 0, _StatusCheckEvery);
+            this.StatusCheckLock                                   = new Object();
+            this.StatusCheckTimer                                  = new Timer(StatusCheck, null, 0, _StatusCheckEvery);
 
-            this.DisablePushData                                  = DisablePushData;
-            this.DisablePushStatus                                = DisablePushStatus;
-            this.DisableAuthentication                            = DisableAuthentication;
-            this.DisableSendChargeDetailRecords                   = DisableSendChargeDetailRecords;
+            this.DisablePushData                                   = DisablePushData;
+            this.DisablePushStatus                                 = DisablePushStatus;
+            this.DisableAuthentication                             = DisableAuthentication;
+            this.DisableSendChargeDetailRecords                    = DisableSendChargeDetailRecords;
 
-            this.ChargingStationsToAddQueue                       = new HashSet<ChargingStation>();
-            this.ChargingStationsToUpdateQueue                    = new HashSet<ChargingStation>();
-            this.ChargingStationsToRemoveQueue                    = new HashSet<ChargingStation>();
-            this.EVSEStatusUpdatesQueue                           = new List<EVSEStatusUpdate>();
-            this.EVSEStatusUpdatesDelayedQueue                    = new List<EVSEStatusUpdate>();
-            this.ChargeDetailRecordsQueue                         = new List<ChargeDetailRecord>();
+            this.ChargingStationsToAddQueue                        = new HashSet<ChargingStation>();
+            this.ChargingStationsToUpdateQueue                     = new HashSet<ChargingStation>();
+            this.ChargingStationsToRemoveQueue                     = new HashSet<ChargingStation>();
+            this.EVSEStatusUpdatesQueue                            = new List<EVSEStatusUpdate>();
+            this.EVSEStatusUpdatesDelayedQueue                     = new List<EVSEStatusUpdate>();
+            this.ChargeDetailRecordsQueue                          = new List<ChargeDetailRecord>();
 
 
             // Link events...
@@ -954,34 +955,40 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="DisablePushStatus">This service can be disabled, e.g. for debugging reasons.</param>
         /// <param name="DisableAuthentication">This service can be disabled, e.g. for debugging reasons.</param>
         /// <param name="DisableSendChargeDetailRecords">This service can be disabled, e.g. for debugging reasons.</param>
-        public WWCPCPOAdapter(CSORoamingProvider_Id                           Id,
-                              I18NString                                      Name,
-                              RoamingNetwork                                  RoamingNetwork,
+        public WWCPCPOAdapter(CSORoamingProvider_Id                            Id,
+                              I18NString                                       Name,
+                              RoamingNetwork                                   RoamingNetwork,
 
-                              CPOClient                                       CPOClient,
-                              CPOServer                                       CPOServer,
-                              String                                          ServerLoggingContext                     = CPOServerLogger.DefaultContext,
-                              LogfileCreatorDelegate                          LogFileCreator                           = null,
+                              CPOClient                                        CPOClient,
+                              CPOServer                                        CPOServer,
+                              String                                           ServerLoggingContext                     = CPOServerLogger.DefaultContext,
+                              LogfileCreatorDelegate                           LogFileCreator                           = null,
 
-                              CustomOperatorIdMapperDelegate                  CustomOperatorIdMapper                   = null,
-                              CustomEVSEIdMapperDelegate                      CustomEVSEIdMapper                       = null,
-                              ChargingStation2StationDelegate                 ChargingStation2Station                  = null,
-                              EVSEStatusUpdate2ConnectorStatusUpdateDelegate  EVSEStatusUpdate2ConnectorStatusUpdate   = null,
-                              ChargeDetailRecord2SessionDelegate              ChargeDetailRecord2Session               = null,
+                              CustomOperatorIdMapperDelegate                   CustomOperatorIdMapper                   = null,
+                              CustomEVSEIdMapperDelegate                       CustomEVSEIdMapper                       = null,
+                              ChargingStation2StationDelegate                  ChargingStation2Station                  = null,
+                              EVSEStatusUpdate2ConnectorStatusUpdateDelegate   EVSEStatusUpdate2ConnectorStatusUpdate   = null,
+                              ChargeDetailRecord2SessionDelegate               ChargeDetailRecord2Session               = null,
 
-                              Station2JSONDelegate                            Station2JSON                             = null,
-                              ConnectorStatus2JSONDelegate                    ConnectorStatus2JSON                     = null,
-                              Session2JSONDelegate                            Session2JSON                             = null,
+                              Station2JSONDelegate                             Station2JSON                             = null,
+                              ConnectorStatus2JSONDelegate                     ConnectorStatus2JSON                     = null,
+                              Session2JSONDelegate                             Session2JSON                             = null,
 
-                              IncludeChargingStationDelegate                  IncludeChargingStations                  = null,
+                              IncludeChargingStationDelegate                   IncludeChargingStations                  = null,
 
-                              TimeSpan?                                       ServiceCheckEvery                        = null,
-                              TimeSpan?                                       StatusCheckEvery                         = null,
+                              IncludeStationDelegate                           IncludeStation                           = null,
+                              IncludeStationIdDelegate                         IncludeStationId                         = null,
+                              IncludeConnectorIdDelegate                       IncludeConnectorId                       = null,
+                              IncludeConnectorStatusTypesDelegate              IncludeConnectorStatusType               = null,
+                              IncludeConnectorStatusDelegate                   IncludeConnectorStatus                   = null,
 
-                              Boolean                                         DisablePushData                          = false,
-                              Boolean                                         DisablePushStatus                        = false,
-                              Boolean                                         DisableAuthentication                    = false,
-                              Boolean                                         DisableSendChargeDetailRecords           = false)
+                              TimeSpan?                                        ServiceCheckEvery                        = null,
+                              TimeSpan?                                        StatusCheckEvery                         = null,
+
+                              Boolean                                          DisablePushData                          = false,
+                              Boolean                                          DisablePushStatus                        = false,
+                              Boolean                                          DisableAuthentication                    = false,
+                              Boolean                                          DisableSendChargeDetailRecords           = false)
 
             : this(Id,
                    Name,
@@ -1078,6 +1085,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               String                                          RemoteHTTPVirtualHost                    = null,
                               String                                          URIPrefix                                = CPOClient.DefaultURIPrefix,
                               String                                          HTTPUserAgent                            = CPOClient.DefaultHTTPUserAgent,
+
+                              IncludeChargingStationDelegate                  IncludeChargingStations                  = null,
+
                               IncludeStationDelegate                          IncludeStation                           = null,
                               IncludeStationIdDelegate                        IncludeStationId                         = null,
                               IncludeConnectorIdDelegate                      IncludeConnectorId                       = null,
@@ -1110,7 +1120,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               ConnectorStatus2JSONDelegate                    ConnectorStatus2JSON                     = null,
                               Session2JSONDelegate                            Session2JSON                             = null,
 
-                              IncludeChargingStationDelegate                  IncludeChargingStations                  = null,
+                              //IncludeChargingStationDelegate                  IncludeChargingStations                  = null,
 
                               TimeSpan?                                       ServiceCheckEvery                        = null,
                               TimeSpan?                                       StatusCheckEvery                         = null,
@@ -1137,6 +1147,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                   RemoteHTTPVirtualHost,
                                   URIPrefix,
                                   HTTPUserAgent,
+
                                   IncludeStation,
                                   IncludeStationId,
                                   IncludeConnectorId,
