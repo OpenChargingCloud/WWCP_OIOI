@@ -442,6 +442,48 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         #endregion
 
 
+        #region AddCustomData(Key, Value)
+
+        public Station AddCustomData(String Key, Object Value)
+        {
+
+            var nc = new Dictionary<String, Object>();
+
+            if (CustomData.Count > 0)
+                CustomData.ForEach(kvp => nc.Add(kvp.Key, kvp.Value));
+
+            if (Key.IsNeitherNullNorEmpty())
+                nc.Add(Key, Value);
+
+            return new Station(Id,
+                               Name,
+                               Latitude,
+                               Longitude,
+                               Address,
+                               Contact,
+                               CPOId,
+                               OpeningTime.IsOpen24Hours,
+                               Connectors,
+                               Description,
+                               OpeningTime,
+                               Notes,
+                               IsReservable,
+                               FloorLevel,
+                               IsFreeCharge,
+                               TotalParking,
+                               IsGreenPowerAvailable,
+                               IsPlugInCharge,
+                               IsRoofed,
+                               IsPrivate,
+                               Deleted,
+
+                               nc);
+
+        }
+
+        #endregion
+
+
         #region Operator overloading
 
         #region Operator == (Station1, Station2)

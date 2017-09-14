@@ -28,31 +28,45 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
     /// A delegate for filtering charging stations.
     /// </summary>
     /// <param name="Station">A charging station.</param>
-    public delegate Boolean IncludeStationDelegate             (Station               Station);
+    public delegate Boolean IncludeStationDelegate                  (Station               Station);
 
     /// <summary>
     /// A delegate for filtering charging stations identifications.
     /// </summary>
     /// <param name="StationId">A charging station identification.</param>
-    public delegate Boolean IncludeStationIdDelegate           (Station_Id            StationId);
+    public delegate Boolean IncludeStationIdDelegate                (Station_Id            StationId);
 
 
     /// <summary>
     /// A delegate for filtering connector status.
     /// </summary>
     /// <param name="ConnectorId">A connector identification.</param>
-    public delegate Boolean IncludeConnectorIdDelegate         (Connector_Id          ConnectorId);
+    public delegate Boolean IncludeConnectorIdDelegate              (Connector_Id          ConnectorId);
 
     /// <summary>
     /// A delegate for filtering connector status types.
     /// </summary>
     /// <param name="ConnectorStatusTypes">A connector status types.</param>
-    public delegate Boolean IncludeConnectorStatusTypesDelegate(ConnectorStatusTypes  ConnectorStatusTypes);
+    public delegate Boolean IncludeConnectorStatusTypesDelegate     (ConnectorStatusTypes  ConnectorStatusTypes);
 
     /// <summary>
     /// A delegate for filtering connector status.
     /// </summary>
     /// <param name="ConnectorStatus">A connector status.</param>
-    public delegate Boolean IncludeConnectorStatusDelegate     (ConnectorStatus       ConnectorStatus);
+    public delegate Boolean IncludeConnectorStatusDelegate          (ConnectorStatus       ConnectorStatus);
+
+
+
+    /// <summary>
+    /// A delegate for selecting an OIOI partner identification based on the station.
+    /// </summary>
+    /// <param name="Station">A station.</param>
+    public delegate Partner_Id PartnerIdForStationDelegate          (Station               Station);
+
+    /// <summary>
+    /// A delegate for selecting an OIOI partner identification based on the connector status.
+    /// </summary>
+    /// <param name="ConnectorStatus">A connector status.</param>
+    public delegate Partner_Id PartnerIdForConnectorStatusDelegate  (ConnectorStatus       ConnectorStatus);
 
 }

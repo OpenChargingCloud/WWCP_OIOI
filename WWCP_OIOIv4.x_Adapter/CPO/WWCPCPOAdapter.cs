@@ -49,9 +49,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         #region Data
 
-        private        readonly  ISendData                                  _ISendData;
+        private        readonly  ISendData                                        _ISendData;
 
-        private        readonly  ISendStatus                                _ISendStatus;
+        private        readonly  ISendStatus                                      _ISendStatus;
 
         private        readonly  CustomOperatorIdMapperDelegate                   _CustomOperatorIdMapper;
 
@@ -1077,7 +1077,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                               String                                          RemoteHostname,
                               APIKey                                          APIKey,
-                              Partner_Id                                      DefaultPartnerId,
+                              PartnerIdForStationDelegate                     StationPartnerIdSelector,
+                              PartnerIdForConnectorStatusDelegate                   ConnectorStatusPartnerIdSelector,
                               IPPort                                          RemoteTCPPort                            = null,
                               RemoteCertificateValidationCallback             RemoteCertificateValidator               = null,
                               LocalCertificateSelectionCallback               LocalCertificateSelector                 = null,
@@ -1139,7 +1140,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                    new CPORoaming(Id.ToString(),
                                   RemoteHostname,
                                   APIKey,
-                                  DefaultPartnerId,
+                                  StationPartnerIdSelector,
+                                  ConnectorStatusPartnerIdSelector,
                                   RemoteTCPPort,
                                   RemoteCertificateValidator,
                                   LocalCertificateSelector,
@@ -1338,7 +1340,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 var responses = await Task.WhenAll(_Stations.
                                                        Select(station => CPORoaming.StationPost(station.Item2,
-                                                                                                CPOClient.DefaultPartnerId,
+                                                                                                CPOClient.StationPartnerIdSelector(station.Item2),
 
                                                                                                 Timestamp,
                                                                                                 CancellationToken,
@@ -1355,18 +1357,18 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                   {
 
                                       if (response.Content.Code == ResponseCodes.Success)
-                                          return new PushSingleChargingStationDataResult(_Stations[i].Item1,
+                                          return new PushSingleChargingStationDataResult(_Stations[i-1].Item1,
                                                                                          PushSingleDataResultTypes.Success,
                                                                                          new Warning[] { Warning.Create(response.Content.Message) });
 
                                       else
-                                          return new PushSingleChargingStationDataResult(_Stations[i].Item1,
+                                          return new PushSingleChargingStationDataResult(_Stations[i-1].Item1,
                                                                                          PushSingleDataResultTypes.Error,
                                                                                          new Warning[] { Warning.Create(response.Content.Message) });
 
                                   }
                                   else
-                                      return new PushSingleChargingStationDataResult(_Stations[i].Item1,
+                                      return new PushSingleChargingStationDataResult(_Stations[i-1].Item1,
                                                                                      PushSingleDataResultTypes.Error,
                                                                                      new Warning[] {
                                                                                          Warning.Create(response.HTTPStatusCode.ToString())
@@ -1557,7 +1559,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 var responses = await Task.WhenAll(_ConnectorStatus.
                                                        Select(status => CPORoaming.ConnectorPostStatus(status.Item2,
-                                                                                                       CPOClient.DefaultPartnerId,
+                                                                                                       CPOClient.ConnectorStatusPartnerIdSelector(status.Item2),
 
                                                                                                        Timestamp,
                                                                                                        CancellationToken,

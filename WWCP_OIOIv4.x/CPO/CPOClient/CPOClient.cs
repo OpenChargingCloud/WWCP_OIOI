@@ -111,22 +111,27 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <summary>
         /// The URI prefix for all HTTP requests.
         /// </summary>
-        public String           URIPrefix          { get; }
+        public String                               URIPrefix                     { get; }
 
         /// <summary>
         /// The API key for all requests.
         /// </summary>
-        public APIKey           APIKey             { get; }
+        public APIKey                               APIKey                        { get; }
 
         /// <summary>
-        /// The default communication partner identification for all requests.
+        /// A delegate to select a partner identification based on the given charging station.
         /// </summary>
-        public Partner_Id       DefaultPartnerId   { get; }
+        public PartnerIdForStationDelegate          StationPartnerIdSelector      { get; }
+
+        /// <summary>
+        /// A delegate to select a partner identification based on the given charging connector status.
+        /// </summary>
+        public PartnerIdForConnectorStatusDelegate        ConnectorStatusPartnerIdSelector    { get; }
 
         /// <summary>
         /// The attached OIOI CPO client (HTTP/JSON client) logger.
         /// </summary>
-        public CPOClientLogger  Logger             { get; }
+        public CPOClientLogger                      Logger                        { get; }
 
         #endregion
 
@@ -461,7 +466,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="ClientId">A unqiue identification of this client.</param>
         /// <param name="Hostname">The hostname of the remote OIOI service.</param>
         /// <param name="APIKey">The PlugSurfing API key.</param>
-        /// <param name="DefaultPartnerId">The default communication partner identification.</param>
+        /// <param name="StationPartnerIdSelector">A delegate to select a partner identification based on the given charging station.</param>
+        /// <param name="ConnectorStatusPartnerIdSelector">A delegate to select a partner identification based on the given charging connector status.</param>
         /// <param name="RemotePort">An optional TCP port of the remote OIOI service.</param>
         /// <param name="RemoteCertificateValidator">A delegate to verify the remote TLS certificate.</param>
         /// <param name="ClientCert">The TLS client certificate to use.</param>
@@ -476,7 +482,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         public CPOClient(String                               ClientId,
                          String                               Hostname,
                          APIKey                               APIKey,
-                         Partner_Id                           DefaultPartnerId,
+                         PartnerIdForStationDelegate          StationPartnerIdSelector,
+                         PartnerIdForConnectorStatusDelegate        ConnectorStatusPartnerIdSelector,
                          IPPort                               RemotePort                   = null,
                          RemoteCertificateValidationCallback  RemoteCertificateValidator   = null,
                          LocalCertificateSelectionCallback    LocalCertificateSelector     = null,
@@ -517,11 +524,18 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             if (Hostname.IsNullOrEmpty())
                 throw new ArgumentNullException(nameof(Hostname),  "The given hostname must not be null or empty!");
 
+            if (StationPartnerIdSelector == null)
+                throw new ArgumentNullException(nameof(Hostname), "The given partner identification selector must not be null!");
+
+            if (ConnectorStatusPartnerIdSelector == null)
+                throw new ArgumentNullException(nameof(Hostname), "The given partner identification selector must not be null!");
+
             #endregion
 
             this.APIKey                      = APIKey;
             this.URIPrefix                   = URIPrefix.IsNotNullOrEmpty() ? URIPrefix : DefaultURIPrefix;
-            this.DefaultPartnerId            = DefaultPartnerId;
+            this.StationPartnerIdSelector    = StationPartnerIdSelector;
+            this.ConnectorStatusPartnerIdSelector  = ConnectorStatusPartnerIdSelector;
 
             this.IncludeStation              = IncludeStation             ?? (station             => true);
             this.IncludeStationId            = IncludeStationId           ?? (stationid           => true);
@@ -546,7 +560,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="Logger">A CPO client logger.</param>
         /// <param name="Hostname">The hostname of the remote OIOI service.</param>
         /// <param name="APIKey">The PlugSurfing API key.</param>
-        /// <param name="DefaultPartnerId">The default communication partner identification.</param>
+        /// <param name="StationPartnerIdSelector">A delegate to select a partner identification based on the given charging station.</param>
+        /// <param name="ConnectorStatusPartnerIdSelector">A delegate to select a partner identification based on the given charging connector status.</param>
         /// <param name="RemotePort">An optional TCP port of the remote OIOI service.</param>
         /// <param name="URIPrefix">The default URI prefix.</param>
         /// <param name="RemoteCertificateValidator">A delegate to verify the remote TLS certificate.</param>
@@ -560,7 +575,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                          CPOClientLogger                      Logger,
                          String                               Hostname,
                          APIKey                               APIKey,
-                         Partner_Id                           DefaultPartnerId,
+                         PartnerIdForStationDelegate          StationPartnerIdSelector,
+                         PartnerIdForConnectorStatusDelegate  ConnectorStatusPartnerIdSelector,
                          IPPort                               RemotePort                   = null,
                          String                               URIPrefix                    = null,
                          RemoteCertificateValidationCallback  RemoteCertificateValidator   = null,
@@ -602,11 +618,18 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             if (Hostname.IsNullOrEmpty())
                 throw new ArgumentNullException(nameof(Hostname),  "The given hostname must not be null or empty!");
 
+            if (StationPartnerIdSelector == null)
+                throw new ArgumentNullException(nameof(Hostname),  "The given partner identification selector must not be null!");
+
+            if (ConnectorStatusPartnerIdSelector == null)
+                throw new ArgumentNullException(nameof(Hostname),  "The given partner identification selector must not be null!");
+
             #endregion
 
             this.URIPrefix                   = URIPrefix.IsNotNullOrEmpty() ? URIPrefix : DefaultURIPrefix;
             this.APIKey                      = APIKey;
-            this.DefaultPartnerId            = DefaultPartnerId;
+            this.StationPartnerIdSelector    = StationPartnerIdSelector;
+            this.ConnectorStatusPartnerIdSelector  = ConnectorStatusPartnerIdSelector;
 
             this.IncludeStation              = IncludeStation             ?? (station             => true);
             this.IncludeStationId            = IncludeStationId           ?? (stationid           => true);

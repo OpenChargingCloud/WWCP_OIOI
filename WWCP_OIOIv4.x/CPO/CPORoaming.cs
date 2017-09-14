@@ -92,13 +92,24 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         }
 
         /// <summary>
-        /// The default communication partner identification for all requests.
+        /// A delegate to select a partner identification based on the given charging station.
         /// </summary>
-        public Partner_Id       DefaultPartnerId
+        public PartnerIdForStationDelegate StationPartnerIdSelector
         {
             get
             {
-                return CPOClient.DefaultPartnerId;
+                return CPOClient.StationPartnerIdSelector;
+            }
+        }
+
+        /// <summary>
+        /// A delegate to select a partner identification based on the given connector.
+        /// </summary>
+        public PartnerIdForConnectorStatusDelegate ConnectorStatusPartnerIdSelector
+        {
+            get
+            {
+                return CPOClient.ConnectorStatusPartnerIdSelector;
             }
         }
 
@@ -792,6 +803,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// </summary>
         /// <param name="ClientId">A unqiue identification of this client.</param>
         /// <param name="RemoteHostname">The hostname of the remote OIOI service.</param>
+        /// <param name="APIKey">The PlugSurfing API key.</param>
+        /// <param name="StationPartnerIdSelector">A delegate to select a partner identification based on the given charging station.</param>
+        /// <param name="ConnectorStatusPartnerIdSelector">A delegate to select a partner identification based on the given charging connector status.</param>
+        /// 
         /// <param name="RemoteTCPPort">An optional TCP port of the remote OIOI service.</param>
         /// <param name="RemoteCertificateValidator">A delegate to verify the remote TLS certificate.</param>
         /// <param name="ClientCert">The TLS client certificate to use.</param>
@@ -815,7 +830,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         public CPORoaming(String                               ClientId,
                           String                               RemoteHostname,
                           APIKey                               APIKey,
-                          Partner_Id                           DefaultPartnerId,
+                          PartnerIdForStationDelegate          StationPartnerIdSelector,
+                          PartnerIdForConnectorStatusDelegate        ConnectorStatusPartnerIdSelector,
                           IPPort                               RemoteTCPPort                   = null,
                           RemoteCertificateValidationCallback  RemoteCertificateValidator      = null,
                           LocalCertificateSelectionCallback    LocalCertificateSelector        = null,
@@ -850,7 +866,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             : this(new CPOClient(ClientId,
                                  RemoteHostname,
                                  APIKey,
-                                 DefaultPartnerId,
+                                 StationPartnerIdSelector,
+                                 ConnectorStatusPartnerIdSelector,
                                  RemoteTCPPort,
                                  RemoteCertificateValidator,
                                  LocalCertificateSelector,

@@ -50,6 +50,10 @@ namespace org.GraphDefined.WWCP
         /// <param name="Name">The offical (multi-language) name of the roaming provider.</param>
         /// 
         /// <param name="RemoteHostname">The hostname of the remote OIOI service.</param>
+        /// <param name="APIKey">The PlugSurfing API key.</param>
+        /// <param name="StationPartnerIdSelector">A delegate to select a partner identification based on the given charging station.</param>
+        /// <param name="ConnectorStatusPartnerIdSelector">A delegate to select a partner identification based on the given charging connector.</param>
+        /// 
         /// <param name="RemoteTCPPort">An optional TCP port of the remote OIOI service.</param>
         /// <param name="RemoteCertificateValidator">A delegate to verify the remote TLS certificate.</param>
         /// <param name="ClientCert">The TLS client certificate to use.</param>
@@ -69,7 +73,7 @@ namespace org.GraphDefined.WWCP
         /// <param name="ServerLoggingContext">An optional context for logging server methods.</param>
         /// <param name="LogFileCreator">A delegate to create a log file from the given context and log file name.</param>
         /// 
-        /// <param name="EVSE2Station">A delegate to process an EVSE data record, e.g. before pushing it to the roaming provider.</param>
+        /// <param name="ChargingStation2Station">A delegate to process an EVSE data record, e.g. before pushing it to the roaming provider.</param>
         /// <param name="Station2JSON">A delegate to process the XML representation of an EVSE data record, e.g. before pushing it to the roaming provider.</param>
         /// 
         /// <param name="DefaultOperator">An optional Charging Station Operator, which will be copied into the main OperatorID-section of the OIOI SOAP request.</param>
@@ -94,7 +98,9 @@ namespace org.GraphDefined.WWCP
 
                                               String                                                              RemoteHostname,
                                               OIOIv4_x.APIKey                                                     APIKey,
-                                              OIOIv4_x.Partner_Id                                                 DefaultPartnerId,
+                                              OIOIv4_x.PartnerIdForStationDelegate                                StationPartnerIdSelector,
+                                              OIOIv4_x.PartnerIdForConnectorStatusDelegate                        ConnectorStatusPartnerIdSelector,
+
                                               IPPort                                                              RemoteTCPPort                                   = null,
                                               String                                                              RemoteHTTPVirtualHost                           = null,
                                               RemoteCertificateValidationCallback                                 RemoteCertificateValidator                      = null,
@@ -126,15 +132,15 @@ namespace org.GraphDefined.WWCP
 
                                               OIOIv4_x.CPO.CustomOperatorIdMapperDelegate                         CustomOperatorIdMapper                          = null,
                                               OIOIv4_x.CPO.CustomEVSEIdMapperDelegate                             CustomEVSEIdMapper                              = null,
-                                              OIOIv4_x.CPO.ChargingStation2StationDelegate                        EVSE2Station                                    = null,
+                                              OIOIv4_x.CPO.ChargingStation2StationDelegate                        ChargingStation2Station                         = null,
                                               OIOIv4_x.CPO.EVSEStatusUpdate2ConnectorStatusUpdateDelegate         EVSEStatusUpdate2ConnectorStatusUpdate          = null,
                                               OIOIv4_x.CPO.ChargeDetailRecord2SessionDelegate                     WWCPChargeDetailRecord2OIOIChargeDetailRecord   = null,
                                               OIOIv4_x.CPO.Station2JSONDelegate                                   Station2JSON                                    = null,
                                               OIOIv4_x.CPO.ConnectorStatus2JSONDelegate                           ConnectorStatus2JSON                            = null,
                                               OIOIv4_x.CPO.Session2JSONDelegate                                   ChargeDetailRecord2JSON                         = null,
 
-                                              ChargingStationOperator                                             DefaultOperator                                 = null,
-                                              ChargingStationOperatorNameSelectorDelegate                         OperatorNameSelector                            = null,
+                                            //  ChargingStationOperator                                             DefaultOperator                                 = null,
+                                            //  ChargingStationOperatorNameSelectorDelegate                         OperatorNameSelector                            = null,
                                               IncludeChargingStationDelegate                                      IncludeChargingStations                         = null,
                                               TimeSpan?                                                           ServiceCheckEvery                               = null,
                                               TimeSpan?                                                           StatusCheckEvery                                = null,
@@ -172,7 +178,8 @@ namespace org.GraphDefined.WWCP
 
                                                                      RemoteHostname,
                                                                      APIKey,
-                                                                     DefaultPartnerId,
+                                                                     StationPartnerIdSelector,
+                                                                     ConnectorStatusPartnerIdSelector,
                                                                      RemoteTCPPort,
                                                                      RemoteCertificateValidator,
                                                                      LocalCertificateSelector,
@@ -180,6 +187,9 @@ namespace org.GraphDefined.WWCP
                                                                      RemoteHTTPVirtualHost,
                                                                      URIPrefix,
                                                                      HTTPUserAgent,
+
+                                                                     IncludeChargingStations,
+
                                                                      IncludeStation,
                                                                      IncludeStationId,
                                                                      IncludeConnectorId,
@@ -204,14 +214,12 @@ namespace org.GraphDefined.WWCP
 
                                                                      CustomOperatorIdMapper,
                                                                      CustomEVSEIdMapper,
-                                                                     EVSE2Station,
+                                                                     ChargingStation2Station,
                                                                      EVSEStatusUpdate2ConnectorStatusUpdate,
                                                                      WWCPChargeDetailRecord2OIOIChargeDetailRecord,
                                                                      Station2JSON,
                                                                      ConnectorStatus2JSON,
                                                                      ChargeDetailRecord2JSON,
-
-                                                                     IncludeChargingStations,
 
                                                                      ServiceCheckEvery,
                                                                      StatusCheckEvery,
@@ -249,6 +257,10 @@ namespace org.GraphDefined.WWCP
         /// <param name="ServerURIPrefix">An optional prefix for the HTTP URIs.</param>
         /// 
         /// <param name="RemoteHostname">The hostname of the remote OIOI service.</param>
+        /// <param name="APIKey">The PlugSurfing API key.</param>
+        /// <param name="StationPartnerIdSelector">A delegate to select a partner identification based on the given charging station.</param>
+        /// <param name="ConnectorStatusPartnerIdSelector">A delegate to select a partner identification based on the given charging connector.</param>
+        /// 
         /// <param name="RemoteTCPPort">An optional TCP port of the remote OIOI service.</param>
         /// <param name="RemoteCertificateValidator">A delegate to verify the remote TLS certificate.</param>
         /// <param name="ClientCert">The TLS client certificate to use.</param>
@@ -287,7 +299,8 @@ namespace org.GraphDefined.WWCP
 
                                               String                                                       RemoteHostname,
                                               OIOIv4_x.APIKey                                              APIKey,
-                                              OIOIv4_x.Partner_Id                                          DefaultPartnerId,
+                                              OIOIv4_x.PartnerIdForStationDelegate                         StationPartnerIdSelector,
+                                              OIOIv4_x.PartnerIdForConnectorStatusDelegate                       ConnectorStatusPartnerIdSelector,
 
                                               IPPort                                                       RemoteTCPPort                                   = null,
                                               RemoteCertificateValidationCallback                          RemoteCertificateValidator                      = null,
@@ -316,7 +329,7 @@ namespace org.GraphDefined.WWCP
 
                                               OIOIv4_x.CPO.CustomOperatorIdMapperDelegate                  CustomOperatorIdMapper                          = null,
                                               OIOIv4_x.CPO.CustomEVSEIdMapperDelegate                      CustomEVSEIdMapper                              = null,
-                                              OIOIv4_x.CPO.ChargingStation2StationDelegate                 EVSE2Station                                    = null,
+                                              OIOIv4_x.CPO.ChargingStation2StationDelegate                 ChargingStation2Station                         = null,
                                               OIOIv4_x.CPO.EVSEStatusUpdate2ConnectorStatusUpdateDelegate  EVSEStatusUpdate2ConnectorStatusUpdate          = null,
                                               OIOIv4_x.CPO.ChargeDetailRecord2SessionDelegate              WWCPChargeDetailRecord2OIOIChargeDetailRecord   = null,
                                               OIOIv4_x.CPO.Station2JSONDelegate                            Station2JSON                                    = null,
@@ -366,7 +379,8 @@ namespace org.GraphDefined.WWCP
                                                                      new OIOIv4_x.CPO.CPOClient(Id.ToString(),
                                                                                                 RemoteHostname,
                                                                                                 APIKey,
-                                                                                                DefaultPartnerId,
+                                                                                                StationPartnerIdSelector,
+                                                                                                ConnectorStatusPartnerIdSelector,
                                                                                                 RemoteTCPPort,
                                                                                                 RemoteCertificateValidator,
                                                                                                 LocalCertificateSelector,
@@ -397,7 +411,7 @@ namespace org.GraphDefined.WWCP
 
                                                                      CustomOperatorIdMapper,
                                                                      CustomEVSEIdMapper,
-                                                                     EVSE2Station,
+                                                                     ChargingStation2Station,
                                                                      EVSEStatusUpdate2ConnectorStatusUpdate,
                                                                      WWCPChargeDetailRecord2OIOIChargeDetailRecord,
                                                                      Station2JSON,
@@ -405,6 +419,12 @@ namespace org.GraphDefined.WWCP
                                                                      ChargeDetailRecord2JSON,
 
                                                                      IncludeChargingStations,
+                                                                     IncludeStation,
+                                                                     IncludeStationId,
+                                                                     IncludeConnectorId,
+                                                                     IncludeConnectorStatusType,
+                                                                     IncludeConnectorStatus,
+
                                                                      ServiceCheckEvery,
                                                                      StatusCheckEvery,
 

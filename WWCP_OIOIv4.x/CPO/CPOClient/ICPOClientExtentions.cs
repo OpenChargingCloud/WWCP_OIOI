@@ -60,7 +60,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
 
                 => ICPOClient.StationPost(new StationPostRequest(Station,
-                                                                 PartnerId ?? ICPOClient.DefaultPartnerId,
+                                                                 PartnerId ?? ICPOClient.StationPartnerIdSelector(Station),
 
                                                                  Timestamp,
                                                                  CancellationToken,
@@ -93,7 +93,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                 TimeSpan?            RequestTimeout         = null)
 
             => ICPOClient.ConnectorPostStatus(new ConnectorPostStatusRequest(ConnectorStatus,
-                                                                             PartnerId ?? ICPOClient.DefaultPartnerId,
+                                                                             PartnerId ?? ICPOClient.ConnectorStatusPartnerIdSelector(ConnectorStatus),
 
                                                                              Timestamp,
                                                                              CancellationToken,
@@ -127,14 +127,15 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                 EventTracking_Id      EventTrackingId        = null,
                                 TimeSpan?             RequestTimeout         = null)
 
-            => ICPOClient.ConnectorPostStatus(new ConnectorPostStatusRequest(new ConnectorStatus(Id,
-                                                                                                 Status),
-                                                                             PartnerId ?? ICPOClient.DefaultPartnerId,
 
-                                                                             Timestamp,
-                                                                             CancellationToken,
-                                                                             EventTrackingId,
-                                                                             RequestTimeout ?? ICPOClient.RequestTimeout));
+                => ConnectorPostStatus(ICPOClient,
+                                       new ConnectorStatus(Id, Status),
+                                       PartnerId,
+
+                                       Timestamp,
+                                       CancellationToken,
+                                       EventTrackingId,
+                                       RequestTimeout ?? ICPOClient.RequestTimeout);
 
         #endregion
 
