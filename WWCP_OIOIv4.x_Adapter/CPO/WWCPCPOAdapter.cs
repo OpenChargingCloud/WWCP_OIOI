@@ -1252,7 +1252,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #region Get effective number of stations to upload
 
-            var Warnings = new List<String>();
+            var Warnings = new List<Warning>();
 
             var _Stations = ChargingStations.Where (station => station != null && _IncludeChargingStations(station)).
                                              Select(station => {
@@ -1269,7 +1269,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  catch (Exception e)
                                                  {
                                                      DebugX.  Log(e.Message);
-                                                     Warnings.Add(e.Message);
+                                                     Warnings.Add(Warning.Create(e.Message, station));
                                                  }
 
                                                  return null;
@@ -1357,19 +1357,19 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                       if (response.Content.Code == ResponseCodes.Success)
                                           return new PushSingleChargingStationDataResult(_Stations[i].Item1,
                                                                                          PushSingleDataResultTypes.Success,
-                                                                                         new String[] { response.Content.Message });
+                                                                                         new Warning[] { Warning.Create(response.Content.Message) });
 
                                       else
                                           return new PushSingleChargingStationDataResult(_Stations[i].Item1,
                                                                                          PushSingleDataResultTypes.Error,
-                                                                                         new String[] { response.Content.Message });
+                                                                                         new Warning[] { Warning.Create(response.Content.Message) });
 
                                   }
                                   else
                                       return new PushSingleChargingStationDataResult(_Stations[i].Item1,
                                                                                      PushSingleDataResultTypes.Error,
-                                                                                     new String[] {
-                                                                                         response.HTTPStatusCode.ToString()
+                                                                                     new Warning[] {
+                                                                                         Warning.Create(response.HTTPStatusCode.ToString())
                                                                                      }.Concat(
                                                                                          response.HTTPBody != null
                                                                                              ? Warnings.AddAndReturnList(response.HTTPBody.ToUTF8String())
@@ -1475,7 +1475,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #region Get effective number of connector status to upload
 
-            var Warnings = new List<String>();
+            var Warnings = new List<Warning>();
 
             var _ConnectorStatus = EVSEStatusUpdates.
                                        Where       (evsestatusupdate => _IncludeChargingStations(evsestatusupdate.EVSE.ChargingStation)).
@@ -1503,7 +1503,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                            catch (Exception e)
                                            {
                                                DebugX.  Log(e.Message);
-                                               Warnings.Add(e.Message);
+                                               Warnings.Add(Warning.Create(e.Message, evsestatusupdate));
                                            }
 
                                            return null;
