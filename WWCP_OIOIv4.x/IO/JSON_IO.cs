@@ -147,7 +147,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         {
 
             if (Text.IsNullOrEmpty())
-                return ConnectorTypes.Unspecified;
+                return ConnectorTypes.UNKNOWN;
 
             switch (Text.ToLower())
             {
@@ -211,7 +211,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
 
                 default:
-                    return ConnectorTypes.Unspecified;
+                    return ConnectorTypes.UNKNOWN;
 
             }
 
@@ -282,7 +282,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
 
                 default:
-                    return "Unspecified";
+                    return "UNKNOWN";
 
             }
 

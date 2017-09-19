@@ -34,7 +34,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <summary>
         /// Unknown or unspecified
         /// </summary>
-        Unspecified      = 0,
+        UNKNOWN      = 0,
 
         /// <summary>
         /// Type 2

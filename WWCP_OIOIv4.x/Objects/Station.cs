@@ -447,13 +447,13 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         public Station AddCustomData(String Key, Object Value)
         {
 
-            var nc = new Dictionary<String, Object>();
+            var NewCustomData = new Dictionary<String, Object>();
 
-            if (CustomData.Count > 0)
-                CustomData.ForEach(kvp => nc.Add(kvp.Key, kvp.Value));
+            if (CustomData?.Count > 0)
+                CustomData.ForEach(kvp => NewCustomData.Add(kvp.Key, kvp.Value));
 
             if (Key.IsNeitherNullNorEmpty())
-                nc.Add(Key, Value);
+                NewCustomData.Add(Key, Value);
 
             return new Station(Id,
                                Name,
@@ -477,9 +477,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
                                IsPrivate,
                                Deleted,
 
-                               nc);
+                               NewCustomData);
 
         }
+
+        #endregion
+
+        #region AddCustomData(KeyValuePair)
+
+        public Station AddCustomData(KeyValuePair<String, Object> KeyValuePair)
+            => AddCustomData(KeyValuePair.Key, KeyValuePair.Value);
 
         #endregion
 

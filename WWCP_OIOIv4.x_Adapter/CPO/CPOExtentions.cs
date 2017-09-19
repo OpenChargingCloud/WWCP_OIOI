@@ -419,11 +419,6 @@ namespace org.GraphDefined.WWCP
                                                                      ChargeDetailRecord2JSON,
 
                                                                      IncludeChargingStations,
-                                                                     IncludeStation,
-                                                                     IncludeStationId,
-                                                                     IncludeConnectorId,
-                                                                     IncludeConnectorStatusType,
-                                                                     IncludeConnectorStatus,
 
                                                                      ServiceCheckEvery,
                                                                      StatusCheckEvery,

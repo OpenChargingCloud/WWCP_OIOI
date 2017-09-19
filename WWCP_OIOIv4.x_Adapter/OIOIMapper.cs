@@ -135,9 +135,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
                 //case PlugTypes.IEC60309SinglePhase,
                 //case PlugTypes.IEC60309ThreePhase,
                 //case PlugTypes.CCSCombo1Plug_CableAttached,
-                //case PlugTypes.CCSCombo2Plug_CableAttached,
+
+                //case PlugTypes.CCSCombo2Plug_CableAttached:
+
+
                 default:
-                    return ConnectorTypes.Unspecified;
+                    return ConnectorTypes.UNKNOWN;
 
             }
 

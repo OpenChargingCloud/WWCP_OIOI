@@ -233,7 +233,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                                                Filters != null && Filters["connector-types"] != null && Filters["connector-types"] is JArray
                                                    ? (Filters["connector-types"] as JArray).
                                                           SafeSelect(token => token.Value<String>().AsConnectorType()).
-                                                          Where     (type  => type != ConnectorTypes.Unspecified)
+                                                          Where     (type  => type != ConnectorTypes.UNKNOWN)
                                                    : null
 
                                            );

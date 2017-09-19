@@ -976,12 +976,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                               IncludeChargingStationDelegate                   IncludeChargingStations                  = null,
 
-                              IncludeStationDelegate                           IncludeStation                           = null,
-                              IncludeStationIdDelegate                         IncludeStationId                         = null,
-                              IncludeConnectorIdDelegate                       IncludeConnectorId                       = null,
-                              IncludeConnectorStatusTypesDelegate              IncludeConnectorStatusType               = null,
-                              IncludeConnectorStatusDelegate                   IncludeConnectorStatus                   = null,
-
                               TimeSpan?                                        ServiceCheckEvery                        = null,
                               TimeSpan?                                        StatusCheckEvery                         = null,
 
@@ -1078,7 +1072,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               String                                          RemoteHostname,
                               APIKey                                          APIKey,
                               PartnerIdForStationDelegate                     StationPartnerIdSelector,
-                              PartnerIdForConnectorStatusDelegate                   ConnectorStatusPartnerIdSelector,
+                              PartnerIdForConnectorStatusDelegate             ConnectorStatusPartnerIdSelector,
                               IPPort                                          RemoteTCPPort                            = null,
                               RemoteCertificateValidationCallback             RemoteCertificateValidator               = null,
                               LocalCertificateSelectionCallback               LocalCertificateSelector                 = null,
