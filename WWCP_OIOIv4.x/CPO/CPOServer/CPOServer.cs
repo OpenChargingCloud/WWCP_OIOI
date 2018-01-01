@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2016-2017 GraphDefined GmbH
+ * Copyright (c) 2016-2018 GraphDefined GmbH
  * This file is part of WWCP OIOI <https://github.com/OpenChargingCloud/WWCP_OIOI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -472,14 +472,20 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  #region Parse 'user'...
 
-                                                 if (!JSONObj.ParseMandatory("user", out UserJSON))
+                                                 if (!JSONObj.ParseMandatory("user",
+                                                                             "user",
+                                                                             out UserJSON,
+                                                                             out String ErrorResponse))
                                                      return SendSessionStartResponse(Request,
                                                                                      HTTPStatusCode.BadRequest,
                                                                                      Result.UserTokenNotValid);
 
                                                  #region Parse 'user/identifier-type'
 
-                                                 if (!UserJSON.ParseMandatory("identifier-type", s => s.AsIdentifierTypes(), IdentifierTypes.Unknown, out IdentifierType))
+                                                 if (!UserJSON.ParseMandatory("identifier-type",
+                                                                              s => s.AsIdentifierTypes(),
+                                                                              IdentifierTypes.Unknown,
+                                                                              out IdentifierType))
                                                      return SendSessionStartResponse(Request,
                                                                                      HTTPStatusCode.BadRequest,
                                                                                      Result.Error(145, "JSON property 'user/identifier-type' missing or invalid!"));
@@ -492,7 +498,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  {
 
                                                      case IdentifierTypes.EVCOId:
-                                                         if (!UserJSON.ParseMandatory("identifier", s => eMobilityAccount_Id.Parse(s), out eMobilityAccountId))
+                                                         if (!UserJSON.ParseMandatory("identifier",
+                                                                                      "identifier",
+                                                                                      s => eMobilityAccount_Id.Parse(s),
+                                                                                      out eMobilityAccountId,
+                                                                                      out ErrorResponse))
                                                              return SendSessionStartResponse(Request,
                                                                                              HTTPStatusCode.BadRequest,
                                                                                              Result.Error(145, "JSON property 'user/identifier' missing or invalid!"));
@@ -527,7 +537,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  #region Parse 'connector-id'
 
-                                                 if (!JSONObj.ParseMandatory("connector-id", s => Connector_Id.Parse(s), out ConnectorId))
+                                                 if (!JSONObj.ParseMandatory("connector-id",
+                                                                             "connector-id",
+                                                                             s => Connector_Id.Parse(s),
+                                                                             out ConnectorId,
+                                                                             out ErrorResponse))
                                                      return SendSessionStartResponse(Request,
                                                                                      HTTPStatusCode.BadRequest,
                                                                                      Result.Error(310, "JSON property 'connector-id' missing or invalid!"));
@@ -726,14 +740,20 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  #region Parse 'user'...
 
-                                                 if (!JSONObj.ParseMandatory("user", out UserJSON))
+                                                 if (!JSONObj.ParseMandatory("user",
+                                                                             "user",
+                                                                             out UserJSON,
+                                                                             out String ErrorResponse))
                                                      return SendSessionStopResponse(Request,
                                                                                     HTTPStatusCode.BadRequest,
                                                                                     Result.UserTokenNotValid);
 
                                                  #region Parse 'user/identifier-type'
 
-                                                 if (!UserJSON.ParseMandatory("identifier-type", s => s.AsIdentifierTypes(), IdentifierTypes.Unknown, out IdentifierType))
+                                                 if (!UserJSON.ParseMandatory("identifier-type",
+                                                                              s => s.AsIdentifierTypes(),
+                                                                              IdentifierTypes.Unknown,
+                                                                              out IdentifierType))
                                                      return SendSessionStopResponse(Request,
                                                                                     HTTPStatusCode.BadRequest,
                                                                                     Result.Error(145, "JSON property 'user/identifier-type' missing or invalid!"));
@@ -746,7 +766,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  {
 
                                                      case IdentifierTypes.EVCOId:
-                                                         if (!UserJSON.ParseMandatory("identifier", s => eMobilityAccount_Id.Parse(s), out eMobilityAccountId))
+                                                         if (!UserJSON.ParseMandatory("identifier",
+                                                                                      "identifier",
+                                                                                      s => eMobilityAccount_Id.Parse(s),
+                                                                                      out eMobilityAccountId,
+                                                                                      out ErrorResponse))
                                                              return SendSessionStopResponse(Request,
                                                                                             HTTPStatusCode.BadRequest,
                                                                                             Result.Error(145, "JSON property 'user/identifier' missing or invalid!"));
@@ -767,7 +791,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  {
 
                                                      case IdentifierTypes.Username:
-                                                         if (!UserJSON.ParseOptional("token", out Token))
+                                                         if (!UserJSON.ParseOptional("token",
+                                                                                     out Token))
                                                              return SendSessionStopResponse(Request,
                                                                                             HTTPStatusCode.BadRequest,
                                                                                             Result.Error(145, "JSON property 'user/token' invalid!"));
@@ -781,7 +806,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  #region Parse 'connector-id'
 
-                                                 if (!JSONObj.ParseMandatory("connector-id", s => Connector_Id.Parse(s), out ConnectorId))
+                                                 if (!JSONObj.ParseMandatory("connector-id",
+                                                                             "connector-id",
+                                                                             s => Connector_Id.Parse(s),
+                                                                             out ConnectorId,
+                                                                             out ErrorResponse))
                                                      return SendSessionStopResponse(Request,
                                                                                     HTTPStatusCode.BadRequest,
                                                                                     Result.Error(310, "JSON property 'connector-id' missing or invalid!"));
@@ -790,7 +819,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  #region Parse 'session-id'
 
-                                                 if (!JSONObj.ParseMandatory("session-id", s => Session_Id.Parse(s), out SessionId))
+                                                 if (!JSONObj.ParseMandatory("session-id",
+                                                                             "session-id",
+                                                                             s => Session_Id.Parse(s),
+                                                                             out SessionId,
+                                                                             out ErrorResponse))
                                                      return SendSessionStopResponse(Request,
                                                                                     HTTPStatusCode.BadRequest,
                                                                                     Result.Error(310, "JSON property 'session-id' missing or invalid!"));
