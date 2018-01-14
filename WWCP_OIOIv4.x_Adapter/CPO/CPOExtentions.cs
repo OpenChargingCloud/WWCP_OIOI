@@ -56,7 +56,7 @@ namespace org.GraphDefined.WWCP
         /// 
         /// <param name="RemoteTCPPort">An optional TCP port of the remote OIOI service.</param>
         /// <param name="RemoteCertificateValidator">A delegate to verify the remote TLS certificate.</param>
-        /// <param name="ClientCert">The TLS client certificate to use.</param>
+        /// <param name="ClientCertificateSelector">A delegate to select a TLS client certificate.</param>
         /// <param name="RemoteHTTPVirtualHost">An optional HTTP virtual hostname of the remote OIOI service.</param>
         /// <param name="HTTPUserAgent">An optional HTTP user agent identification string for this HTTP client.</param>
         /// <param name="RequestTimeout">An optional timeout for upstream queries.</param>
@@ -76,8 +76,6 @@ namespace org.GraphDefined.WWCP
         /// <param name="ChargingStation2Station">A delegate to process an EVSE data record, e.g. before pushing it to the roaming provider.</param>
         /// <param name="Station2JSON">A delegate to process the XML representation of an EVSE data record, e.g. before pushing it to the roaming provider.</param>
         /// 
-        /// <param name="DefaultOperator">An optional Charging Station Operator, which will be copied into the main OperatorID-section of the OIOI SOAP request.</param>
-        /// <param name="OperatorNameSelector">An optional delegate to select an Charging Station Operator name, which will be copied into the OperatorName-section of the OIOI SOAP request.</param>
         /// <param name="IncludeChargingStations">Only include the EVSEs matching the given delegate.</param>
         /// <param name="ServiceCheckEvery">The service check intervall.</param>
         /// <param name="StatusCheckEvery">The status check intervall.</param>
@@ -104,8 +102,7 @@ namespace org.GraphDefined.WWCP
                                               IPPort                                                              RemoteTCPPort                                   = null,
                                               String                                                              RemoteHTTPVirtualHost                           = null,
                                               RemoteCertificateValidationCallback                                 RemoteCertificateValidator                      = null,
-                                              LocalCertificateSelectionCallback                                   LocalCertificateSelector                        = null,
-                                              X509Certificate                                                     ClientCert                                      = null,
+                                              LocalCertificateSelectionCallback                                   ClientCertificateSelector                       = null,
                                               String                                                              URIPrefix                                       = OIOIv4_x.CPO.CPOClient.DefaultURIPrefix,
                                               String                                                              HTTPUserAgent                                   = OIOIv4_x.CPO.CPOClient.DefaultHTTPUserAgent,
                                               OIOIv4_x.IncludeStationDelegate                                     IncludeStation                                  = null,
@@ -139,8 +136,6 @@ namespace org.GraphDefined.WWCP
                                               OIOIv4_x.CPO.ConnectorStatus2JSONDelegate                           ConnectorStatus2JSON                            = null,
                                               OIOIv4_x.CPO.Session2JSONDelegate                                   ChargeDetailRecord2JSON                         = null,
 
-                                            //  ChargingStationOperator                                             DefaultOperator                                 = null,
-                                            //  ChargingStationOperatorNameSelectorDelegate                         OperatorNameSelector                            = null,
                                               IncludeChargingStationDelegate                                      IncludeChargingStations                         = null,
                                               TimeSpan?                                                           ServiceCheckEvery                               = null,
                                               TimeSpan?                                                           StatusCheckEvery                                = null,
@@ -182,8 +177,7 @@ namespace org.GraphDefined.WWCP
                                                                      ConnectorStatusPartnerIdSelector,
                                                                      RemoteTCPPort,
                                                                      RemoteCertificateValidator,
-                                                                     LocalCertificateSelector,
-                                                                     ClientCert,
+                                                                     ClientCertificateSelector,
                                                                      RemoteHTTPVirtualHost,
                                                                      URIPrefix,
                                                                      HTTPUserAgent,
@@ -263,7 +257,7 @@ namespace org.GraphDefined.WWCP
         /// 
         /// <param name="RemoteTCPPort">An optional TCP port of the remote OIOI service.</param>
         /// <param name="RemoteCertificateValidator">A delegate to verify the remote TLS certificate.</param>
-        /// <param name="ClientCert">The TLS client certificate to use.</param>
+        /// <param name="ClientCertificateSelector">A delegate to select a TLS client certificate.</param>
         /// <param name="RemoteHTTPVirtualHost">An optional HTTP virtual hostname of the remote OIOI service.</param>
         /// <param name="HTTPUserAgent">An optional HTTP user agent identification string for this HTTP client.</param>
         /// <param name="RequestTimeout">An optional timeout for upstream queries.</param>
@@ -276,8 +270,6 @@ namespace org.GraphDefined.WWCP
         /// <param name="EVSE2EVSEDataRecord">A delegate to process an EVSE data record, e.g. before pushing it to the roaming provider.</param>
         /// <param name="EVSEDataRecord2XML">A delegate to process the XML representation of an EVSE data record, e.g. before pushing it to the roaming provider.</param>
         /// 
-        /// <param name="DefaultOperator">An optional Charging Station Operator, which will be copied into the main OperatorID-section of the OIOI SOAP request.</param>
-        /// <param name="OperatorNameSelector">An optional delegate to select an Charging Station Operator name, which will be copied into the OperatorName-section of the OIOI SOAP request.</param>
         /// <param name="IncludeChargingStations">Only include the EVSEs matching the given delegate.</param>
         /// <param name="ServiceCheckEvery">The service check intervall.</param>
         /// <param name="StatusCheckEvery">The status check intervall.</param>
@@ -300,12 +292,11 @@ namespace org.GraphDefined.WWCP
                                               String                                                       RemoteHostname,
                                               OIOIv4_x.APIKey                                              APIKey,
                                               OIOIv4_x.PartnerIdForStationDelegate                         StationPartnerIdSelector,
-                                              OIOIv4_x.PartnerIdForConnectorStatusDelegate                       ConnectorStatusPartnerIdSelector,
+                                              OIOIv4_x.PartnerIdForConnectorStatusDelegate                 ConnectorStatusPartnerIdSelector,
 
                                               IPPort                                                       RemoteTCPPort                                   = null,
                                               RemoteCertificateValidationCallback                          RemoteCertificateValidator                      = null,
-                                              LocalCertificateSelectionCallback                            LocalCertificateSelector                        = null,
-                                              X509Certificate                                              ClientCert                                      = null,
+                                              LocalCertificateSelectionCallback                            ClientCertificateSelector                       = null,
                                               String                                                       RemoteHTTPVirtualHost                           = null,
                                               String                                                       URIPrefix                                       = OIOIv4_x.CPO.CPOClient.DefaultURIPrefix,
                                               String                                                       HTTPUserAgent                                   = OIOIv4_x.CPO.CPOClient.DefaultHTTPUserAgent,
@@ -383,8 +374,7 @@ namespace org.GraphDefined.WWCP
                                                                                                 ConnectorStatusPartnerIdSelector,
                                                                                                 RemoteTCPPort,
                                                                                                 RemoteCertificateValidator,
-                                                                                                LocalCertificateSelector,
-                                                                                                ClientCert,
+                                                                                                ClientCertificateSelector,
                                                                                                 RemoteHTTPVirtualHost,
                                                                                                 URIPrefix,
                                                                                                 HTTPUserAgent,

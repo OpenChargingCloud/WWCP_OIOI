@@ -331,7 +331,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         /// <param name="APIKey">The PlugSurfing API key.</param>
         /// <param name="RemotePort">An optional TCP port of the remote OIOI service.</param>
         /// <param name="RemoteCertificateValidator">A delegate to verify the remote TLS certificate.</param>
-        /// <param name="ClientCert">The TLS client certificate to use.</param>
+        /// <param name="ClientCertificateSelector">A delegate to select a TLS client certificate.</param>
         /// <param name="HTTPVirtualHost">An optional HTTP virtual hostname of the remote OIOI service.</param>
         /// <param name="HTTPUserAgent">An optional HTTP user agent identification string for this HTTP client.</param>
         /// <param name="URIPrefix">The default URI prefix.</param>
@@ -346,8 +346,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                          String                               APIKey,
                          IPPort                               RemotePort                   = null,
                          RemoteCertificateValidationCallback  RemoteCertificateValidator   = null,
-                         LocalCertificateSelectionCallback    LocalCertificateSelector     = null,
-                         X509Certificate                      ClientCert                   = null,
+                         LocalCertificateSelectionCallback    ClientCertificateSelector    = null,
                          String                               HTTPVirtualHost              = null,
                          String                               URIPrefix                    = null,
                          String                               HTTPUserAgent                = DefaultHTTPUserAgent,
@@ -362,8 +361,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                    Hostname,
                    RemotePort ?? DefaultRemotePort,
                    RemoteCertificateValidator,
-                   LocalCertificateSelector,
-                   ClientCert,
+                   ClientCertificateSelector,
                    HTTPVirtualHost,
                    HTTPUserAgent,
                    RequestTimeout,
@@ -409,7 +407,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         /// <param name="RemotePort">An optional TCP port of the remote OIOI service.</param>
         /// <param name="URIPrefix">The default URI prefix.</param>
         /// <param name="RemoteCertificateValidator">A delegate to verify the remote TLS certificate.</param>
-        /// <param name="ClientCert">The TLS client certificate to use.</param>
+        /// <param name="ClientCertificateSelector">A delegate to select a TLS client certificate.</param>
         /// <param name="HTTPVirtualHost">An optional HTTP virtual hostname of the remote OIOI service.</param>
         /// <param name="HTTPUserAgent">An optional HTTP user agent identification string for this HTTP client.</param>
         /// <param name="DefaultPartnerId">The default communication partner identification.</param>
@@ -423,8 +421,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                          IPPort                               RemotePort                   = null,
                          String                               URIPrefix                    = null,
                          RemoteCertificateValidationCallback  RemoteCertificateValidator   = null,
-                         LocalCertificateSelectionCallback    LocalCertificateSelector     = null,
-                         X509Certificate                      ClientCert                   = null,
+                         LocalCertificateSelectionCallback    ClientCertificateSelector    = null,
                          String                               HTTPVirtualHost              = null,
                          String                               HTTPUserAgent                = DefaultHTTPUserAgent,
                          Partner_Id?                          DefaultPartnerId             = null,
@@ -436,8 +433,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                    Hostname,
                    RemotePort ?? DefaultRemotePort,
                    RemoteCertificateValidator,
-                   LocalCertificateSelector,
-                   ClientCert,
+                   ClientCertificateSelector,
                    HTTPVirtualHost,
                    HTTPUserAgent,
                    RequestTimeout,
@@ -518,7 +514,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                                                    Request.MinLong,
                                                    Request.MaxLong,
                                                    Request.IncludeConnectorTypes,
-                                                   Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout);
+                                                   Request.RequestTimeout ?? RequestTimeout);
 
             }
             catch (Exception e)
@@ -535,7 +531,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                                                     URIPrefix,
                                                     RemoteCertificateValidator,
                                                     ClientCertificateSelector,
-                                                    ClientCert,
                                                     UserAgent,
                                                     RequestTimeout,
                                                     DNSClient))
@@ -548,7 +543,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                                                  ResponseLogDelegate:  OnStationGetSurfaceHTTPResponse,
                                                  CancellationToken:    Request.CancellationToken,
                                                  EventTrackingId:      Request.EventTrackingId,
-                                                 RequestTimeout:       Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout,
+                                                 RequestTimeout:       Request.RequestTimeout ?? RequestTimeout,
 
                                                  #region OnSuccess
 
@@ -639,7 +634,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                                                     Request.MinLong,
                                                     Request.MaxLong,
                                                     Request.IncludeConnectorTypes,
-                                                    Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout,
+                                                    Request.RequestTimeout ?? RequestTimeout,
                                                     result.Content,
                                                     Endtime - StartTime);
 
@@ -699,7 +694,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                                               Request.User,
                                               Request.ConnectorId,
                                               Request.PaymentReference,
-                                              Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout);
+                                              Request.RequestTimeout ?? RequestTimeout);
 
             }
             catch (Exception e)
@@ -716,7 +711,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                                                     URIPrefix,
                                                     RemoteCertificateValidator,
                                                     ClientCertificateSelector,
-                                                    ClientCert,
                                                     UserAgent,
                                                     RequestTimeout,
                                                     DNSClient))
@@ -729,7 +723,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                                                  ResponseLogDelegate:  OnSessionStartHTTPResponse,
                                                  CancellationToken:    Request.CancellationToken,
                                                  EventTrackingId:      Request.EventTrackingId,
-                                                 RequestTimeout:       Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout,
+                                                 RequestTimeout:       Request.RequestTimeout ?? RequestTimeout,
 
                                                  #region OnSuccess
 
@@ -814,7 +808,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                                                Request.User,
                                                Request.ConnectorId,
                                                Request.PaymentReference,
-                                               Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout,
+                                               Request.RequestTimeout ?? RequestTimeout,
                                                result.Content,
                                                Endtime - StartTime);
 
@@ -874,7 +868,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                                              Request.User,
                                              Request.ConnectorId,
                                              Request.SessionId,
-                                             Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout);
+                                             Request.RequestTimeout ?? RequestTimeout);
 
             }
             catch (Exception e)
@@ -891,7 +885,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                                                     URIPrefix,
                                                     RemoteCertificateValidator,
                                                     ClientCertificateSelector,
-                                                    ClientCert,
                                                     UserAgent,
                                                     RequestTimeout,
                                                     DNSClient))
@@ -904,7 +897,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                                                  ResponseLogDelegate:  OnSessionStopHTTPResponse,
                                                  CancellationToken:    Request.CancellationToken,
                                                  EventTrackingId:      Request.EventTrackingId,
-                                                 RequestTimeout:       Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout,
+                                                 RequestTimeout:       Request.RequestTimeout ?? RequestTimeout,
 
                                                  #region OnSuccess
 
@@ -989,7 +982,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                                               Request.User,
                                               Request.ConnectorId,
                                               Request.SessionId,
-                                              Request.RequestTimeout.HasValue ? Request.RequestTimeout : RequestTimeout,
+                                              Request.RequestTimeout ?? RequestTimeout,
                                               result.Content,
                                               Endtime - StartTime);
 
