@@ -132,7 +132,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                    UInt64                                                  NumberOfEVSEDataRecords,
                                                                    IEnumerable<Tuple<EVSEStatusUpdate, ConnectorStatus>>   ConnectorStatus,
                                                                    TimeSpan?                                               RequestTimeout,
-                                                                   PushStatusResult                                        Result,
+                                                                   PushEVSEStatusResult                                    Result,
                                                                    TimeSpan                                                Runtime);
 
 }
