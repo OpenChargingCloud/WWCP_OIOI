@@ -326,7 +326,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                                   ToUTF8Bytes(),
                                                          Connection      = "close"
 
-                                                     }.AsImmutable());
+                                                     }.AsImmutable);
 
                                              },
                                              AllowReplacement: URIReplacement.Allow);
@@ -990,7 +990,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                    ContentType     = HTTPContentType.JSON_UTF8,
                    Content         = OIOIResult.ToUTF8Bytes(),
                    Connection      = "close"
-               }.AsImmutable();
+               };
 
         #endregion
 
