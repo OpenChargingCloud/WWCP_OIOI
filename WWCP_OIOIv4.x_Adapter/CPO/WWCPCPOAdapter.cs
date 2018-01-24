@@ -30,6 +30,8 @@ using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Hermod.DNS;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
+using System.Security.Authentication;
+using org.GraphDefined.Vanaheimr.Hermod.Sockets.TCP;
 
 #endregion
 
@@ -1093,7 +1095,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               String                                          ServerName                               = CPOServer.DefaultHTTPServerName,
                               HTTPHostname                                    HTTPHostname                             = null,
                               IPPort                                          ServerTCPPort                            = null,
-                              X509Certificate2                                X509Certificate                          = null,
+                              ServerCertificateSelectorDelegate               ServerCertificateSelector                = null,
+                              RemoteCertificateValidationCallback             RemoteClientCertificateValidator         = null,
+                              LocalCertificateSelectionCallback               RemoteClientCertificateSelector          = null,
+                              SslProtocols                                    ServerAllowedTLSProtocols                = SslProtocols.Tls12,
                               String                                          ServerURIPrefix                          = CPOServer.DefaultURIPrefix,
                               ServerAPIKeyValidatorDelegate                   ServerAPIKeyValidator                    = null,
                               HTTPContentType                                 ServerContentType                        = null,
@@ -1153,7 +1158,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                   ServerName,
                                   HTTPHostname,
                                   ServerTCPPort,
-                                  X509Certificate,
+                                  ServerCertificateSelector,
+                                  RemoteClientCertificateValidator,
+                                  RemoteClientCertificateSelector,
+                                  ServerAllowedTLSProtocols,
                                   ServerURIPrefix,
                                   ServerAPIKeyValidator,
                                   ServerContentType,

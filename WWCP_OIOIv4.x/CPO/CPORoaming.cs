@@ -27,6 +27,8 @@ using Newtonsoft.Json.Linq;
 using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Hermod.DNS;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
+using org.GraphDefined.Vanaheimr.Hermod.Sockets.TCP;
+using System.Security.Authentication;
 
 #endregion
 
@@ -817,6 +819,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// 
         /// <param name="ServerName">An optional identification string for the HTTP server.</param>
         /// <param name="ServerTCPPort">An optional TCP port for the HTTP server.</param>
+        /// <param name="ServerCertificateSelector">An optional delegate to select a SSL/TLS server certificate.</param>
+        /// <param name="RemoteClientCertificateValidator">An optional delegate to verify the SSL/TLS client certificate used for authentication.</param>
+        /// <param name="RemoteClientCertificateSelector">An optional delegate to select the SSL/TLS client certificate used for authentication.</param>
+        /// <param name="ServerAllowedTLSProtocols">The SSL/TLS protocol(s) allowed for this connection.</param>
         /// <param name="ServerURIPrefix">An optional prefix for the HTTP URIs.</param>
         /// <param name="ServerContentType">An optional HTTP content type to use.</param>
         /// <param name="ServerRegisterHTTPRootService">Register HTTP root services for sending a notice to clients connecting via HTML or plain text.</param>
@@ -831,36 +837,39 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                           String                               RemoteHostname,
                           APIKey                               APIKey,
                           PartnerIdForStationDelegate          StationPartnerIdSelector,
-                          PartnerIdForConnectorStatusDelegate        ConnectorStatusPartnerIdSelector,
-                          IPPort                               RemoteTCPPort                   = null,
-                          RemoteCertificateValidationCallback  RemoteCertificateValidator      = null,
-                          LocalCertificateSelectionCallback    ClientCertificateSelector       = null,
-                          String                               RemoteHTTPVirtualHost           = null,
-                          String                               URIPrefix                       = CPOClient.DefaultURIPrefix,
-                          String                               HTTPUserAgent                   = CPOClient.DefaultHTTPUserAgent,
-                          IncludeStationDelegate               IncludeStation                  = null,
-                          IncludeStationIdDelegate             IncludeStationId                = null,
-                          IncludeConnectorIdDelegate           IncludeConnectorId              = null,
-                          IncludeConnectorStatusTypesDelegate  IncludeConnectorStatusType      = null,
-                          IncludeConnectorStatusDelegate       IncludeConnectorStatus          = null,
-                          TimeSpan?                            RequestTimeout                  = null,
-                          Byte?                                MaxNumberOfRetries              = CPOClient.DefaultMaxNumberOfRetries,
+                          PartnerIdForConnectorStatusDelegate  ConnectorStatusPartnerIdSelector,
+                          IPPort                               RemoteTCPPort                      = null,
+                          RemoteCertificateValidationCallback  RemoteCertificateValidator         = null,
+                          LocalCertificateSelectionCallback    ClientCertificateSelector          = null,
+                          String                               RemoteHTTPVirtualHost              = null,
+                          String                               URIPrefix                          = CPOClient.DefaultURIPrefix,
+                          String                               HTTPUserAgent                      = CPOClient.DefaultHTTPUserAgent,
+                          IncludeStationDelegate               IncludeStation                     = null,
+                          IncludeStationIdDelegate             IncludeStationId                   = null,
+                          IncludeConnectorIdDelegate           IncludeConnectorId                 = null,
+                          IncludeConnectorStatusTypesDelegate  IncludeConnectorStatusType         = null,
+                          IncludeConnectorStatusDelegate       IncludeConnectorStatus             = null,
+                          TimeSpan?                            RequestTimeout                     = null,
+                          Byte?                                MaxNumberOfRetries                 = CPOClient.DefaultMaxNumberOfRetries,
 
-                          String                               ServerName                      = CPOServer.DefaultHTTPServerName,
-                          HTTPHostname                         HTTPHostname                    = null,
-                          IPPort                               ServerTCPPort                   = null,
-                          X509Certificate2                     X509Certificate                 = null,
-                          String                               ServerURIPrefix                 = CPOServer.DefaultURIPrefix,
-                          ServerAPIKeyValidatorDelegate        ServerAPIKeyValidator           = null,
-                          HTTPContentType                      ServerContentType               = null,
-                          Boolean                              ServerRegisterHTTPRootService   = true,
-                          Boolean                              ServerAutoStart                 = false,
+                          String                               ServerName                         = CPOServer.DefaultHTTPServerName,
+                          HTTPHostname                         HTTPHostname                       = null,
+                          IPPort                               ServerTCPPort                      = null,
+                          ServerCertificateSelectorDelegate    ServerCertificateSelector          = null,
+                          RemoteCertificateValidationCallback  RemoteClientCertificateValidator   = null,
+                          LocalCertificateSelectionCallback    RemoteClientCertificateSelector    = null,
+                          SslProtocols                         ServerAllowedTLSProtocols          = SslProtocols.Tls12,
+                          String                               ServerURIPrefix                    = CPOServer.DefaultURIPrefix,
+                          ServerAPIKeyValidatorDelegate        ServerAPIKeyValidator              = null,
+                          HTTPContentType                      ServerContentType                  = null,
+                          Boolean                              ServerRegisterHTTPRootService      = true,
+                          Boolean                              ServerAutoStart                    = false,
 
-                          String                               ClientLoggingContext            = CPOClient.CPOClientLogger.DefaultContext,
-                          String                               ServerLoggingContext            = CPOServerLogger.DefaultContext,
-                          LogfileCreatorDelegate               LogFileCreator                  = null,
+                          String                               ClientLoggingContext               = CPOClient.CPOClientLogger.DefaultContext,
+                          String                               ServerLoggingContext               = CPOServerLogger.DefaultContext,
+                          LogfileCreatorDelegate               LogFileCreator                     = null,
 
-                          DNSClient                            DNSClient                       = null)
+                          DNSClient                            DNSClient                          = null)
 
             : this(new CPOClient(ClientId,
                                  RemoteHostname,
@@ -887,7 +896,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                    new CPOServer(ServerName,
                                  HTTPHostname,
                                  ServerTCPPort,
-                                 X509Certificate,
+                                 ServerCertificateSelector,
+                                 RemoteClientCertificateValidator,
+                                 RemoteClientCertificateSelector,
+                                 ServerAllowedTLSProtocols,
                                  ServerURIPrefix,
                                  ServerAPIKeyValidator,
                                  ServerContentType,

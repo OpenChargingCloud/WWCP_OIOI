@@ -33,6 +33,8 @@ using org.GraphDefined.Vanaheimr.Hermod.DNS;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets.TCP;
+using System.Security.Authentication;
+using System.Net.Security;
 
 #endregion
 
@@ -242,10 +244,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="DefaultServerName">The default HTTP servername, used whenever no HTTP Host-header had been given.</param>
         /// <param name="HTTPHostname">An optional HTTP hostname.</param>
         /// <param name="HTTPPort">An IP port to listen on.</param>
-        /// <param name="X509Certificate">Use this X509 certificate for TLS.</param>
+        /// <param name="ServerCertificateSelector">An optional delegate to select a SSL/TLS server certificate.</param>
+        /// <param name="ClientCertificateValidator">An optional delegate to verify the SSL/TLS client certificate used for authentication.</param>
+        /// <param name="ClientCertificateSelector">An optional delegate to select the SSL/TLS client certificate used for authentication.</param>
+        /// <param name="AllowedTLSProtocols">The SSL/TLS protocol(s) allowed for this connection.</param>
         /// <param name="URIPrefix">The URI prefix for all incoming HTTP requests.</param>
         /// 
-        /// <param name="CallingAssemblies">A list of calling assemblies to include e.g. into embedded ressources lookups.</param>
         /// <param name="ServerThreadName">The optional name of the TCP server thread.</param>
         /// <param name="ServerThreadPriority">The optional priority of the TCP server thread.</param>
         /// <param name="ServerThreadIsBackground">Whether the TCP server thread is a background thread or not.</param>
@@ -258,33 +262,37 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// 
         /// <param name="DNSClient">The DNS client to use.</param>
         /// <param name="Autostart">Start the HTTP server thread immediately (default: no).</param>
-        public CPOServer(String                            DefaultServerName                  = DefaultHTTPServerName,
-                         HTTPHostname                      HTTPHostname                       = null,
-                         IPPort                            HTTPPort                           = null,
-                         X509Certificate2                  X509Certificate                    = null,
-                         String                            URIPrefix                          = DefaultURIPrefix,
-                         ServerAPIKeyValidatorDelegate     APIKeyValidator                    = null,
-                         HTTPContentType                   ServerContentType                  = null,
-                         Boolean                           ServerRegisterHTTPRootService      = true,
+        public CPOServer(String                               DefaultServerName                  = DefaultHTTPServerName,
+                         HTTPHostname                         HTTPHostname                       = null,
+                         IPPort                               HTTPPort                           = null,
+                         ServerCertificateSelectorDelegate    ServerCertificateSelector          = null,
+                         RemoteCertificateValidationCallback  ClientCertificateValidator         = null,
+                         LocalCertificateSelectionCallback    ClientCertificateSelector          = null,
+                         SslProtocols                         AllowedTLSProtocols                = SslProtocols.Tls12,
+                         String                               URIPrefix                          = DefaultURIPrefix,
+                         ServerAPIKeyValidatorDelegate        APIKeyValidator                    = null,
+                         HTTPContentType                      ServerContentType                  = null,
+                         Boolean                              ServerRegisterHTTPRootService      = true,
 
-                         IEnumerable<Assembly>             CallingAssemblies                  = null,
-                         String                            ServerThreadName                   = null,
-                         ThreadPriority                    ServerThreadPriority               = ThreadPriority.AboveNormal,
-                         Boolean                           ServerThreadIsBackground           = true,
-                         ConnectionIdBuilder               ConnectionIdBuilder                = null,
-                         ConnectionThreadsNameBuilder      ConnectionThreadsNameBuilder       = null,
-                         ConnectionThreadsPriorityBuilder  ConnectionThreadsPriorityBuilder   = null,
-                         Boolean                           ConnectionThreadsAreBackground     = true,
-                         TimeSpan?                         ConnectionTimeout                  = null,
-                         UInt32                            MaxClientConnections               = TCPServer.__DefaultMaxClientConnections,
+                         String                               ServerThreadName                   = null,
+                         ThreadPriority                       ServerThreadPriority               = ThreadPriority.AboveNormal,
+                         Boolean                              ServerThreadIsBackground           = true,
+                         ConnectionIdBuilder                  ConnectionIdBuilder                = null,
+                         ConnectionThreadsNameBuilder         ConnectionThreadsNameBuilder       = null,
+                         ConnectionThreadsPriorityBuilder     ConnectionThreadsPriorityBuilder   = null,
+                         Boolean                              ConnectionThreadsAreBackground     = true,
+                         TimeSpan?                            ConnectionTimeout                  = null,
+                         UInt32                               MaxClientConnections               = TCPServer.__DefaultMaxClientConnections,
 
-                         DNSClient                         DNSClient                          = null,
-                         Boolean                           Autostart                          = false)
+                         DNSClient                            DNSClient                          = null,
+                         Boolean                              Autostart                          = false)
 
             : this(new HTTPServer<RoamingNetworks, RoamingNetwork>(HTTPPort ?? DefaultHTTPServerPort,
                                                                    DefaultServerName.IsNotNullOrEmpty() ? DefaultServerName : DefaultHTTPServerName,
-                                                                   X509Certificate,
-                                                                   CallingAssemblies,
+                                                                   ServerCertificateSelector,
+                                                                   ClientCertificateValidator,
+                                                                   ClientCertificateSelector,
+                                                                   AllowedTLSProtocols,
                                                                    ServerThreadName,
                                                                    ServerThreadPriority,
                                                                    ServerThreadIsBackground,

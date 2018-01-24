@@ -25,6 +25,8 @@ using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Hermod.DNS;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
+using org.GraphDefined.Vanaheimr.Hermod.Sockets.TCP;
+using System.Security.Authentication;
 
 #endregion
 
@@ -116,7 +118,10 @@ namespace org.GraphDefined.WWCP
                                               String                                                              ServerName                                      = OIOIv4_x.CPO.CPOServer.DefaultHTTPServerName,
                                               HTTPHostname                                                        HTTPHostname                                    = null,
                                               IPPort                                                              ServerTCPPort                                   = null,
-                                              X509Certificate2                                                    X509Certificate                                 = null,
+                                              ServerCertificateSelectorDelegate                                   ServerCertificateSelector                       = null,
+                                              RemoteCertificateValidationCallback                                 RemoteClientCertificateValidator                = null,
+                                              LocalCertificateSelectionCallback                                   RemoteClientCertificateSelector                 = null,
+                                              SslProtocols                                                        ServerAllowedTLSProtocols                       = SslProtocols.Tls12,
                                               String                                                              ServerURIPrefix                                 = OIOIv4_x.CPO.CPOServer.DefaultURIPrefix,
                                               OIOIv4_x.CPO.ServerAPIKeyValidatorDelegate                          ServerAPIKeyValidator                           = null,
                                               HTTPContentType                                                     ServerContentType                               = null,
@@ -195,7 +200,10 @@ namespace org.GraphDefined.WWCP
                                                                      ServerName,
                                                                      HTTPHostname,
                                                                      ServerTCPPort,
-                                                                     X509Certificate,
+                                                                     ServerCertificateSelector,
+                                                                     RemoteClientCertificateValidator,
+                                                                     RemoteClientCertificateSelector,
+                                                                     ServerAllowedTLSProtocols,
                                                                      ServerURIPrefix,
                                                                      ServerAPIKeyValidator,
                                                                      ServerContentType,
