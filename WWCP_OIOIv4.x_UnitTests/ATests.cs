@@ -111,7 +111,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.UnitTests
         public void Cleanup()
         {
 
-            var      URI                = "/RNs";
+            var      URI                = HTTPURI.Parse("/RNs");
             String[] RoamingNetworkIds  = null;
 
             using (var HTTPTask  = _HTTPClient.Execute(client => client.GET(URI,
@@ -145,7 +145,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.UnitTests
             foreach (var RoamingNetworkId in RoamingNetworkIds)
             {
 
-                URI = "/RNs/" + RoamingNetworkId;
+                URI = HTTPURI.Parse("/RNs/" + RoamingNetworkId);
 
                 using (var HTTPTask  = _HTTPClient.Execute(client => client.DELETE(URI,
                                                                                    requestbuilder => {

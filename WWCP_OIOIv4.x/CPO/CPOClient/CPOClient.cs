@@ -92,17 +92,17 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <summary>
         /// The default HTTP user agent string.
         /// </summary>
-        public new const           String  DefaultHTTPUserAgent  = "GraphDefined OIOI " + Version.Number + " CPO Client";
+        public new const           String   DefaultHTTPUserAgent  = "GraphDefined OIOI " + Version.Number + " CPO Client";
 
         /// <summary>
         /// The default remote TCP port to connect to.
         /// </summary>
-        public new static readonly IPPort  DefaultRemotePort     = IPPort.Parse(443);
+        public new static readonly IPPort   DefaultRemotePort     = IPPort.Parse(443);
 
         /// <summary>
         /// The default HTTP client URI prefix.
         /// </summary>
-        public const               String  DefaultURIPrefix      = "/api/v4/request";
+        public     static readonly HTTPURI  DefaultURIPrefix      = HTTPURI.Parse("/api/v4/request");
 
         #endregion
 
@@ -111,7 +111,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <summary>
         /// The URI prefix for all HTTP requests.
         /// </summary>
-        public String                               URIPrefix                     { get; }
+        public HTTPURI                              URIPrefix                     { get; }
 
         /// <summary>
         /// The API key for all requests.
@@ -484,11 +484,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                          APIKey                               APIKey,
                          PartnerIdForStationDelegate          StationPartnerIdSelector,
                          PartnerIdForConnectorStatusDelegate  ConnectorStatusPartnerIdSelector,
-                         IPPort                               RemotePort                   = null,
+                         IPPort?                              RemotePort                   = null,
                          RemoteCertificateValidationCallback  RemoteCertificateValidator   = null,
                          LocalCertificateSelectionCallback    ClientCertificateSelector    = null,
                          String                               HTTPVirtualHost              = null,
-                         String                               URIPrefix                    = null,
+                         HTTPURI?                             URIPrefix                    = null,
                          String                               HTTPUserAgent                = DefaultHTTPUserAgent,
                          IncludeStationDelegate               IncludeStation               = null,
                          IncludeStationIdDelegate             IncludeStationId             = null,
@@ -531,7 +531,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             #endregion
 
             this.APIKey                      = APIKey;
-            this.URIPrefix                   = URIPrefix.IsNotNullOrEmpty() ? URIPrefix : DefaultURIPrefix;
+            this.URIPrefix                   = URIPrefix ?? DefaultURIPrefix;
             this.StationPartnerIdSelector    = StationPartnerIdSelector;
             this.ConnectorStatusPartnerIdSelector  = ConnectorStatusPartnerIdSelector;
 
@@ -575,8 +575,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                          APIKey                               APIKey,
                          PartnerIdForStationDelegate          StationPartnerIdSelector,
                          PartnerIdForConnectorStatusDelegate  ConnectorStatusPartnerIdSelector,
-                         IPPort                               RemotePort                   = null,
-                         String                               URIPrefix                    = null,
+                         IPPort?                              RemotePort                   = null,
+                         HTTPURI?                             URIPrefix                    = null,
                          RemoteCertificateValidationCallback  RemoteCertificateValidator   = null,
                          LocalCertificateSelectionCallback    ClientCertificateSelector    = null,
                          String                               HTTPVirtualHost              = null,
@@ -622,7 +622,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            this.URIPrefix                   = URIPrefix.IsNotNullOrEmpty() ? URIPrefix : DefaultURIPrefix;
+            this.URIPrefix                   = URIPrefix ?? DefaultURIPrefix;
             this.APIKey                      = APIKey;
             this.StationPartnerIdSelector    = StationPartnerIdSelector;
             this.ConnectorStatusPartnerIdSelector  = ConnectorStatusPartnerIdSelector;
@@ -717,9 +717,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 {
 
                     using (var _JSONClient = new JSONClient(Hostname,
-                                                            RemotePort,
                                                             HTTPVirtualHost,
                                                             URIPrefix,
+                                                            HTTPPort,
                                                             RemoteCertificateValidator,
                                                             ClientCertificateSelector,
                                                             UserAgent,
@@ -948,9 +948,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 {
 
                     using (var _JSONClient = new JSONClient(Hostname,
-                                                            RemotePort,
                                                             HTTPVirtualHost,
                                                             URIPrefix,
+                                                            HTTPPort,
                                                             RemoteCertificateValidator,
                                                             ClientCertificateSelector,
                                                             UserAgent,
@@ -1171,9 +1171,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             {
 
                 using (var _JSONClient = new JSONClient(Hostname,
-                                                        RemotePort,
                                                         HTTPVirtualHost,
                                                         URIPrefix,
+                                                        HTTPPort,
                                                         RemoteCertificateValidator,
                                                         ClientCertificateSelector,
                                                         UserAgent,
@@ -1379,9 +1379,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             {
 
                 using (var _JSONClient = new JSONClient(Hostname,
-                                                        RemotePort,
                                                         HTTPVirtualHost,
                                                         URIPrefix,
+                                                        HTTPPort,
                                                         RemoteCertificateValidator,
                                                         ClientCertificateSelector,
                                                         UserAgent,

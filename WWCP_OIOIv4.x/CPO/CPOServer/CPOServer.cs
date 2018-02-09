@@ -57,12 +57,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <summary>
         /// The default HTTP server TCP port.
         /// </summary>
-        public new static readonly IPPort    DefaultHTTPServerPort  = new IPPort(4567);
+        public new static readonly IPPort    DefaultHTTPServerPort  = IPPort.Parse(4567);
 
         /// <summary>
         /// The default HTTP server URI prefix.
         /// </summary>
-        public const               String    DefaultURIPrefix       = "/api/v4/request";
+        public     static readonly HTTPURI   DefaultURIPrefix       = HTTPURI.Parse("/api/v4/request");
 
         /// <summary>
         /// The default query timeout.
@@ -89,7 +89,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <summary>
         /// The common URI prefix of the HTTP server of this API for all incoming requests.
         /// </summary>
-        public String                                       URIPrefix           { get; }
+        public HTTPURI                                      URIPrefix           { get; }
 
         /// <summary>
         /// The HTTP content type used by this service.
@@ -263,13 +263,13 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="DNSClient">The DNS client to use.</param>
         /// <param name="Autostart">Start the HTTP server thread immediately (default: no).</param>
         public CPOServer(String                               DefaultServerName                  = DefaultHTTPServerName,
-                         HTTPHostname                         HTTPHostname                       = null,
-                         IPPort                               HTTPPort                           = null,
+                         HTTPHostname?                        HTTPHostname                       = null,
+                         IPPort?                              HTTPPort                           = null,
                          ServerCertificateSelectorDelegate    ServerCertificateSelector          = null,
                          RemoteCertificateValidationCallback  ClientCertificateValidator         = null,
                          LocalCertificateSelectionCallback    ClientCertificateSelector          = null,
                          SslProtocols                         AllowedTLSProtocols                = SslProtocols.Tls12,
-                         String                               URIPrefix                          = DefaultURIPrefix,
+                         HTTPURI?                             URIPrefix                          = null,
                          ServerAPIKeyValidatorDelegate        APIKeyValidator                    = null,
                          HTTPContentType                      ServerContentType                  = null,
                          Boolean                              ServerRegisterHTTPRootService      = true,
@@ -305,7 +305,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                    DNSClient ?? new DNSClient(),
                                                                    false),
                    HTTPHostname,
-                   URIPrefix,
+                   URIPrefix ?? DefaultURIPrefix,
                    APIKeyValidator,
                    ServerContentType,
                    ServerRegisterHTTPRootService)
@@ -315,11 +315,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             #region / (HTTPRoot)
 
             if (ServerRegisterHTTPRootService &&
-                URIPrefix != "/")
+                URIPrefix.ToString() != "/")
 
-                HTTPServer.AddMethodCallback(HTTPHostname.Any,
+                HTTPServer.AddMethodCallback(HTTPHostname ?? Vanaheimr.Hermod.HTTP.HTTPHostname.Any,
                                              HTTPMethod.GET,
-                                             "/",
+                                             HTTPURI.Parse("/"),
                                              HTTPContentType.TEXT_UTF8,
                                              HTTPDelegate: Request => {
 
@@ -359,26 +359,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="HTTPHostname">An optional HTTP hostname.</param>
         /// <param name="URIPrefix">The URI prefix for all incoming HTTP requests.</param>
         public CPOServer(HTTPServer<RoamingNetworks, RoamingNetwork>  HTTPServer,
-                         HTTPHostname                                 HTTPHostname                    = null,
-                         String                                       URIPrefix                       = DefaultURIPrefix,
+                         HTTPHostname?                                HTTPHostname                    = null,
+                         HTTPURI?                                     URIPrefix                       = null,
                          ServerAPIKeyValidatorDelegate                APIKeyValidator                 = null,
                          HTTPContentType                              ServerContentType               = null,
                          Boolean                                      ServerRegisterHTTPRootService   = true)
         {
 
-            #region Initial checks
-
-            if (HTTPServer == null)
-                throw new ArgumentNullException(nameof(HTTPServer),      "The given HTTP server must not be null!");
-
-            if (!URIPrefix.StartsWith("/", StringComparison.Ordinal))
-                URIPrefix = "/" + URIPrefix;
-
-            #endregion
-
-            this.HTTPServer         = HTTPServer;
-            this.HTTPHostname       = HTTPHostname;
-            this.URIPrefix          = URIPrefix.IsNotNullOrEmpty() ? URIPrefix : DefaultURIPrefix;
+            this.HTTPServer         = HTTPServer   ?? throw new ArgumentNullException(nameof(HTTPServer), "The given HTTP server must not be null!");
+            this.HTTPHostname       = HTTPHostname ?? Vanaheimr.Hermod.HTTP.HTTPHostname.Any;
+            this.URIPrefix          = URIPrefix    ?? DefaultURIPrefix;
             this.APIKeyValidator    = APIKeyValidator;
             this.DNSClient          = HTTPServer.DNSClient;
             this.ServerContentType  = ServerContentType ?? HTTPContentType.JSON_UTF8;
@@ -969,12 +959,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         public static CPOServer
 
             AttachToHTTPAPI(HTTPServer<RoamingNetworks, RoamingNetwork>  HTTPServer,
-                            HTTPHostname                                 HTTPHostname  = null,
-                            String                                       URIPrefix     = DefaultURIPrefix)
+                            HTTPHostname?                                HTTPHostname  = null,
+                            HTTPURI?                                     URIPrefix     = null)
 
             => new CPOServer(HTTPServer,
                              HTTPHostname,
-                             URIPrefix);
+                             URIPrefix ?? DefaultURIPrefix);
 
         #endregion
 

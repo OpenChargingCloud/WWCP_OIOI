@@ -51,17 +51,20 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         /// <summary>
         /// The default HTTP user agent string.
         /// </summary>
-        public new const           String  DefaultHTTPUserAgent  = "GraphDefined OIOI " + Version.Number + " EMP Client";
+        public new const           String      DefaultHTTPUserAgent     = "GraphDefined OIOI " + Version.Number + " EMP Client";
 
         /// <summary>
         /// The default remote TCP port to connect to.
         /// </summary>
-        public new static readonly IPPort  DefaultRemotePort     = IPPort.Parse(443);
+        public new static readonly IPPort      DefaultRemotePort        = IPPort.Parse(443);
 
         /// <summary>
         /// The default HTTP client URI prefix.
         /// </summary>
-        public const               String  DefaultURIPrefix      = "/api/v4/request";
+        public     static readonly HTTPURI     DefaultURIPrefix         = HTTPURI.Parse("/api/v4/request");
+
+
+        public     static readonly Partner_Id  DefaultDefaultPartnerId  = Partner_Id.Parse("1");
 
         #endregion
 
@@ -70,7 +73,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         /// <summary>
         /// The URI prefix for all HTTP requests.
         /// </summary>
-        public String           URIPrefix          { get; }
+        public HTTPURI          URIPrefix          { get; }
 
         /// <summary>
         /// The API key for all requests.
@@ -344,11 +347,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         public EMPClient(String                               ClientId,
                          String                               Hostname,
                          String                               APIKey,
-                         IPPort                               RemotePort                   = null,
+                         IPPort?                              RemotePort                   = null,
                          RemoteCertificateValidationCallback  RemoteCertificateValidator   = null,
                          LocalCertificateSelectionCallback    ClientCertificateSelector    = null,
                          String                               HTTPVirtualHost              = null,
-                         String                               URIPrefix                    = null,
+                         HTTPURI?                             URIPrefix                    = null,
                          String                               HTTPUserAgent                = DefaultHTTPUserAgent,
                          Partner_Id?                          DefaultPartnerId             = null,
                          TimeSpan?                            RequestTimeout               = null,
@@ -384,8 +387,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
             #endregion
 
             this.APIKey            = APIKey;
-            this.URIPrefix         = URIPrefix.IsNotNullOrEmpty() ? URIPrefix : DefaultURIPrefix;
-            this.DefaultPartnerId  = DefaultPartnerId.HasValue ? DefaultPartnerId.Value : Partner_Id.Parse("1");
+            this.URIPrefix         = URIPrefix        ?? DefaultURIPrefix;
+            this.DefaultPartnerId  = DefaultPartnerId ?? DefaultDefaultPartnerId;
 
             this.Logger            = new EMPClientLogger(this,
                                                          LoggingContext,
@@ -418,8 +421,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                          EMPClientLogger                      Logger,
                          String                               Hostname,
                          String                               APIKey,
-                         IPPort                               RemotePort                   = null,
-                         String                               URIPrefix                    = null,
+                         IPPort?                              RemotePort                   = null,
+                         HTTPURI?                             URIPrefix                    = null,
                          RemoteCertificateValidationCallback  RemoteCertificateValidator   = null,
                          LocalCertificateSelectionCallback    ClientCertificateSelector    = null,
                          String                               HTTPVirtualHost              = null,
@@ -460,7 +463,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
             this.Logger            = Logger;
             this.APIKey            = APIKey;
-            this.URIPrefix         = URIPrefix.IsNotNullOrEmpty() ? URIPrefix : DefaultURIPrefix;
+            this.URIPrefix         = URIPrefix ?? DefaultURIPrefix;
             this.DefaultPartnerId  = DefaultPartnerId.HasValue ? DefaultPartnerId.Value : Partner_Id.Parse("1");
 
         }
@@ -526,9 +529,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
 
             using (var _JSONClient = new JSONClient(Hostname,
-                                                    RemotePort,
                                                     HTTPVirtualHost,
                                                     URIPrefix,
+                                                    HTTPPort,
                                                     RemoteCertificateValidator,
                                                     ClientCertificateSelector,
                                                     UserAgent,
@@ -706,9 +709,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
 
             using (var _JSONClient = new JSONClient(Hostname,
-                                                    RemotePort,
                                                     HTTPVirtualHost,
                                                     URIPrefix,
+                                                    HTTPPort,
                                                     RemoteCertificateValidator,
                                                     ClientCertificateSelector,
                                                     UserAgent,
@@ -880,9 +883,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
 
             using (var _JSONClient = new JSONClient(Hostname,
-                                                    RemotePort,
                                                     HTTPVirtualHost,
                                                     URIPrefix,
+                                                    HTTPPort,
                                                     RemoteCertificateValidator,
                                                     ClientCertificateSelector,
                                                     UserAgent,

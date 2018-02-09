@@ -49,8 +49,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// </summary>
         public CPOClient        CPOClient         { get; }
 
-        public IPPort RemotePort
-            => CPOClient?.RemotePort;
+        public IPPort HTTPPort
+            => CPOClient.HTTPPort;
 
         public RemoteCertificateValidationCallback RemoteCertificateValidator
             => CPOClient?.RemoteCertificateValidator;
@@ -838,11 +838,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                           APIKey                               APIKey,
                           PartnerIdForStationDelegate          StationPartnerIdSelector,
                           PartnerIdForConnectorStatusDelegate  ConnectorStatusPartnerIdSelector,
-                          IPPort                               RemoteTCPPort                      = null,
+                          IPPort?                              RemoteTCPPort                      = null,
                           RemoteCertificateValidationCallback  RemoteCertificateValidator         = null,
                           LocalCertificateSelectionCallback    ClientCertificateSelector          = null,
                           String                               RemoteHTTPVirtualHost              = null,
-                          String                               URIPrefix                          = CPOClient.DefaultURIPrefix,
+                          HTTPURI?                             URIPrefix                          = null,
                           String                               HTTPUserAgent                      = CPOClient.DefaultHTTPUserAgent,
                           IncludeStationDelegate               IncludeStation                     = null,
                           IncludeStationIdDelegate             IncludeStationId                   = null,
@@ -853,13 +853,13 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                           Byte?                                MaxNumberOfRetries                 = CPOClient.DefaultMaxNumberOfRetries,
 
                           String                               ServerName                         = CPOServer.DefaultHTTPServerName,
-                          HTTPHostname                         HTTPHostname                       = null,
-                          IPPort                               ServerTCPPort                      = null,
+                          HTTPHostname?                        HTTPHostname                       = null,
+                          IPPort?                              ServerTCPPort                      = null,
                           ServerCertificateSelectorDelegate    ServerCertificateSelector          = null,
                           RemoteCertificateValidationCallback  RemoteClientCertificateValidator   = null,
                           LocalCertificateSelectionCallback    RemoteClientCertificateSelector    = null,
                           SslProtocols                         ServerAllowedTLSProtocols          = SslProtocols.Tls12,
-                          String                               ServerURIPrefix                    = CPOServer.DefaultURIPrefix,
+                          HTTPURI?                             ServerURIPrefix                    = null,
                           ServerAPIKeyValidatorDelegate        ServerAPIKeyValidator              = null,
                           HTTPContentType                      ServerContentType                  = null,
                           Boolean                              ServerRegisterHTTPRootService      = true,
@@ -880,7 +880,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                  RemoteCertificateValidator,
                                  ClientCertificateSelector,
                                  RemoteHTTPVirtualHost,
-                                 URIPrefix,
+                                 URIPrefix ?? CPOClient.DefaultURIPrefix,
                                  HTTPUserAgent,
                                  IncludeStation,
                                  IncludeStationId,
@@ -900,7 +900,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                  RemoteClientCertificateValidator,
                                  RemoteClientCertificateSelector,
                                  ServerAllowedTLSProtocols,
-                                 ServerURIPrefix,
+                                 ServerURIPrefix ?? CPOServer.DefaultURIPrefix,
                                  ServerAPIKeyValidator,
                                  ServerContentType,
                                  ServerRegisterHTTPRootService,
