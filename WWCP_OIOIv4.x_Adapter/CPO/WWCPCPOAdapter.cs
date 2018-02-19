@@ -1543,8 +1543,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             #endregion
 
 
-            DateTime          Endtime;
-            TimeSpan          Runtime;
+            DateTime              Endtime;
+            TimeSpan              Runtime;
             PushEVSEStatusResult  result;
 
             if (DisablePushStatus)
