@@ -68,7 +68,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         #endregion
 
 
-        #region Parse(Text)
+        #region Parse   (Text)
 
         /// <summary>
         /// Parse the given string as a payment reference.
@@ -77,10 +77,28 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         public static PaymentReference Parse(String Text)
         {
 
-            if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of a payment reference must not be null or empty!");
+            if (TryParse(Text, out PaymentReference _PaymentReference))
+                return _PaymentReference;
 
-            return new PaymentReference(Text.Trim());
+            throw new ArgumentException("The given text '" + Text + "' is not a valid text representation of a payment reference!", nameof(Text));
+
+        }
+
+        #endregion
+
+        #region TryParse(Text)
+
+        /// <summary>
+        /// Try to parse the given string as a payment reference.
+        /// </summary>
+        /// <param name="Text">A text representation of a payment reference.</param>
+        public static PaymentReference? TryParse(String Text)
+        {
+
+            if (TryParse(Text, out PaymentReference _PaymentReference))
+                return _PaymentReference;
+
+            return null;
 
         }
 

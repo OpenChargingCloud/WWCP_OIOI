@@ -393,11 +393,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                          HTTPContentType.JSON_UTF8,
                                          HTTPDelegate: async Request => {
 
-                                             HTTPResponse  HTTPResponse;
-                                             JSONWrapper   JSONBody;
                                              JObject       JSONObj;
 
-                                             if (!Request.TryParseJObjectRequestBody(out JSONBody, out HTTPResponse))
+                                             if (!Request.TryParseJObjectRequestBody(out JObject JSONBody, out HTTPResponse HTTPResponse))
                                                  return CreateResponse(Request,
                                                                        HTTPStatusCode.BadRequest,
                                                                        Result.Error(140, "Invalid HTTP body!"));
@@ -405,6 +403,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                              #region Parse Session Start [Optional]
 
                                              if (JSONBody.ParseOptional("session-start",
+                                                                        "session-start",
                                                                         HTTPServer.DefaultServerName,
                                                                         out JSONObj,
                                                                         Request,
@@ -548,10 +547,21 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  #region Parse 'payment-reference'    [optional]
 
-                                                 if (!JSONObj.ParseOptional("payment-reference", s => new Nullable<PaymentReference>(OIOIv4_x.PaymentReference.Parse(s)), out PaymentReference))
-                                                     return SendSessionStartResponse(Request,
-                                                                                     HTTPStatusCode.BadRequest,
-                                                                                     Result.Error(310, "JSON property 'payment-reference' missing or invalid!"));
+                                                 if (JSONObj.ParseOptional("payment-reference",
+                                                                           "payment reference",
+                                                                           HTTPServer.DefaultServerName,
+                                                                           OIOIv4_x.PaymentReference.TryParse,
+                                                                           out PaymentReference,
+                                                                           Request,
+                                                                           out _HTTPResponse))
+                                                 {
+
+                                                     if (_HTTPResponse != null)
+                                                         return SendSessionStartResponse(Request,
+                                                                                         HTTPStatusCode.BadRequest,
+                                                                                         Result.Error(310, "JSON property 'payment-reference' missing or invalid!"));
+
+                                                 }
 
                                                  #endregion
 
@@ -664,6 +674,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                              #region Parse Session Stop  [Optional]
 
                                              else if (JSONBody.ParseOptional("session-stop",
+                                                                             "session-stop",
                                                                              HTTPServer.DefaultServerName,
                                                                              out JSONObj,
                                                                              Request,
