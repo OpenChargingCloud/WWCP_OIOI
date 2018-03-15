@@ -32,6 +32,7 @@ using org.GraphDefined.Vanaheimr.Hermod.DNS;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using System.Security.Authentication;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets.TCP;
+using Org.BouncyCastle.Bcpg.OpenPgp;
 
 #endregion
 
@@ -42,7 +43,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
     /// A WWCP wrapper for the OIOI CPO Roaming client which maps
     /// WWCP data structures onto OIOI data structures and vice versa.
     /// </summary>
-    public class WWCPCPOAdapter : ABaseEMobilityEntity<CSORoamingProvider_Id>,
+    public class WWCPCPOAdapter : AWWCPCSOAdapter,
                                   ICSORoamingProvider,
                                   IEquatable <WWCPCPOAdapter>,
                                   IComparable<WWCPCPOAdapter>,
@@ -57,7 +58,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         private        readonly  CustomOperatorIdMapperDelegate                   _CustomOperatorIdMapper;
 
-        private        readonly  CustomEVSEIdMapperDelegate                       _CustomEVSEIdMapper;
+        //private        readonly  CustomEVSEIdMapperDelegate                      _CustomEVSEIdMapper;
 
         private        readonly  ChargingStation2StationDelegate                  _ChargingStation2Station;
 
@@ -84,10 +85,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         public  readonly static TimeSpan                                          DefaultStatusCheckEvery      = TimeSpan.FromSeconds(3);
 
 
-        private readonly        Object                                            ServiceCheckLock;
-        private readonly        Timer                                             ServiceCheckTimer;
-        private readonly        Object                                            StatusCheckLock;
-        private readonly        Timer                                             StatusCheckTimer;
+        //private readonly        Object                                            ServiceCheckLock;
+        //private readonly        Timer                                             ServiceCheckTimer;
+        //private readonly        Object                                            StatusCheckLock;
+        //private readonly        Timer                                             StatusCheckTimer;
 
         private readonly        HashSet<ChargingStation>                          ChargingStationsToAddQueue;
         private readonly        HashSet<ChargingStation>                          ChargingStationsToUpdateQueue;
@@ -102,6 +103,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         public readonly static  TimeSpan                                          DefaultRequestTimeout  = TimeSpan.FromSeconds(30);
         public readonly static  eMobilityProvider_Id                              DefaultProviderId      = eMobilityProvider_Id.Parse("DE*8PS");
+
+
+
+
+        protected readonly HashSet<Station> StationsToAddQueue;
+        protected readonly HashSet<Station> StationsToUpdateQueue;
+        protected readonly HashSet<Station> StationsToRemoveQueue;
+
+        private readonly List<Session> OICP_ChargeDetailRecords_Queue;
+        protected readonly SemaphoreSlim FlushOICPChargeDetailRecordsLock = new SemaphoreSlim(1, 1);
 
         #endregion
 
@@ -165,53 +176,55 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             => CPORoaming.DNSClient;
 
 
-        #region ServiceCheckEvery
+        //#region ServiceCheckEvery
 
-        private UInt32 _ServiceCheckEvery;
+        //private UInt32 _ServiceCheckEvery;
 
-        /// <summary>
-        /// The service check intervall.
-        /// </summary>
-        public TimeSpan ServiceCheckEvery
-        {
+        ///// <summary>
+        ///// The service check intervall.
+        ///// </summary>
+        //public TimeSpan ServiceCheckEvery
+        //{
 
-            get
-            {
-                return TimeSpan.FromSeconds(_ServiceCheckEvery);
-            }
+        //    get
+        //    {
+        //        return TimeSpan.FromSeconds(_ServiceCheckEvery);
+        //    }
 
-            set
-            {
-                _ServiceCheckEvery = (UInt32)value.TotalSeconds;
-            }
+        //    set
+        //    {
+        //        _ServiceCheckEvery = (UInt32)value.TotalSeconds;
+        //    }
 
-        }
+        //}
 
-        #endregion
+        //#endregion
 
-        #region StatusCheckEvery
+        //#region StatusCheckEvery
 
-        private UInt32 _StatusCheckEvery;
+        //private UInt32 _StatusCheckEvery;
 
-        /// <summary>
-        /// The status check intervall.
-        /// </summary>
-        public TimeSpan StatusCheckEvery
-        {
+        ///// <summary>
+        ///// The status check intervall.
+        ///// </summary>
+        //public TimeSpan StatusCheckEvery
+        //{
 
-            get
-            {
-                return TimeSpan.FromSeconds(_StatusCheckEvery);
-            }
+        //    get
+        //    {
+        //        return TimeSpan.FromSeconds(_StatusCheckEvery);
+        //    }
 
-            set
-            {
-                _StatusCheckEvery = (UInt32)value.TotalSeconds;
-            }
+        //    set
+        //    {
+        //        _StatusCheckEvery = (UInt32)value.TotalSeconds;
+        //    }
 
-        }
+        //}
 
-        #endregion
+        //#endregion
+
+        protected readonly CustomEVSEIdMapperDelegate CustomEVSEIdMapper;
 
 
         #region DisablePushData
@@ -617,33 +630,62 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="DisablePushStatus">This service can be disabled, e.g. for debugging reasons.</param>
         /// <param name="DisableAuthentication">This service can be disabled, e.g. for debugging reasons.</param>
         /// <param name="DisableSendChargeDetailRecords">This service can be disabled, e.g. for debugging reasons.</param>
-        public WWCPCPOAdapter(CSORoamingProvider_Id                            Id,
-                              I18NString                                       Name,
-                              RoamingNetwork                                   RoamingNetwork,
+        public WWCPCPOAdapter(CSORoamingProvider_Id                              Id,
+                              I18NString                                         Name,
+                              I18NString                                         Description,
+                              RoamingNetwork                                     RoamingNetwork,
 
-                              CPORoaming                                       CPORoaming,
-                              CustomOperatorIdMapperDelegate                   CustomOperatorIdMapper                   = null,
-                              CustomEVSEIdMapperDelegate                       CustomEVSEIdMapper                       = null,
-                              ChargingStation2StationDelegate                  ChargingStation2Station                  = null,
-                              EVSEStatusUpdate2ConnectorStatusUpdateDelegate   EVSEStatusUpdate2ConnectorStatusUpdate   = null,
-                              ChargeDetailRecord2SessionDelegate               ChargeDetailRecord2Session               = null,
+                              CPORoaming                                         CPORoaming,
+                              CustomOperatorIdMapperDelegate                     CustomOperatorIdMapper                   = null,
+                              //CustomEVSEIdMapperDelegate                         CustomEVSEIdMapper                       = null,
+                              ChargingStation2StationDelegate                    ChargingStation2Station                  = null,
+                              EVSEStatusUpdate2ConnectorStatusUpdateDelegate     EVSEStatusUpdate2ConnectorStatusUpdate   = null,
+                              ChargeDetailRecord2SessionDelegate                 ChargeDetailRecord2Session               = null,
 
-                              Station2JSONDelegate                             Station2JSON                             = null,
-                              ConnectorStatus2JSONDelegate                     ConnectorStatus2JSON                     = null,
-                              Session2JSONDelegate                             Session2JSON                             = null,
+                              Station2JSONDelegate                               Station2JSON                             = null,
+                              ConnectorStatus2JSONDelegate                       ConnectorStatus2JSON                     = null,
+                              Session2JSONDelegate                               Session2JSON                             = null,
 
-                              IncludeChargingStationDelegate                   IncludeChargingStations                  = null,
+                              IncludeChargingStationDelegate                     IncludeChargingStations                  = null,
 
-                              TimeSpan?                                        ServiceCheckEvery                        = null,
-                              TimeSpan?                                        StatusCheckEvery                         = null,
+                              IncludeEVSEIdDelegate                              IncludeEVSEIds                           = null,
+                              IncludeEVSEDelegate                                IncludeEVSEs                             = null,
+                              CustomEVSEIdMapperDelegate                         CustomEVSEIdMapper                       = null,
 
-                              Boolean                                          DisablePushData                          = false,
-                              Boolean                                          DisablePushStatus                        = false,
-                              Boolean                                          DisableAuthentication                    = false,
-                              Boolean                                          DisableSendChargeDetailRecords           = false)
+                              TimeSpan?                                          ServiceCheckEvery                        = null,
+                              TimeSpan?                                          StatusCheckEvery                         = null,
+                              TimeSpan?                                          CDRCheckEvery                            = null,
+
+                              Boolean                                            DisablePushData                          = false,
+                              Boolean                                            DisablePushStatus                        = false,
+                              Boolean                                            DisableAuthentication                    = false,
+                              Boolean                                            DisableSendChargeDetailRecords           = false,
+
+                              PgpPublicKeyRing                                   PublicKeyRing                            = null,
+                              PgpSecretKeyRing                                   SecretKeyRing                            = null,
+                              DNSClient                                          DNSClient                                = null)
 
             : base(Id,
-                   RoamingNetwork)
+                   Name,
+                   Description,
+                   RoamingNetwork,
+
+                   IncludeEVSEIds,
+                   IncludeEVSEs,
+                   //CustomEVSEIdMapper,
+
+                   ServiceCheckEvery,
+                   StatusCheckEvery,
+                   CDRCheckEvery,
+
+                   DisablePushData,
+                   DisablePushStatus,
+                   DisableAuthentication,
+                   DisableSendChargeDetailRecords,
+
+                   PublicKeyRing,
+                   SecretKeyRing,
+                   DNSClient ?? CPORoaming?.DNSClient)
 
         {
 
@@ -663,7 +705,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             this.CPORoaming                                        = CPORoaming;
             this._CustomOperatorIdMapper                           = CustomOperatorIdMapper;
-            this._CustomEVSEIdMapper                               = CustomEVSEIdMapper;
+            //this._CustomEVSEIdMapper                               = CustomEVSEIdMapper;
             this._ChargingStation2Station                          = ChargingStation2Station;
             this._EVSEStatusUpdate2ConnectorStatusUpdateDelegate   = EVSEStatusUpdate2ConnectorStatusUpdate;
             this._ChargeDetailRecord2Session                       = ChargeDetailRecord2Session;
@@ -673,19 +715,19 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             this._IncludeChargingStations                          = IncludeChargingStations;
 
-            this._ServiceCheckEvery                                = (UInt32) (ServiceCheckEvery.HasValue
-                                                                                  ? ServiceCheckEvery.Value. TotalMilliseconds
-                                                                                  : DefaultServiceCheckEvery.TotalMilliseconds);
+            //this._ServiceCheckEvery                                = (UInt32) (ServiceCheckEvery.HasValue
+            //                                                                      ? ServiceCheckEvery.Value. TotalMilliseconds
+            //                                                                      : DefaultServiceCheckEvery.TotalMilliseconds);
 
-            this.ServiceCheckLock                                  = new Object();
-            this.ServiceCheckTimer                                 = new Timer(ServiceCheck, null, 0, _ServiceCheckEvery);
+            //this.ServiceCheckLock                                  = new Object();
+            //this.ServiceCheckTimer                                 = new Timer(ServiceCheck, null, 0, _ServiceCheckEvery);
 
-            this._StatusCheckEvery                                 = (UInt32) (StatusCheckEvery.HasValue
-                                                                                  ? StatusCheckEvery.Value.  TotalMilliseconds
-                                                                                  : DefaultStatusCheckEvery. TotalMilliseconds);
+            //this._StatusCheckEvery                                 = (UInt32) (StatusCheckEvery.HasValue
+            //                                                                      ? StatusCheckEvery.Value.  TotalMilliseconds
+            //                                                                      : DefaultStatusCheckEvery. TotalMilliseconds);
 
-            this.StatusCheckLock                                   = new Object();
-            this.StatusCheckTimer                                  = new Timer(StatusCheck, null, 0, _StatusCheckEvery);
+            //this.StatusCheckLock                                   = new Object();
+            //this.StatusCheckTimer                                  = new Timer(StatusCheck, null, 0, _StatusCheckEvery);
 
             this.DisablePushData                                   = DisablePushData;
             this.DisablePushStatus                                 = DisablePushStatus;
@@ -699,6 +741,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             this.EVSEStatusUpdatesDelayedQueue                     = new List<EVSEStatusUpdate>();
             this.ChargeDetailRecordsQueue                          = new List<ChargeDetailRecord>();
 
+            this.CustomEVSEIdMapper                                = CustomEVSEIdMapper;
 
             // Link events...
 
@@ -957,17 +1000,18 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="DisablePushStatus">This service can be disabled, e.g. for debugging reasons.</param>
         /// <param name="DisableAuthentication">This service can be disabled, e.g. for debugging reasons.</param>
         /// <param name="DisableSendChargeDetailRecords">This service can be disabled, e.g. for debugging reasons.</param>
-        public WWCPCPOAdapter(CSORoamingProvider_Id                            Id,
-                              I18NString                                       Name,
-                              RoamingNetwork                                   RoamingNetwork,
+        public WWCPCPOAdapter(CSORoamingProvider_Id                              Id,
+                              I18NString                                         Name,
+                              I18NString                                         Description,
+                              RoamingNetwork                                     RoamingNetwork,
 
-                              CPOClient                                        CPOClient,
-                              CPOServer                                        CPOServer,
-                              String                                           ServerLoggingContext                     = CPOServerLogger.DefaultContext,
-                              LogfileCreatorDelegate                           LogFileCreator                           = null,
+                              CPOClient                                          CPOClient,
+                              CPOServer                                          CPOServer,
+                              String                                             ServerLoggingContext                            = CPOServerLogger.DefaultContext,
+                              LogfileCreatorDelegate                             LogfileCreator                                  = null,
 
                               CustomOperatorIdMapperDelegate                   CustomOperatorIdMapper                   = null,
-                              CustomEVSEIdMapperDelegate                       CustomEVSEIdMapper                       = null,
+                              //CustomEVSEIdMapperDelegate                       CustomEVSEIdMapper                       = null,
                               ChargingStation2StationDelegate                  ChargingStation2Station                  = null,
                               EVSEStatusUpdate2ConnectorStatusUpdateDelegate   EVSEStatusUpdate2ConnectorStatusUpdate   = null,
                               ChargeDetailRecord2SessionDelegate               ChargeDetailRecord2Session               = null,
@@ -976,27 +1020,36 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               ConnectorStatus2JSONDelegate                     ConnectorStatus2JSON                     = null,
                               Session2JSONDelegate                             Session2JSON                             = null,
 
-                              IncludeChargingStationDelegate                   IncludeChargingStations                  = null,
+                              IncludeChargingStationDelegate                     IncludeChargingStations                         = null,
+                              IncludeEVSEIdDelegate                              IncludeEVSEIds                                  = null,
+                              IncludeEVSEDelegate                                IncludeEVSEs                                    = null,
+                              CustomEVSEIdMapperDelegate                         CustomEVSEIdMapper                              = null,
 
-                              TimeSpan?                                        ServiceCheckEvery                        = null,
-                              TimeSpan?                                        StatusCheckEvery                         = null,
+                              TimeSpan?                                          ServiceCheckEvery                               = null,
+                              TimeSpan?                                          StatusCheckEvery                                = null,
+                              TimeSpan?                                          CDRCheckEvery                                   = null,
 
-                              Boolean                                          DisablePushData                          = false,
-                              Boolean                                          DisablePushStatus                        = false,
-                              Boolean                                          DisableAuthentication                    = false,
-                              Boolean                                          DisableSendChargeDetailRecords           = false)
+                              Boolean                                            DisablePushData                                 = false,
+                              Boolean                                            DisablePushStatus                               = false,
+                              Boolean                                            DisableAuthentication                           = false,
+                              Boolean                                            DisableSendChargeDetailRecords                  = false,
+
+                              PgpPublicKeyRing                                   PublicKeyRing                                   = null,
+                              PgpSecretKeyRing                                   SecretKeyRing                                   = null,
+                              DNSClient                                          DNSClient                                       = null)
 
             : this(Id,
                    Name,
+                   Description,
                    RoamingNetwork,
 
                    new CPORoaming(CPOClient,
                                   CPOServer,
                                   ServerLoggingContext,
-                                  LogFileCreator),
+                                  LogfileCreator),
 
                    CustomOperatorIdMapper,
-                   CustomEVSEIdMapper,
+                     //CustomEVSEIdMapper,
                    ChargingStation2Station,
                    EVSEStatusUpdate2ConnectorStatusUpdate,
                    ChargeDetailRecord2Session,
@@ -1007,13 +1060,26 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                    IncludeChargingStations,
 
+                   //DefaultOperator,
+                   //DefaultOperatorIdFormat,
+                   //OperatorNameSelector,
+
+                   IncludeEVSEIds,
+                   IncludeEVSEs,
+                   CustomEVSEIdMapper,
+
                    ServiceCheckEvery,
                    StatusCheckEvery,
+                   CDRCheckEvery,
 
                    DisablePushData,
                    DisablePushStatus,
                    DisableAuthentication,
-                   DisableSendChargeDetailRecords)
+                   DisableSendChargeDetailRecords,
+
+                   PublicKeyRing,
+                   SecretKeyRing,
+                   DNSClient ?? CPOServer?.DNSClient)
 
         { }
 
@@ -1069,6 +1135,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="DNSClient">An optional DNS client to use.</param>
         public WWCPCPOAdapter(CSORoamingProvider_Id                           Id,
                               I18NString                                      Name,
+                              I18NString                                      Description,
                               RoamingNetwork                                  RoamingNetwork,
 
                               String                                          RemoteHostname,
@@ -1081,8 +1148,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               String                                          RemoteHTTPVirtualHost                    = null,
                               HTTPURI?                                        URIPrefix                                = null,
                               String                                          HTTPUserAgent                            = CPOClient.DefaultHTTPUserAgent,
-
-                              IncludeChargingStationDelegate                  IncludeChargingStations                  = null,
 
                               IncludeStationDelegate                          IncludeStation                           = null,
                               IncludeStationIdDelegate                        IncludeStationId                         = null,
@@ -1107,10 +1172,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                               String                                          ClientLoggingContext                     = CPOClient.CPOClientLogger.DefaultContext,
                               String                                          ServerLoggingContext                     = CPOServerLogger.DefaultContext,
-                              LogfileCreatorDelegate                          LogFileCreator                           = null,
+                              LogfileCreatorDelegate                          LogfileCreator                           = null,
 
                               CustomOperatorIdMapperDelegate                  CustomOperatorIdMapper                   = null,
-                              CustomEVSEIdMapperDelegate                      CustomEVSEIdMapper                       = null,
+                              //CustomEVSEIdMapperDelegate                      CustomEVSEIdMapper                       = null,
                               ChargingStation2StationDelegate                 ChargingStation2Station                  = null,
                               EVSEStatusUpdate2ConnectorStatusUpdateDelegate  EVSEStatusUpdate2ConnectorStatusUpdate   = null,
                               ChargeDetailRecord2SessionDelegate              ChargeDetailRecord2Session               = null,
@@ -1119,20 +1184,27 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               ConnectorStatus2JSONDelegate                    ConnectorStatus2JSON                     = null,
                               Session2JSONDelegate                            Session2JSON                             = null,
 
-                              //IncludeChargingStationDelegate                  IncludeChargingStations                  = null,
+                              IncludeChargingStationDelegate                  IncludeChargingStations                  = null,
+                              IncludeEVSEIdDelegate                           IncludeEVSEIds                           = null,
+                              IncludeEVSEDelegate                             IncludeEVSEs                             = null,
+                              CustomEVSEIdMapperDelegate                      CustomEVSEIdMapper                       = null,
 
                               TimeSpan?                                       ServiceCheckEvery                        = null,
                               TimeSpan?                                       StatusCheckEvery                         = null,
+                              TimeSpan?                                       CDRCheckEvery                            = null,
 
                               Boolean                                         DisablePushData                          = false,
                               Boolean                                         DisablePushStatus                        = false,
                               Boolean                                         DisableAuthentication                    = false,
                               Boolean                                         DisableSendChargeDetailRecords           = false,
 
+                              PgpPublicKeyRing                                PublicKeyRing                            = null,
+                              PgpSecretKeyRing                                SecretKeyRing                            = null,
                               DNSClient                                       DNSClient                                = null)
 
             : this(Id,
                    Name,
+                   Description,
                    RoamingNetwork,
 
                    new CPORoaming(Id.ToString(),
@@ -1144,9 +1216,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                   RemoteCertificateValidator,
                                   ClientCertificateSelector,
                                   RemoteHTTPVirtualHost,
-                                  URIPrefix ?? CPOClient.DefaultURIPrefix,
+                                  URIPrefix,
                                   HTTPUserAgent,
-
                                   IncludeStation,
                                   IncludeStationId,
                                   IncludeConnectorId,
@@ -1162,20 +1233,22 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                   RemoteClientCertificateValidator,
                                   RemoteClientCertificateSelector,
                                   ServerAllowedTLSProtocols,
-                                  ServerURIPrefix ?? CPOServer.DefaultURIPrefix,
+                                  ServerURIPrefix,
                                   ServerAPIKeyValidator,
                                   ServerContentType,
                                   ServerRegisterHTTPRootService,
-                                  false,
+                                  ServerAutoStart,
+
+                                  ////RemoteCertificateValidator,
+                                  ////ClientCertificateSelector,
 
                                   ClientLoggingContext,
                                   ServerLoggingContext,
-                                  LogFileCreator,
+                                  LogfileCreator,
 
                                   DNSClient),
 
                    CustomOperatorIdMapper,
-                   CustomEVSEIdMapper,
                    ChargingStation2Station,
                    EVSEStatusUpdate2ConnectorStatusUpdate,
                    ChargeDetailRecord2Session,
@@ -1185,14 +1258,22 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                    Session2JSON,
 
                    IncludeChargingStations,
+                   IncludeEVSEIds,
+                   IncludeEVSEs,
+                   CustomEVSEIdMapper,
 
                    ServiceCheckEvery,
                    StatusCheckEvery,
+                   CDRCheckEvery,
 
                    DisablePushData,
                    DisablePushStatus,
                    DisableAuthentication,
-                   DisableSendChargeDetailRecords)
+                   DisableSendChargeDetailRecords,
+
+                   PublicKeyRing,
+                   SecretKeyRing,
+                   DNSClient)
 
         {
 
@@ -1264,7 +1345,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                      return new Tuple<ChargingStation, Station>(station,
                                                                                                 station.ToOIOI(_CustomOperatorIdMapper,
-                                                                                                               _CustomEVSEIdMapper,
+                                                                                                               CustomEVSEIdMapper,
                                                                                                                _ChargingStation2Station));
 
                                                  }
@@ -1494,8 +1575,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                return new Tuple<EVSEStatusUpdate, ConnectorStatus>(
                                                           evsestatusupdate.Value.First(),
                                                           new ConnectorStatus(
-                                                              _CustomEVSEIdMapper != null
-                                                                  ? _CustomEVSEIdMapper(evsestatusupdate.Key)
+                                                              CustomEVSEIdMapper != null
+                                                                  ? CustomEVSEIdMapper(evsestatusupdate.Key)
                                                                   : evsestatusupdate.Key.ToOIOI(),
                                                               evsestatusupdate.Value.First().NewStatus.Value.ToOIOI()
                                                           )
@@ -1551,7 +1632,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             {
                 Endtime = DateTime.UtcNow;
                 Runtime = Endtime - StartTime;
-                result = PushEVSEStatusResult.NoOperation(Id, this);  //AuthStartChargingStationResult.OutOfService(Id, SessionId, Runtime);
+                result  = PushEVSEStatusResult.NoOperation(Id, this);  //AuthStartChargingStationResult.OutOfService(Id, SessionId, Runtime);
             }
 
             else
@@ -1696,7 +1777,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 #endregion
 
-                lock (ServiceCheckLock)
+                await DataAndStatusLock.WaitAsync();
+
+                try
                 {
 
                     if (_IncludeChargingStations == null ||
@@ -1705,10 +1788,14 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                         ChargingStationsToAddQueue.Add(EVSE.ChargingStation);
 
-                        ServiceCheckTimer.Change(_ServiceCheckEvery, Timeout.Infinite);
+                        FlushEVSEDataAndStatusTimer.Change(_FlushEVSEDataAndStatusEvery, Timeout.Infinite);
 
                     }
 
+                }
+                finally
+                {
+                    DataAndStatusLock.Release();
                 }
 
                 return PushEVSEDataResult.Enqueued(Id, this);
@@ -1790,7 +1877,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 #endregion
 
-                lock (ServiceCheckLock)
+                await DataAndStatusLock.WaitAsync();
+
+                try
                 {
 
                     if (_IncludeChargingStations == null ||
@@ -1799,10 +1888,14 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                         ChargingStationsToAddQueue.Add(EVSE.ChargingStation);
 
-                        ServiceCheckTimer.Change(_ServiceCheckEvery, Timeout.Infinite);
+                        FlushEVSEDataAndStatusTimer.Change(_FlushEVSEDataAndStatusEvery, Timeout.Infinite);
 
                     }
 
+                }
+                finally
+                {
+                    DataAndStatusLock.Release();
                 }
 
                 return PushEVSEDataResult.Enqueued(Id, this);
@@ -1891,7 +1984,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 #endregion
 
-                lock (ServiceCheckLock)
+                await DataAndStatusLock.WaitAsync();
+
+                try
                 {
 
                     if (_IncludeChargingStations == null ||
@@ -1900,10 +1995,14 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                         ChargingStationsToUpdateQueue.Add(EVSE.ChargingStation);
 
-                        ServiceCheckTimer.Change(_ServiceCheckEvery, Timeout.Infinite);
+                        FlushEVSEDataAndStatusTimer.Change(_FlushEVSEDataAndStatusEvery, Timeout.Infinite);
 
                     }
 
+                }
+                finally
+                {
+                    DataAndStatusLock.Release();
                 }
 
                 return PushEVSEDataResult.Enqueued(Id, this);
@@ -1985,19 +2084,25 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 #endregion
 
-                lock (ServiceCheckLock)
+                await DataAndStatusLock.WaitAsync();
+
+                try
                 {
 
                     if (_IncludeChargingStations == null ||
                        (_IncludeChargingStations != null && _IncludeChargingStations(EVSE.ChargingStation)))
                     {
 
-                        ChargingStationsToRemoveQueue.Add(EVSE.ChargingStation);
+                        ChargingStationsToUpdateQueue.Add(EVSE.ChargingStation);
 
-                        ServiceCheckTimer.Change(_ServiceCheckEvery, Timeout.Infinite);
+                        FlushEVSEDataAndStatusTimer.Change(_FlushEVSEDataAndStatusEvery, Timeout.Infinite);
 
                     }
 
+                }
+                finally
+                {
+                    DataAndStatusLock.Release();
                 }
 
                 return PushEVSEDataResult.Enqueued(Id, this);
@@ -2260,55 +2365,55 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             if (TransmissionType == TransmissionTypes.Enqueue)
             {
 
-                #region Send OnEnqueueSendCDRRequest event
+                //#region Send OnEnqueueSendCDRRequest event
 
-                //try
+                ////try
+                ////{
+
+                ////    OnEnqueueSendCDRRequest?.Invoke(DateTime.UtcNow,
+                ////                                    Timestamp.Value,
+                ////                                    this,
+                ////                                    EventTrackingId,
+                ////                                    RoamingNetwork.Id,
+                ////                                    ChargeDetailRecord,
+                ////                                    RequestTimeout);
+
+                ////}
+                ////catch (Exception e)
+                ////{
+                ////    e.Log(nameof(WWCPCPOAdapter) + "." + nameof(OnSendCDRRequest));
+                ////}
+
+                //#endregion
+
+
+                //if (Monitor.TryEnter(StatusCheckLock,
+                //                     TimeSpan.FromMinutes(5)))
                 //{
 
-                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.UtcNow,
-                //                                    Timestamp.Value,
-                //                                    this,
-                //                                    EventTrackingId,
-                //                                    RoamingNetwork.Id,
-                //                                    ChargeDetailRecord,
-                //                                    RequestTimeout);
+                //    try
+                //    {
+
+                //        //if (_IncludeChargingStations == null ||
+                //        //   (_IncludeChargingStations != null && _IncludeChargingStations(EVSE)))
+                //        //{
+
+                //        EVSEStatusUpdatesQueue.AddRange(StatusUpdates);
+                //        StatusCheckTimer.Change(_StatusCheckEvery, Timeout.Infinite);
+
+                //        //}
+
+                //    }
+                //    finally
+                //    {
+                //        Monitor.Exit(StatusCheckLock);
+                //    }
+
+                //    return PushEVSEStatusResult.Enqueued(Id, this);
 
                 //}
-                //catch (Exception e)
-                //{
-                //    e.Log(nameof(WWCPCPOAdapter) + "." + nameof(OnSendCDRRequest));
-                //}
 
-                #endregion
-
-
-                if (Monitor.TryEnter(StatusCheckLock,
-                                     TimeSpan.FromMinutes(5)))
-                {
-
-                    try
-                    {
-
-                        //if (_IncludeChargingStations == null ||
-                        //   (_IncludeChargingStations != null && _IncludeChargingStations(EVSE)))
-                        //{
-
-                        EVSEStatusUpdatesQueue.AddRange(StatusUpdates);
-                        StatusCheckTimer.Change(_StatusCheckEvery, Timeout.Infinite);
-
-                        //}
-
-                    }
-                    finally
-                    {
-                        Monitor.Exit(StatusCheckLock);
-                    }
-
-                    return PushEVSEStatusResult.Enqueued(Id, this);
-
-                }
-
-                return PushEVSEStatusResult.LockTimeout(Id, this);
+                //return PushEVSEStatusResult.LockTimeout(Id, this);
 
             }
 
@@ -2389,7 +2494,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 #endregion
 
-                lock (ServiceCheckLock)
+                await DataAndStatusLock.WaitAsync();
+
+                try
                 {
 
                     if (_IncludeChargingStations == null ||
@@ -2398,10 +2505,14 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                         ChargingStationsToAddQueue.Add(ChargingStation);
 
-                        ServiceCheckTimer.Change(_ServiceCheckEvery, Timeout.Infinite);
+                        FlushEVSEDataAndStatusTimer.Change(_FlushEVSEDataAndStatusEvery, Timeout.Infinite);
 
                     }
 
+                }
+                finally
+                {
+                    DataAndStatusLock.Release();
                 }
 
                 return PushEVSEDataResult.Enqueued(Id, this);
@@ -2483,7 +2594,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 #endregion
 
-                lock (ServiceCheckLock)
+                await DataAndStatusLock.WaitAsync();
+
+                try
                 {
 
                     if (_IncludeChargingStations == null ||
@@ -2492,10 +2605,14 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                         ChargingStationsToAddQueue.Add(ChargingStation);
 
-                        ServiceCheckTimer.Change(_ServiceCheckEvery, Timeout.Infinite);
+                        FlushEVSEDataAndStatusTimer.Change(_FlushEVSEDataAndStatusEvery, Timeout.Infinite);
 
                     }
 
+                }
+                finally
+                {
+                    DataAndStatusLock.Release();
                 }
 
                 return PushEVSEDataResult.Enqueued(Id, this);
@@ -2582,7 +2699,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 #endregion
 
-                lock (ServiceCheckLock)
+                await DataAndStatusLock.WaitAsync();
+
+                try
                 {
 
                     if (_IncludeChargingStations == null ||
@@ -2591,10 +2710,14 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                         ChargingStationsToUpdateQueue.Add(ChargingStation);
 
-                        ServiceCheckTimer.Change(_ServiceCheckEvery, Timeout.Infinite);
+                        FlushEVSEDataAndStatusTimer.Change(_FlushEVSEDataAndStatusEvery, Timeout.Infinite);
 
                     }
 
+                }
+                finally
+                {
+                    DataAndStatusLock.Release();
                 }
 
                 return PushEVSEDataResult.Enqueued(Id, this);
@@ -2966,7 +3089,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 #endregion
 
-                lock (ServiceCheckLock)
+                await DataAndStatusLock.WaitAsync();
+
+                try
                 {
 
                     foreach (var station in ChargingPool)
@@ -2978,12 +3103,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                             ChargingStationsToAddQueue.Add(station);
 
-                            ServiceCheckTimer.Change(_ServiceCheckEvery, Timeout.Infinite);
+                            FlushEVSEDataAndStatusTimer.Change(_FlushEVSEDataAndStatusEvery, Timeout.Infinite);
 
                         }
 
                     }
 
+                }
+                finally
+                {
+                    DataAndStatusLock.Release();
                 }
 
                 return PushEVSEDataResult.Enqueued(Id, this);
@@ -3065,7 +3194,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 #endregion
 
-                lock (ServiceCheckLock)
+                await DataAndStatusLock.WaitAsync();
+
+                try
                 {
 
                     foreach (var station in ChargingPool)
@@ -3077,12 +3208,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                             ChargingStationsToAddQueue.Add(station);
 
-                            ServiceCheckTimer.Change(_ServiceCheckEvery, Timeout.Infinite);
+                            FlushEVSEDataAndStatusTimer.Change(_FlushEVSEDataAndStatusEvery, Timeout.Infinite);
 
                         }
 
                     }
 
+                }
+                finally
+                {
+                    DataAndStatusLock.Release();
                 }
 
                 return PushEVSEDataResult.Enqueued(Id, this);
@@ -3170,7 +3305,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 #endregion
 
-                lock (ServiceCheckLock)
+                await DataAndStatusLock.WaitAsync();
+
+                try
                 {
 
                     foreach (var station in ChargingPool)
@@ -3182,12 +3319,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                             ChargingStationsToUpdateQueue.Add(station);
 
-                            ServiceCheckTimer.Change(_ServiceCheckEvery, Timeout.Infinite);
+                            FlushEVSEDataAndStatusTimer.Change(_FlushEVSEDataAndStatusEvery, Timeout.Infinite);
 
                         }
 
                     }
 
+                }
+                finally
+                {
+                    DataAndStatusLock.Release();
                 }
 
                 return PushEVSEDataResult.Enqueued(Id, this);
@@ -5530,47 +5671,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             if (!RequestTimeout.HasValue)
                 RequestTimeout = CPOClient?.RequestTimeout;
 
-            #endregion
 
-            #region Enqueue, if requested...
-
-            if (TransmissionType == TransmissionTypes.Enqueue)
-            {
-
-                #region Send OnEnqueueSendCDRRequest event
-
-                try
-                {
-
-                    OnEnqueueSendCDRsRequest?.Invoke(DateTime.UtcNow,
-                                                     Timestamp.Value,
-                                                     this,
-                                                     Id.ToString(),
-                                                     EventTrackingId,
-                                                     RoamingNetwork.Id,
-                                                     ChargeDetailRecords,
-                                                     RequestTimeout);
-
-                }
-                catch (Exception e)
-                {
-                    e.Log(nameof(WWCPCPOAdapter) + "." + nameof(OnSendCDRsRequest));
-                }
-
-                #endregion
-
-                lock (ServiceCheckLock)
-                {
-
-                    ChargeDetailRecordsQueue.AddRange(ChargeDetailRecords);
-
-                    ServiceCheckTimer.Change(_ServiceCheckEvery, Timeout.Infinite);
-
-                }
-
-                return SendCDRsResult.Enqueued(Id, this);
-
-            }
+            DateTime        Endtime;
+            TimeSpan        Runtime;
+            SendCDRsResult  result;
 
             #endregion
 
@@ -5599,11 +5703,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             #endregion
 
 
-            DateTime        Endtime;
-            TimeSpan        Runtime;
-            SendCDRsResult  result;
-
-            #region Check if sending CDRs is disabled
+            #region if disabled => 'AdminDown'...
 
             if (DisableSendChargeDetailRecords)
             {
@@ -5622,49 +5722,166 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             else
             {
 
-                //HTTPResponse<Acknowledgement<SessionPostRequest>> response;
+                var LockTaken = await FlushOICPChargeDetailRecordsLock.WaitAsync(TimeSpan.FromSeconds(60));
 
-                //var SendCDRsResults = new Dictionary<ChargeDetailRecord, SendCDRsResult>();
+                try
+                {
 
-                //foreach (var _ChargeDetailRecord in ChargeDetailRecords)
-                //{
+                    if (LockTaken)
+                    {
 
-                //    //response = await CPORoaming.SessionPost(_ChargeDetailRecord.ToOIOI(_ChargeDetailRecord2Session),
-                //    //
-                //    //                                        Timestamp,
-                //    //                                        CancellationToken,
-                //    //                                        EventTrackingId,
-                //    //                                        RequestTimeout).ConfigureAwait(false);
+                        var SendCDRsResults = new List<SendCDRResult>();
 
-                //    if (response.HTTPStatusCode == HTTPStatusCode.OK &&
-                //        response.Content        != null              &&
-                //        response.Content.Success)
-                //    {
-                //        SendCDRsResults.Add(_ChargeDetailRecord, SendCDRsResult.Forwarded(Id));
-                //    }
+                        #region if enqueuing is requested...
 
-                //    else
-                //        SendCDRsResults.Add(_ChargeDetailRecord, SendCDRsResult.NotForwared(Id,
-                //                                                                            new WWCP.ChargeDetailRecord[] { _ChargeDetailRecord },
-                //                                                                            response?.Content?.StatusCode?.Description));
+                        if (TransmissionType == TransmissionTypes.Enqueue)
+                        {
 
-                //}
+                            #region Send OnEnqueueSendCDRRequest event
 
-                //Endtime  = DateTime.UtcNow;
-                //Runtime  = Endtime - StartTime;
+                            try
+                            {
 
-                //if      (SendCDRsResults.All(cdrresult => cdrresult.Value.Status == SendCDRsResultType.Forwarded))
-                //    result = SendCDRsResult.Forwarded(Id);
+                                OnEnqueueSendCDRsRequest?.Invoke(DateTime.UtcNow,
+                                                                 Timestamp.Value,
+                                                                 this,
+                                                                 Id.ToString(),
+                                                                 EventTrackingId,
+                                                                 RoamingNetwork.Id,
+                                                                 ChargeDetailRecords,
+                                                                 RequestTimeout);
 
-                //else if (SendCDRsResults.All(cdrresult => cdrresult.Value.Status != SendCDRsResultType.Forwarded))
-                //    result = SendCDRsResult.NotForwared(Id,
-                //                                        SendCDRsResults.Keys);
+                            }
+                            catch (Exception e)
+                            {
+                                e.Log(nameof(WWCPCPOAdapter) + "." + nameof(OnSendCDRsRequest));
+                            }
 
-                //else
-                //    result = SendCDRsResult.Partly   (Id,
-                //                                        SendCDRsResults.
-                //                                            Where (cdrresult => cdrresult.Value.Status != SendCDRsResultType.Forwarded).
-                //                                            Select(cdrresult => cdrresult.Key));
+                            #endregion
+
+                            foreach (var ChargeDetailRecord in ChargeDetailRecords)
+                            {
+
+                                try
+                                {
+
+                                    OICP_ChargeDetailRecords_Queue.Add(ChargeDetailRecord.ToOIOI());// _WWCPChargeDetailRecord2OICPChargeDetailRecord));
+                                    SendCDRsResults.Add(new SendCDRResult(ChargeDetailRecord,
+                                                                          SendCDRResultTypes.Enqueued));
+
+                                }
+                                catch (Exception e)
+                                {
+                                    SendCDRsResults.Add(new SendCDRResult(ChargeDetailRecord,
+                                                                          SendCDRResultTypes.CouldNotConvertCDRFormat,
+                                                                          e.Message));
+                                }
+
+                            }
+
+                            Endtime  = DateTime.UtcNow;
+                            Runtime  = Endtime - StartTime;
+                            result   = SendCDRsResult.Enqueued(Id,
+                                                               this,
+                                                               "Enqueued for at least " + FlushChargeDetailRecordsEvery.TotalSeconds + " seconds!",
+                                                               SendCDRsResults.SafeWhere(cdrresult => cdrresult.Result != SendCDRResultTypes.Enqueued),
+                                                               Runtime: Runtime);
+
+                            FlushChargeDetailRecordsTimer.Change(_FlushChargeDetailRecordsEvery, Timeout.Infinite);
+
+                        }
+
+                        #endregion
+
+                        #region ...or send at once!
+
+                        else
+                        {
+
+                            HTTPResponse<SessionPostResponse> response;
+
+                            foreach (var ChargeDetailRecord in ChargeDetailRecords)
+                            {
+
+                                try
+                                {
+
+                                    response = await CPORoaming.SessionPost(ChargeDetailRecord.ToOIOI(), //_WWCPChargeDetailRecord2OICPChargeDetailRecord),
+
+                                                                                       Timestamp,
+                                                                                       CancellationToken,
+                                                                                       EventTrackingId,
+                                                                                       RequestTimeout);
+
+                                    if (response.HTTPStatusCode == HTTPStatusCode.OK &&
+                                        response.Content        != null              &&
+                                        response.Content.Code == ResponseCodes.Success)
+                                    {
+                                        SendCDRsResults.Add(new SendCDRResult(ChargeDetailRecord,
+                                                                              SendCDRResultTypes.Success));
+                                    }
+
+                                    else
+                                        SendCDRsResults.Add(new SendCDRResult(ChargeDetailRecord,
+                                                                              SendCDRResultTypes.Error,
+                                                                              response.HTTPBodyAsUTF8String));
+
+                                }
+                                catch (Exception e)
+                                {
+                                    SendCDRsResults.Add(new SendCDRResult(ChargeDetailRecord,
+                                                                          SendCDRResultTypes.CouldNotConvertCDRFormat,
+                                                                          e.Message));
+                                }
+
+                            }
+
+                            Endtime  = DateTime.UtcNow;
+                            Runtime  = Endtime - StartTime;
+
+                            if      (SendCDRsResults.All(cdrresult => cdrresult.Result == SendCDRResultTypes.Success))
+                                result = SendCDRsResult.Success(Id,
+                                                                this,
+                                                                Runtime: Runtime);
+
+                            else
+                                result = SendCDRsResult.Error(Id,
+                                                              this,
+                                                              SendCDRsResults.
+                                                                  Where (cdrresult => cdrresult.Result != SendCDRResultTypes.Success).
+                                                                  Select(cdrresult => cdrresult.ChargeDetailRecord),
+                                                              Runtime: Runtime);
+
+
+                        }
+
+                        #endregion
+
+                    }
+
+                    #region Could not get the lock for toooo long!
+
+                    else
+                    {
+
+                        Endtime  = DateTime.UtcNow;
+                        Runtime  = Endtime - StartTime;
+                        result   = SendCDRsResult.Timeout(Id,
+                                                          this,
+                                                          "Could not " + (TransmissionType == TransmissionTypes.Enqueue ? "enqueue" : "send") + " charge detail records!",
+                                                          ChargeDetailRecords.SafeSelect(cdr => new SendCDRResult(cdr, SendCDRResultTypes.Timeout)),
+                                                          Runtime: Runtime);
+
+                    }
+
+                    #endregion
+
+                }
+                finally
+                {
+                    if (LockTaken)
+                        FlushOICPChargeDetailRecordsLock.Release();
+                }
 
             }
 
@@ -5674,15 +5891,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             try
             {
 
-                //OnSendCDRsResponse?.Invoke(Endtime,
-                //                           Timestamp.Value,
-                //                           this,
-                //                           EventTrackingId,
-                //                           RoamingNetwork.Id,
-                //                           ChargeDetailRecords,
-                //                           RequestTimeout,
-                //                           result,
-                //                           Runtime);
+                OnSendCDRsResponse?.Invoke(Endtime,
+                                           Timestamp.Value,
+                                           this,
+                                           Id.ToString(),
+                                           EventTrackingId,
+                                           RoamingNetwork.Id,
+                                           ChargeDetailRecords,
+                                           RequestTimeout,
+                                           result,
+                                           Runtime);
 
             }
             catch (Exception e)
@@ -5691,8 +5909,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             }
 
             #endregion
-
-            result = null;
 
             return result;
 
@@ -5706,244 +5922,718 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         #region (timer) ServiceCheck(State)
 
-        private void ServiceCheck(Object State)
-        {
+        //private void ServiceCheck(Object State)
+        //{
 
-            try
-            {
+        //    try
+        //    {
 
-                FlushServiceQueues().Wait();
+        //        FlushServiceQueues().Wait();
 
-            }
-            catch (Exception e)
-            {
+        //    }
+        //    catch (Exception e)
+        //    {
 
-                while (e.InnerException != null)
-                    e = e.InnerException;
+        //        while (e.InnerException != null)
+        //            e = e.InnerException;
 
-                DebugX.LogT("ServiceCheckTimer => " + e.Message);
+        //        DebugX.LogT("ServiceCheckTimer => " + e.Message);
 
-                OnWWCPCPOAdapterException?.Invoke(DateTime.UtcNow,
-                                                  this,
-                                                  e);
+        //        OnWWCPCPOAdapterException?.Invoke(DateTime.UtcNow,
+        //                                          this,
+        //                                          e);
 
-            }
+        //    }
 
-        }
+        //}
 
         #endregion
 
         #region FlushServiceQueues()
 
-        public async Task FlushServiceQueues()
-        {
+        //public async Task FlushServiceQueues()
+        //{
 
-            FlushServiceQueuesEvent?.Invoke(this, TimeSpan.FromMilliseconds(_ServiceCheckEvery));
+        //    FlushServiceQueuesEvent?.Invoke(this, TimeSpan.FromMilliseconds(_ServiceCheckEvery));
 
-            #region Make a thread local copy of all data
+        //    #region Make a thread local copy of all data
 
-            //ToDo: AsyncLocal is currently not implemented in Mono!
-            //var EVSEDataQueueCopy   = new AsyncLocal<HashSet<EVSE>>();
-            //var EVSEStatusQueueCopy = new AsyncLocal<List<EVSEStatusChange>>();
+        //    //ToDo: AsyncLocal is currently not implemented in Mono!
+        //    //var EVSEDataQueueCopy   = new AsyncLocal<HashSet<EVSE>>();
+        //    //var EVSEStatusQueueCopy = new AsyncLocal<List<EVSEStatusChange>>();
 
-            var ChargingStationsToAddQueueCopy     = new ThreadLocal<HashSet<ChargingStation>>();
-            var ChargingStationsToUpdateQueueCopy  = new ThreadLocal<HashSet<ChargingStation>>();
-            var ChargingStationsToRemoveQueueCopy  = new ThreadLocal<HashSet<ChargingStation>>();
-            var EVSEStatusUpdatesDelayedQueueCopy  = new ThreadLocal<List<EVSEStatusUpdate>>();
-            var ChargeDetailRecordsQueueCopy       = new ThreadLocal<List<ChargeDetailRecord>>();
+        //    var ChargingStationsToAddQueueCopy     = new ThreadLocal<HashSet<ChargingStation>>();
+        //    var ChargingStationsToUpdateQueueCopy  = new ThreadLocal<HashSet<ChargingStation>>();
+        //    var ChargingStationsToRemoveQueueCopy  = new ThreadLocal<HashSet<ChargingStation>>();
+        //    var EVSEStatusUpdatesDelayedQueueCopy  = new ThreadLocal<List<EVSEStatusUpdate>>();
+        //    //var ChargeDetailRecordsQueueCopy       = new ThreadLocal<List<ChargeDetailRecord>>();
 
-            if (Monitor.TryEnter(ServiceCheckLock))
-            {
+        //    if (Monitor.TryEnter(ServiceCheckLock))
+        //    {
 
-                try
-                {
+        //        try
+        //        {
 
-                    if (ChargingStationsToAddQueue.   Count == 0 &&
-                        ChargingStationsToUpdateQueue.Count == 0 &&
-                        ChargingStationsToRemoveQueue.Count == 0 &&
-                        EVSEStatusUpdatesDelayedQueue.Count == 0 &&
-                        ChargeDetailRecordsQueue.     Count == 0)
-                    {
-                        return;
-                    }
+        //            if (ChargingStationsToAddQueue.   Count == 0 &&
+        //                ChargingStationsToUpdateQueue.Count == 0 &&
+        //                ChargingStationsToRemoveQueue.Count == 0 &&
+        //                EVSEStatusUpdatesDelayedQueue.Count == 0 &&
+        //                ChargeDetailRecordsQueue.     Count == 0)
+        //            {
+        //                return;
+        //            }
 
-                    _ServiceRunId++;
+        //            _ServiceRunId++;
 
-                    // Copy 'charging stations to add', remove originals...
-                    ChargingStationsToAddQueueCopy.Value     = new HashSet<ChargingStation>(ChargingStationsToAddQueue);
-                    ChargingStationsToAddQueue.Clear();
+        //            // Copy 'charging stations to add', remove originals...
+        //            ChargingStationsToAddQueueCopy.Value     = new HashSet<ChargingStation>(ChargingStationsToAddQueue);
+        //            ChargingStationsToAddQueue.Clear();
 
-                    // Copy 'charging stations to update', remove originals...
-                    ChargingStationsToUpdateQueueCopy.Value  = new HashSet<ChargingStation>(ChargingStationsToUpdateQueue);
-                    ChargingStationsToUpdateQueue.Clear();
+        //            // Copy 'charging stations to update', remove originals...
+        //            ChargingStationsToUpdateQueueCopy.Value  = new HashSet<ChargingStation>(ChargingStationsToUpdateQueue);
+        //            ChargingStationsToUpdateQueue.Clear();
 
-                    // Copy 'charging stations to remove', remove originals...
-                    ChargingStationsToRemoveQueueCopy.Value  = new HashSet<ChargingStation>(ChargingStationsToRemoveQueue);
-                    ChargingStationsToRemoveQueue.Clear();
+        //            // Copy 'charging stations to remove', remove originals...
+        //            ChargingStationsToRemoveQueueCopy.Value  = new HashSet<ChargingStation>(ChargingStationsToRemoveQueue);
+        //            ChargingStationsToRemoveQueue.Clear();
 
-                    //// Copy 'EVSE status updates', remove originals...
-                    EVSEStatusUpdatesDelayedQueueCopy.Value  = new List<EVSEStatusUpdate>  (EVSEStatusUpdatesDelayedQueue);
-                    EVSEStatusUpdatesDelayedQueue.Clear();
+        //            //// Copy 'EVSE status updates', remove originals...
+        //            EVSEStatusUpdatesDelayedQueueCopy.Value  = new List<EVSEStatusUpdate>  (EVSEStatusUpdatesDelayedQueue);
+        //            EVSEStatusUpdatesDelayedQueue.Clear();
 
-                    // Copy 'charge detail records', remove originals...
-                    ChargeDetailRecordsQueueCopy.Value        = new List<ChargeDetailRecord>(ChargeDetailRecordsQueue);
-                    ChargeDetailRecordsQueue.Clear();
+        //            // Copy 'charge detail records', remove originals...
+        //            //ChargeDetailRecordsQueueCopy.Value        = new List<ChargeDetailRecord>(ChargeDetailRecordsQueue);
+        //            //ChargeDetailRecordsQueue.Clear();
 
-                    // Stop the timer. Will be rescheduled by next data/status change...
-                    ServiceCheckTimer.Change(Timeout.Infinite, Timeout.Infinite);
+        //            // Stop the timer. Will be rescheduled by next data/status change...
+        //            ServiceCheckTimer.Change(Timeout.Infinite, Timeout.Infinite);
 
-                }
-                catch (Exception e)
-                {
+        //        }
+        //        catch (Exception e)
+        //        {
 
-                    while (e.InnerException != null)
-                        e = e.InnerException;
+        //            while (e.InnerException != null)
+        //                e = e.InnerException;
 
-                    DebugX.LogT(nameof(WWCPCPOAdapter) + " '" + Id + "' led to an exception: " + e.Message + Environment.NewLine + e.StackTrace);
+        //            DebugX.LogT(nameof(WWCPCPOAdapter) + " '" + Id + "' led to an exception: " + e.Message + Environment.NewLine + e.StackTrace);
 
-                }
+        //        }
 
-                finally
-                {
-                    Monitor.Exit(ServiceCheckLock);
-                }
+        //        finally
+        //        {
+        //            Monitor.Exit(ServiceCheckLock);
+        //        }
 
-            }
+        //    }
 
-            else
-            {
+        //    else
+        //    {
 
-                Console.WriteLine("ServiceCheckLock missed!");
-                ServiceCheckTimer.Change(_ServiceCheckEvery, Timeout.Infinite);
+        //        Console.WriteLine("ServiceCheckLock missed!");
+        //        ServiceCheckTimer.Change(_ServiceCheckEvery, Timeout.Infinite);
 
-            }
+        //    }
 
-            #endregion
+        //    #endregion
 
-            // Upload status changes...
-            if (ChargingStationsToAddQueueCopy.   Value != null ||
-                ChargingStationsToUpdateQueueCopy.Value != null ||
-                ChargingStationsToRemoveQueueCopy.Value != null ||
-                EVSEStatusUpdatesDelayedQueueCopy.Value != null ||
-                ChargeDetailRecordsQueueCopy.     Value != null)
-            {
+        //    // Upload status changes...
+        //    if (ChargingStationsToAddQueueCopy.   Value != null ||
+        //        ChargingStationsToUpdateQueueCopy.Value != null ||
+        //        ChargingStationsToRemoveQueueCopy.Value != null ||
+        //        EVSEStatusUpdatesDelayedQueueCopy.Value != null //||
+        //        //ChargeDetailRecordsQueueCopy.     Value != null
+        //        )
+        //    {
 
-                // Use the events to evaluate if something went wrong!
+        //        // Use the events to evaluate if something went wrong!
 
-                var EventTrackingId = EventTracking_Id.New;
+        //        var EventTrackingId = EventTracking_Id.New;
 
-                #region Send new charging stations
+        //        #region Send new charging stations
 
-                if (ChargingStationsToAddQueueCopy.Value.Count > 0)
-                {
+        //        if (ChargingStationsToAddQueueCopy.Value.Count > 0)
+        //        {
 
-                    var AddOrSetStaticDataTask = _ServiceRunId == 1
-                                                     ? (this as ISendData).SetStaticData(ChargingStationsToAddQueueCopy.Value, EventTrackingId: EventTrackingId)
-                                                     : (this as ISendData).AddStaticData(ChargingStationsToAddQueueCopy.Value, EventTrackingId: EventTrackingId);
+        //            var AddOrSetStaticDataTask = _ServiceRunId == 1
+        //                                             ? (this as ISendData).SetStaticData(ChargingStationsToAddQueueCopy.Value, EventTrackingId: EventTrackingId)
+        //                                             : (this as ISendData).AddStaticData(ChargingStationsToAddQueueCopy.Value, EventTrackingId: EventTrackingId);
 
-                    AddOrSetStaticDataTask.Wait();
+        //            AddOrSetStaticDataTask.Wait();
 
-                }
+        //        }
 
-                #endregion
+        //        #endregion
 
-                #region Send updated charging stations
+        //        #region Send updated charging stations
 
-                if (ChargingStationsToUpdateQueueCopy.Value.Count > 0)
-                {
+        //        if (ChargingStationsToUpdateQueueCopy.Value.Count > 0)
+        //        {
 
-                    // Surpress EVSE data updates for all newly added EVSEs
-                    var EVSEsWithoutNewEVSEs = ChargingStationsToUpdateQueueCopy.Value.
-                                                   Where(evse => !ChargingStationsToAddQueueCopy.Value.Contains(evse)).
-                                                   ToArray();
+        //            // Surpress EVSE data updates for all newly added EVSEs
+        //            var EVSEsWithoutNewEVSEs = ChargingStationsToUpdateQueueCopy.Value.
+        //                                           Where(evse => !ChargingStationsToAddQueueCopy.Value.Contains(evse)).
+        //                                           ToArray();
 
 
-                    if (EVSEsWithoutNewEVSEs.Length > 0)
-                    {
+        //            if (EVSEsWithoutNewEVSEs.Length > 0)
+        //            {
 
-                        var UpdateStaticDataTask = (this as ISendData).UpdateStaticData(EVSEsWithoutNewEVSEs, EventTrackingId: EventTrackingId);
+        //                var UpdateStaticDataTask = (this as ISendData).UpdateStaticData(EVSEsWithoutNewEVSEs, EventTrackingId: EventTrackingId);
 
-                        UpdateStaticDataTask.Wait();
+        //                UpdateStaticDataTask.Wait();
 
-                    }
+        //            }
 
-                }
+        //        }
 
-                #endregion
+        //        #endregion
 
-                #region Send EVSE status updates
+        //        #region Send EVSE status updates
 
-                if (EVSEStatusUpdatesDelayedQueueCopy.Value.Count > 0)
-                {
+        //        if (EVSEStatusUpdatesDelayedQueueCopy.Value.Count > 0)
+        //        {
 
-                    var ConnectorPostStatusTask = ConnectorPostStatus(EVSEStatusUpdatesDelayedQueueCopy.Value,
-                                                                      //_ServiceRunId == 1
-                                                                      //    ? ActionTypes.fullLoad
-                                                                      //    : ActionTypes.update,
-                                                                      EventTrackingId: EventTrackingId);
+        //            var ConnectorPostStatusTask = ConnectorPostStatus(EVSEStatusUpdatesDelayedQueueCopy.Value,
+        //                                                              //_ServiceRunId == 1
+        //                                                              //    ? ActionTypes.fullLoad
+        //                                                              //    : ActionTypes.update,
+        //                                                              EventTrackingId: EventTrackingId);
 
-                    ConnectorPostStatusTask.Wait();
+        //            ConnectorPostStatusTask.Wait();
 
-                }
+        //        }
 
-                #endregion
+        //        #endregion
 
-                #region Send removed charging stations
+        //        #region Send removed charging stations
 
-                if (ChargingStationsToRemoveQueueCopy.Value.Count > 0)
-                {
+        //        if (ChargingStationsToRemoveQueueCopy.Value.Count > 0)
+        //        {
 
-                    var ChargingStationsToRemove = ChargingStationsToRemoveQueueCopy.Value.ToArray();
+        //            var ChargingStationsToRemove = ChargingStationsToRemoveQueueCopy.Value.ToArray();
 
-                    if (ChargingStationsToRemove.Length > 0)
-                    {
+        //            if (ChargingStationsToRemove.Length > 0)
+        //            {
 
-                        var ChargingStationsToRemoveTask = (this as ISendData).DeleteStaticData(ChargingStationsToRemove, EventTrackingId: EventTrackingId);
+        //                var ChargingStationsToRemoveTask = (this as ISendData).DeleteStaticData(ChargingStationsToRemove, EventTrackingId: EventTrackingId);
 
-                        ChargingStationsToRemoveTask.Wait();
+        //                ChargingStationsToRemoveTask.Wait();
 
-                    }
+        //            }
 
-                }
+        //        }
 
-                #endregion
+        //        #endregion
 
-                #region Send charge detail records
+        //        #region Send charge detail records
 
-                if (ChargeDetailRecordsQueueCopy.Value.Count > 0)
-                {
+        //        //if (ChargeDetailRecordsQueueCopy.Value.Count > 0)
+        //        //{
 
-                    var SendCDRResults = await SendChargeDetailRecords(ChargeDetailRecordsQueueCopy.Value,
-                                                                       TransmissionTypes.Direct,
-                                                                       DateTime.UtcNow,
-                                                                       new CancellationTokenSource().Token,
-                                                                       EventTrackingId,
-                                                                       DefaultRequestTimeout).ConfigureAwait(false);
+        //        //    var SendCDRResults = await SendChargeDetailRecords(ChargeDetailRecordsQueueCopy.Value,
+        //        //                                                       TransmissionTypes.Direct,
+        //        //                                                       DateTime.UtcNow,
+        //        //                                                       new CancellationTokenSource().Token,
+        //        //                                                       EventTrackingId,
+        //        //                                                       DefaultRequestTimeout).ConfigureAwait(false);
 
-                    //ToDo: Send results events...
-                    //ToDo: Read to queue if it could not be sent...
+        //        //    //ToDo: Send results events...
+        //        //    //ToDo: Read to queue if it could not be sent...
 
-                }
+        //        //}
 
-                #endregion
+        //        #endregion
 
-            }
+        //    }
 
-            return;
+        //    return;
 
-        }
+        //}
 
         #endregion
 
         #region (timer) StatusCheck(State)
 
-        private void StatusCheck(Object State)
+        //private void StatusCheck(Object State)
+        //{
+
+        //    try
+        //    {
+
+        //        FlushFastStatusQueues().Wait();
+
+        //    }
+        //    catch (Exception e)
+        //    {
+
+        //        while (e.InnerException != null)
+        //            e = e.InnerException;
+
+        //        DebugX.LogT("StatusCheckTimer => " + e.Message);
+
+        //        OnWWCPCPOAdapterException?.Invoke(DateTime.UtcNow,
+        //                                          this,
+        //                                          e);
+
+        //    }
+
+        //}
+
+        #endregion
+
+        #region FlushFastStatusQueues()
+
+        //public async Task FlushFastStatusQueues()
+        //{
+
+        //    FlushFastStatusQueuesEvent?.Invoke(this, TimeSpan.FromMilliseconds(_StatusCheckEvery));
+
+        //    //ToDo: AsyncLocal is currently not implemented in Mono!
+        //    //var EVSEStatusQueueCopy = new AsyncLocal<List<EVSEStatusChange>>();
+
+        //    var EVSEStatusChangesFastQueue = new ThreadLocal<List<EVSEStatusUpdate>>();
+
+        //    #region Forward EVSE status changes to "fast" or "delayed" queue...
+
+        //    if (Monitor.TryEnter(StatusCheckLock,
+        //                         TimeSpan.FromMinutes(5)))
+        //    {
+
+        //        try
+        //        {
+
+        //            if (EVSEStatusUpdatesQueue.Count == 0)
+        //                return;
+
+        //            _StatusRunId++;
+
+        //            #region Copy all "EVSEstatus changes" of existing EVSEs into the "fast"    queue...
+
+        //            EVSEStatusChangesFastQueue.Value = new List<EVSEStatusUpdate>(
+        //                                                         EVSEStatusUpdatesQueue.
+        //                                                             Where(evsestatuschange => !ChargingStationsToAddQueue.Any(station => station.EVSEs.Any(evse => evse == evsestatuschange.EVSE)))
+        //                                                     );
+
+        //            #endregion
+
+        //            #region Copy all "EVSEstatus changes" of __new___ EVSEs into the "delayed" queue...
+
+        //            var _EVSEStatusChangesDelayed = EVSEStatusUpdatesQueue.Where(evsestatuschange => ChargingStationsToAddQueue.Any(station => station.EVSEs.Any(evse => evse == evsestatuschange.EVSE))).ToArray();
+
+        //            if (_EVSEStatusChangesDelayed.Length > 0)
+        //                EVSEStatusUpdatesDelayedQueue.AddRange(_EVSEStatusChangesDelayed);
+
+        //            EVSEStatusUpdatesQueue.Clear();
+
+        //            #endregion
+
+        //            // Stop the status check timer.
+        //            // It will be rescheduled by next EVSE status change...
+        //            StatusCheckTimer.Change(Timeout.Infinite, Timeout.Infinite);
+
+        //        }
+        //        catch (Exception e)
+        //        {
+
+        //            while (e.InnerException != null)
+        //                e = e.InnerException;
+
+        //            DebugX.LogT(nameof(WWCPCPOAdapter) + " '" + Id + "' led to an exception: " + e.Message + Environment.NewLine + e.StackTrace);
+
+        //        }
+
+        //        finally
+        //        {
+        //            Monitor.Exit(StatusCheckLock);
+        //        }
+
+        //    }
+
+        //    #region Reschedule, if lock was missed!
+
+        //    else
+        //    {
+
+        //        DebugX.LogT("StatusCheckLock missed!");
+        //        StatusCheckTimer.Change(_StatusCheckEvery, Timeout.Infinite);
+
+        //    }
+
+        //    #endregion
+
+        //    #endregion
+
+        //    #region Upload _fast_ status changes now...
+
+        //    if (EVSEStatusChangesFastQueue.IsValueCreated)
+        //    {
+
+        //        var EventTrackingId = EventTracking_Id.New;
+
+        //        // Use the events to evaluate if something went wrong!
+        //        if (EVSEStatusChangesFastQueue.Value.Count > 0)
+        //        {
+
+        //            var PushEVSEStatusTask = ConnectorPostStatus(EVSEStatusChangesFastQueue.Value,
+        //                                                         //_StatusRunId == 1
+        //                                                         //    ? ActionTypes.fullLoad
+        //                                                         //    : ActionTypes.update,
+        //                                                         EventTrackingId: EventTrackingId);
+
+        //            PushEVSEStatusTask.Wait();
+
+        //        }
+
+        //    }
+
+        //    #endregion
+
+        //    return;
+
+        //}
+
+        #endregion
+
+
+
+
+
+
+
+
+
+
+        #region (timer) FlushEVSEDataAndStatus()
+
+        protected override Boolean SkipFlushEVSEDataAndStatusQueues()
+            => StationsToAddQueue.              Count == 0 &&
+               StationsToUpdateQueue.           Count == 0 &&
+               EVSEStatusChangesDelayedQueue.Count == 0 &&
+               StationsToRemoveQueue.           Count == 0;
+
+        protected override async Task FlushEVSEDataAndStatusQueues()
         {
+
+            #region Get a copy of all current EVSE data and delayed status
+
+            var StationsToAddQueueCopy                 = new HashSet<Station>();
+            var StationsToUpdateQueueCopy              = new HashSet<Station>();
+            var StationsStatusChangesDelayedQueueCopy  = new List<EVSEStatusUpdate>();
+            var StationsToRemoveQueueCopy              = new HashSet<Station>();
+            var StationsUpdateLogCopy                  = new Dictionary<Station,         PropertyUpdateInfos[]>();
+            var ChargingStationsUpdateLogCopy          = new Dictionary<ChargingStation, PropertyUpdateInfos[]>();
+            var ChargingPoolsUpdateLogCopy             = new Dictionary<ChargingPool,    PropertyUpdateInfos[]>();
+
+            await DataAndStatusLock.WaitAsync();
 
             try
             {
 
-                FlushFastStatusQueues().Wait();
+                // Copy 'EVSEs to add', remove originals...
+                StationsToAddQueueCopy                      = new HashSet<Station>                (StationsToAddQueue);
+                StationsToAddQueue.Clear();
+
+                // Copy 'EVSEs to update', remove originals...
+                StationsToUpdateQueueCopy                   = new HashSet<Station>                (StationsToUpdateQueue);
+                StationsToUpdateQueue.Clear();
+
+                // Copy 'EVSE status changes', remove originals...
+                StationsStatusChangesDelayedQueueCopy        = new List<EVSEStatusUpdate>       (EVSEStatusChangesDelayedQueue);
+                //////StationsStatusChangesDelayedQueueCopy.AddRange(StationsToAddQueueCopy.SelectMany(stations => stations.Connectors).Select(connector => new EVSEStatusUpdate(stations, stations.Status, stations.Status)));
+                EVSEStatusChangesDelayedQueue.Clear();
+
+                // Copy 'EVSEs to remove', remove originals...
+                StationsToRemoveQueueCopy                   = new HashSet<Station>                (StationsToRemoveQueue);
+                StationsToRemoveQueue.Clear();
+
+                // Copy EVSE property updates
+                //////EVSEsUpdateLog.           ForEach(_ => StationsUpdateLogCopy.           Add(_.Key, _.Value.ToArray()));
+                EVSEsUpdateLog.Clear();
+
+                // Copy charging station property updates
+                ChargingStationsUpdateLog.ForEach(_ => ChargingStationsUpdateLogCopy.Add(_.Key, _.Value.ToArray()));
+                ChargingStationsUpdateLog.Clear();
+
+                // Copy charging pool property updates
+                ChargingPoolsUpdateLog.   ForEach(_ => ChargingPoolsUpdateLogCopy.   Add(_.Key, _.Value.ToArray()));
+                ChargingPoolsUpdateLog.Clear();
+
+
+                // Stop the timer. Will be rescheduled by next EVSE data/status change...
+                FlushEVSEDataAndStatusTimer.Change(Timeout.Infinite, Timeout.Infinite);
+
+            }
+            finally
+            {
+                DataAndStatusLock.Release();
+            }
+
+            #endregion
+
+            // Use events to check if something went wrong!
+            var EventTrackingId = EventTracking_Id.New;
+
+            //Thread.Sleep(30000);
+
+            #region Send new EVSE data
+
+            if (StationsToAddQueueCopy.Count > 0)
+            {
+
+                var responses = await Task.WhenAll(StationsToAddQueueCopy.
+                                                       Select(station => CPORoaming.StationPost(station,
+                                                                                                CPOClient.StationPartnerIdSelector(station),
+
+                                                                                                //Timestamp,
+                                                                                                //CancellationToken,
+                                                                                                EventTrackingId: EventTrackingId)).
+                                                                                                //RequestTimeout)).
+                                                       ToArray()).
+                                                       ConfigureAwait(false);
+
+
+                foreach (var response in responses)
+                {
+
+                    //response.Content.
+
+                    //if (EVSEsToAddTask.Warnings.Any())
+                    //{
+
+                    //    SendOnWarnings(DateTime.UtcNow,
+                    //                   nameof(WWCPCPOAdapter) + Id,
+                    //                   "EVSEsToAddTask",
+                    //                   EVSEsToAddTask.Warnings);
+
+                    //}
+
+                }
+
+            }
+
+            #endregion
+
+            #region Send changed EVSE data
+
+            if (StationsToUpdateQueueCopy.Count > 0)
+            {
+
+                // Surpress EVSE data updates for all newly added EVSEs
+                var EVSEsWithoutNewEVSEs = StationsToUpdateQueueCopy.
+                                               Where(evse => !StationsToAddQueueCopy.Contains(evse)).
+                                               ToArray();
+
+
+                if (EVSEsWithoutNewEVSEs.Length > 0)
+                {
+
+                    var responses = await Task.WhenAll(EVSEsWithoutNewEVSEs.
+                                                       Select(station => CPORoaming.StationPost(station,
+                                                                                                CPOClient.StationPartnerIdSelector(station),
+
+                                                                                                //Timestamp,
+                                                                                                //CancellationToken,
+                                                                                                EventTrackingId: EventTrackingId)).
+                                                       //RequestTimeout)).
+                                                       ToArray()).
+                                                       ConfigureAwait(false);
+
+
+                    foreach (var response in responses)
+                    {
+
+                        //response.Content.
+
+                        //if (EVSEsToAddTask.Warnings.Any())
+                        //{
+
+                        //    SendOnWarnings(DateTime.UtcNow,
+                        //                   nameof(WWCPCPOAdapter) + Id,
+                        //                   "EVSEsToAddTask",
+                        //                   EVSEsToAddTask.Warnings);
+
+                        //}
+
+                    }
+
+                }
+
+            }
+
+            #endregion
+
+            #region Send changed EVSE status
+
+            if (!DisablePushStatus &&
+                StationsStatusChangesDelayedQueueCopy.Count > 0)
+            {
+
+                var responses = await Task.WhenAll(StationsStatusChangesDelayedQueueCopy.
+                                                       Select(status => CPORoaming.ConnectorPostStatus(status.EVSE.     Id.   ToOIOI(),
+                                                                                                       status.NewStatus.Value.ToOIOI(),
+
+                                                                                                       //Timestamp,
+                                                                                                       //CancellationToken,
+                                                                                                       EventTrackingId: EventTrackingId)).
+                                                                                                       //RequestTimeout)).
+                                                       ToArray()).
+                                                       ConfigureAwait(false);
+
+
+                //var PushEVSEStatusTask = PushEVSEStatus(EVSEStatusChangesDelayedQueueCopy,
+                //                                        _FlushEVSEDataRunId == 1
+                //                                            ? ActionTypes.fullLoad
+                //                                            : ActionTypes.update,
+                //                                        EventTrackingId: EventTrackingId);
+
+                //PushEVSEStatusTask.Wait();
+
+                //if (PushEVSEStatusTask.Result.Warnings.Any())
+                //{
+
+                //    SendOnWarnings(DateTime.UtcNow,
+                //                   nameof(WWCPCPOAdapter) + Id,
+                //                   "PushEVSEStatusTask",
+                //                   PushEVSEStatusTask.Result.Warnings);
+
+                //}
+
+            }
+
+            #endregion
+
+            #region Send removed charging stations
+
+            //if (EVSEsToRemoveQueueCopy.Count > 0)
+            //{
+
+            //    var EVSEsToRemove = EVSEsToRemoveQueueCopy.ToArray();
+
+            //    if (EVSEsToRemove.Length > 0)
+            //    {
+
+            //        var EVSEsToRemoveTask = PushEVSEData(EVSEsToRemove,
+            //                                             ActionTypes.delete,
+            //                                             EventTrackingId: EventTrackingId);
+
+            //        EVSEsToRemoveTask.Wait();
+
+            //        if (EVSEsToRemoveTask.Result.Warnings.Any())
+            //        {
+
+            //            SendOnWarnings(DateTime.UtcNow,
+            //                           nameof(WWCPCPOAdapter) + Id,
+            //                           "EVSEsToRemoveTask",
+            //                           EVSEsToRemoveTask.Result.Warnings);
+
+            //        }
+
+            //    }
+
+            //}
+
+            #endregion
+
+        }
+
+        #endregion
+
+        #region (timer) FlushEVSEFastStatus()
+
+        protected override Boolean SkipFlushEVSEFastStatusQueues()
+            => EVSEStatusChangesFastQueue.Count == 0;
+
+        protected override async Task FlushEVSEFastStatusQueues()
+        {
+
+            #region Get a copy of all current EVSE data and delayed status
+
+            var EVSEStatusFastQueueCopy = new List<EVSEStatusUpdate>();
+
+            await DataAndStatusLock.WaitAsync();
+
+            try
+            {
+
+                // Copy 'EVSE status changes', remove originals...
+                EVSEStatusFastQueueCopy = new List<EVSEStatusUpdate>(EVSEStatusChangesFastQueue.Where(evsestatuschange => !StationsToAddQueue.Any(station => station.Connectors.Any(connector => connector.Id == evsestatuschange.EVSE.Id.ToOIOI()))));
+
+                // Add all evse status changes of EVSE *NOT YET UPLOADED* into the delayed queue...
+                var EVSEStatusChangesDelayed = EVSEStatusChangesFastQueue.Where(evsestatuschange => StationsToAddQueue.Any(station => station.Connectors.Any(connector => connector.Id == evsestatuschange.EVSE.Id.ToOIOI()))).ToArray();
+
+                if (EVSEStatusChangesDelayed.Length > 0)
+                    EVSEStatusChangesDelayedQueue.AddRange(EVSEStatusChangesDelayed);
+
+                EVSEStatusChangesFastQueue.Clear();
+
+                // Stop the timer. Will be rescheduled by next EVSE status change...
+                FlushEVSEFastStatusTimer.Change(Timeout.Infinite, Timeout.Infinite);
+
+            }
+            finally
+            {
+                DataAndStatusLock.Release();
+            }
+
+            #endregion
+
+            // Use events to check if something went wrong!
+            var EventTrackingId = EventTracking_Id.New;
+
+            #region Send changed EVSE status
+
+            if (EVSEStatusFastQueueCopy.Count > 0)
+            {
+
+                var _PushEVSEStatus = await ConnectorPostStatus(EVSEStatusFastQueueCopy,
+                                                                EventTrackingId: EventTrackingId);
+
+                if (_PushEVSEStatus.Warnings.Any())
+                {
+
+                    SendOnWarnings(DateTime.UtcNow,
+                                   nameof(WWCPCPOAdapter) + Id,
+                                   "PushEVSEFastStatus",
+                                   _PushEVSEStatus.Warnings);
+
+                }
+
+            }
+
+            #endregion
+
+        }
+
+        #endregion
+
+
+        #region (timer) FlushChargeDetailRecords()
+
+        protected override Boolean SkipFlushChargeDetailRecordsQueues()
+            => OICP_ChargeDetailRecords_Queue.Count == 0;
+
+        protected override async Task FlushChargeDetailRecordsQueues()
+        {
+
+            #region Make a thread local copy of all data
+
+            var LockTaken                    = await FlushOICPChargeDetailRecordsLock.WaitAsync(TimeSpan.FromSeconds(30));
+            var ChargeDetailRecordQueueCopy  = new List<Session>();
+
+            try
+            {
+
+                if (LockTaken)
+                {
+
+                    // Copy CDRs, empty original queue...
+                    ChargeDetailRecordQueueCopy.AddRange(OICP_ChargeDetailRecords_Queue);
+                    OICP_ChargeDetailRecords_Queue.Clear();
+
+                    //// Stop the timer. Will be rescheduled by the next CDR...
+                    //FlushChargeDetailRecordsTimer.Change(Timeout.Infinite, Timeout.Infinite);
+
+                }
 
             }
             catch (Exception e)
@@ -5952,126 +6642,43 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 while (e.InnerException != null)
                     e = e.InnerException;
 
-                DebugX.LogT("StatusCheckTimer => " + e.Message);
-
-                OnWWCPCPOAdapterException?.Invoke(DateTime.UtcNow,
-                                                  this,
-                                                  e);
+                DebugX.LogT(nameof(WWCPCPOAdapter) + " '" + Id + "' led to an exception: " + e.Message + Environment.NewLine + e.StackTrace);
 
             }
 
-        }
-
-        #endregion
-
-        #region FlushFastStatusQueues()
-
-        public async Task FlushFastStatusQueues()
-        {
-
-            FlushFastStatusQueuesEvent?.Invoke(this, TimeSpan.FromMilliseconds(_StatusCheckEvery));
-
-            //ToDo: AsyncLocal is currently not implemented in Mono!
-            //var EVSEStatusQueueCopy = new AsyncLocal<List<EVSEStatusChange>>();
-
-            var EVSEStatusChangesFastQueue = new ThreadLocal<List<EVSEStatusUpdate>>();
-
-            #region Forward EVSE status changes to "fast" or "delayed" queue...
-
-            if (Monitor.TryEnter(StatusCheckLock,
-                                 TimeSpan.FromMinutes(5)))
+            finally
             {
-
-                try
-                {
-
-                    if (EVSEStatusUpdatesQueue.Count == 0)
-                        return;
-
-                    _StatusRunId++;
-
-                    #region Copy all "EVSEstatus changes" of existing EVSEs into the "fast"    queue...
-
-                    EVSEStatusChangesFastQueue.Value = new List<EVSEStatusUpdate>(
-                                                                 EVSEStatusUpdatesQueue.
-                                                                     Where(evsestatuschange => !ChargingStationsToAddQueue.Any(station => station.EVSEs.Any(evse => evse == evsestatuschange.EVSE)))
-                                                             );
-
-                    #endregion
-
-                    #region Copy all "EVSEstatus changes" of __new___ EVSEs into the "delayed" queue...
-
-                    var _EVSEStatusChangesDelayed = EVSEStatusUpdatesQueue.Where(evsestatuschange => ChargingStationsToAddQueue.Any(station => station.EVSEs.Any(evse => evse == evsestatuschange.EVSE))).ToArray();
-
-                    if (_EVSEStatusChangesDelayed.Length > 0)
-                        EVSEStatusUpdatesDelayedQueue.AddRange(_EVSEStatusChangesDelayed);
-
-                    EVSEStatusUpdatesQueue.Clear();
-
-                    #endregion
-
-                    // Stop the status check timer.
-                    // It will be rescheduled by next EVSE status change...
-                    StatusCheckTimer.Change(Timeout.Infinite, Timeout.Infinite);
-
-                }
-                catch (Exception e)
-                {
-
-                    while (e.InnerException != null)
-                        e = e.InnerException;
-
-                    DebugX.LogT(nameof(WWCPCPOAdapter) + " '" + Id + "' led to an exception: " + e.Message + Environment.NewLine + e.StackTrace);
-
-                }
-
-                finally
-                {
-                    Monitor.Exit(StatusCheckLock);
-                }
-
+                if (LockTaken)
+                    FlushOICPChargeDetailRecordsLock.Release();
             }
 
-            #region Reschedule, if lock was missed!
+            #endregion
 
-            else
+            // Use the events to evaluate if something went wrong!
+
+            #region Send charge detail records
+
+            if (ChargeDetailRecordQueueCopy.Count > 0)
             {
 
-                DebugX.LogT("StatusCheckLock missed!");
-                StatusCheckTimer.Change(_StatusCheckEvery, Timeout.Infinite);
+                var EventTrackingId  = EventTracking_Id.New;
+                var results          = new List<HTTPResponse<SessionPostResponse>>();
+
+                foreach (var chargedetailrecord in ChargeDetailRecordQueueCopy)
+                    results.Add(await CPORoaming.SessionPost(chargedetailrecord,
+                                                             DateTime.UtcNow,
+                                                             new CancellationTokenSource().Token,
+                                                             EventTrackingId,
+                                                             DefaultRequestTimeout));
+
+                //var Warnings         = results.Where(result => result.Content
 
             }
 
             #endregion
 
-            #endregion
-
-            #region Upload _fast_ status changes now...
-
-            if (EVSEStatusChangesFastQueue.IsValueCreated)
-            {
-
-                var EventTrackingId = EventTracking_Id.New;
-
-                // Use the events to evaluate if something went wrong!
-                if (EVSEStatusChangesFastQueue.Value.Count > 0)
-                {
-
-                    var PushEVSEStatusTask = ConnectorPostStatus(EVSEStatusChangesFastQueue.Value,
-                                                                 //_StatusRunId == 1
-                                                                 //    ? ActionTypes.fullLoad
-                                                                 //    : ActionTypes.update,
-                                                                 EventTrackingId: EventTrackingId);
-
-                    PushEVSEStatusTask.Wait();
-
-                }
-
-            }
-
-            #endregion
-
-            return;
+            //ToDo: Send FlushChargeDetailRecordsQueues result event...
+            //ToDo: Re-add to queue if it could not be send...
 
         }
 

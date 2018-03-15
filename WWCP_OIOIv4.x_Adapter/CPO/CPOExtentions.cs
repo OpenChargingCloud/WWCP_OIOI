@@ -27,6 +27,7 @@ using org.GraphDefined.Vanaheimr.Hermod.DNS;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets.TCP;
 using System.Security.Authentication;
+using Org.BouncyCastle.Bcpg.OpenPgp;
 
 #endregion
 
@@ -95,6 +96,7 @@ namespace org.GraphDefined.WWCP
             CreateOIOIv4_x_CPORoamingProvider(this RoamingNetwork                                                 RoamingNetwork,
                                               CSORoamingProvider_Id                                               Id,
                                               I18NString                                                          Name,
+                                              I18NString                                                          Description,
 
                                               String                                                              RemoteHostname,
                                               OIOIv4_x.APIKey                                                     APIKey,
@@ -142,8 +144,10 @@ namespace org.GraphDefined.WWCP
                                               OIOIv4_x.CPO.Session2JSONDelegate                                   ChargeDetailRecord2JSON                         = null,
 
                                               IncludeChargingStationDelegate                                      IncludeChargingStations                         = null,
+
                                               TimeSpan?                                                           ServiceCheckEvery                               = null,
                                               TimeSpan?                                                           StatusCheckEvery                                = null,
+                                              TimeSpan?                                                           CDRCheckEvery                                   = null,
 
                                               Boolean                                                             DisablePushData                                 = false,
                                               Boolean                                                             DisablePushStatus                               = false,
@@ -152,6 +156,9 @@ namespace org.GraphDefined.WWCP
 
                                               Action<OIOIv4_x.CPO.WWCPCPOAdapter>                                 OIOIConfigurator                                = null,
                                               Action<ICSORoamingProvider>                                         Configurator                                    = null,
+
+                                              PgpPublicKeyRing                                                    PublicKeyRing                                   = null,
+                                              PgpSecretKeyRing                                                    SecretKeyRing                                   = null,
                                               DNSClient                                                           DNSClient                                       = null)
 
         {
@@ -174,6 +181,7 @@ namespace org.GraphDefined.WWCP
 
             var NewRoamingProvider = new OIOIv4_x.CPO.WWCPCPOAdapter(Id,
                                                                      Name,
+                                                                     Description,
                                                                      RoamingNetwork,
 
                                                                      RemoteHostname,
@@ -186,8 +194,6 @@ namespace org.GraphDefined.WWCP
                                                                      RemoteHTTPVirtualHost,
                                                                      URIPrefix ?? OIOIv4_x.CPO.CPOClient.DefaultURIPrefix,
                                                                      HTTPUserAgent,
-
-                                                                     IncludeChargingStations,
 
                                                                      IncludeStation,
                                                                      IncludeStationId,
@@ -215,22 +221,31 @@ namespace org.GraphDefined.WWCP
                                                                      LogFileCreator,
 
                                                                      CustomOperatorIdMapper,
-                                                                     CustomEVSEIdMapper,
+                                                                     //CustomEVSEIdMapper,
                                                                      ChargingStation2Station,
                                                                      EVSEStatusUpdate2ConnectorStatusUpdate,
                                                                      WWCPChargeDetailRecord2OIOIChargeDetailRecord,
+
                                                                      Station2JSON,
                                                                      ConnectorStatus2JSON,
                                                                      ChargeDetailRecord2JSON,
 
+                                                                     IncludeChargingStations,
+                                                                     null, //IncludeEVSEIds,
+                                                                     null, //IncludeEVSEs,
+                                                                     CustomEVSEIdMapper,
+
                                                                      ServiceCheckEvery,
                                                                      StatusCheckEvery,
+                                                                     CDRCheckEvery,
 
                                                                      DisablePushData,
                                                                      DisablePushStatus,
                                                                      DisableAuthentication,
                                                                      DisableSendChargeDetailRecords,
 
+                                                                     PublicKeyRing,
+                                                                     SecretKeyRing,
                                                                      DNSClient);
 
 
@@ -295,6 +310,7 @@ namespace org.GraphDefined.WWCP
             CreateOIOIv4_x_CPORoamingProvider(this RoamingNetwork                                          RoamingNetwork,
                                               CSORoamingProvider_Id                                        Id,
                                               I18NString                                                   Name,
+                                              I18NString                                                   Description,
                                               HTTPServer<RoamingNetworks, RoamingNetwork>                  HTTPServer,
 
                                               String                                                       RemoteHostname,
@@ -339,6 +355,7 @@ namespace org.GraphDefined.WWCP
 
                                               TimeSpan?                                                    ServiceCheckEvery                               = null,
                                               TimeSpan?                                                    StatusCheckEvery                                = null,
+                                              TimeSpan?                                                    CDRCheckEvery                                   = null,
 
                                               Boolean                                                      DisablePushData                                 = false,
                                               Boolean                                                      DisablePushStatus                               = false,
@@ -347,6 +364,8 @@ namespace org.GraphDefined.WWCP
 
                                               Action<OIOIv4_x.CPO.WWCPCPOAdapter>                          OIOIConfigurator                                = null,
                                               Action<ICSORoamingProvider>                                  Configurator                                    = null,
+                                              PgpPublicKeyRing                                             PublicKeyRing                                   = null,
+                                              PgpSecretKeyRing                                             SecretKeyRing                                   = null,
                                               DNSClient                                                    DNSClient                                       = null)
 
         {
@@ -373,6 +392,7 @@ namespace org.GraphDefined.WWCP
 
             var NewRoamingProvider = new OIOIv4_x.CPO.WWCPCPOAdapter(Id,
                                                                      Name,
+                                                                     Description,
                                                                      RoamingNetwork,
 
                                                                      new OIOIv4_x.CPO.CPOClient(Id.ToString(),
@@ -408,7 +428,7 @@ namespace org.GraphDefined.WWCP
                                                                      LogFileCreator,
 
                                                                      CustomOperatorIdMapper,
-                                                                     CustomEVSEIdMapper,
+                                                                     //CustomEVSEIdMapper,
                                                                      ChargingStation2Station,
                                                                      EVSEStatusUpdate2ConnectorStatusUpdate,
                                                                      WWCPChargeDetailRecord2OIOIChargeDetailRecord,
@@ -417,14 +437,22 @@ namespace org.GraphDefined.WWCP
                                                                      ChargeDetailRecord2JSON,
 
                                                                      IncludeChargingStations,
+                                                                     null, //IncludeEVSEIds,
+                                                                     null, //IncludeEVSEs,
+                                                                     CustomEVSEIdMapper,
 
                                                                      ServiceCheckEvery,
                                                                      StatusCheckEvery,
+                                                                     CDRCheckEvery,
 
                                                                      DisablePushData,
                                                                      DisablePushStatus,
                                                                      DisableAuthentication,
-                                                                     DisableSendChargeDetailRecords);
+                                                                     DisableSendChargeDetailRecords,
+
+                                                                     PublicKeyRing,
+                                                                     SecretKeyRing,
+                                                                     DNSClient);
 
             OIOIConfigurator?.Invoke(NewRoamingProvider);
 
