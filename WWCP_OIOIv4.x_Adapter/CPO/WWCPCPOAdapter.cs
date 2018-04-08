@@ -52,10 +52,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         #region Data
 
-        private        readonly  ISendData                                        _ISendData;
-
-        private        readonly  ISendStatus                                      _ISendStatus;
-
         private        readonly  CustomOperatorIdMapperDelegate                   _CustomOperatorIdMapper;
 
         //private        readonly  CustomEVSEIdMapperDelegate                      _CustomEVSEIdMapper;
@@ -74,32 +70,17 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         private static readonly  Regex                                            pattern                      = new Regex(@"\s=\s");
 
-        /// <summary>
-        /// The default service check intervall.
-        /// </summary>
-        public  readonly static TimeSpan                                          DefaultServiceCheckEvery     = TimeSpan.FromSeconds(31);
 
-        /// <summary>
-        /// The default status check intervall.
-        /// </summary>
-        public  readonly static TimeSpan                                          DefaultStatusCheckEvery      = TimeSpan.FromSeconds(3);
-
-
-        //private readonly        Object                                            ServiceCheckLock;
-        //private readonly        Timer                                             ServiceCheckTimer;
-        //private readonly        Object                                            StatusCheckLock;
-        //private readonly        Timer                                             StatusCheckTimer;
-
-        private readonly        HashSet<ChargingStation>                          ChargingStationsToAddQueue;
-        private readonly        HashSet<ChargingStation>                          ChargingStationsToUpdateQueue;
-        private readonly        HashSet<ChargingStation>                          ChargingStationsToRemoveQueue;
+        private readonly        HashSet<Station>                                  StationsToAddQueue;
+        private readonly        HashSet<Station>                                  StationsToUpdateQueue;
+        private readonly        HashSet<Station>                                  StationsToRemoveQueue;
         private readonly        List<EVSEStatusUpdate>                            EVSEStatusUpdatesQueue;
         private readonly        List<EVSEStatusUpdate>                            EVSEStatusUpdatesDelayedQueue;
         private readonly        List<ChargeDetailRecord>                          ChargeDetailRecordsQueue;
 
-        private                 UInt64                                            _ServiceRunId;
-        private                 UInt64                                            _StatusRunId;
-        private                 IncludeChargingStationDelegate                    _IncludeChargingStations;
+        //private                 UInt64                                            _ServiceRunId;
+        //private                 UInt64                                            _StatusRunId;
+        private readonly        IncludeChargingStationDelegate                    _IncludeChargingStations;
 
         public readonly static  TimeSpan                                          DefaultRequestTimeout  = TimeSpan.FromSeconds(30);
         public readonly static  eMobilityProvider_Id                              DefaultProviderId      = eMobilityProvider_Id.Parse("DE*8PS");
@@ -107,9 +88,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
 
 
-        protected readonly HashSet<Station> StationsToAddQueue;
-        protected readonly HashSet<Station> StationsToUpdateQueue;
-        protected readonly HashSet<Station> StationsToRemoveQueue;
 
         private readonly List<Session> OICP_ChargeDetailRecords_Queue;
         protected readonly SemaphoreSlim FlushOICPChargeDetailRecordsLock = new SemaphoreSlim(1, 1);
@@ -127,15 +105,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         IEnumerable<IId> ISendChargeDetailRecords.Ids
             => Ids.Cast<IId>();
 
-        #region Name
-
-        /// <summary>
-        /// The offical (multi-language) name of the roaming provider.
-        /// </summary>
-        [Mandatory]
-        public I18NString Name { get; }
-
-        #endregion
 
         /// <summary>
         /// The wrapped CPO roaming object.
@@ -169,108 +138,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             => CPORoaming?.CPOServerLogger;
 
 
-        /// <summary>
-        /// The attached DNS server.
-        /// </summary>
-        public DNSClient DNSClient
-            => CPORoaming.DNSClient;
-
-
-        //#region ServiceCheckEvery
-
-        //private UInt32 _ServiceCheckEvery;
-
-        ///// <summary>
-        ///// The service check intervall.
-        ///// </summary>
-        //public TimeSpan ServiceCheckEvery
-        //{
-
-        //    get
-        //    {
-        //        return TimeSpan.FromSeconds(_ServiceCheckEvery);
-        //    }
-
-        //    set
-        //    {
-        //        _ServiceCheckEvery = (UInt32)value.TotalSeconds;
-        //    }
-
-        //}
-
-        //#endregion
-
-        //#region StatusCheckEvery
-
-        //private UInt32 _StatusCheckEvery;
-
-        ///// <summary>
-        ///// The status check intervall.
-        ///// </summary>
-        //public TimeSpan StatusCheckEvery
-        //{
-
-        //    get
-        //    {
-        //        return TimeSpan.FromSeconds(_StatusCheckEvery);
-        //    }
-
-        //    set
-        //    {
-        //        _StatusCheckEvery = (UInt32)value.TotalSeconds;
-        //    }
-
-        //}
-
-        //#endregion
-
         protected readonly CustomEVSEIdMapperDelegate CustomEVSEIdMapper;
-
-
-        #region DisablePushData
-
-        /// <summary>
-        /// This service can be disabled, e.g. for debugging reasons.
-        /// </summary>
-        public Boolean  DisablePushData                  { get; set; }
-
-        #endregion
-
-        #region DisablePushAdminStatus
-
-        /// <summary>
-        /// This service can be disabled, e.g. for debugging reasons.
-        /// </summary>
-        public Boolean  DisablePushAdminStatus           { get; set; }
-
-        #endregion
-
-        #region DisablePushStatus
-
-        /// <summary>
-        /// This service can be disabled, e.g. for debugging reasons.
-        /// </summary>
-        public Boolean  DisablePushStatus                { get; set; }
-
-        #endregion
-
-        #region DisableAuthentication
-
-        /// <summary>
-        /// This service can be disabled, e.g. for debugging reasons.
-        /// </summary>
-        public Boolean  DisableAuthentication            { get; set; }
-
-        #endregion
-
-        #region DisableSendChargeDetailRecords
-
-        /// <summary>
-        /// This service can be disabled, e.g. for debugging reasons.
-        /// </summary>
-        public Boolean  DisableSendChargeDetailRecords   { get; set; }
-
-        #endregion
 
         #endregion
 
@@ -610,8 +478,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// </summary>
         /// <param name="Id">The unique identification of the roaming provider.</param>
         /// <param name="Name">The offical (multi-language) name of the roaming provider.</param>
+        /// <param name="Description">An optional (multi-language) description of the charging station operator roaming provider.</param>
         /// <param name="RoamingNetwork">A WWCP roaming network.</param>
-        /// <param name="CPORoaming">A OIOI CPO roaming object to be mapped to WWCP.</param>
         /// 
         /// <param name="ChargingStation2Station">A delegate customize the convertion from a WWCP charging station into an OIOI station.</param>
         /// <param name="EVSEStatusUpdate2ConnectorStatusUpdate">A delegate to customize the convertion from a WWCP EVSE status update into an OIOI connector status update.</param>
@@ -699,10 +567,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            this.Name = Name;
-            this._ISendData                                        = this as ISendData;
-            this._ISendStatus                                      = this as ISendStatus;
-
             this.CPORoaming                                        = CPORoaming;
             this._CustomOperatorIdMapper                           = CustomOperatorIdMapper;
             //this._CustomEVSEIdMapper                               = CustomEVSEIdMapper;
@@ -715,28 +579,14 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             this._IncludeChargingStations                          = IncludeChargingStations;
 
-            //this._ServiceCheckEvery                                = (UInt32) (ServiceCheckEvery.HasValue
-            //                                                                      ? ServiceCheckEvery.Value. TotalMilliseconds
-            //                                                                      : DefaultServiceCheckEvery.TotalMilliseconds);
-
-            //this.ServiceCheckLock                                  = new Object();
-            //this.ServiceCheckTimer                                 = new Timer(ServiceCheck, null, 0, _ServiceCheckEvery);
-
-            //this._StatusCheckEvery                                 = (UInt32) (StatusCheckEvery.HasValue
-            //                                                                      ? StatusCheckEvery.Value.  TotalMilliseconds
-            //                                                                      : DefaultStatusCheckEvery. TotalMilliseconds);
-
-            //this.StatusCheckLock                                   = new Object();
-            //this.StatusCheckTimer                                  = new Timer(StatusCheck, null, 0, _StatusCheckEvery);
-
             this.DisablePushData                                   = DisablePushData;
             this.DisablePushStatus                                 = DisablePushStatus;
             this.DisableAuthentication                             = DisableAuthentication;
             this.DisableSendChargeDetailRecords                    = DisableSendChargeDetailRecords;
 
-            this.ChargingStationsToAddQueue                        = new HashSet<ChargingStation>();
-            this.ChargingStationsToUpdateQueue                     = new HashSet<ChargingStation>();
-            this.ChargingStationsToRemoveQueue                     = new HashSet<ChargingStation>();
+            this.StationsToAddQueue                                = new HashSet<Station>();
+            this.StationsToUpdateQueue                             = new HashSet<Station>();
+            this.StationsToRemoveQueue                             = new HashSet<Station>();
             this.EVSEStatusUpdatesQueue                            = new List<EVSEStatusUpdate>();
             this.EVSEStatusUpdatesDelayedQueue                     = new List<EVSEStatusUpdate>();
             this.ChargeDetailRecordsQueue                          = new List<ChargeDetailRecord>();
@@ -1786,7 +1636,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                        (_IncludeChargingStations != null && _IncludeChargingStations(EVSE.ChargingStation)))
                     {
 
-                        ChargingStationsToAddQueue.Add(EVSE.ChargingStation);
+                        StationsToAddQueue.Add(EVSE.ChargingStation.ToOIOI());
 
                         FlushEVSEDataAndStatusTimer.Change(_FlushEVSEDataAndStatusEvery, Timeout.Infinite);
 
@@ -1886,7 +1736,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                        (_IncludeChargingStations != null && _IncludeChargingStations(EVSE.ChargingStation)))
                     {
 
-                        ChargingStationsToAddQueue.Add(EVSE.ChargingStation);
+                        StationsToAddQueue.Add(EVSE.ChargingStation.ToOIOI());
 
                         FlushEVSEDataAndStatusTimer.Change(_FlushEVSEDataAndStatusEvery, Timeout.Infinite);
 
@@ -1993,7 +1843,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                        (_IncludeChargingStations != null && _IncludeChargingStations(EVSE.ChargingStation)))
                     {
 
-                        ChargingStationsToUpdateQueue.Add(EVSE.ChargingStation);
+                        StationsToUpdateQueue.Add(EVSE.ChargingStation.ToOIOI());
 
                         FlushEVSEDataAndStatusTimer.Change(_FlushEVSEDataAndStatusEvery, Timeout.Infinite);
 
@@ -2093,7 +1943,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                        (_IncludeChargingStations != null && _IncludeChargingStations(EVSE.ChargingStation)))
                     {
 
-                        ChargingStationsToUpdateQueue.Add(EVSE.ChargingStation);
+                        StationsToUpdateQueue.Add(EVSE.ChargingStation.ToOIOI());
 
                         FlushEVSEDataAndStatusTimer.Change(_FlushEVSEDataAndStatusEvery, Timeout.Infinite);
 
@@ -2503,7 +2353,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                        (_IncludeChargingStations != null && _IncludeChargingStations(ChargingStation)))
                     {
 
-                        ChargingStationsToAddQueue.Add(ChargingStation);
+                        StationsToAddQueue.Add(ChargingStation.ToOIOI());
 
                         FlushEVSEDataAndStatusTimer.Change(_FlushEVSEDataAndStatusEvery, Timeout.Infinite);
 
@@ -2603,7 +2453,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                        (_IncludeChargingStations != null && _IncludeChargingStations(ChargingStation)))
                     {
 
-                        ChargingStationsToAddQueue.Add(ChargingStation);
+                        StationsToAddQueue.Add(ChargingStation.ToOIOI());
 
                         FlushEVSEDataAndStatusTimer.Change(_FlushEVSEDataAndStatusEvery, Timeout.Infinite);
 
@@ -2708,7 +2558,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                        (_IncludeChargingStations != null && _IncludeChargingStations(ChargingStation)))
                     {
 
-                        ChargingStationsToUpdateQueue.Add(ChargingStation);
+                        StationsToUpdateQueue.Add(ChargingStation.ToOIOI());
 
                         FlushEVSEDataAndStatusTimer.Change(_FlushEVSEDataAndStatusEvery, Timeout.Infinite);
 
@@ -3101,7 +2951,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                            (_IncludeChargingStations != null && _IncludeChargingStations(station)))
                         {
 
-                            ChargingStationsToAddQueue.Add(station);
+                            StationsToAddQueue.Add(station.ToOIOI());
 
                             FlushEVSEDataAndStatusTimer.Change(_FlushEVSEDataAndStatusEvery, Timeout.Infinite);
 
@@ -3206,7 +3056,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                            (_IncludeChargingStations != null && _IncludeChargingStations(station)))
                         {
 
-                            ChargingStationsToAddQueue.Add(station);
+                            StationsToAddQueue.Add(station.ToOIOI());
 
                             FlushEVSEDataAndStatusTimer.Change(_FlushEVSEDataAndStatusEvery, Timeout.Infinite);
 
@@ -3317,7 +3167,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                            (_IncludeChargingStations != null && _IncludeChargingStations(station)))
                         {
 
-                            ChargingStationsToUpdateQueue.Add(station);
+                            StationsToUpdateQueue.Add(station.ToOIOI());
 
                             FlushEVSEDataAndStatusTimer.Change(_FlushEVSEDataAndStatusEvery, Timeout.Infinite);
 
@@ -5962,8 +5812,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         //    //var EVSEDataQueueCopy   = new AsyncLocal<HashSet<EVSE>>();
         //    //var EVSEStatusQueueCopy = new AsyncLocal<List<EVSEStatusChange>>();
 
-        //    var ChargingStationsToAddQueueCopy     = new ThreadLocal<HashSet<ChargingStation>>();
-        //    var ChargingStationsToUpdateQueueCopy  = new ThreadLocal<HashSet<ChargingStation>>();
+        //    var StationsToAddQueueCopy     = new ThreadLocal<HashSet<ChargingStation>>();
+        //    var StationsToUpdateQueueCopy  = new ThreadLocal<HashSet<ChargingStation>>();
         //    var ChargingStationsToRemoveQueueCopy  = new ThreadLocal<HashSet<ChargingStation>>();
         //    var EVSEStatusUpdatesDelayedQueueCopy  = new ThreadLocal<List<EVSEStatusUpdate>>();
         //    //var ChargeDetailRecordsQueueCopy       = new ThreadLocal<List<ChargeDetailRecord>>();
@@ -5974,8 +5824,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         //        try
         //        {
 
-        //            if (ChargingStationsToAddQueue.   Count == 0 &&
-        //                ChargingStationsToUpdateQueue.Count == 0 &&
+        //            if (StationsToAddQueue.   Count == 0 &&
+        //                StationsToUpdateQueue.Count == 0 &&
         //                ChargingStationsToRemoveQueue.Count == 0 &&
         //                EVSEStatusUpdatesDelayedQueue.Count == 0 &&
         //                ChargeDetailRecordsQueue.     Count == 0)
@@ -5986,12 +5836,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         //            _ServiceRunId++;
 
         //            // Copy 'charging stations to add', remove originals...
-        //            ChargingStationsToAddQueueCopy.Value     = new HashSet<ChargingStation>(ChargingStationsToAddQueue);
-        //            ChargingStationsToAddQueue.Clear();
+        //            StationsToAddQueueCopy.Value     = new HashSet<ChargingStation>(StationsToAddQueue);
+        //            StationsToAddQueue.Clear();
 
         //            // Copy 'charging stations to update', remove originals...
-        //            ChargingStationsToUpdateQueueCopy.Value  = new HashSet<ChargingStation>(ChargingStationsToUpdateQueue);
-        //            ChargingStationsToUpdateQueue.Clear();
+        //            StationsToUpdateQueueCopy.Value  = new HashSet<ChargingStation>(StationsToUpdateQueue);
+        //            StationsToUpdateQueue.Clear();
 
         //            // Copy 'charging stations to remove', remove originals...
         //            ChargingStationsToRemoveQueueCopy.Value  = new HashSet<ChargingStation>(ChargingStationsToRemoveQueue);
@@ -6037,8 +5887,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         //    #endregion
 
         //    // Upload status changes...
-        //    if (ChargingStationsToAddQueueCopy.   Value != null ||
-        //        ChargingStationsToUpdateQueueCopy.Value != null ||
+        //    if (StationsToAddQueueCopy.   Value != null ||
+        //        StationsToUpdateQueueCopy.Value != null ||
         //        ChargingStationsToRemoveQueueCopy.Value != null ||
         //        EVSEStatusUpdatesDelayedQueueCopy.Value != null //||
         //        //ChargeDetailRecordsQueueCopy.     Value != null
@@ -6051,12 +5901,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         //        #region Send new charging stations
 
-        //        if (ChargingStationsToAddQueueCopy.Value.Count > 0)
+        //        if (StationsToAddQueueCopy.Value.Count > 0)
         //        {
 
         //            var AddOrSetStaticDataTask = _ServiceRunId == 1
-        //                                             ? (this as ISendData).SetStaticData(ChargingStationsToAddQueueCopy.Value, EventTrackingId: EventTrackingId)
-        //                                             : (this as ISendData).AddStaticData(ChargingStationsToAddQueueCopy.Value, EventTrackingId: EventTrackingId);
+        //                                             ? (this as ISendData).SetStaticData(StationsToAddQueueCopy.Value, EventTrackingId: EventTrackingId)
+        //                                             : (this as ISendData).AddStaticData(StationsToAddQueueCopy.Value, EventTrackingId: EventTrackingId);
 
         //            AddOrSetStaticDataTask.Wait();
 
@@ -6066,12 +5916,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         //        #region Send updated charging stations
 
-        //        if (ChargingStationsToUpdateQueueCopy.Value.Count > 0)
+        //        if (StationsToUpdateQueueCopy.Value.Count > 0)
         //        {
 
         //            // Surpress EVSE data updates for all newly added EVSEs
-        //            var EVSEsWithoutNewEVSEs = ChargingStationsToUpdateQueueCopy.Value.
-        //                                           Where(evse => !ChargingStationsToAddQueueCopy.Value.Contains(evse)).
+        //            var EVSEsWithoutNewEVSEs = StationsToUpdateQueueCopy.Value.
+        //                                           Where(evse => !StationsToAddQueueCopy.Value.Contains(evse)).
         //                                           ToArray();
 
 
@@ -6211,14 +6061,14 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         //            EVSEStatusChangesFastQueue.Value = new List<EVSEStatusUpdate>(
         //                                                         EVSEStatusUpdatesQueue.
-        //                                                             Where(evsestatuschange => !ChargingStationsToAddQueue.Any(station => station.EVSEs.Any(evse => evse == evsestatuschange.EVSE)))
+        //                                                             Where(evsestatuschange => !StationsToAddQueue.Any(station => station.EVSEs.Any(evse => evse == evsestatuschange.EVSE)))
         //                                                     );
 
         //            #endregion
 
         //            #region Copy all "EVSEstatus changes" of __new___ EVSEs into the "delayed" queue...
 
-        //            var _EVSEStatusChangesDelayed = EVSEStatusUpdatesQueue.Where(evsestatuschange => ChargingStationsToAddQueue.Any(station => station.EVSEs.Any(evse => evse == evsestatuschange.EVSE))).ToArray();
+        //            var _EVSEStatusChangesDelayed = EVSEStatusUpdatesQueue.Where(evsestatuschange => StationsToAddQueue.Any(station => station.EVSEs.Any(evse => evse == evsestatuschange.EVSE))).ToArray();
 
         //            if (_EVSEStatusChangesDelayed.Length > 0)
         //                EVSEStatusUpdatesDelayedQueue.AddRange(_EVSEStatusChangesDelayed);
@@ -6306,10 +6156,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         #region (timer) FlushEVSEDataAndStatus()
 
         protected override Boolean SkipFlushEVSEDataAndStatusQueues()
-            => StationsToAddQueue.              Count == 0 &&
-               StationsToUpdateQueue.           Count == 0 &&
+            => StationsToAddQueue.           Count == 0 &&
+               StationsToUpdateQueue.        Count == 0 &&
                EVSEStatusChangesDelayedQueue.Count == 0 &&
-               StationsToRemoveQueue.           Count == 0;
+               StationsToRemoveQueue.        Count == 0;
 
         protected override async Task FlushEVSEDataAndStatusQueues()
         {
