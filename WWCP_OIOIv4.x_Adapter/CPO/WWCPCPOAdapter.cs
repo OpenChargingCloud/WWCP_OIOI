@@ -1638,7 +1638,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                         StationsToAddQueue.Add(EVSE.ChargingStation.ToOIOI());
 
-                        FlushEVSEDataAndStatusTimer.Change(_FlushEVSEDataAndStatusEvery, Timeout.Infinite);
+                        FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery, TimeSpan.FromMilliseconds(-1));
 
                     }
 
@@ -1738,7 +1738,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                         StationsToAddQueue.Add(EVSE.ChargingStation.ToOIOI());
 
-                        FlushEVSEDataAndStatusTimer.Change(_FlushEVSEDataAndStatusEvery, Timeout.Infinite);
+                        FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery, TimeSpan.FromMilliseconds(-1));
 
                     }
 
@@ -1845,7 +1845,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                         StationsToUpdateQueue.Add(EVSE.ChargingStation.ToOIOI());
 
-                        FlushEVSEDataAndStatusTimer.Change(_FlushEVSEDataAndStatusEvery, Timeout.Infinite);
+                        FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery, TimeSpan.FromMilliseconds(-1));
 
                     }
 
@@ -1945,7 +1945,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                         StationsToUpdateQueue.Add(EVSE.ChargingStation.ToOIOI());
 
-                        FlushEVSEDataAndStatusTimer.Change(_FlushEVSEDataAndStatusEvery, Timeout.Infinite);
+                        FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery, TimeSpan.FromMilliseconds(-1));
 
                     }
 
@@ -2249,7 +2249,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 //        //{
 
                 //        EVSEStatusUpdatesQueue.AddRange(StatusUpdates);
-                //        StatusCheckTimer.Change(_StatusCheckEvery, Timeout.Infinite);
+                //        StatusCheckTimer.Change(_StatusCheckEvery, TimeSpan.FromMilliseconds(-1));
 
                 //        //}
 
@@ -2355,7 +2355,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                         StationsToAddQueue.Add(ChargingStation.ToOIOI());
 
-                        FlushEVSEDataAndStatusTimer.Change(_FlushEVSEDataAndStatusEvery, Timeout.Infinite);
+                        FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery, TimeSpan.FromMilliseconds(-1));
 
                     }
 
@@ -2455,7 +2455,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                         StationsToAddQueue.Add(ChargingStation.ToOIOI());
 
-                        FlushEVSEDataAndStatusTimer.Change(_FlushEVSEDataAndStatusEvery, Timeout.Infinite);
+                        FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery, TimeSpan.FromMilliseconds(-1));
 
                     }
 
@@ -2560,7 +2560,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                         StationsToUpdateQueue.Add(ChargingStation.ToOIOI());
 
-                        FlushEVSEDataAndStatusTimer.Change(_FlushEVSEDataAndStatusEvery, Timeout.Infinite);
+                        FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery, TimeSpan.FromMilliseconds(-1));
 
                     }
 
@@ -2953,7 +2953,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                             StationsToAddQueue.Add(station.ToOIOI());
 
-                            FlushEVSEDataAndStatusTimer.Change(_FlushEVSEDataAndStatusEvery, Timeout.Infinite);
+                            FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery, TimeSpan.FromMilliseconds(-1));
 
                         }
 
@@ -3058,7 +3058,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                             StationsToAddQueue.Add(station.ToOIOI());
 
-                            FlushEVSEDataAndStatusTimer.Change(_FlushEVSEDataAndStatusEvery, Timeout.Infinite);
+                            FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery, TimeSpan.FromMilliseconds(-1));
 
                         }
 
@@ -3169,7 +3169,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                             StationsToUpdateQueue.Add(station.ToOIOI());
 
-                            FlushEVSEDataAndStatusTimer.Change(_FlushEVSEDataAndStatusEvery, Timeout.Infinite);
+                            FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery, TimeSpan.FromMilliseconds(-1));
 
                         }
 
@@ -5637,7 +5637,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                SendCDRsResults.SafeWhere(cdrresult => cdrresult.Result != SendCDRResultTypes.Enqueued),
                                                                Runtime: Runtime);
 
-                            FlushChargeDetailRecordsTimer.Change(_FlushChargeDetailRecordsEvery, Timeout.Infinite);
+                            FlushChargeDetailRecordsTimer.Change(FlushChargeDetailRecordsEvery, TimeSpan.FromMilliseconds(-1));
 
                         }
 
@@ -5856,7 +5856,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         //            //ChargeDetailRecordsQueue.Clear();
 
         //            // Stop the timer. Will be rescheduled by next data/status change...
-        //            ServiceCheckTimer.Change(Timeout.Infinite, Timeout.Infinite);
+        //            ServiceCheckTimer.Change(TimeSpan.FromMilliseconds(-1), TimeSpan.FromMilliseconds(-1));
 
         //        }
         //        catch (Exception e)
@@ -5880,7 +5880,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         //    {
 
         //        Console.WriteLine("ServiceCheckLock missed!");
-        //        ServiceCheckTimer.Change(_ServiceCheckEvery, Timeout.Infinite);
+        //        ServiceCheckTimer.Change(_ServiceCheckEvery, TimeSpan.FromMilliseconds(-1));
 
         //    }
 
@@ -6079,7 +6079,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         //            // Stop the status check timer.
         //            // It will be rescheduled by next EVSE status change...
-        //            StatusCheckTimer.Change(Timeout.Infinite, Timeout.Infinite);
+        //            StatusCheckTimer.Change(TimeSpan.FromMilliseconds(-1), TimeSpan.FromMilliseconds(-1));
 
         //        }
         //        catch (Exception e)
@@ -6105,7 +6105,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         //    {
 
         //        DebugX.LogT("StatusCheckLock missed!");
-        //        StatusCheckTimer.Change(_StatusCheckEvery, Timeout.Infinite);
+        //        StatusCheckTimer.Change(_StatusCheckEvery, TimeSpan.FromMilliseconds(-1));
 
         //    }
 
@@ -6210,7 +6210,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
 
                 // Stop the timer. Will be rescheduled by next EVSE data/status change...
-                FlushEVSEDataAndStatusTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                FlushEVSEDataAndStatusTimer.Change(TimeSpan.FromMilliseconds(-1), TimeSpan.FromMilliseconds(-1));
 
             }
             finally
@@ -6417,7 +6417,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 EVSEStatusChangesFastQueue.Clear();
 
                 // Stop the timer. Will be rescheduled by next EVSE status change...
-                FlushEVSEFastStatusTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                FlushEVSEFastStatusTimer.Change(TimeSpan.FromMilliseconds(-1), TimeSpan.FromMilliseconds(-1));
 
             }
             finally
@@ -6481,7 +6481,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                     OICP_ChargeDetailRecords_Queue.Clear();
 
                     //// Stop the timer. Will be rescheduled by the next CDR...
-                    //FlushChargeDetailRecordsTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                    //FlushChargeDetailRecordsTimer.Change(TimeSpan.FromMilliseconds(-1), TimeSpan.FromMilliseconds(-1));
 
                 }
 
