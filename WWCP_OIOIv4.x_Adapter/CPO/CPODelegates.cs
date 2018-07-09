@@ -114,7 +114,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                    CSORoamingProvider_Id                                   SenderId,
                                                                    EventTracking_Id                                        EventTrackingId,
                                                                    RoamingNetwork_Id                                       RoamingNetworkId,
-                                                                   UInt64                                                  NumberOfEVSEDataRecords,
+                                                                   UInt64                                                  NumberOfConnectors,
                                                                    IEnumerable<Tuple<EVSEStatusUpdate, ConnectorStatus>>   ConnectorStatus,
                                                                    IEnumerable<Warning>                                    Warnings,
                                                                    TimeSpan?                                               RequestTimeout);
@@ -129,7 +129,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                    CSORoamingProvider_Id                                   SenderId,
                                                                    EventTracking_Id                                        EventTrackingId,
                                                                    RoamingNetwork_Id                                       RoamingNetworkId,
-                                                                   UInt64                                                  NumberOfEVSEDataRecords,
+                                                                   UInt64                                                  NumberOfConnectors,
                                                                    IEnumerable<Tuple<EVSEStatusUpdate, ConnectorStatus>>   ConnectorStatus,
                                                                    TimeSpan?                                               RequestTimeout,
                                                                    PushEVSEStatusResult                                    Result,
