@@ -275,7 +275,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                              HTTPDelegate: Request => {
 
                                                  return Task.FromResult(
-                                                     new HTTPResponseBuilder(Request) {
+                                                     new HTTPResponse.Builder(Request) {
 
                                                          HTTPStatusCode  = HTTPStatusCode.BadGateway,
                                                          ContentType     = HTTPContentType.TEXT_UTF8,
@@ -948,7 +948,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                    HTTPStatusCode  HTTPStatusCode,
                                                    Result          OIOIResult)
 
-            => new HTTPResponseBuilder(HTTPRequest) {
+            => new HTTPResponse.Builder(HTTPRequest) {
                    HTTPStatusCode  = HTTPStatusCode,
                    Server          = HTTPRequest.HTTPServer.DefaultServerName,
                    Date            = DateTime.UtcNow,
