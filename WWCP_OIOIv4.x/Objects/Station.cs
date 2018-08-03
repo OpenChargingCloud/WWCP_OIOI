@@ -405,8 +405,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
                                                                           Connectors.Select(connector => connector.ToJSON(CustomConnectorSerializer))
                                                                       )),
                            OpeningTime != null
-                               ? new JProperty("open-hour-notes",     JSONArray.Create(
-                                                                      ))
+                               ? new JProperty("open-hour-notes",     new JArray())
                                : null,
 
                            Notes.IsNotNullOrEmpty()
