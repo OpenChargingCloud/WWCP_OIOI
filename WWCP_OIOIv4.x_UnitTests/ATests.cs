@@ -48,7 +48,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.UnitTests
         //protected readonly IPPort                                       RemotePort    = IPPort.Parse(8000);
         protected readonly IPPort                                       RemotePort    = IPPort.Parse(4567);
 
-        protected          HTTPServer<RoamingNetworks, RoamingNetwork>  HTTPAPI;
+        protected          HTTPServer                                   HTTPAPI;
         protected          RoamingNetworks                              _RoamingNetworks;
         protected          RoamingNetwork                               _RoamingNetwork;
         //protected          WWCP_HTTPAPI                                 WWCPAPI;
@@ -69,7 +69,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.UnitTests
             if (RemoteAddress == IPv4Address.Localhost)
             {
 
-                HTTPAPI = new HTTPServer<RoamingNetworks, RoamingNetwork>(
+                HTTPAPI = new HTTPServer(
                               TCPPort:            RemotePort,
                               DefaultServerName:  "GraphDefined OIOI Unit Tests",
                               DNSClient:          _DNSClient
@@ -80,7 +80,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.UnitTests
                 _RoamingNetwork   = new RoamingNetwork(RoamingNetwork_Id.Parse("PlugSurfing"));
                 _RoamingNetworks  = new RoamingNetworks(_RoamingNetwork);
 
-                HTTPAPI.TryAddTenants(HTTPHostname.Any, _RoamingNetworks);
+             //   HTTPAPI.TryAddTenants(HTTPHostname.Any, _RoamingNetworks);
                 HTTPAPI.Start();
 
             }

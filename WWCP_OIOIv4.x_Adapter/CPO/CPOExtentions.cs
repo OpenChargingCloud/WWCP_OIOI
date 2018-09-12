@@ -311,7 +311,7 @@ namespace org.GraphDefined.WWCP
                                               CSORoamingProvider_Id                                        Id,
                                               I18NString                                                   Name,
                                               I18NString                                                   Description,
-                                              HTTPServer<RoamingNetworks, RoamingNetwork>                  HTTPServer,
+                                              HTTPServer                                                   HTTPServer,
 
                                               String                                                       RemoteHostname,
                                               OIOIv4_x.APIKey                                              APIKey,

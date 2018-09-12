@@ -498,40 +498,40 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="DisablePushStatus">This service can be disabled, e.g. for debugging reasons.</param>
         /// <param name="DisableAuthentication">This service can be disabled, e.g. for debugging reasons.</param>
         /// <param name="DisableSendChargeDetailRecords">This service can be disabled, e.g. for debugging reasons.</param>
-        public WWCPCPOAdapter(CSORoamingProvider_Id                              Id,
-                              I18NString                                         Name,
-                              I18NString                                         Description,
-                              RoamingNetwork                                     RoamingNetwork,
+        public WWCPCPOAdapter(CSORoamingProvider_Id                           Id,
+                              I18NString                                      Name,
+                              I18NString                                      Description,
+                              RoamingNetwork                                  RoamingNetwork,
 
-                              CPORoaming                                         CPORoaming,
-                              CustomOperatorIdMapperDelegate                     CustomOperatorIdMapper                   = null,
-                              //CustomEVSEIdMapperDelegate                         CustomEVSEIdMapper                       = null,
-                              ChargingStation2StationDelegate                    ChargingStation2Station                  = null,
-                              EVSEStatusUpdate2ConnectorStatusUpdateDelegate     EVSEStatusUpdate2ConnectorStatusUpdate   = null,
-                              ChargeDetailRecord2SessionDelegate                 ChargeDetailRecord2Session               = null,
+                              CPORoaming                                      CPORoaming,
+                              CustomOperatorIdMapperDelegate                  CustomOperatorIdMapper                   = null,
+                              //CustomEVSEIdMapperDelegate                      CustomEVSEIdMapper                       = null,
+                              ChargingStation2StationDelegate                 ChargingStation2Station                  = null,
+                              EVSEStatusUpdate2ConnectorStatusUpdateDelegate  EVSEStatusUpdate2ConnectorStatusUpdate   = null,
+                              ChargeDetailRecord2SessionDelegate              ChargeDetailRecord2Session               = null,
 
-                              Station2JSONDelegate                               Station2JSON                             = null,
-                              ConnectorStatus2JSONDelegate                       ConnectorStatus2JSON                     = null,
-                              Session2JSONDelegate                               Session2JSON                             = null,
+                              Station2JSONDelegate                            Station2JSON                             = null,
+                              ConnectorStatus2JSONDelegate                    ConnectorStatus2JSON                     = null,
+                              Session2JSONDelegate                            Session2JSON                             = null,
 
-                              IncludeChargingStationDelegate                     IncludeChargingStations                  = null,
+                              IncludeChargingStationDelegate                  IncludeChargingStations                  = null,
 
-                              IncludeEVSEIdDelegate                              IncludeEVSEIds                           = null,
-                              IncludeEVSEDelegate                                IncludeEVSEs                             = null,
-                              CustomEVSEIdMapperDelegate                         CustomEVSEIdMapper                       = null,
+                              IncludeEVSEIdDelegate                           IncludeEVSEIds                           = null,
+                              IncludeEVSEDelegate                             IncludeEVSEs                             = null,
+                              CustomEVSEIdMapperDelegate                      CustomEVSEIdMapper                       = null,
 
-                              TimeSpan?                                          ServiceCheckEvery                        = null,
-                              TimeSpan?                                          StatusCheckEvery                         = null,
-                              TimeSpan?                                          CDRCheckEvery                            = null,
+                              TimeSpan?                                       ServiceCheckEvery                        = null,
+                              TimeSpan?                                       StatusCheckEvery                         = null,
+                              TimeSpan?                                       CDRCheckEvery                            = null,
 
-                              Boolean                                            DisablePushData                          = false,
-                              Boolean                                            DisablePushStatus                        = false,
-                              Boolean                                            DisableAuthentication                    = false,
-                              Boolean                                            DisableSendChargeDetailRecords           = false,
+                              Boolean                                         DisablePushData                          = false,
+                              Boolean                                         DisablePushStatus                        = false,
+                              Boolean                                         DisableAuthentication                    = false,
+                              Boolean                                         DisableSendChargeDetailRecords           = false,
 
-                              PgpPublicKeyRing                                   PublicKeyRing                            = null,
-                              PgpSecretKeyRing                                   SecretKeyRing                            = null,
-                              DNSClient                                          DNSClient                                = null)
+                              PgpPublicKeyRing                                PublicKeyRing                            = null,
+                              PgpSecretKeyRing                                SecretKeyRing                            = null,
+                              DNSClient                                       DNSClient                                = null)
 
             : base(Id,
                    Name,
@@ -597,105 +597,25 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #region OnRemoteStart
 
-            //this.CPORoaming.OnRemoteStart += async (Timestamp,
-            //                                        Sender,
-            //                                        CancellationToken,
-            //                                        EventTrackingId,
-            //                                        EVSEId,
-            //                                        PartnerProductId,
-            //                                        SessionId,
-            //                                        PartnerSessionId,
-            //                                        ProviderId,
-            //                                        EVCOId,
-            //                                        RequestTimeout) => {
-
-            //    #region Request mapping
-
-            //    //ChargingReservation_Id? ReservationId    = null;
-            //    //TimeSpan?               MinDuration      = null;
-            //    //Single?                 PlannedEnergy    = null;
-            //    //ChargingProduct_Id?     ProductId        = ChargingProduct_Id.Parse("AC1");
-            //    //ChargingProduct         ChargingProduct  = null;
-
-            //    //if (PartnerProductId != null && PartnerProductId.ToString().IsNotNullOrEmpty())
-            //    //{
-
-            //    //    // The PartnerProductId is a simple string...
-            //    //    if (!PartnerProductId.Value.ToString().Contains("="))
-            //    //    {
-            //    //        ChargingProduct = new ChargingProduct(
-            //    //                              ChargingProduct_Id.Parse(PartnerProductId.Value.ToString())
-            //    //                          );
-            //    //    }
-
-            //    //    else
-            //    //    {
-
-            //    //        var ProductIdElements = PartnerProductId.ToString().DoubleSplit('|', '=');
-
-            //    //        if (ProductIdElements.Any())
-            //    //        {
-
-            //    //            ChargingReservation_Id _ReservationId;
-
-            //    //            if (ProductIdElements.ContainsKey("R") &&
-            //    //                ChargingReservation_Id.TryParse(EVSEId.OperatorId.ToWWCP(), ProductIdElements["R"], out _ReservationId))
-            //    //                ReservationId = _ReservationId;
+            this.CPORoaming.CPOServer.OnSessionStart += async (Timestamp,
+                                                               Sender,
+                                                               eMAId,
+                                                               ConnectorId,
+                                                               PaymentReference,
+                                                               CancellationToken,
+                                                               EventTrackingId,
+                                                               RequestTimeout) => {
 
 
-            //    //            if (ProductIdElements.ContainsKey("D"))
-            //    //            {
+                var response = await RoamingNetwork.
+                                         RemoteStart(EVSEId:             ConnectorId.ToWWCP(),
+                                                     eMAId:              eMAId,
+                                                     SessionId:          ChargingSession_Id.New,
 
-            //    //                var MinDurationText = ProductIdElements["D"];
-
-            //    //                if (MinDurationText.EndsWith("sec", StringComparison.InvariantCulture))
-            //    //                    MinDuration = TimeSpan.FromSeconds(UInt32.Parse(MinDurationText.Substring(0, MinDurationText.Length - 3)));
-
-            //    //                if (MinDurationText.EndsWith("min", StringComparison.InvariantCulture))
-            //    //                    MinDuration = TimeSpan.FromMinutes(UInt32.Parse(MinDurationText.Substring(0, MinDurationText.Length - 3)));
-
-            //    //            }
-
-
-            //    //            Single _PlannedEnergy = 0;
-
-            //    //            if (ProductIdElements.ContainsKey("E") &&
-            //    //                Single.TryParse(ProductIdElements["E"], out _PlannedEnergy))
-            //    //                PlannedEnergy = _PlannedEnergy;
-
-
-            //    //            ChargingProduct_Id _ProductId;
-
-            //    //            if (ProductIdElements.ContainsKey("P") &&
-            //    //                ChargingProduct_Id.TryParse(ProductIdElements["P"], out _ProductId))
-            //    //                ProductId = _ProductId;
-
-
-            //    //            ChargingProduct = new ChargingProduct(
-            //    //                                      ProductId.Value,
-            //    //                                      MinDuration
-            //    //                                  );
-
-            //    //        }
-
-            //    //    }
-
-            //    //}
-
-            //    #endregion
-
-            //    var response = await RoamingNetwork.
-            //                             RemoteStart(EVSEId.    ToWWCP(),
-            //                                         ChargingProduct,
-            //                                         ReservationId,
-            //                                         SessionId. ToWWCP(),
-            //                                         ProviderId.ToWWCP(),
-            //                                         EVCOId.    ToWWCP(),
-
-            //                                         Timestamp,
-            //                                         CancellationToken,
-            //                                         EventTrackingId,
-            //                                         RequestTimeout).ConfigureAwait(false);
+                                                     Timestamp:          Timestamp,
+                                                     CancellationToken:  CancellationToken,
+                                                     EventTrackingId:    EventTrackingId,
+                                                     RequestTimeout:     RequestTimeout).ConfigureAwait(false);
 
             //    #region Response mapping
 
@@ -746,32 +666,32 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             //    #endregion
 
-            //};
+                return response;
+
+            };
 
             #endregion
 
             #region OnRemoteStop
 
-            //this.CPORoaming.OnRemoteStop += async (Timestamp,
-            //                                       Sender,
-            //                                       CancellationToken,
-            //                                       EventTrackingId,
-            //                                       EVSEId,
-            //                                       SessionId,
-            //                                       PartnerSessionId,
-            //                                       ProviderId,
-            //                                       RequestTimeout) => {
+            this.CPORoaming.CPOServer.OnSessionStop += async (Timestamp,
+                                                              Sender,
+                                                              ConnectorId,
+                                                              SessionId,
+                                                              eMAId,
+                                                              CancellationToken,
+                                                              EventTrackingId,
+                                                              RequestTimeout) => {
 
-            //    var response = await RoamingNetwork.RemoteStop(EVSEId.ToWWCP(),
-            //                                                   SessionId. ToWWCP(),
-            //                                                   ReservationHandling.Close,
-            //                                                   ProviderId.ToWWCP(),
-            //                                                   null,
+                var response = await RoamingNetwork.RemoteStop(SessionId:            SessionId. ToWWCP(),
+                                                               EVSEId:               ConnectorId.ToWWCP(),
+                                                               eMAId:                eMAId,
+                                                               ReservationHandling:  ReservationHandling.Close,
 
-            //                                                   Timestamp,
-            //                                                   CancellationToken,
-            //                                                   EventTrackingId,
-            //                                                   RequestTimeout).ConfigureAwait(false);
+                                                               Timestamp:            Timestamp,
+                                                               CancellationToken:    CancellationToken,
+                                                               EventTrackingId:      EventTrackingId,
+                                                               RequestTimeout:       RequestTimeout).ConfigureAwait(false);
 
             //    #region Response mapping
 
@@ -811,7 +731,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             //    #endregion
 
-            //};
+                return response;
+
+            };
 
             #endregion
 
@@ -850,15 +772,15 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="DisablePushStatus">This service can be disabled, e.g. for debugging reasons.</param>
         /// <param name="DisableAuthentication">This service can be disabled, e.g. for debugging reasons.</param>
         /// <param name="DisableSendChargeDetailRecords">This service can be disabled, e.g. for debugging reasons.</param>
-        public WWCPCPOAdapter(CSORoamingProvider_Id                              Id,
-                              I18NString                                         Name,
-                              I18NString                                         Description,
-                              RoamingNetwork                                     RoamingNetwork,
+        public WWCPCPOAdapter(CSORoamingProvider_Id                            Id,
+                              I18NString                                       Name,
+                              I18NString                                       Description,
+                              RoamingNetwork                                   RoamingNetwork,
 
-                              CPOClient                                          CPOClient,
-                              CPOServer                                          CPOServer,
-                              String                                             ServerLoggingContext                            = CPOServerLogger.DefaultContext,
-                              LogfileCreatorDelegate                             LogfileCreator                                  = null,
+                              CPOClient                                        CPOClient,
+                              CPOServer                                        CPOServer,
+                              String                                           ServerLoggingContext                     = CPOServerLogger.DefaultContext,
+                              LogfileCreatorDelegate                           LogfileCreator                           = null,
 
                               CustomOperatorIdMapperDelegate                   CustomOperatorIdMapper                   = null,
                               //CustomEVSEIdMapperDelegate                       CustomEVSEIdMapper                       = null,
@@ -870,23 +792,23 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               ConnectorStatus2JSONDelegate                     ConnectorStatus2JSON                     = null,
                               Session2JSONDelegate                             Session2JSON                             = null,
 
-                              IncludeChargingStationDelegate                     IncludeChargingStations                         = null,
-                              IncludeEVSEIdDelegate                              IncludeEVSEIds                                  = null,
-                              IncludeEVSEDelegate                                IncludeEVSEs                                    = null,
-                              CustomEVSEIdMapperDelegate                         CustomEVSEIdMapper                              = null,
+                              IncludeChargingStationDelegate                   IncludeChargingStations                  = null,
+                              IncludeEVSEIdDelegate                            IncludeEVSEIds                           = null,
+                              IncludeEVSEDelegate                              IncludeEVSEs                             = null,
+                              CustomEVSEIdMapperDelegate                       CustomEVSEIdMapper                       = null,
 
-                              TimeSpan?                                          ServiceCheckEvery                               = null,
-                              TimeSpan?                                          StatusCheckEvery                                = null,
-                              TimeSpan?                                          CDRCheckEvery                                   = null,
+                              TimeSpan?                                        ServiceCheckEvery                        = null,
+                              TimeSpan?                                        StatusCheckEvery                         = null,
+                              TimeSpan?                                        CDRCheckEvery                            = null,
 
-                              Boolean                                            DisablePushData                                 = false,
-                              Boolean                                            DisablePushStatus                               = false,
-                              Boolean                                            DisableAuthentication                           = false,
-                              Boolean                                            DisableSendChargeDetailRecords                  = false,
+                              Boolean                                          DisablePushData                          = false,
+                              Boolean                                          DisablePushStatus                        = false,
+                              Boolean                                          DisableAuthentication                    = false,
+                              Boolean                                          DisableSendChargeDetailRecords           = false,
 
-                              PgpPublicKeyRing                                   PublicKeyRing                                   = null,
-                              PgpSecretKeyRing                                   SecretKeyRing                                   = null,
-                              DNSClient                                          DNSClient                                       = null)
+                              PgpPublicKeyRing                                 PublicKeyRing                            = null,
+                              PgpSecretKeyRing                                 SecretKeyRing                            = null,
+                              DNSClient                                        DNSClient                                = null)
 
             : this(Id,
                    Name,
@@ -1636,7 +1558,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                        (_IncludeChargingStations != null && _IncludeChargingStations(EVSE.ChargingStation)))
                     {
 
-                        StationsToAddQueue.Add(EVSE.ChargingStation.ToOIOI());
+                        StationsToAddQueue.Add(EVSE.ChargingStation.ToOIOI(CustomEVSEIdMapper: CustomEVSEIdMapper));
 
                         FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery, TimeSpan.FromMilliseconds(-1));
 

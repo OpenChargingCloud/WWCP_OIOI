@@ -875,6 +875,117 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         #endregion
 
+        #region CPORoaming(ClientId, RemoteHostname, RemoteTCPPort = null, RemoteHTTPVirtualHost = null, ... )
+
+        /// <summary>
+        /// Create a new OIOI roaming client for CPOs.
+        /// </summary>
+        /// <param name="ClientId">A unqiue identification of this client.</param>
+        /// <param name="RemoteHostname">The hostname of the remote OIOI service.</param>
+        /// <param name="APIKey">The PlugSurfing API key.</param>
+        /// <param name="StationPartnerIdSelector">A delegate to select a partner identification based on the given charging station.</param>
+        /// <param name="ConnectorStatusPartnerIdSelector">A delegate to select a partner identification based on the given charging connector status.</param>
+        /// 
+        /// <param name="RemoteTCPPort">An optional TCP port of the remote OIOI service.</param>
+        /// <param name="RemoteCertificateValidator">A delegate to verify the remote TLS certificate.</param>
+        /// <param name="ClientCertificateSelector">A delegate to select a TLS client certificate.</param>
+        /// <param name="RemoteHTTPVirtualHost">An optional HTTP virtual hostname of the remote OIOI service.</param>
+        /// <param name="HTTPUserAgent">An optional HTTP user agent identification string for this HTTP client.</param>
+        /// <param name="RequestTimeout">An optional timeout for upstream queries.</param>
+        /// <param name="MaxNumberOfRetries">The default number of maximum transmission retries.</param>
+        /// 
+        /// <param name="ServerName">An optional identification string for the HTTP server.</param>
+        /// <param name="ServerTCPPort">An optional TCP port for the HTTP server.</param>
+        /// <param name="ServerCertificateSelector">An optional delegate to select a SSL/TLS server certificate.</param>
+        /// <param name="RemoteClientCertificateValidator">An optional delegate to verify the SSL/TLS client certificate used for authentication.</param>
+        /// <param name="RemoteClientCertificateSelector">An optional delegate to select the SSL/TLS client certificate used for authentication.</param>
+        /// <param name="ServerAllowedTLSProtocols">The SSL/TLS protocol(s) allowed for this connection.</param>
+        /// <param name="ServerURIPrefix">An optional prefix for the HTTP URIs.</param>
+        /// <param name="ServerContentType">An optional HTTP content type to use.</param>
+        /// <param name="ServerRegisterHTTPRootService">Register HTTP root services for sending a notice to clients connecting via HTML or plain text.</param>
+        /// <param name="ServerAutoStart">Whether to start the server immediately or not.</param>
+        /// 
+        /// <param name="ClientLoggingContext">An optional context for logging client methods.</param>
+        /// <param name="ServerLoggingContext">An optional context for logging server methods.</param>
+        /// <param name="LogFileCreator">A delegate to create a log file from the given context and log file name.</param>
+        /// 
+        /// <param name="DNSClient">An optional DNS client to use.</param>
+        public CPORoaming(HTTPServer                                   HTTPServer,
+                          HTTPHostname                                 HTTPHostname,
+                          String                                       ClientId,
+                          String                                       RemoteHostname,
+                          APIKey                                       APIKey,
+                          PartnerIdForStationDelegate                  StationPartnerIdSelector,
+                          PartnerIdForConnectorStatusDelegate          ConnectorStatusPartnerIdSelector,
+                          IPPort?                                      RemoteTCPPort                      = null,
+                          RemoteCertificateValidationCallback          RemoteCertificateValidator         = null,
+                          LocalCertificateSelectionCallback            ClientCertificateSelector          = null,
+                          String                                       RemoteHTTPVirtualHost              = null,
+                          HTTPURI?                                     URIPrefix                          = null,
+                          String                                       HTTPUserAgent                      = CPOClient.DefaultHTTPUserAgent,
+                          IncludeStationDelegate                       IncludeStation                     = null,
+                          IncludeStationIdDelegate                     IncludeStationId                   = null,
+                          IncludeConnectorIdDelegate                   IncludeConnectorId                 = null,
+                          IncludeConnectorStatusTypesDelegate          IncludeConnectorStatusType         = null,
+                          IncludeConnectorStatusDelegate               IncludeConnectorStatus             = null,
+                          TimeSpan?                                    RequestTimeout                     = null,
+                          Byte?                                        MaxNumberOfRetries                 = CPOClient.DefaultMaxNumberOfRetries,
+                          ServerCertificateSelectorDelegate            ServerCertificateSelector          = null,
+                          RemoteCertificateValidationCallback          RemoteClientCertificateValidator   = null,
+                          LocalCertificateSelectionCallback            RemoteClientCertificateSelector    = null,
+                          SslProtocols                                 ServerAllowedTLSProtocols          = SslProtocols.Tls12,
+                          HTTPURI?                                     ServerURIPrefix                    = null,
+                          ServerAPIKeyValidatorDelegate                ServerAPIKeyValidator              = null,
+                          HTTPContentType                              ServerContentType                  = null,
+                          Boolean                                      ServerRegisterHTTPRootService      = true,
+                          Boolean                                      ServerAutoStart                    = false,
+
+                          String                                       ClientLoggingContext               = CPOClient.CPOClientLogger.DefaultContext,
+                          String                                       ServerLoggingContext               = CPOServerLogger.DefaultContext,
+                          LogfileCreatorDelegate                       LogFileCreator                     = null,
+
+                          DNSClient                                    DNSClient                          = null)
+
+            : this(new CPOClient(ClientId,
+                                 RemoteHostname,
+                                 APIKey,
+                                 StationPartnerIdSelector,
+                                 ConnectorStatusPartnerIdSelector,
+                                 RemoteTCPPort,
+                                 RemoteCertificateValidator,
+                                 ClientCertificateSelector,
+                                 RemoteHTTPVirtualHost,
+                                 URIPrefix ?? CPOClient.DefaultURIPrefix,
+                                 HTTPUserAgent,
+                                 IncludeStation,
+                                 IncludeStationId,
+                                 IncludeConnectorId,
+                                 IncludeConnectorStatusType,
+                                 IncludeConnectorStatus,
+                                 RequestTimeout,
+                                 MaxNumberOfRetries,
+                                 DNSClient,
+                                 ClientLoggingContext,
+                                 LogFileCreator),
+
+                   new CPOServer(HTTPServer,
+                                 HTTPHostname,
+                                 ServerURIPrefix ?? CPOServer.DefaultURIPrefix,
+                                 ServerAPIKeyValidator,
+                                 ServerContentType),
+
+                   ServerLoggingContext,
+                   LogFileCreator)
+
+        {
+
+            if (ServerAutoStart)
+                Start();
+
+        }
+
+        #endregion
+
         #endregion
 
 

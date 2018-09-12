@@ -63,7 +63,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                        CPOServer             Sender,
                                        eMobilityAccount_Id   eMAId,
                                        Connector_Id          ConnectorId,
-                                       PaymentReference      PaymentReference,
+                                       PaymentReference?     PaymentReference,
                                        CancellationToken     CancellationToken,
                                        EventTracking_Id      EventTrackingId,
                                        TimeSpan?             RequestTimeout  = null);
@@ -99,7 +99,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                       EventTracking_Id       EventTrackingId,
                                       User                   User,
                                       Connector_Id           ConnectorId,
-                                      Session_Id?            SessionId);
+                                      Session_Id             SessionId);
 
 
     /// <summary>
@@ -118,7 +118,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         OnSessionStopDelegate        (DateTime               Timestamp,
                                       CPOServer              Sender,
                                       Connector_Id           ConnectorId,
-                                      ChargingSession_Id     SessionId,
+                                      Session_Id             SessionId,
                                       eMobilityAccount_Id    eMAId,
                                       CancellationToken      CancellationToken,
                                       EventTracking_Id       EventTrackingId,
@@ -136,7 +136,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                       EventTracking_Id       EventTrackingId,
                                       User                   User,
                                       Connector_Id           ConnectorId,
-                                      Session_Id?            SessionId,
+                                      Session_Id             SessionId,
                                       Result                 Result,
                                       TimeSpan               Duration);
 

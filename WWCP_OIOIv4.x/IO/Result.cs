@@ -37,11 +37,23 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
         #region Properties
 
-        [Mandatory]
-        public UInt32  Code       { get; }
+        /// <summary>
+        /// An optional JSON object.
+        /// </summary>
+        [Optional]
+        public JProperty  JSON       { get; }
 
+        /// <summary>
+        /// The result code.
+        /// </summary>
         [Mandatory]
-        public String  Message    { get; }
+        public UInt32     Code       { get; }
+
+        /// <summary>
+        /// An optional result message.
+        /// </summary>
+        [Optional]
+        public String     Message    { get; }
 
         #endregion
 
@@ -52,12 +64,15 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// </summary>
         /// <param name="Code">The result code.</param>
         /// <param name="Message">An optional result message.</param>
-        private Result(UInt32  Code,
-                       String  Message  = null)
+        /// <param name="JSON">An optional JSON object.</param>
+        private Result(UInt32     Code,
+                       String     Message   = null,
+                       JProperty  JSON      = null)
         {
 
             this.Code     = Code;
             this.Message  = Message;
+            this.JSON     = JSON;
 
         }
 
@@ -67,6 +82,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         #region Documentation
 
         // {
+        //     { }, // Some JSON
         //     "result": {
         //         "code":     0,
         //         "message":  "Success."
@@ -84,9 +100,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         public static Result Parse(JObject ResultJSON)
         {
 
-            Result _Result;
-
-            if (TryParse(ResultJSON, out _Result))
+            if (TryParse(ResultJSON, out Result _Result))
                 return _Result;
 
             return null;
@@ -104,9 +118,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         public static Result Parse(String ResultText)
         {
 
-            Result _Result;
-
-            if (TryParse(ResultText, out _Result))
+            if (TryParse(ResultText, out Result _Result))
                 return _Result;
 
             return null;
@@ -124,7 +136,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <param name="Result">The parsed Result.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static Boolean TryParse(String               ResultText,
-                                       out Result             Result,
+                                       out Result           Result,
                                        OnExceptionDelegate  OnException  = null)
         {
 
@@ -159,7 +171,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <param name="Result">The parsed Result.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static Boolean TryParse(JObject              ResultJSON,
-                                       out Result             Result,
+                                       out Result           Result,
                                        OnExceptionDelegate  OnException  = null)
         {
 
@@ -199,9 +211,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         public JObject ToJSON()
 
             => JSONObject.Create(
-                   new JProperty("code",     Code),
-                   new JProperty("message",  Message)
-               );
+                   JSON,
+                   new JProperty("result", new JObject(
+                       new JProperty("code",     Code),
+                       new JProperty("message",  Message)
+               )));
 
         #endregion
 
@@ -217,16 +231,31 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         #endregion
 
 
-        #region (static) Success(Message = null)
+        #region (static) Success(Message = null, SessionId = null, IsStoppable = null)
 
         /// <summary>
         /// Return a successful result having the given optional message.
         /// </summary>
         /// <param name="Message">An optional success message.</param>
-        public static Result Success(String Message = null)
+        /// <param name="IsStoppable">A charging session identification.</param>
+        /// <param name="SessionId">Whether the charging session is stoppable via a session-stop command.</param>
+        public static Result Success(String       Message       = null,
+                                     Session_Id?  SessionId     = null,
+                                     Boolean?     IsStoppable   = null)
 
             => new Result(0,
-                          Message ?? "Success.");
+                          Message ?? "Success!",
+                          new JProperty("session-start", JSONObject.Create(
+
+                              SessionId.  HasValue
+                                  ? new JProperty("session-id",    SessionId.  Value.ToString())
+                                  : null,
+
+                              IsStoppable.HasValue
+                                  ? new JProperty("is-stoppable",  IsStoppable.Value)
+                                  : null
+
+                          )));
 
         #endregion
 

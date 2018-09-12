@@ -70,7 +70,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         public new static readonly TimeSpan  DefaultQueryTimeout    = TimeSpan.FromMinutes(1);
 
 
-        private ServerAPIKeyValidatorDelegate  APIKeyValidator;
+        private readonly ServerAPIKeyValidatorDelegate  APIKeyValidator;
 
         #endregion
 
@@ -79,7 +79,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <summary>
         /// The HTTP server of this API.
         /// </summary>
-        public HTTPServer<RoamingNetworks, RoamingNetwork>  HTTPServer          { get; }
+        public HTTPServer                                   HTTPServer          { get; }
 
         /// <summary>
         /// The HTTP hostname of this API.
@@ -104,6 +104,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         #endregion
 
         #region Events
+
+        /// <summary>
+        /// An event sent whenever a HTTP request was received.
+        /// </summary>
+        public event RequestLogHandler               OnAnyHTTPRequest;
 
         #region OnSessionStart(HTTP)Request/-Response
 
@@ -162,6 +167,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         public event OnSessionStopResponseDelegate  OnSessionStopResponse;
 
         #endregion
+
+        /// <summary>
+        /// An event sent whenever a HTTP response was sent.
+        /// </summary>
+        public event AccessLogHandler                OnAnyHTTPResponse;
+
 
 
         #region Generic HTTP/SOAP server logging
@@ -238,23 +249,23 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                          DNSClient                            DNSClient                          = null,
                          Boolean                              Autostart                          = false)
 
-            : this(new HTTPServer<RoamingNetworks, RoamingNetwork>(HTTPPort ?? DefaultHTTPServerPort,
-                                                                   DefaultServerName.IsNotNullOrEmpty() ? DefaultServerName : DefaultHTTPServerName,
-                                                                   ServerCertificateSelector,
-                                                                   ClientCertificateValidator,
-                                                                   ClientCertificateSelector,
-                                                                   AllowedTLSProtocols,
-                                                                   ServerThreadName,
-                                                                   ServerThreadPriority,
-                                                                   ServerThreadIsBackground,
-                                                                   ConnectionIdBuilder,
-                                                                   ConnectionThreadsNameBuilder,
-                                                                   ConnectionThreadsPriorityBuilder,
-                                                                   ConnectionThreadsAreBackground,
-                                                                   ConnectionTimeout,
-                                                                   MaxClientConnections,
-                                                                   DNSClient ?? new DNSClient(),
-                                                                   false),
+            : this(new HTTPServer(HTTPPort ?? DefaultHTTPServerPort,
+                                  DefaultServerName.IsNotNullOrEmpty() ? DefaultServerName : DefaultHTTPServerName,
+                                  ServerCertificateSelector,
+                                  ClientCertificateValidator,
+                                  ClientCertificateSelector,
+                                  AllowedTLSProtocols,
+                                  ServerThreadName,
+                                  ServerThreadPriority,
+                                  ServerThreadIsBackground,
+                                  ConnectionIdBuilder,
+                                  ConnectionThreadsNameBuilder,
+                                  ConnectionThreadsPriorityBuilder,
+                                  ConnectionThreadsAreBackground,
+                                  ConnectionTimeout,
+                                  MaxClientConnections,
+                                  DNSClient ?? new DNSClient(),
+                                  false),
                    HTTPHostname,
                    URIPrefix ?? DefaultURIPrefix,
                    APIKeyValidator,
@@ -309,7 +320,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="HTTPServer">An existing HTTP server.</param>
         /// <param name="HTTPHostname">An optional HTTP hostname.</param>
         /// <param name="URIPrefix">The URI prefix for all incoming HTTP requests.</param>
-        public CPOServer(HTTPServer<RoamingNetworks, RoamingNetwork>  HTTPServer,
+        public CPOServer(HTTPServer                                   HTTPServer,
                          HTTPHostname?                                HTTPHostname                    = null,
                          HTTPURI?                                     URIPrefix                       = null,
                          ServerAPIKeyValidatorDelegate                APIKeyValidator                 = null,
@@ -349,7 +360,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                          HTTPContentType.JSON_UTF8,
                                          HTTPDelegate: async Request => {
 
-                                             JObject       JSONObj;
+                                             OnAnyHTTPRequest?.Invoke(DateTime.UtcNow,
+                                                                      this.HTTPServer,
+                                                                      Request);
+
+                                             HTTPResponse _HTTPResponse = null;
 
                                              if (!Request.TryParseJObjectRequestBody(out JObject JSONBody, out HTTPResponse HTTPResponse))
                                                  return CreateResponse(Request,
@@ -361,32 +376,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                              if (JSONBody.ParseOptional("session-start",
                                                                         "session-start",
                                                                         HTTPServer.DefaultServerName,
-                                                                        out JSONObj,
+                                                                        out JObject JSONObj,
                                                                         Request,
                                                                         out HTTPResponse))
                                              {
-
-                                                 #region Documentation
-
-                                                 // HTTP Status codes
-                                                 //  200 OK             Request was processed successfully
-                                                 //  401 Unauthorized   The token, username or identifier type were incorrect
-                                                 //  404 Not found      A connector could not be found by the supplied identifier
-
-                                                 // Result codes
-                                                 //    0                Success
-                                                 //  140                Authentication failed: No positive authentication response
-                                                 //  144                Authentication failed: Email does not exist
-                                                 //  145                Authentication failed: User token not valid
-                                                 //  181                EVSE not found
-                                                 //  300                CPO error
-                                                 //  302                CPO timeout
-                                                 //  310                EVSE error
-                                                 //  312                EVSE timeout
-                                                 //  320                EVSE already in use
-                                                 //  321                No EV connected to EVSE
-
-                                                 #endregion
 
                                                  // ---------------------------------------------------------
                                                  // curl -v -H "Accept: application/json" \
@@ -400,6 +393,18 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  //         http://127.0.0.1:4567/api/v4/request
                                                  // ---------------------------------------------------------
 
+                                                 // ---------------------------------------------------------
+                                                 // curl -v -H "Accept: application/json" \
+                                                 //         -H "Content-Type: application/json" \
+                                                 //         -d "{ \"session-start\": { \
+                                                 //                   \"user\": { \
+                                                 //                       \"identifier-type\": \"evco-id\", \
+                                                 //                       \"identifier\":      \"DE-BDP-123456-7\" }, \
+                                                 //                   \"connector-id\":       \"DE*BDO*EVSE*CI*TESTS*A*1\", \
+                                                 //                   \"payment-reference\":  \"bitcoins\" } }" \
+                                                 //         http://127.0.0.1:3004/RNs/Prod/IO/PlugSurfing
+                                                 // ---------------------------------------------------------
+
                                                  #region Data
 
                                                  JObject               UserJSON             = null;
@@ -410,7 +415,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  PaymentReference?     PaymentReference     = null;
 
                                                  Result                SessionStartResult   = null;
-                                                 HTTPResponse          _HTTPResponse        = null;
 
                                                  #endregion
 
@@ -536,44 +540,61 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  #endregion
 
 
-                                                 RemoteStartEVSEResult _RemoteStartEVSEResult = null;
+                                                 var _RemoteStartEVSEResult = RemoteStartEVSEResult.OutOfService;
 
-                                                 //// Call remote start directly...
-                                                 //var OnSessionStartLocal = OnSessionStart;
-                                                 //if (OnSessionStartLocal == null)
-                                                 //    _RemoteStartEVSEResult  = await RoamingNetwork.RemoteStart(EVSEId:             ConnectorId,
-                                                 //                                                               //ProviderId:         DefaultEMobilityProviderId,
-                                                 //                                                               eMAId:              eMobilityAccountId,
-                                                 //                                                               Timestamp:          Request.Timestamp,
-                                                 //                                                               CancellationToken:  Request.CancellationToken,
-                                                 //                                                               EventTrackingId:    Request.EventTrackingId,
-                                                 //                                                               RequestTimeout:     TimeSpan.FromSeconds(45));
+                                                 var OnSessionStartLocal = OnSessionStart;
+                                                 if (OnSessionStartLocal != null)
+                                                 {
 
-                                                 //// ...or send OnSessionStart event(s)!
-                                                 //else
-                                                 //    _RemoteStartEVSEResult  = (await Task.WhenAll(OnSessionStartLocal.
-                                                 //                                                      GetInvocationList().
-                                                 //                                                      Select(subscriber => (subscriber as OnSessionStartDelegate)
-                                                 //                                                          (DateTime.UtcNow,
-                                                 //                                                           this,
-                                                 //                                                           eMobilityAccountId,
-                                                 //                                                           ConnectorId,
-                                                 //                                                           PaymentReference,
-                                                 //                                                           new CancellationTokenSource().Token,
-                                                 //                                                           EventTracking_Id.New,
-                                                 //                                                           TimeSpan.FromSeconds(45))))).
+                                                     _RemoteStartEVSEResult  = (await Task.WhenAll(OnSessionStartLocal.
+                                                                                                       GetInvocationList().
+                                                                                                       Select(subscriber => (subscriber as OnSessionStartDelegate)
+                                                                                                           (DateTime.UtcNow,
+                                                                                                            this,
+                                                                                                            eMobilityAccountId,
+                                                                                                            ConnectorId,
+                                                                                                            PaymentReference,
+                                                                                                            new CancellationTokenSource().Token,
+                                                                                                            EventTracking_Id.New,
+                                                                                                            TimeSpan.FromSeconds(45))))).
 
-                                                 //                              FirstOrDefault(result => result.Result != RemoteStartEVSEResultType.Unspecified);
+                                                                               FirstOrDefault(result => result.Result != RemoteStartEVSEResultType.Unspecified);
+
+                                                 }
 
 
                                                  switch (_RemoteStartEVSEResult.Result)
                                                  {
 
-                                                     #region UnknownOperator
+                                                     #region Documentation
 
-                                                     case RemoteStartEVSEResultType.UnknownOperator:
+                                                     // HTTP Status codes
+                                                     //  200 OK             Request was processed successfully
+                                                     //  401 Unauthorized   The token, username or identifier type were incorrect
+                                                     //  404 Not found      A connector could not be found by the supplied identifier
 
-                                                         SessionStartResult  = Result.Error(300, "Unknown charging station operator!");
+                                                     // Result codes
+                                                     //    0                Success
+                                                     //  140                Authentication failed: No positive authentication response
+                                                     //  144                Authentication failed: Email does not exist
+                                                     //  145                Authentication failed: User token not valid
+                                                     //  181                EVSE not found
+                                                     //  300                CPO error
+                                                     //  302                CPO timeout
+                                                     //  310                EVSE error
+                                                     //  312                EVSE timeout
+                                                     //  320                EVSE already in use
+                                                     //  321                No EV connected to EVSE
+
+                                                     #endregion
+
+                                                     #region Success
+
+                                                     case RemoteStartEVSEResultType.Success:
+
+                                                         SessionStartResult  = Result.Success("Success!",
+                                                                                              Session_Id.Parse(_RemoteStartEVSEResult.Session.Id.ToString()),
+                                                                                              true);
 
                                                          _HTTPResponse       = CreateResponse(Request,
                                                                                               HTTPStatusCode.OK,
@@ -590,12 +611,64 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                          SessionStartResult  = Result.Error(181, "EVSE not found!");
 
                                                          _HTTPResponse       = CreateResponse(Request,
+                                                                                              HTTPStatusCode.NotFound,
+                                                                                              SessionStartResult);
+
+                                                         break;
+
+                                                     #endregion
+
+                                                     #region UnknownOperator
+
+                                                     case RemoteStartEVSEResultType.UnknownOperator:
+
+                                                         SessionStartResult  = Result.Error(300, "Unknown charging station operator!");
+
+                                                         _HTTPResponse       = CreateResponse(Request,
                                                                                               HTTPStatusCode.OK,
                                                                                               SessionStartResult);
 
                                                          break;
 
                                                      #endregion
+
+                                                     #region Timeout
+
+                                                     case RemoteStartEVSEResultType.Timeout:
+
+                                                         SessionStartResult  = Result.Error(312, "EVSE timeout!");
+
+                                                         _HTTPResponse       = CreateResponse(Request,
+                                                                                              HTTPStatusCode.OK,
+                                                                                              SessionStartResult);
+
+                                                         break;
+
+                                                     #endregion
+
+                                                     #region AlreadyInUse
+
+                                                     case RemoteStartEVSEResultType.AlreadyInUse:
+
+                                                         SessionStartResult  = Result.Error(320, "EVSE already in use!");
+
+                                                         _HTTPResponse       = CreateResponse(Request,
+                                                                                              HTTPStatusCode.OK,
+                                                                                              SessionStartResult);
+
+                                                         break;
+
+                                                     #endregion
+
+                                                     default:
+
+                                                         SessionStartResult  = Result.Error(310, "EVSE error!");
+
+                                                         _HTTPResponse       = CreateResponse(Request,
+                                                                                              HTTPStatusCode.OK,
+                                                                                              SessionStartResult);
+
+                                                         break;
 
                                                  }
 
@@ -620,8 +693,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                                     _HTTPResponse);
 
                                                  #endregion
-
-                                                 return _HTTPResponse;
 
                                              }
 
@@ -654,18 +725,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  //     }
                                                  // }
 
-                                                 // HTTP Status codes
-                                                 //  200 OK             Request was processed successfully
-                                                 //  401 Unauthorized   The token, username or identifier type were incorrect
-                                                 //  404 Not found      A connector could not be found by the supplied identifier
-
-                                                 // Result codes
-                                                 //    0                Success
-                                                 //  140                Authentication failed: No positive authentication response
-                                                 //  144                Authentication failed: Email does not exist
-                                                 //  145                Authentication failed: User token not valid
-                                                 //  181                EVSE not found
-
                                                  #endregion
 
                                                  // ---------------------------------------------------------
@@ -680,6 +739,18 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  //         http://127.0.0.1:4567/api/v4/request
                                                  // ---------------------------------------------------------
 
+                                                 // ---------------------------------------------------------
+                                                 // curl -v -H "Accept: application/json" \
+                                                 //         -H "Content-Type: application/json" \
+                                                 //         -d "{ \"session-stop\": { \
+                                                 //                   \"user\": { \
+                                                 //                       \"identifier-type\": \"evco-id\", \
+                                                 //                       \"identifier\":      \"DE-BDP-123456-7\" }, \
+                                                 //                   \"connector-id\":  \"DE*GEF*E12345678\", \
+                                                 //                   \"session-id\":    \"a35823fb-f40a-42a3-b234-df243cb06c89\" } }" \
+                                                 //         http://127.0.0.1:3004/RNs/Prod/IO/PlugSurfing
+                                                 // ---------------------------------------------------------
+
                                                  #region Data
 
                                                  JObject              UserJSON            = null;
@@ -690,7 +761,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  Session_Id           SessionId           = default(Session_Id);
 
                                                  Result               SessionStopResult   = null;
-                                                 HTTPResponse         _HTTPResponse       = null;
 
                                                  #endregion
 
@@ -810,46 +880,53 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  #endregion
 
 
-                                                 RemoteStopEVSEResult _RemoteEVSEStopResult = null;
+                                                 var _RemoteEVSEStopResult = RemoteStopEVSEResult.OutOfService(ChargingSession_Id.Parse(SessionId.ToString()));
 
-                                                 //// Call remote stop directly...
-                                                 //var OnSessionStopLocal = OnSessionStop;
-                                                 //if (OnSessionStopLocal == null)
-                                                 //    _RemoteEVSEStopResult  = await RoamingNetwork.RemoteStop(EVSEId:               ConnectorId,
-                                                 //                                                             SessionId:            SessionId,
-                                                 //                                                             ReservationHandling:  ReservationHandling.Close,
-                                                 //                                                             ProviderId:           DefaultEMobilityProviderId,
-                                                 //                                                             eMAId:                eMobilityAccountId,
-                                                 //                                                             Timestamp:            Request.Timestamp,
-                                                 //                                                             CancellationToken:    Request.CancellationToken,
-                                                 //                                                             EventTrackingId:      Request.EventTrackingId,
-                                                 //                                                             RequestTimeout:       TimeSpan.FromSeconds(45));
+                                                 var OnSessionStopLocal = OnSessionStop;
+                                                 if (OnSessionStopLocal == null)
+                                                 {
 
-                                                 //// ...or send OnSessionStop event(s)!
-                                                 //else
-                                                 //    _RemoteEVSEStopResult  = (await Task.WhenAll(OnSessionStopLocal.
-                                                 //                                                     GetInvocationList().
-                                                 //                                                     Select(subscriber => (subscriber as OnSessionStopDelegate)
-                                                 //                                                         (DateTime.UtcNow,
-                                                 //                                                          this,
-                                                 //                                                          ConnectorId,
-                                                 //                                                          SessionId,
-                                                 //                                                          eMobilityAccountId,
-                                                 //                                                          new CancellationTokenSource().Token,
-                                                 //                                                          EventTracking_Id.New,
-                                                 //                                                          TimeSpan.FromSeconds(45))))).
+                                                     _RemoteEVSEStopResult  = (await Task.WhenAll(OnSessionStopLocal.
+                                                                                                      GetInvocationList().
+                                                                                                      Select(subscriber => (subscriber as OnSessionStopDelegate)
+                                                                                                          (DateTime.UtcNow,
+                                                                                                           this,
+                                                                                                           ConnectorId,
+                                                                                                           SessionId,
+                                                                                                           eMobilityAccountId,
+                                                                                                           new CancellationTokenSource().Token,
+                                                                                                           EventTracking_Id.New,
+                                                                                                           TimeSpan.FromSeconds(45))))).
 
-                                                 //                             FirstOrDefault(result => result.Result != RemoteStopEVSEResultType.Unspecified);
+                                                                              FirstOrDefault(result => result.Result != RemoteStopEVSEResultType.Unspecified);
+
+                                                 }
 
 
                                                  switch (_RemoteEVSEStopResult.Result)
                                                  {
 
-                                                     #region UnknownOperator
+                                                     #region Documentation
 
-                                                     case RemoteStopEVSEResultType.UnknownOperator:
+                                                     // HTTP Status codes
+                                                     //  200 OK             Request was processed successfully
+                                                     //  401 Unauthorized   The token, username or identifier type were incorrect
+                                                     //  404 Not found      A connector could not be found by the supplied identifier
 
-                                                         SessionStopResult  = Result.Error(300, "Unknown charging station operator!");
+                                                     // Result codes
+                                                     //    0                Success
+                                                     //  140                Authentication failed: No positive authentication response
+                                                     //  144                Authentication failed: Email does not exist
+                                                     //  145                Authentication failed: User token not valid
+                                                     //  181                EVSE not found
+
+                                                     #endregion
+
+                                                     #region Success
+
+                                                     case RemoteStopEVSEResultType.Success:
+
+                                                         SessionStopResult  = Result.Success("Success!");
 
                                                          _HTTPResponse      = CreateResponse(Request,
                                                                                              HTTPStatusCode.OK,
@@ -866,12 +943,50 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                          SessionStopResult  = Result.Error(181, "EVSE not found!");
 
                                                          _HTTPResponse      = CreateResponse(Request,
-                                                                                             HTTPStatusCode.OK,
+                                                                                             HTTPStatusCode.NotFound,
                                                                                              SessionStopResult);
 
                                                          break;
 
                                                      #endregion
+
+                                                     //#region UnknownOperator
+
+                                                     //case RemoteStartEVSEResultType.UnknownOperator:
+
+                                                     //    SessionStartResult  = Result.Error(300, "Unknown charging station operator!");
+
+                                                     //    _HTTPResponse       = CreateResponse(Request,
+                                                     //                                         HTTPStatusCode.OK,
+                                                     //                                         SessionStartResult);
+
+                                                     //    break;
+
+                                                     //#endregion
+
+                                                     //#region Timeout
+
+                                                     //case RemoteStartEVSEResultType.Timeout:
+
+                                                     //    SessionStartResult  = Result.Error(312, "EVSE timeout!");
+
+                                                     //    _HTTPResponse       = CreateResponse(Request,
+                                                     //                                         HTTPStatusCode.OK,
+                                                     //                                         SessionStartResult);
+
+                                                     //    break;
+
+                                                     //#endregion
+
+                                                     default:
+
+                                                         SessionStopResult  = Result.Error(310, "EVSE error!");
+
+                                                         _HTTPResponse      = CreateResponse(Request,
+                                                                                             HTTPStatusCode.OK,
+                                                                                             SessionStopResult);
+
+                                                         break;
 
                                                  }
 
@@ -897,16 +1012,22 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  #endregion
 
-                                                 return _HTTPResponse;
-
                                              }
 
                                              #endregion
 
 
-                                             return CreateResponse(Request,
-                                                                   HTTPStatusCode.BadRequest,
-                                                                   Result.Error(140, "Unknown JSON in HTTP body!"));
+                                             if (_HTTPResponse == null)
+                                                 _HTTPResponse = CreateResponse(Request,
+                                                                                HTTPStatusCode.BadRequest,
+                                                                                Result.Error(140, "Unknown JSON in HTTP body!"));
+
+                                             OnAnyHTTPResponse?.Invoke(DateTime.UtcNow,
+                                                                       this.HTTPServer,
+                                                                       Request,
+                                                                       _HTTPResponse);
+
+                                             return _HTTPResponse;
 
                                          });
 
@@ -925,9 +1046,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="URIPrefix">The URI prefix for all incoming HTTP requests.</param>
         public static CPOServer
 
-            AttachToHTTPAPI(HTTPServer<RoamingNetworks, RoamingNetwork>  HTTPServer,
-                            HTTPHostname?                                HTTPHostname  = null,
-                            HTTPURI?                                     URIPrefix     = null)
+            AttachToHTTPAPI(HTTPServer     HTTPServer,
+                            HTTPHostname?  HTTPHostname   = null,
+                            HTTPURI?       URIPrefix      = null)
 
             => new CPOServer(HTTPServer,
                              HTTPHostname,
