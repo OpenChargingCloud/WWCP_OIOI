@@ -52,11 +52,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         #region Data
 
-        private        readonly  CustomOperatorIdMapperDelegate                   _CustomOperatorIdMapper;
+        //private        readonly  CustomOperatorIdMapperDelegate                   _CustomOperatorIdMapper;
 
         //private        readonly  CustomEVSEIdMapperDelegate                      _CustomEVSEIdMapper;
 
-        private        readonly  ChargingStation2StationDelegate                  _ChargingStation2Station;
+        //private        readonly  ChargingStation2StationDelegate                  _ChargingStation2Station;
 
         private        readonly  EVSEStatusUpdate2ConnectorStatusUpdateDelegate   _EVSEStatusUpdate2ConnectorStatusUpdateDelegate;
 
@@ -137,8 +137,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         public CPOServerLogger ServerLogger
             => CPORoaming?.CPOServerLogger;
 
-
-        protected readonly CustomEVSEIdMapperDelegate CustomEVSEIdMapper;
+        protected readonly CustomOperatorIdMapperDelegate   CustomOperatorIdMapper;
+        protected readonly CustomEVSEIdMapperDelegate       CustomEVSEIdMapper;
+        protected readonly ChargingStation2StationDelegate  ChargingStation2Station;
 
         #endregion
 
@@ -540,7 +541,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                    IncludeEVSEIds,
                    IncludeEVSEs,
-                   //CustomEVSEIdMapper,
 
                    ServiceCheckEvery,
                    StatusCheckEvery,
@@ -568,9 +568,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             #endregion
 
             this.CPORoaming                                        = CPORoaming;
-            this._CustomOperatorIdMapper                           = CustomOperatorIdMapper;
-            //this._CustomEVSEIdMapper                               = CustomEVSEIdMapper;
-            this._ChargingStation2Station                          = ChargingStation2Station;
+            this.CustomOperatorIdMapper                            = CustomOperatorIdMapper;
+            this.CustomEVSEIdMapper                                = CustomEVSEIdMapper;
+            this.ChargingStation2Station                           = ChargingStation2Station;
             this._EVSEStatusUpdate2ConnectorStatusUpdateDelegate   = EVSEStatusUpdate2ConnectorStatusUpdate;
             this._ChargeDetailRecord2Session                       = ChargeDetailRecord2Session;
             this._Station2JSON                                     = Station2JSON;
@@ -590,8 +590,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             this.EVSEStatusUpdatesQueue                            = new List<EVSEStatusUpdate>();
             this.EVSEStatusUpdatesDelayedQueue                     = new List<EVSEStatusUpdate>();
             this.ChargeDetailRecordsQueue                          = new List<ChargeDetailRecord>();
-
-            this.CustomEVSEIdMapper                                = CustomEVSEIdMapper;
 
             // Link events...
 
@@ -1116,9 +1114,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  {
 
                                                      return new Tuple<ChargingStation, Station>(station,
-                                                                                                station.ToOIOI(_CustomOperatorIdMapper,
+                                                                                                station.ToOIOI(CustomOperatorIdMapper,
                                                                                                                CustomEVSEIdMapper,
-                                                                                                               _ChargingStation2Station));
+                                                                                                               ChargingStation2Station));
 
                                                  }
                                                  catch (Exception e)
@@ -3089,7 +3087,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                            (_IncludeChargingStations != null && _IncludeChargingStations(station)))
                         {
 
-                            StationsToUpdateQueue.Add(station.ToOIOI());
+                            StationsToUpdateQueue.Add(station.ToOIOI(CustomOperatorIdMapper,
+                                                                     CustomEVSEIdMapper,
+                                                                     ChargingStation2Station));
 
                             FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery, TimeSpan.FromMilliseconds(-1));
 
