@@ -256,7 +256,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
             var JSON = JSONObject.Create(
 
                            new JProperty("identifier",       Identifier),
-                           new JProperty("identifier-type",  IdentifierType.ToString()),
+                           new JProperty("identifier-type",  IdentifierType.ToString().ToLower()),
 
                            Token.IsNotNullOrEmpty()
                                ? new JProperty("speed",      Token)

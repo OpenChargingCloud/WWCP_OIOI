@@ -23,7 +23,6 @@ using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
-using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Hermod.JSON;
 
 #endregion
@@ -82,7 +81,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// The partner identifier of the partner that shall be associated with this CDR.
         /// </summary>
         [Mandatory]
-        public String              PartnerIdentifier    { get; }
+        public Partner_Id?         PartnerIdentifier    { get; }
 
         #endregion
 
@@ -106,7 +105,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
                        StartEndDateTime                     SessionInterval,
                        StartEndDateTime?                    ChargingInterval    = null,
                        Single?                              EnergyConsumed      = null,
-                       String                               PartnerIdentifier   = null,
+                       Partner_Id?                          PartnerIdentifier   = null,
 
                        IReadOnlyDictionary<String, Object>  CustomData          = null)
 
@@ -114,15 +113,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
         {
 
-            #region Initial checks
-
-            if (User == null)
-                throw new ArgumentNullException(nameof(User),         "The given user must not be null!");
-
-            #endregion
-
             this.Id                 = Id;
-            this.User               = User;
+            this.User               = User ?? throw new ArgumentNullException(nameof(User), "The given user must not be null!");
             this.ConnectorId        = ConnectorId;
             this.SessionInterval    = SessionInterval;
             this.ChargingInterval   = ChargingInterval;
@@ -180,10 +172,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
                            new JProperty("connector-id",               ConnectorId. ToString()),
                            new JProperty("session-interval",           JSONObject.Create(
 
-                                                                           new JProperty("start", SessionInterval.StartTime.ToIso8601()),
+                                                                           new JProperty("start", SessionInterval.StartTime.ToIso8601(false)),
 
                                                                            SessionInterval.EndTime.HasValue
-                                                                               ? new JProperty("stop", SessionInterval.EndTime.Value.ToIso8601())
+                                                                               ? new JProperty("stop", SessionInterval.EndTime.Value.ToIso8601(false))
                                                                                : null
 
                                                                        )),
@@ -191,10 +183,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
                            ChargingInterval.HasValue
                                ? new JProperty("charging-interval",    JSONObject.Create(
 
-                                                                           new JProperty("start", ChargingInterval.Value.StartTime.ToIso8601()),
+                                                                           new JProperty("start", ChargingInterval.Value.StartTime.ToIso8601(false)),
 
                                                                            ChargingInterval.Value.EndTime.HasValue
-                                                                               ? new JProperty("stop", ChargingInterval.Value.EndTime.Value.ToIso8601())
+                                                                               ? new JProperty("stop", ChargingInterval.Value.EndTime.Value.ToIso8601(false))
                                                                                : null
 
                                                                        ))
@@ -204,8 +196,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
                                ? new JProperty("energy-consumed",      EnergyConsumed.Value)
                                : null,
 
-                           PartnerIdentifier.IsNotNullOrEmpty()
-                               ?  new JProperty("partner-identifier",  PartnerIdentifier)
+                           PartnerIdentifier.HasValue
+                               ?  new JProperty("partner-identifier",  PartnerIdentifier.Value.ToString())
                                : null
 
                        );
