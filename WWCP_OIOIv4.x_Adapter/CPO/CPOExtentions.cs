@@ -98,13 +98,13 @@ namespace org.GraphDefined.WWCP
                                               I18NString                                                          Name,
                                               I18NString                                                          Description,
 
-                                              String                                                              RemoteHostname,
+                                              HTTPHostname                                                        RemoteHostname,
                                               OIOIv4_x.APIKey                                                     APIKey,
                                               OIOIv4_x.PartnerIdForStationDelegate                                StationPartnerIdSelector,
                                               OIOIv4_x.PartnerIdForConnectorStatusDelegate                        ConnectorStatusPartnerIdSelector,
 
                                               IPPort?                                                             RemoteTCPPort                                   = null,
-                                              String                                                              RemoteHTTPVirtualHost                           = null,
+                                              HTTPHostname?                                                       RemoteHTTPVirtualHost                           = null,
                                               RemoteCertificateValidationCallback                                 RemoteCertificateValidator                      = null,
                                               LocalCertificateSelectionCallback                                   ClientCertificateSelector                       = null,
                                               HTTPURI?                                                            URIPrefix                                       = null,
@@ -313,7 +313,7 @@ namespace org.GraphDefined.WWCP
                                               I18NString                                                   Description,
                                               HTTPServer                                                   HTTPServer,
 
-                                              String                                                       RemoteHostname,
+                                              HTTPHostname                                                 RemoteHostname,
                                               OIOIv4_x.APIKey                                              APIKey,
                                               OIOIv4_x.PartnerIdForStationDelegate                         StationPartnerIdSelector,
                                               OIOIv4_x.PartnerIdForConnectorStatusDelegate                 ConnectorStatusPartnerIdSelector,
@@ -321,7 +321,7 @@ namespace org.GraphDefined.WWCP
                                               IPPort?                                                      RemoteTCPPort                                   = null,
                                               RemoteCertificateValidationCallback                          RemoteCertificateValidator                      = null,
                                               LocalCertificateSelectionCallback                            ClientCertificateSelector                       = null,
-                                              String                                                       RemoteHTTPVirtualHost                           = null,
+                                              HTTPHostname?                                                RemoteHTTPVirtualHost                           = null,
                                               HTTPURI?                                                     URIPrefix                                       = null,
                                               String                                                       HTTPUserAgent                                   = OIOIv4_x.CPO.CPOClient.DefaultHTTPUserAgent,
                                               OIOIv4_x.IncludeStationDelegate                              IncludeStation                                  = null,

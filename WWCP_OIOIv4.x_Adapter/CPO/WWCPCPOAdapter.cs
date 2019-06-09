@@ -908,14 +908,14 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               I18NString                                      Description,
                               RoamingNetwork                                  RoamingNetwork,
 
-                              String                                          RemoteHostname,
+                              HTTPHostname                                    RemoteHostname,
                               APIKey                                          APIKey,
                               PartnerIdForStationDelegate                     StationPartnerIdSelector,
                               PartnerIdForConnectorStatusDelegate             ConnectorStatusPartnerIdSelector,
                               IPPort?                                         RemoteTCPPort                            = null,
                               RemoteCertificateValidationCallback             RemoteCertificateValidator               = null,
                               LocalCertificateSelectionCallback               ClientCertificateSelector                = null,
-                              String                                          RemoteHTTPVirtualHost                    = null,
+                              HTTPHostname?                                   RemoteHTTPVirtualHost                    = null,
                               HTTPURI?                                        URIPrefix                                = null,
                               String                                          HTTPUserAgent                            = CPOClient.DefaultHTTPUserAgent,
 

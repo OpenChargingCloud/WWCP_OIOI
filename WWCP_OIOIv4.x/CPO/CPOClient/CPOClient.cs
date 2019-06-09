@@ -480,14 +480,14 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="LoggingContext">An optional context for logging client methods.</param>
         /// <param name="LogFileCreator">A delegate to create a log file from the given context and log file name.</param>
         public CPOClient(String                               ClientId,
-                         String                               Hostname,
+                         HTTPHostname                         Hostname,
                          APIKey                               APIKey,
                          PartnerIdForStationDelegate          StationPartnerIdSelector,
                          PartnerIdForConnectorStatusDelegate  ConnectorStatusPartnerIdSelector,
                          IPPort?                              RemotePort                   = null,
                          RemoteCertificateValidationCallback  RemoteCertificateValidator   = null,
                          LocalCertificateSelectionCallback    ClientCertificateSelector    = null,
-                         String                               HTTPVirtualHost              = null,
+                         HTTPHostname?                        HTTPVirtualHost              = null,
                          HTTPURI?                             URIPrefix                    = null,
                          String                               HTTPUserAgent                = DefaultHTTPUserAgent,
                          IncludeStationDelegate               IncludeStation               = null,
@@ -517,33 +517,24 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             #region Initial checks
 
             if (ClientId.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Logger),    "The given client identification must not be null or empty!");
-
-            if (Hostname.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Hostname),  "The given hostname must not be null or empty!");
-
-            if (StationPartnerIdSelector == null)
-                throw new ArgumentNullException(nameof(Hostname), "The given partner identification selector must not be null!");
-
-            if (ConnectorStatusPartnerIdSelector == null)
-                throw new ArgumentNullException(nameof(Hostname), "The given partner identification selector must not be null!");
+                throw new ArgumentNullException(nameof(ClientId), "The given client identification must not be null or empty!");
 
             #endregion
 
-            this.APIKey                      = APIKey;
-            this.URIPrefix                   = URIPrefix ?? DefaultURIPrefix;
-            this.StationPartnerIdSelector    = StationPartnerIdSelector;
-            this.ConnectorStatusPartnerIdSelector  = ConnectorStatusPartnerIdSelector;
+            this.APIKey                            = APIKey;
+            this.URIPrefix                         = URIPrefix                        ?? DefaultURIPrefix;
+            this.StationPartnerIdSelector          = StationPartnerIdSelector         ?? throw new ArgumentNullException(nameof(StationPartnerIdSelector),         "The given partner identification selector must not be null!"); ;
+            this.ConnectorStatusPartnerIdSelector  = ConnectorStatusPartnerIdSelector ?? throw new ArgumentNullException(nameof(ConnectorStatusPartnerIdSelector), "The given partner identification selector must not be null!");
 
-            this.IncludeStation              = IncludeStation             ?? (station             => true);
-            this.IncludeStationId            = IncludeStationId           ?? (stationid           => true);
-            this.IncludeConnectorId          = IncludeConnectorId         ?? (connectorid         => true);
-            this.IncludeConnectorStatusType  = IncludeConnectorStatusType ?? (connectorstatustype => true);
-            this.IncludeConnectorStatus      = IncludeConnectorStatus     ?? (connectorstatus     => true);
+            this.IncludeStation                    = IncludeStation                   ?? (station             => true);
+            this.IncludeStationId                  = IncludeStationId                 ?? (stationid           => true);
+            this.IncludeConnectorId                = IncludeConnectorId               ?? (connectorid         => true);
+            this.IncludeConnectorStatusType        = IncludeConnectorStatusType       ?? (connectorstatustype => true);
+            this.IncludeConnectorStatus            = IncludeConnectorStatus           ?? (connectorstatus     => true);
 
-            this.Logger                      = new CPOClientLogger(this,
-                                                                   LoggingContext,
-                                                                   LogFileCreator);
+            this.Logger                            = new CPOClientLogger(this,
+                                                                         LoggingContext,
+                                                                         LogFileCreator);
 
         }
 
@@ -571,7 +562,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="DNSClient">An optional DNS client to use.</param>
         public CPOClient(String                               ClientId,
                          CPOClientLogger                      Logger,
-                         String                               Hostname,
+                         HTTPHostname                         Hostname,
                          APIKey                               APIKey,
                          PartnerIdForStationDelegate          StationPartnerIdSelector,
                          PartnerIdForConnectorStatusDelegate  ConnectorStatusPartnerIdSelector,
@@ -579,7 +570,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                          HTTPURI?                             URIPrefix                    = null,
                          RemoteCertificateValidationCallback  RemoteCertificateValidator   = null,
                          LocalCertificateSelectionCallback    ClientCertificateSelector    = null,
-                         String                               HTTPVirtualHost              = null,
+                         HTTPHostname?                        HTTPVirtualHost              = null,
                          String                               HTTPUserAgent                = DefaultHTTPUserAgent,
                          IncludeStationDelegate               IncludeStation               = null,
                          IncludeStationIdDelegate             IncludeStationId             = null,
@@ -606,34 +597,22 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             #region Initial checks
 
             if (ClientId.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Logger),    "The given client identification must not be null or empty!");
-
-            if (Logger == null)
-                throw new ArgumentNullException(nameof(Logger),    "The given mobile client logger must not be null!");
-
-            if (Hostname.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Hostname),  "The given hostname must not be null or empty!");
-
-            if (StationPartnerIdSelector == null)
-                throw new ArgumentNullException(nameof(Hostname),  "The given partner identification selector must not be null!");
-
-            if (ConnectorStatusPartnerIdSelector == null)
-                throw new ArgumentNullException(nameof(Hostname),  "The given partner identification selector must not be null!");
+                throw new ArgumentNullException(nameof(ClientId), "The given client identification must not be null or empty!");
 
             #endregion
 
-            this.URIPrefix                   = URIPrefix ?? DefaultURIPrefix;
-            this.APIKey                      = APIKey;
-            this.StationPartnerIdSelector    = StationPartnerIdSelector;
-            this.ConnectorStatusPartnerIdSelector  = ConnectorStatusPartnerIdSelector;
+            this.APIKey                            = APIKey;
+            this.URIPrefix                         = URIPrefix                        ?? DefaultURIPrefix;
+            this.StationPartnerIdSelector          = StationPartnerIdSelector         ?? throw new ArgumentNullException(nameof(StationPartnerIdSelector),         "The given partner identification selector must not be null!"); ;
+            this.ConnectorStatusPartnerIdSelector  = ConnectorStatusPartnerIdSelector ?? throw new ArgumentNullException(nameof(ConnectorStatusPartnerIdSelector), "The given partner identification selector must not be null!");
 
-            this.IncludeStation              = IncludeStation             ?? (station             => true);
-            this.IncludeStationId            = IncludeStationId           ?? (stationid           => true);
-            this.IncludeConnectorId          = IncludeConnectorId         ?? (connectorid         => true);
-            this.IncludeConnectorStatusType  = IncludeConnectorStatusType ?? (connectorstatustype => true);
-            this.IncludeConnectorStatus      = IncludeConnectorStatus     ?? (connectorstatus     => true);
+            this.IncludeStation                    = IncludeStation                   ?? (station             => true);
+            this.IncludeStationId                  = IncludeStationId                 ?? (stationid           => true);
+            this.IncludeConnectorId                = IncludeConnectorId               ?? (connectorid         => true);
+            this.IncludeConnectorStatusType        = IncludeConnectorStatusType       ?? (connectorstatustype => true);
+            this.IncludeConnectorStatus            = IncludeConnectorStatus           ?? (connectorstatus     => true);
 
-            this.Logger                      = Logger;
+            this.Logger                            = Logger;
 
         }
 
@@ -717,8 +696,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 {
 
                     using (var _JSONClient = new JSONClient(Hostname,
-                                                            HTTPVirtualHost,
                                                             URIPrefix,
+                                                            VirtualHostname,
                                                             RemotePort,
                                                             RemoteCertificateValidator,
                                                             ClientCertificateSelector,
@@ -948,8 +927,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 {
 
                     using (var _JSONClient = new JSONClient(Hostname,
-                                                            HTTPVirtualHost,
                                                             URIPrefix,
+                                                            VirtualHostname,
                                                             RemotePort,
                                                             RemoteCertificateValidator,
                                                             ClientCertificateSelector,
@@ -1171,8 +1150,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             {
 
                 using (var _JSONClient = new JSONClient(Hostname,
-                                                        HTTPVirtualHost,
                                                         URIPrefix,
+                                                        VirtualHostname,
                                                         RemotePort,
                                                         RemoteCertificateValidator,
                                                         ClientCertificateSelector,
@@ -1379,8 +1358,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             {
 
                 using (var _JSONClient = new JSONClient(Hostname,
-                                                        HTTPVirtualHost,
                                                         URIPrefix,
+                                                        VirtualHostname,
                                                         RemotePort,
                                                         RemoteCertificateValidator,
                                                         ClientCertificateSelector,

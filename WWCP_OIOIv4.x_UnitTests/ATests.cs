@@ -116,7 +116,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.UnitTests
 
             using (var HTTPTask  = _HTTPClient.Execute(client => client.GET(URI,
                                                                             requestbuilder => {
-                                                                                requestbuilder.Host         = "localhost";
+                                                                                requestbuilder.Host         = HTTPHostname.Localhost;
                                                                                 requestbuilder.ContentType  = HTTPContentType.JSON_UTF8;
                                                                                 requestbuilder.Accept.Add(HTTPContentType.JSON_UTF8);
                                                                             }),
@@ -149,7 +149,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.UnitTests
 
                 using (var HTTPTask  = _HTTPClient.Execute(client => client.DELETE(URI,
                                                                                    requestbuilder => {
-                                                                                       requestbuilder.Host         = "localhost";
+                                                                                       requestbuilder.Host         = HTTPHostname.Localhost;
                                                                                        requestbuilder.ContentType  = HTTPContentType.JSON_UTF8;
                                                                                        requestbuilder.Accept.Add(HTTPContentType.JSON_UTF8);
                                                                                    }),
