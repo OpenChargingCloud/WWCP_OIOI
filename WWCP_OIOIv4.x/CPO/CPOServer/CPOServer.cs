@@ -62,7 +62,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <summary>
         /// The default HTTP server URI prefix.
         /// </summary>
-        public     static readonly HTTPURI   DefaultURIPrefix       = HTTPURI.Parse("/api/v4/request");
+        public     static readonly HTTPPath   DefaultURIPrefix       = HTTPPath.Parse("/api/v4/request");
 
         /// <summary>
         /// The default query timeout.
@@ -89,7 +89,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <summary>
         /// The common URI prefix of the HTTP server of this API for all incoming requests.
         /// </summary>
-        public HTTPURI                                      URIPrefix           { get; }
+        public HTTPPath                                      URIPrefix           { get; }
 
         /// <summary>
         /// The HTTP content type used by this service.
@@ -231,7 +231,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                          RemoteCertificateValidationCallback  ClientCertificateValidator         = null,
                          LocalCertificateSelectionCallback    ClientCertificateSelector          = null,
                          SslProtocols                         AllowedTLSProtocols                = SslProtocols.Tls12,
-                         HTTPURI?                             URIPrefix                          = null,
+                         HTTPPath?                             URIPrefix                          = null,
                          ServerAPIKeyValidatorDelegate        APIKeyValidator                    = null,
                          HTTPContentType                      ServerContentType                  = null,
                          Boolean                              ServerRegisterHTTPRootService      = true,
@@ -281,7 +281,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 HTTPServer.AddMethodCallback(HTTPHostname ?? Vanaheimr.Hermod.HTTP.HTTPHostname.Any,
                                              HTTPMethod.GET,
-                                             HTTPURI.Parse("/"),
+                                             HTTPPath.Parse("/"),
                                              HTTPContentType.TEXT_UTF8,
                                              HTTPDelegate: Request => {
 
@@ -322,7 +322,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="URIPrefix">The URI prefix for all incoming HTTP requests.</param>
         public CPOServer(HTTPServer                                   HTTPServer,
                          HTTPHostname?                                HTTPHostname                    = null,
-                         HTTPURI?                                     URIPrefix                       = null,
+                         HTTPPath?                                     URIPrefix                       = null,
                          ServerAPIKeyValidatorDelegate                APIKeyValidator                 = null,
                          HTTPContentType                              ServerContentType               = null,
                          Boolean                                      ServerRegisterHTTPRootService   = true)
@@ -1048,7 +1048,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             AttachToHTTPAPI(HTTPServer     HTTPServer,
                             HTTPHostname?  HTTPHostname   = null,
-                            HTTPURI?       URIPrefix      = null)
+                            HTTPPath?       URIPrefix      = null)
 
             => new CPOServer(HTTPServer,
                              HTTPHostname,

@@ -61,7 +61,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         /// <summary>
         /// The default HTTP client URI prefix.
         /// </summary>
-        public     static readonly HTTPURI     DefaultURIPrefix         = HTTPURI.Parse("/api/v4/request");
+        public     static readonly HTTPPath     DefaultURIPrefix         = HTTPPath.Parse("/api/v4/request");
 
 
         public     static readonly Partner_Id  DefaultDefaultPartnerId  = Partner_Id.Parse("1");
@@ -73,7 +73,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         /// <summary>
         /// The URI prefix for all HTTP requests.
         /// </summary>
-        public HTTPURI          URIPrefix          { get; }
+        public HTTPPath          URIPrefix          { get; }
 
         /// <summary>
         /// The API key for all requests.
@@ -351,7 +351,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                          RemoteCertificateValidationCallback  RemoteCertificateValidator   = null,
                          LocalCertificateSelectionCallback    ClientCertificateSelector    = null,
                          HTTPHostname?                        HTTPVirtualHost              = null,
-                         HTTPURI?                             URIPrefix                    = null,
+                         HTTPPath?                             URIPrefix                    = null,
                          String                               HTTPUserAgent                = DefaultHTTPUserAgent,
                          Partner_Id?                          DefaultPartnerId             = null,
                          TimeSpan?                            RequestTimeout               = null,
@@ -419,7 +419,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                          HTTPHostname                         Hostname,
                          String                               APIKey,
                          IPPort?                              RemotePort                   = null,
-                         HTTPURI?                             URIPrefix                    = null,
+                         HTTPPath?                             URIPrefix                    = null,
                          RemoteCertificateValidationCallback  RemoteCertificateValidator   = null,
                          LocalCertificateSelectionCallback    ClientCertificateSelector    = null,
                          HTTPHostname?                        HTTPVirtualHost              = null,

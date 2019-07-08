@@ -916,7 +916,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               RemoteCertificateValidationCallback             RemoteCertificateValidator               = null,
                               LocalCertificateSelectionCallback               ClientCertificateSelector                = null,
                               HTTPHostname?                                   RemoteHTTPVirtualHost                    = null,
-                              HTTPURI?                                        URIPrefix                                = null,
+                              HTTPPath?                                        URIPrefix                                = null,
                               String                                          HTTPUserAgent                            = CPOClient.DefaultHTTPUserAgent,
 
                               IncludeStationDelegate                          IncludeStation                           = null,
@@ -934,7 +934,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               RemoteCertificateValidationCallback             RemoteClientCertificateValidator         = null,
                               LocalCertificateSelectionCallback               RemoteClientCertificateSelector          = null,
                               SslProtocols                                    ServerAllowedTLSProtocols                = SslProtocols.Tls12,
-                              HTTPURI?                                        ServerURIPrefix                          = null,
+                              HTTPPath?                                        ServerURIPrefix                          = null,
                               ServerAPIKeyValidatorDelegate                   ServerAPIKeyValidator                    = null,
                               HTTPContentType                                 ServerContentType                        = null,
                               Boolean                                         ServerRegisterHTTPRootService            = true,
