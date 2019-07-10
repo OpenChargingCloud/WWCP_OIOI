@@ -1,4 +1,4 @@
-WWCP OIOI v3.x
+WWCP OIOI v4.x
 ==============
 
 This software will allow the communication between World Wide Charging
@@ -6,7 +6,8 @@ Protocol (WWCP) entities and entities implementing the _OIOI Protocol_,
 which is defined and used by PlugSurfing GmbH. The focus of this protocol
 are the communication aspects of an e-mobility provider. For more details
 on this protocol please visit https://www.plugsurfing.com and
-http://docs.plugsurfing.com.
+http://docs.plugsurfing.com (this is no longer freely accessible :(
+You have to ask PlugSurfing for a login now).
 
 
 ## Usage

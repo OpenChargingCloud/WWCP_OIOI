@@ -49,6 +49,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// </summary>
         public CPOClient        CPOClient         { get; }
 
+        public HTTPHostname Hostname
+            => CPOClient.Hostname;
+
+        public HTTPHostname? VirtualHostname
+            => CPOClient.VirtualHostname;
+
         public IPPort RemotePort
             => CPOClient.RemotePort;
 
@@ -790,15 +796,15 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// 
         /// <param name="DNSClient">An optional DNS client to use.</param>
         public CPORoaming(String                               ClientId,
-                          String                               RemoteHostname,
+                          HTTPHostname                         RemoteHostname,
                           APIKey                               APIKey,
                           PartnerIdForStationDelegate          StationPartnerIdSelector,
                           PartnerIdForConnectorStatusDelegate  ConnectorStatusPartnerIdSelector,
                           IPPort?                              RemoteTCPPort                      = null,
                           RemoteCertificateValidationCallback  RemoteCertificateValidator         = null,
                           LocalCertificateSelectionCallback    ClientCertificateSelector          = null,
-                          String                               RemoteHTTPVirtualHost              = null,
-                          HTTPURI?                             URIPrefix                          = null,
+                          HTTPHostname?                        RemoteHTTPVirtualHost              = null,
+                          HTTPPath?                             URIPrefix                          = null,
                           String                               HTTPUserAgent                      = CPOClient.DefaultHTTPUserAgent,
                           IncludeStationDelegate               IncludeStation                     = null,
                           IncludeStationIdDelegate             IncludeStationId                   = null,
@@ -815,7 +821,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                           RemoteCertificateValidationCallback  RemoteClientCertificateValidator   = null,
                           LocalCertificateSelectionCallback    RemoteClientCertificateSelector    = null,
                           SslProtocols                         ServerAllowedTLSProtocols          = SslProtocols.Tls12,
-                          HTTPURI?                             ServerURIPrefix                    = null,
+                          HTTPPath?                             ServerURIPrefix                    = null,
                           ServerAPIKeyValidatorDelegate        ServerAPIKeyValidator              = null,
                           HTTPContentType                      ServerContentType                  = null,
                           Boolean                              ServerRegisterHTTPRootService      = true,
@@ -913,15 +919,15 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         public CPORoaming(HTTPServer                                   HTTPServer,
                           HTTPHostname                                 HTTPHostname,
                           String                                       ClientId,
-                          String                                       RemoteHostname,
+                          HTTPHostname                                 RemoteHostname,
                           APIKey                                       APIKey,
                           PartnerIdForStationDelegate                  StationPartnerIdSelector,
                           PartnerIdForConnectorStatusDelegate          ConnectorStatusPartnerIdSelector,
                           IPPort?                                      RemoteTCPPort                      = null,
                           RemoteCertificateValidationCallback          RemoteCertificateValidator         = null,
                           LocalCertificateSelectionCallback            ClientCertificateSelector          = null,
-                          String                                       RemoteHTTPVirtualHost              = null,
-                          HTTPURI?                                     URIPrefix                          = null,
+                          HTTPHostname?                                RemoteHTTPVirtualHost              = null,
+                          HTTPPath?                                     URIPrefix                          = null,
                           String                                       HTTPUserAgent                      = CPOClient.DefaultHTTPUserAgent,
                           IncludeStationDelegate                       IncludeStation                     = null,
                           IncludeStationIdDelegate                     IncludeStationId                   = null,
@@ -934,7 +940,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                           RemoteCertificateValidationCallback          RemoteClientCertificateValidator   = null,
                           LocalCertificateSelectionCallback            RemoteClientCertificateSelector    = null,
                           SslProtocols                                 ServerAllowedTLSProtocols          = SslProtocols.Tls12,
-                          HTTPURI?                                     ServerURIPrefix                    = null,
+                          HTTPPath?                                     ServerURIPrefix                    = null,
                           ServerAPIKeyValidatorDelegate                ServerAPIKeyValidator              = null,
                           HTTPContentType                              ServerContentType                  = null,
                           Boolean                                      ServerRegisterHTTPRootService      = true,

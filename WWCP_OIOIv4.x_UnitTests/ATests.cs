@@ -111,12 +111,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.UnitTests
         public void Cleanup()
         {
 
-            var      URI                = HTTPURI.Parse("/RNs");
+            var      URI                = HTTPPath.Parse("/RNs");
             String[] RoamingNetworkIds  = null;
 
             using (var HTTPTask  = _HTTPClient.Execute(client => client.GET(URI,
                                                                             requestbuilder => {
-                                                                                requestbuilder.Host         = "localhost";
+                                                                                requestbuilder.Host         = HTTPHostname.Localhost;
                                                                                 requestbuilder.ContentType  = HTTPContentType.JSON_UTF8;
                                                                                 requestbuilder.Accept.Add(HTTPContentType.JSON_UTF8);
                                                                             }),
@@ -145,11 +145,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.UnitTests
             foreach (var RoamingNetworkId in RoamingNetworkIds)
             {
 
-                URI = HTTPURI.Parse("/RNs/" + RoamingNetworkId);
+                URI = HTTPPath.Parse("/RNs/" + RoamingNetworkId);
 
                 using (var HTTPTask  = _HTTPClient.Execute(client => client.DELETE(URI,
                                                                                    requestbuilder => {
-                                                                                       requestbuilder.Host         = "localhost";
+                                                                                       requestbuilder.Host         = HTTPHostname.Localhost;
                                                                                        requestbuilder.ContentType  = HTTPContentType.JSON_UTF8;
                                                                                        requestbuilder.Accept.Add(HTTPContentType.JSON_UTF8);
                                                                                    }),
