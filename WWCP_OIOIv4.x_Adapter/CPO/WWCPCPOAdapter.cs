@@ -6075,12 +6075,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
 
 
-
-
-
-
-
-
         #region (timer) FlushEVSEDataAndStatus()
 
         protected override Boolean SkipFlushEVSEDataAndStatusQueues()
