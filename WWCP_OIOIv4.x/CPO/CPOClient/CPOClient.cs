@@ -509,6 +509,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                    HTTPVirtualHost,
                    HTTPUserAgent,
                    RequestTimeout,
+                   null,
                    MaxNumberOfRetries,
                    DNSClient)
 
@@ -589,6 +590,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                    HTTPVirtualHost,
                    HTTPUserAgent,
                    RequestTimeout,
+                   null,
                    MaxNumberOfRetries,
                    DNSClient)
 
