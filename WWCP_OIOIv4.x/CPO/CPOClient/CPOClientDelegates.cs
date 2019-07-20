@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2016-2018 GraphDefined GmbH
+ * Copyright (c) 2016-2019 GraphDefined GmbH
  * This file is part of WWCP OIOI <https://github.com/OpenChargingCloud/WWCP_OIOI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");

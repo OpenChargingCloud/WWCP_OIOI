@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2016-2018 GraphDefined GmbH
+ * Copyright (c) 2016-2019 GraphDefined GmbH
  * This file is part of WWCP OIOI <https://github.com/OpenChargingCloud/WWCP_OIOI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,16 +23,16 @@ using System.Threading;
 using System.Net.Security;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Security.Authentication;
 using System.Text.RegularExpressions;
-using System.Security.Cryptography.X509Certificates;
+
+using Org.BouncyCastle.Bcpg.OpenPgp;
 
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Hermod.DNS;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
-using System.Security.Authentication;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets.TCP;
-using Org.BouncyCastle.Bcpg.OpenPgp;
 
 #endregion
 
@@ -71,9 +71,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         private static readonly  Regex                                            pattern                      = new Regex(@"\s=\s");
 
 
-        private readonly        HashSet<Station>                                  StationsToAddQueue;
-        private readonly        HashSet<Station>                                  StationsToUpdateQueue;
-        private readonly        HashSet<Station>                                  StationsToRemoveQueue;
+        private readonly        HashSet<ChargingStation>                          StationsToAddQueue;
+        private readonly        HashSet<ChargingStation>                          StationsToUpdateQueue;
+        private readonly        HashSet<ChargingStation>                          StationsToRemoveQueue;
         private readonly        List<EVSEStatusUpdate>                            EVSEStatusUpdatesQueue;
         private readonly        List<EVSEStatusUpdate>                            EVSEStatusUpdatesDelayedQueue;
         private readonly        List<ChargeDetailRecord>                          ChargeDetailRecordsQueue;
@@ -141,6 +141,26 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         protected readonly CustomEVSEIdMapperDelegate       CustomEVSEIdMapper;
         protected readonly ChargingStation2StationDelegate  ChargingStation2Station;
 
+        private Int32 _maxDegreeOfParallelism = 4;
+
+        /// <summary>
+        /// The max degree of parallelism for uploads.
+        /// </summary>
+        public UInt32 maxDegreeOfParallelism
+        {
+
+            get
+            {
+                return (UInt32) _maxDegreeOfParallelism;
+            }
+
+            set
+            {
+                this._maxDegreeOfParallelism = (Int32) (value >= 1 ? Math.Min(value, UInt32.MaxValue) : 1);
+            }
+
+        }
+
         #endregion
 
         #region Events
@@ -150,12 +170,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         #region OnStationPostWWCPRequest/-Response
 
         /// <summary>
-        /// An event fired whenever new EVSE data will be send upstream.
+        /// An event fired whenever new charging station data will be send upstream.
         /// </summary>
         public event OnStationPostWWCPRequestDelegate   OnStationPostWWCPRequest;
 
         /// <summary>
-        /// An event fired whenever new EVSE data had been sent upstream.
+        /// An event fired whenever new charging station data had been sent upstream.
         /// </summary>
         public event OnStationPostWWCPResponseDelegate  OnStationPostWWCPResponse;
 
@@ -584,9 +604,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             this.DisableAuthentication                             = DisableAuthentication;
             this.DisableSendChargeDetailRecords                    = DisableSendChargeDetailRecords;
 
-            this.StationsToAddQueue                                = new HashSet<Station>();
-            this.StationsToUpdateQueue                             = new HashSet<Station>();
-            this.StationsToRemoveQueue                             = new HashSet<Station>();
+            this.StationsToAddQueue                                = new HashSet<ChargingStation>();
+            this.StationsToUpdateQueue                             = new HashSet<ChargingStation>();
+            this.StationsToRemoveQueue                             = new HashSet<ChargingStation>();
             this.EVSEStatusUpdatesQueue                            = new List<EVSEStatusUpdate>();
             this.EVSEStatusUpdatesDelayedQueue                     = new List<EVSEStatusUpdate>();
             this.ChargeDetailRecordsQueue                          = new List<ChargeDetailRecord>();
@@ -1061,7 +1081,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         #region StationPost/-Status directly...
 
-        #region (private) StationPost        (ChargingStations, ...)
+        #region (private) StationsPost        (ChargingStations, ...)
 
         /// <summary>
         /// Upload the EVSE data of the given enumeration of ChargingStations.
@@ -1074,12 +1094,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         private async Task<PushChargingStationDataResult>
 
-            StationPost(IEnumerable<ChargingStation>  ChargingStations,
+            StationsPost(IEnumerable<ChargingStation>  ChargingStations,
 
-                        DateTime?                     Timestamp          = null,
-                        CancellationToken?            CancellationToken  = null,
-                        EventTracking_Id              EventTrackingId    = null,
-                        TimeSpan?                     RequestTimeout     = null)
+                         DateTime?                     Timestamp          = null,
+                         CancellationToken?            CancellationToken  = null,
+                         EventTracking_Id              EventTrackingId    = null,
+                         TimeSpan?                     RequestTimeout     = null)
 
         {
 
@@ -1141,15 +1161,15 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             {
 
                 OnStationPostWWCPRequest?.Invoke(StartTime,
-                                                  Timestamp.Value,
-                                                  this,
-                                                  Id,
-                                                  EventTrackingId,
-                                                  RoamingNetwork.Id,
-                                                  _Stations.ULongCount(),
-                                                  _Stations,
-                                                  Warnings.Where(warning => warning.IsNotNullOrEmpty()),
-                                                  RequestTimeout);
+                                                 Timestamp.Value,
+                                                 this,
+                                                 Id,
+                                                 EventTrackingId,
+                                                 RoamingNetwork.Id,
+                                                 _Stations.ULongCount(),
+                                                 _Stations,
+                                                 Warnings.Where(warning => warning.IsNotNullOrEmpty()),
+                                                 RequestTimeout);
 
             }
             catch (Exception e)
@@ -1189,45 +1209,82 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             else
             {
 
-                var responses = await Task.WhenAll(_Stations.
-                                                       Select(station => CPORoaming.StationPost(station.Item2,
-                                                                                                CPOClient.StationPartnerIdSelector(station.Item2),
+                var semaphore  = new SemaphoreSlim(_maxDegreeOfParallelism, _maxDegreeOfParallelism);
+                var tasks      = new List<Task<HTTPResponse<StationPostResponse>>>();
 
-                                                                                                Timestamp,
-                                                                                                CancellationToken,
-                                                                                                EventTrackingId,
-                                                                                                RequestTimeout)).
-                                                       ToArray()).
-                                                       ConfigureAwait(false);
+                for (int i = 0; i < _Stations.Length; i++)
+                {
+                    var item = i;
+                    var task = Task.Run(async () => {
+
+                        try
+                        {
+
+                            await semaphore.WaitAsync();
+
+                            return await CPORoaming.StationPost(_Stations[i].Item2,
+                                                                CPOClient.StationPartnerIdSelector(_Stations[i].Item2),
+
+                                                                Timestamp,
+                                                                CancellationToken,
+                                                                EventTrackingId,
+                                                                RequestTimeout).
+                                                    ConfigureAwait(false);
+                        }
+                        finally
+                        {
+                            semaphore.Release();
+                        }
+
+                    });
+
+                    tasks.Add(task);
+
+                }
+
+                await Task.WhenAll(tasks);
 
 
-                var results = responses.SelectCounted((response, i) => {
 
-                                  if (response.HTTPStatusCode == HTTPStatusCode.OK &&
-                                      response.Content        != null)
-                                  {
+                //var responses  = await Task.WhenAll(_Stations.
+                //                                        Select(station => CPORoaming.StationPost(station.Item2,
+                //                                                                                 CPOClient.StationPartnerIdSelector(station.Item2),
 
-                                      if (response.Content.Code == ResponseCodes.Success)
-                                          return new PushSingleChargingStationDataResult(_Stations[i-1].Item1,
-                                                                                         PushSingleDataResultTypes.Success,
-                                                                                         new Warning[] { Warning.Create(response.Content.Message) });
+                //                                                                                 Timestamp,
+                //                                                                                 CancellationToken,
+                //                                                                                 EventTrackingId,
+                //                                                                                 RequestTimeout)).
+                //                                        ToArray()).
+                //                                        ConfigureAwait(false);
 
-                                      else
-                                          return new PushSingleChargingStationDataResult(_Stations[i-1].Item1,
-                                                                                         PushSingleDataResultTypes.Error,
-                                                                                         new Warning[] { Warning.Create(response.Content.Message) });
+                var results = tasks.Select       ( task         => task.Result).
+                                    SelectCounted((response, i) => {
 
-                                  }
-                                  else
-                                      return new PushSingleChargingStationDataResult(_Stations[i-1].Item1,
-                                                                                     PushSingleDataResultTypes.Error,
-                                                                                     new Warning[] {
-                                                                                         Warning.Create(response.HTTPStatusCode.ToString())
-                                                                                     }.Concat(
-                                                                                         response.HTTPBody != null
-                                                                                             ? Warnings.AddAndReturnList(response.HTTPBody.ToUTF8String())
-                                                                                             : Warnings.AddAndReturnList("No HTTP body received!")
-                                                                                     ));
+                                        if (response.HTTPStatusCode == HTTPStatusCode.OK &&
+                                            response.Content        != null)
+                                        {
+
+                                            if (response.Content.Code == ResponseCodes.Success)
+                                                return new PushSingleChargingStationDataResult(_Stations[i-1].Item1,
+                                                                                               PushSingleDataResultTypes.Success,
+                                                                                               new Warning[] { Warning.Create(response.Content.Message) });
+
+                                            else
+                                                return new PushSingleChargingStationDataResult(_Stations[i-1].Item1,
+                                                                                               PushSingleDataResultTypes.Error,
+                                                                                               new Warning[] { Warning.Create(response.Content.Message) });
+
+                                        }
+                                        else
+                                            return new PushSingleChargingStationDataResult(_Stations[i-1].Item1,
+                                                                                           PushSingleDataResultTypes.Error,
+                                                                                           new Warning[] {
+                                                                                               Warning.Create(response.HTTPStatusCode.ToString())
+                                                                                           }.Concat(
+                                                                                               response.HTTPBody != null
+                                                                                                   ? Warnings.AddAndReturnList(response.HTTPBody.ToUTF8String())
+                                                                                                   : Warnings.AddAndReturnList("No HTTP body received!")
+                                                                                           ));
 
                 });
 
@@ -1284,7 +1341,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         #endregion
 
-        #region (private) ConnectorPostStatus(EVSEStatusUpdates, ...)
+        #region (private) ConnectorsPostStatus(EVSEStatusUpdates, ...)
 
         /// <summary>
         /// Upload the EVSE status of the given lookup of EVSE status types grouped by their Charging Station Operator.
@@ -1297,12 +1354,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         public async Task<PushEVSEStatusResult>
 
-            ConnectorPostStatus(IEnumerable<EVSEStatusUpdate>  EVSEStatusUpdates,
+            ConnectorsPostStatus(IEnumerable<EVSEStatusUpdate>  EVSEStatusUpdates,
 
-                                DateTime?                      Timestamp           = null,
-                                CancellationToken?             CancellationToken   = null,
-                                EventTracking_Id               EventTrackingId     = null,
-                                TimeSpan?                      RequestTimeout      = null)
+                                 DateTime?                      Timestamp           = null,
+                                 CancellationToken?             CancellationToken   = null,
+                                 EventTracking_Id               EventTrackingId     = null,
+                                 TimeSpan?                      RequestTimeout      = null)
 
         {
 
@@ -1408,16 +1465,51 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             else
             {
 
-                var responses = await Task.WhenAll(_ConnectorStatus.
-                                                       Select(status => CPORoaming.ConnectorPostStatus(status.Item2,
-                                                                                                       CPOClient.ConnectorStatusPartnerIdSelector(status.Item2),
+                var semaphore  = new SemaphoreSlim(_maxDegreeOfParallelism, _maxDegreeOfParallelism);
+                var tasks      = new List<Task<HTTPResponse<ConnectorPostStatusResponse>>>();
 
-                                                                                                       Timestamp,
-                                                                                                       CancellationToken,
-                                                                                                       EventTrackingId,
-                                                                                                       RequestTimeout)).
-                                                       ToArray()).
-                                                       ConfigureAwait(false);
+                for (int i = 0; i < _ConnectorStatus.Length; i++)
+                {
+                    var item = i;
+                    var task = Task.Run(async () => {
+
+                        try
+                        {
+
+                            await semaphore.WaitAsync();
+
+                            return await CPORoaming.ConnectorPostStatus(_ConnectorStatus[i].Item2,
+                                                                        CPOClient.ConnectorStatusPartnerIdSelector(_ConnectorStatus[i].Item2),
+
+                                                                        Timestamp,
+                                                                        CancellationToken,
+                                                                        EventTrackingId,
+                                                                        RequestTimeout).
+                                                    ConfigureAwait(false);
+                        }
+                        finally
+                        {
+                            semaphore.Release();
+                        }
+
+                    });
+
+                    tasks.Add(task);
+
+                }
+
+                await Task.WhenAll(tasks);
+
+                //var responses = await Task.WhenAll(_ConnectorStatus.
+                //                                       Select(status => CPORoaming.ConnectorPostStatus(status.Item2,
+                //                                                                                       CPOClient.ConnectorStatusPartnerIdSelector(status.Item2),
+
+                //                                                                                       Timestamp,
+                //                                                                                       CancellationToken,
+                //                                                                                       EventTrackingId,
+                //                                                                                       RequestTimeout)).
+                //                                       ToArray()).
+                //                                       ConfigureAwait(false);
 
                 Endtime = DateTime.UtcNow;
                 Runtime = Endtime - StartTime;
@@ -1556,7 +1648,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                        (_IncludeChargingStations != null && _IncludeChargingStations(EVSE.ChargingStation)))
                     {
 
-                        StationsToAddQueue.Add(EVSE.ChargingStation.ToOIOI(CustomEVSEIdMapper: CustomEVSEIdMapper));
+                        StationsToAddQueue.Add(EVSE.ChargingStation);
 
                         FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery, TimeSpan.FromMilliseconds(-1));
 
@@ -1575,12 +1667,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             #endregion
 
 
-            return (await StationPost(new ChargingStation[] { EVSE.ChargingStation },
+            return (await StationsPost(new ChargingStation[] { EVSE.ChargingStation },
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                       Timestamp,
+                                       CancellationToken,
+                                       EventTrackingId,
+                                       RequestTimeout).
 
                           ConfigureAwait(false)).
 
@@ -1656,7 +1748,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                        (_IncludeChargingStations != null && _IncludeChargingStations(EVSE.ChargingStation)))
                     {
 
-                        StationsToAddQueue.Add(EVSE.ChargingStation.ToOIOI());
+                        StationsToAddQueue.Add(EVSE.ChargingStation);
 
                         FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery, TimeSpan.FromMilliseconds(-1));
 
@@ -1675,12 +1767,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             #endregion
 
 
-            return (await StationPost(new ChargingStation[] { EVSE.ChargingStation },
+            return (await StationsPost(new ChargingStation[] { EVSE.ChargingStation },
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                       Timestamp,
+                                       CancellationToken,
+                                       EventTrackingId,
+                                       RequestTimeout).
 
                           ConfigureAwait(false)).
 
@@ -1763,7 +1855,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                        (_IncludeChargingStations != null && _IncludeChargingStations(EVSE.ChargingStation)))
                     {
 
-                        StationsToUpdateQueue.Add(EVSE.ChargingStation.ToOIOI());
+                        StationsToUpdateQueue.Add(EVSE.ChargingStation);
 
                         FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery, TimeSpan.FromMilliseconds(-1));
 
@@ -1782,12 +1874,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             #endregion
 
 
-            return (await StationPost(new ChargingStation[] { EVSE.ChargingStation },
+            return (await StationsPost(new ChargingStation[] { EVSE.ChargingStation },
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                       Timestamp,
+                                       CancellationToken,
+                                       EventTrackingId,
+                                       RequestTimeout).
 
                           ConfigureAwait(false)).
 
@@ -1812,12 +1904,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         async Task<PushEVSEDataResult>
 
             ISendData.DeleteStaticData(EVSE                EVSE,
-                                             TransmissionTypes   TransmissionType,
+                                       TransmissionTypes   TransmissionType,
 
-                                             DateTime?           Timestamp,
-                                             CancellationToken?  CancellationToken,
-                                             EventTracking_Id    EventTrackingId,
-                                             TimeSpan?           RequestTimeout)
+                                       DateTime?           Timestamp,
+                                       CancellationToken?  CancellationToken,
+                                       EventTracking_Id    EventTrackingId,
+                                       TimeSpan?           RequestTimeout)
 
         {
 
@@ -1863,7 +1955,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                        (_IncludeChargingStations != null && _IncludeChargingStations(EVSE.ChargingStation)))
                     {
 
-                        StationsToUpdateQueue.Add(EVSE.ChargingStation.ToOIOI());
+                        StationsToUpdateQueue.Add(EVSE.ChargingStation);
 
                         FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery, TimeSpan.FromMilliseconds(-1));
 
@@ -1882,12 +1974,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             #endregion
 
 
-            return (await StationPost(new ChargingStation[] { EVSE.ChargingStation },
+            return (await StationsPost(new ChargingStation[] { EVSE.ChargingStation },
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                       Timestamp,
+                                       CancellationToken,
+                                       EventTrackingId,
+                                       RequestTimeout).
 
                           ConfigureAwait(false)).
 
@@ -1928,7 +2020,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return (await StationPost(EVSEs.Select(evse => evse.ChargingStation).Distinct(),
+            return (await StationsPost(EVSEs.Select(evse => evse.ChargingStation).Distinct(),
 
                                       Timestamp,
                                       CancellationToken,
@@ -1973,7 +2065,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return (await StationPost(EVSEs.Select(evse => evse.ChargingStation).Distinct(),
+            return (await StationsPost(EVSEs.Select(evse => evse.ChargingStation).Distinct(),
 
                                       Timestamp,
                                       CancellationToken,
@@ -2018,7 +2110,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return (await StationPost(EVSEs.Select(evse => evse.ChargingStation).Distinct(),
+            return (await StationsPost(EVSEs.Select(evse => evse.ChargingStation).Distinct(),
 
                                       Timestamp,
                                       CancellationToken,
@@ -2063,7 +2155,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return (await StationPost(EVSEs.Select(evse => evse.ChargingStation).Distinct(),
+            return (await StationsPost(EVSEs.Select(evse => evse.ChargingStation).Distinct(),
 
                                       Timestamp,
                                       CancellationToken,
@@ -2190,7 +2282,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             #endregion
 
 
-            return await ConnectorPostStatus(StatusUpdates,
+            return await ConnectorsPostStatus(StatusUpdates,
 
                                              Timestamp,
                                              CancellationToken,
@@ -2273,7 +2365,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                        (_IncludeChargingStations != null && _IncludeChargingStations(ChargingStation)))
                     {
 
-                        StationsToAddQueue.Add(ChargingStation.ToOIOI());
+                        StationsToAddQueue.Add(ChargingStation);
 
                         FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery, TimeSpan.FromMilliseconds(-1));
 
@@ -2292,12 +2384,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             #endregion
 
 
-            return (await StationPost(new ChargingStation[] { ChargingStation },
+            return (await StationsPost(new ChargingStation[] { ChargingStation },
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                       Timestamp,
+                                       CancellationToken,
+                                       EventTrackingId,
+                                       RequestTimeout).
 
                           ConfigureAwait(false)).
 
@@ -2373,7 +2465,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                        (_IncludeChargingStations != null && _IncludeChargingStations(ChargingStation)))
                     {
 
-                        StationsToAddQueue.Add(ChargingStation.ToOIOI());
+                        StationsToAddQueue.Add(ChargingStation);
 
                         FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery, TimeSpan.FromMilliseconds(-1));
 
@@ -2391,12 +2483,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return (await StationPost(new ChargingStation[] { ChargingStation },
+            return (await StationsPost(new ChargingStation[] { ChargingStation },
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                       Timestamp,
+                                       CancellationToken,
+                                       EventTrackingId,
+                                       RequestTimeout).
 
                           ConfigureAwait(false)).
 
@@ -2478,7 +2570,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                        (_IncludeChargingStations != null && _IncludeChargingStations(ChargingStation)))
                     {
 
-                        StationsToUpdateQueue.Add(ChargingStation.ToOIOI());
+                        StationsToUpdateQueue.Add(ChargingStation);
 
                         FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery, TimeSpan.FromMilliseconds(-1));
 
@@ -2496,12 +2588,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return (await StationPost(new ChargingStation[] { ChargingStation },
+            return (await StationsPost(new ChargingStation[] { ChargingStation },
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                       Timestamp,
+                                       CancellationToken,
+                                       EventTrackingId,
+                                       RequestTimeout).
 
                           ConfigureAwait(false)).
 
@@ -2542,12 +2634,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return (await StationPost(new ChargingStation[] { ChargingStation },
+            return (await StationsPost(new ChargingStation[] { ChargingStation },
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                       Timestamp,
+                                       CancellationToken,
+                                       EventTrackingId,
+                                       RequestTimeout).
 
                           ConfigureAwait(false)).
 
@@ -2589,12 +2681,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return (await StationPost(ChargingStations,
+            return (await StationsPost(ChargingStations,
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                       Timestamp,
+                                       CancellationToken,
+                                       EventTrackingId,
+                                       RequestTimeout).
 
                           ConfigureAwait(false)).
 
@@ -2636,12 +2728,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return (await StationPost(ChargingStations,
+            return (await StationsPost(ChargingStations,
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                       Timestamp,
+                                       CancellationToken,
+                                       EventTrackingId,
+                                       RequestTimeout).
 
                           ConfigureAwait(false)).
 
@@ -2682,12 +2774,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return (await StationPost(ChargingStations,
+            return (await StationsPost(ChargingStations,
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                       Timestamp,
+                                       CancellationToken,
+                                       EventTrackingId,
+                                       RequestTimeout).
 
                           ConfigureAwait(false)).
 
@@ -2728,12 +2820,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return (await StationPost(ChargingStations, //ToDo: Mark them as deleted!
+            return (await StationsPost(ChargingStations, //ToDo: Mark them as deleted!
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                       Timestamp,
+                                       CancellationToken,
+                                       EventTrackingId,
+                                       RequestTimeout).
 
                           ConfigureAwait(false)).
 
@@ -2871,7 +2963,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                            (_IncludeChargingStations != null && _IncludeChargingStations(station)))
                         {
 
-                            StationsToAddQueue.Add(station.ToOIOI());
+                            StationsToAddQueue.Add(station);
 
                             FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery, TimeSpan.FromMilliseconds(-1));
 
@@ -2892,7 +2984,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             #endregion
 
 
-            return (await StationPost(ChargingPool.ChargingStations,
+            return (await StationsPost(ChargingPool.ChargingStations,
 
                                       Timestamp,
                                       CancellationToken,
@@ -2976,7 +3068,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                            (_IncludeChargingStations != null && _IncludeChargingStations(station)))
                         {
 
-                            StationsToAddQueue.Add(station.ToOIOI());
+                            StationsToAddQueue.Add(station);
 
                             FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery, TimeSpan.FromMilliseconds(-1));
 
@@ -2997,7 +3089,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             #endregion
 
 
-            return (await StationPost(ChargingPool.ChargingStations,
+            return (await StationsPost(ChargingPool.ChargingStations,
 
                                       Timestamp,
                                       CancellationToken,
@@ -3087,9 +3179,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                            (_IncludeChargingStations != null && _IncludeChargingStations(station)))
                         {
 
-                            StationsToUpdateQueue.Add(station.ToOIOI(CustomOperatorIdMapper,
-                                                                     CustomEVSEIdMapper,
-                                                                     ChargingStation2Station));
+                            StationsToUpdateQueue.Add(station);
 
                             FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery, TimeSpan.FromMilliseconds(-1));
 
@@ -3110,7 +3200,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             #endregion
 
 
-            return (await StationPost(ChargingPool.ChargingStations,
+            return (await StationsPost(ChargingPool.ChargingStations,
 
                                       Timestamp,
                                       CancellationToken,
@@ -3157,7 +3247,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             #endregion
 
 
-            return (await StationPost(ChargingPool.ChargingStations, // Mark as deleted?
+            return (await StationsPost(ChargingPool.ChargingStations, // Mark as deleted?
 
                                       Timestamp,
                                       CancellationToken,
@@ -3205,7 +3295,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             #endregion
 
 
-            return (await StationPost(ChargingPools.SafeSelectMany(pool => pool.ChargingStations),
+            return (await StationsPost(ChargingPools.SafeSelectMany(pool => pool.ChargingStations),
 
                                       Timestamp,
                                       CancellationToken,
@@ -3251,7 +3341,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return (await StationPost(ChargingPools.SafeSelectMany(pool => pool.ChargingStations),
+            return (await StationsPost(ChargingPools.SafeSelectMany(pool => pool.ChargingStations),
 
                                       Timestamp,
                                       CancellationToken,
@@ -3298,7 +3388,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             #endregion
 
 
-            return (await StationPost(ChargingPools.SafeSelectMany(pool => pool.ChargingStations),
+            return (await StationsPost(ChargingPools.SafeSelectMany(pool => pool.ChargingStations),
 
                                       Timestamp,
                                       CancellationToken,
@@ -3345,7 +3435,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             #endregion
 
 
-            return (await StationPost(ChargingPools.SafeSelectMany(pool => pool.ChargingStations),
+            return (await StationsPost(ChargingPools.SafeSelectMany(pool => pool.ChargingStations),
 
                                       Timestamp,
                                       CancellationToken,
@@ -3449,7 +3539,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             #endregion
 
 
-            return (await StationPost(ChargingStationOperator.ChargingStations,
+            return (await StationsPost(ChargingStationOperator.ChargingStations,
 
                                       Timestamp,
                                       CancellationToken,
@@ -3494,7 +3584,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             #endregion
 
 
-            return (await StationPost(ChargingStationOperator.ChargingStations,
+            return (await StationsPost(ChargingStationOperator.ChargingStations,
 
                                       Timestamp,
                                       CancellationToken,
@@ -3539,7 +3629,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             #endregion
 
 
-            return (await StationPost(ChargingStationOperator.ChargingStations,
+            return (await StationsPost(ChargingStationOperator.ChargingStations,
 
                                       Timestamp,
                                       CancellationToken,
@@ -3584,7 +3674,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             #endregion
 
 
-            return (await StationPost(ChargingStationOperator.ChargingStations,
+            return (await StationsPost(ChargingStationOperator.ChargingStations,
 
                                       Timestamp,
                                       CancellationToken,
@@ -3630,7 +3720,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             #endregion
 
 
-            return (await StationPost(ChargingStationOperators.SafeSelectMany(stationoperator => stationoperator.ChargingStations),
+            return (await StationsPost(ChargingStationOperators.SafeSelectMany(stationoperator => stationoperator.ChargingStations),
 
                                       Timestamp,
                                       CancellationToken,
@@ -3674,7 +3764,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return (await StationPost(ChargingStationOperators.SafeSelectMany(stationoperator => stationoperator.ChargingStations),
+            return (await StationsPost(ChargingStationOperators.SafeSelectMany(stationoperator => stationoperator.ChargingStations),
 
                                       Timestamp,
                                       CancellationToken,
@@ -3718,7 +3808,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return (await StationPost(ChargingStationOperators.SafeSelectMany(stationoperator => stationoperator.ChargingStations),
+            return (await StationsPost(ChargingStationOperators.SafeSelectMany(stationoperator => stationoperator.ChargingStations),
 
                                       Timestamp,
                                       CancellationToken,
@@ -3762,7 +3852,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return (await StationPost(ChargingStationOperators.SafeSelectMany(stationoperator => stationoperator.ChargingStations),
+            return (await StationsPost(ChargingStationOperators.SafeSelectMany(stationoperator => stationoperator.ChargingStations),
 
                                       Timestamp,
                                       CancellationToken,
@@ -3865,7 +3955,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return (await StationPost(RoamingNetwork.ChargingStations,
+            return (await StationsPost(RoamingNetwork.ChargingStations,
 
                                       Timestamp,
                                       CancellationToken,
@@ -3909,7 +3999,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return (await StationPost(RoamingNetwork.ChargingStations,
+            return (await StationsPost(RoamingNetwork.ChargingStations,
 
                                       Timestamp,
                                       CancellationToken,
@@ -3953,7 +4043,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return (await StationPost(RoamingNetwork.ChargingStations,
+            return (await StationsPost(RoamingNetwork.ChargingStations,
 
                                       Timestamp,
                                       CancellationToken,
@@ -3997,7 +4087,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            return (await StationPost(RoamingNetwork.ChargingStations,
+            return (await StationsPost(RoamingNetwork.ChargingStations,
 
                                       Timestamp,
                                       CancellationToken,
@@ -6074,7 +6164,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
 
 
-
         #region (timer) FlushEVSEDataAndStatus()
 
         protected override Boolean SkipFlushEVSEDataAndStatusQueues()
@@ -6088,10 +6177,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #region Get a copy of all current EVSE data and delayed status
 
-            var StationsToAddQueueCopy                 = new HashSet<Station>();
-            var StationsToUpdateQueueCopy              = new HashSet<Station>();
+            var StationsToAddQueueCopy                 = new HashSet<ChargingStation>();
+            var StationsToUpdateQueueCopy              = new HashSet<ChargingStation>();
             var StationsStatusChangesDelayedQueueCopy  = new List<EVSEStatusUpdate>();
-            var StationsToRemoveQueueCopy              = new HashSet<Station>();
+            var StationsToRemoveQueueCopy              = new HashSet<ChargingStation>();
             var StationsUpdateLogCopy                  = new Dictionary<Station,         PropertyUpdateInfos[]>();
             var ChargingStationsUpdateLogCopy          = new Dictionary<ChargingStation, PropertyUpdateInfos[]>();
             var ChargingPoolsUpdateLogCopy             = new Dictionary<ChargingPool,    PropertyUpdateInfos[]>();
@@ -6102,11 +6191,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             {
 
                 // Copy 'EVSEs to add', remove originals...
-                StationsToAddQueueCopy                      = new HashSet<Station>                (StationsToAddQueue);
+                StationsToAddQueueCopy                      = new HashSet<ChargingStation>      (StationsToAddQueue);
                 StationsToAddQueue.Clear();
 
                 // Copy 'EVSEs to update', remove originals...
-                StationsToUpdateQueueCopy                   = new HashSet<Station>                (StationsToUpdateQueue);
+                StationsToUpdateQueueCopy                   = new HashSet<ChargingStation>      (StationsToUpdateQueue);
                 StationsToUpdateQueue.Clear();
 
                 // Copy 'EVSE status changes', remove originals...
@@ -6115,7 +6204,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 EVSEStatusChangesDelayedQueue.Clear();
 
                 // Copy 'EVSEs to remove', remove originals...
-                StationsToRemoveQueueCopy                   = new HashSet<Station>                (StationsToRemoveQueue);
+                StationsToRemoveQueueCopy                   = new HashSet<ChargingStation>      (StationsToRemoveQueue);
                 StationsToRemoveQueue.Clear();
 
                 // Copy EVSE property updates
@@ -6152,20 +6241,27 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             if (StationsToAddQueueCopy.Count > 0)
             {
 
-                var responses = await Task.WhenAll(StationsToAddQueueCopy.
-                                                       Select(station => CPORoaming.StationPost(station,
-                                                                                                CPOClient.StationPartnerIdSelector(station),
+                var responses = await StationsPost(StationsToAddQueueCopy,
+                                                   //Timestamp,
+                                                   //CancellationToken,
+                                                   EventTrackingId: EventTrackingId).
+                                                   //RequestTimeout)
+                                      ConfigureAwait(false);
 
-                                                                                                //Timestamp,
-                                                                                                //CancellationToken,
-                                                                                                EventTrackingId: EventTrackingId)).
-                                                                                                //RequestTimeout)).
-                                                       ToArray()).
-                                                       ConfigureAwait(false);
+                //var responses = await Task.WhenAll(StationsToAddQueueCopy.
+                //                                       Select(station => CPORoaming.StationPost(station,
+                //                                                                                CPOClient.StationPartnerIdSelector(station),
+
+                //                                                                                //Timestamp,
+                //                                                                                //CancellationToken,
+                //                                                                                EventTrackingId: EventTrackingId)).
+                //                                                                                //RequestTimeout)).
+                //                                       ToArray()).
+                //                                       ConfigureAwait(false);
 
 
-                foreach (var response in responses)
-                {
+                //foreach (var response in responses)
+                //{
 
                     //response.Content.
 
@@ -6179,7 +6275,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                     //}
 
-                }
+                //}
 
             }
 
@@ -6199,20 +6295,27 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 if (EVSEsWithoutNewEVSEs.Length > 0)
                 {
 
-                    var responses = await Task.WhenAll(EVSEsWithoutNewEVSEs.
-                                                       Select(station => CPORoaming.StationPost(station,
-                                                                                                CPOClient.StationPartnerIdSelector(station),
+                    var responses = await StationsPost(EVSEsWithoutNewEVSEs,
+                                                       //Timestamp,
+                                                       //CancellationToken,
+                                                       EventTrackingId: EventTrackingId).
+                                                       //RequestTimeout)
+                                          ConfigureAwait(false);
 
-                                                                                                //Timestamp,
-                                                                                                //CancellationToken,
-                                                                                                EventTrackingId: EventTrackingId)).
-                                                       //RequestTimeout)).
-                                                       ToArray()).
-                                                       ConfigureAwait(false);
+                    //var responses = await Task.WhenAll(EVSEsWithoutNewEVSEs.
+                    //                                   Select(station => CPORoaming.StationPost(station,
+                    //                                                                            CPOClient.StationPartnerIdSelector(station),
+
+                    //                                                                            //Timestamp,
+                    //                                                                            //CancellationToken,
+                    //                                                                            EventTrackingId: EventTrackingId)).
+                    //                                   //RequestTimeout)).
+                    //                                   ToArray()).
+                    //                                   ConfigureAwait(false);
 
 
-                    foreach (var response in responses)
-                    {
+                    //foreach (var response in responses)
+                    //{
 
                         //response.Content.
 
@@ -6226,7 +6329,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                         //}
 
-                    }
+                    //}
 
                 }
 
@@ -6240,16 +6343,23 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 StationsStatusChangesDelayedQueueCopy.Count > 0)
             {
 
-                var responses = await Task.WhenAll(StationsStatusChangesDelayedQueueCopy.
-                                                       Select(status => CPORoaming.ConnectorPostStatus(status.EVSE.     Id.   ToOIOI(),
-                                                                                                       status.NewStatus.Value.ToOIOI(),
+                var responses = await ConnectorsPostStatus(StationsStatusChangesDelayedQueueCopy,
+                                                           //Timestamp,
+                                                           //CancellationToken,
+                                                           EventTrackingId: EventTrackingId).
+                                                           //RequestTimeout)
+                                      ConfigureAwait(false);
 
-                                                                                                       //Timestamp,
-                                                                                                       //CancellationToken,
-                                                                                                       EventTrackingId: EventTrackingId)).
-                                                                                                       //RequestTimeout)).
-                                                       ToArray()).
-                                                       ConfigureAwait(false);
+                //var responses = await Task.WhenAll(StationsStatusChangesDelayedQueueCopy.
+                //                                       Select(status => CPORoaming.ConnectorPostStatus(status.EVSE.     Id.   ToOIOI(),
+                //                                                                                       status.NewStatus.Value.ToOIOI(),
+
+                //                                                                                       //Timestamp,
+                //                                                                                       //CancellationToken,
+                //                                                                                       EventTrackingId: EventTrackingId)).
+                //                                                                                       //RequestTimeout)).
+                //                                       ToArray()).
+                //                                       ConfigureAwait(false);
 
 
                 //var PushEVSEStatusTask = PushEVSEStatus(EVSEStatusChangesDelayedQueueCopy,
@@ -6328,10 +6438,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             {
 
                 // Copy 'EVSE status changes', remove originals...
-                EVSEStatusFastQueueCopy = new List<EVSEStatusUpdate>(EVSEStatusChangesFastQueue.Where(evsestatuschange => !StationsToAddQueue.Any(station => station.Connectors.Any(connector => connector.Id == evsestatuschange.EVSE.Id.ToOIOI()))));
+                EVSEStatusFastQueueCopy = new List<EVSEStatusUpdate>(EVSEStatusChangesFastQueue.Where(evsestatuschange => !StationsToAddQueue.Any(station => station.EVSEs.Any(evse => evse.Id == evsestatuschange.EVSE.Id))));
 
                 // Add all evse status changes of EVSE *NOT YET UPLOADED* into the delayed queue...
-                var EVSEStatusChangesDelayed = EVSEStatusChangesFastQueue.Where(evsestatuschange => StationsToAddQueue.Any(station => station.Connectors.Any(connector => connector.Id == evsestatuschange.EVSE.Id.ToOIOI()))).ToArray();
+                var EVSEStatusChangesDelayed = EVSEStatusChangesFastQueue.Where(evsestatuschange => StationsToAddQueue.Any(station => station.EVSEs.Any(evse => evse.Id == evsestatuschange.EVSE.Id))).ToArray();
 
                 if (EVSEStatusChangesDelayed.Length > 0)
                     EVSEStatusChangesDelayedQueue.AddRange(EVSEStatusChangesDelayed);
@@ -6357,7 +6467,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             if (EVSEStatusFastQueueCopy.Count > 0)
             {
 
-                var _PushEVSEStatus = await ConnectorPostStatus(EVSEStatusFastQueueCopy,
+                var _PushEVSEStatus = await ConnectorsPostStatus(EVSEStatusFastQueueCopy,
                                                                 EventTrackingId: EventTrackingId);
 
                 if (_PushEVSEStatus.Warnings.Any())
@@ -6511,7 +6621,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         public static Boolean operator < (WWCPCPOAdapter  WWCPCPOAdapter1, WWCPCPOAdapter  WWCPCPOAdapter2)
         {
 
-            if ((Object) WWCPCPOAdapter1 == null)
+            if (WWCPCPOAdapter1 is null)
                 throw new ArgumentNullException(nameof(WWCPCPOAdapter1),  "The given WWCPCPOAdapter must not be null!");
 
             return WWCPCPOAdapter1.CompareTo(WWCPCPOAdapter2) < 0;
@@ -6544,7 +6654,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         public static Boolean operator > (WWCPCPOAdapter WWCPCPOAdapter1, WWCPCPOAdapter WWCPCPOAdapter2)
         {
 
-            if ((Object) WWCPCPOAdapter1 == null)
+            if (WWCPCPOAdapter1 is null)
                 throw new ArgumentNullException(nameof(WWCPCPOAdapter1),  "The given WWCPCPOAdapter must not be null!");
 
             return WWCPCPOAdapter1.CompareTo(WWCPCPOAdapter2) > 0;
@@ -6582,8 +6692,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             if (Object == null)
                 throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
 
-            var WWCPCPOAdapter = Object as WWCPCPOAdapter;
-            if ((Object) WWCPCPOAdapter == null)
+            if (!(Object is WWCPCPOAdapter WWCPCPOAdapter))
                 throw new ArgumentException("The given object is not an WWCPCPOAdapter!", nameof(Object));
 
             return CompareTo(WWCPCPOAdapter);
@@ -6601,7 +6710,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         public Int32 CompareTo(WWCPCPOAdapter WWCPCPOAdapter)
         {
 
-            if ((Object) WWCPCPOAdapter == null)
+            if (WWCPCPOAdapter is null)
                 throw new ArgumentNullException(nameof(WWCPCPOAdapter), "The given WWCPCPOAdapter must not be null!");
 
             return Id.CompareTo(WWCPCPOAdapter.Id);
@@ -6627,8 +6736,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             if (Object == null)
                 return false;
 
-            var WWCPCPOAdapter = Object as WWCPCPOAdapter;
-            if ((Object) WWCPCPOAdapter == null)
+            if (!(Object is WWCPCPOAdapter WWCPCPOAdapter))
                 return false;
 
             return Equals(WWCPCPOAdapter);
@@ -6647,7 +6755,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         public Boolean Equals(WWCPCPOAdapter WWCPCPOAdapter)
         {
 
-            if ((Object) WWCPCPOAdapter == null)
+            if (WWCPCPOAdapter is null)
                 return false;
 
             return Id.Equals(WWCPCPOAdapter.Id);
