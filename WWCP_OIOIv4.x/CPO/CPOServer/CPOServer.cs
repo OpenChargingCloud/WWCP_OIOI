@@ -480,10 +480,17 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  {
 
                                                      case IdentifierTypes.Username:
-                                                         if (!UserJSON.ParseOptional("token", out Token))
+
+                                                         if (!UserJSON.ParseOptional("token",
+                                                                                     out Token,
+                                                                                     out ErrorResponse))
+                                                         {
+
                                                              return SendSessionStartResponse(Request,
                                                                                              HTTPStatusCode.BadRequest,
                                                                                              Result.Error(145, "JSON property 'user/token' invalid!"));
+
+                                                         }
                                                          break;
 
                                                  }
@@ -826,11 +833,17 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  {
 
                                                      case IdentifierTypes.Username:
+
                                                          if (!UserJSON.ParseOptional("token",
-                                                                                     out Token))
+                                                                                     out Token,
+                                                                                     out ErrorResponse))
+                                                         {
+
                                                              return SendSessionStopResponse(Request,
                                                                                             HTTPStatusCode.BadRequest,
                                                                                             Result.Error(145, "JSON property 'user/token' invalid!"));
+
+                                                         }
                                                          break;
 
                                                  }

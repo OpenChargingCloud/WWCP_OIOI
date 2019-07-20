@@ -1201,7 +1201,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                        ConfigureAwait(false);
 
 
-                var results = responses.SelectCounted((i, response) => {
+                var results = responses.SelectCounted((response, i) => {
 
                                   if (response.HTTPStatusCode == HTTPStatusCode.OK &&
                                       response.Content        != null)
