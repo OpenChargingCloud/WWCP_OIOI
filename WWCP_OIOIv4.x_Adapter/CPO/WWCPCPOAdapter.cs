@@ -4254,11 +4254,28 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                      Runtime);
             }
 
+            else if (!LocalAuthentication.AuthToken.HasValue ||
+                     !LocalAuthentication.AuthToken.ToOIOI().HasValue)
+            {
+
+                Endtime  = DateTime.UtcNow;
+                Runtime  = Endtime - StartTime;
+
+                result   = AuthStartResult.NotAuthorized(
+                               Id,
+                               this,
+                               SessionId,
+                               ProviderId: DefaultProviderId,
+                               Runtime:    Runtime
+                           );
+
+            }
+
             else
             {
 
                 var response = await CPORoaming.
-                                         RFIDVerify(LocalAuthentication.AuthToken.ToOIOI(),
+                                         RFIDVerify(LocalAuthentication.AuthToken.ToOIOI().Value,
 
                                                     Timestamp,
                                                     CancellationToken,
@@ -4425,16 +4442,33 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             }
 
+            else if (!LocalAuthentication.AuthToken.HasValue ||
+                     !LocalAuthentication.AuthToken.ToOIOI().HasValue)
+            {
+
+                Endtime  = DateTime.UtcNow;
+                Runtime  = Endtime - StartTime;
+
+                result   = AuthStartEVSEResult.NotAuthorized(
+                               Id,
+                               this,
+                               SessionId,
+                               ProviderId: DefaultProviderId,
+                               Runtime:    Runtime
+                           );
+
+            }
+
             else
             {
 
-                var response  = await CPORoaming.
-                                          RFIDVerify(LocalAuthentication.AuthToken.ToOIOI(),
+                var response = await CPORoaming.
+                                         RFIDVerify(LocalAuthentication.AuthToken.ToOIOI().Value,
 
-                                                     Timestamp,
-                                                     CancellationToken,
-                                                     EventTrackingId,
-                                                     RequestTimeout);
+                                                    Timestamp,
+                                                    CancellationToken,
+                                                    EventTrackingId,
+                                                    RequestTimeout);
 
 
                 Endtime  = DateTime.UtcNow;
@@ -4595,16 +4629,33 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                     Runtime);
             }
 
+            else if (!LocalAuthentication.AuthToken.HasValue ||
+                     !LocalAuthentication.AuthToken.ToOIOI().HasValue)
+            {
+
+                Endtime  = DateTime.UtcNow;
+                Runtime  = Endtime - StartTime;
+
+                result   = AuthStartChargingStationResult.NotAuthorized(
+                               Id,
+                               this,
+                               SessionId,
+                               ProviderId: DefaultProviderId,
+                               Runtime:    Runtime
+                           );
+
+            }
+
             else
             {
 
-                var response  = await CPORoaming.
-                                          RFIDVerify(LocalAuthentication.AuthToken.ToOIOI(),
+                var response = await CPORoaming.
+                                         RFIDVerify(LocalAuthentication.AuthToken.ToOIOI().Value,
 
-                                                     Timestamp,
-                                                     CancellationToken,
-                                                     EventTrackingId,
-                                                     RequestTimeout).ConfigureAwait(false);
+                                                    Timestamp,
+                                                    CancellationToken,
+                                                    EventTrackingId,
+                                                    RequestTimeout).ConfigureAwait(false);
 
 
                 Endtime  = DateTime.UtcNow;
@@ -4764,16 +4815,33 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                  Runtime);
             }
 
+            else if (!LocalAuthentication.AuthToken.HasValue ||
+                     !LocalAuthentication.AuthToken.ToOIOI().HasValue)
+            {
+
+                Endtime  = DateTime.UtcNow;
+                Runtime  = Endtime - StartTime;
+
+                result   = AuthStartChargingPoolResult.NotAuthorized(
+                               Id,
+                               this,
+                               SessionId,
+                               ProviderId: DefaultProviderId,
+                               Runtime:    Runtime
+                           );
+
+            }
+
             else
             {
 
-                var response  = await CPORoaming.
-                                          RFIDVerify(LocalAuthentication.AuthToken.ToOIOI(),
+                var response = await CPORoaming.
+                                         RFIDVerify(LocalAuthentication.AuthToken.ToOIOI().Value,
 
-                                                     Timestamp,
-                                                     CancellationToken,
-                                                     EventTrackingId,
-                                                     RequestTimeout).ConfigureAwait(false);
+                                                    Timestamp,
+                                                    CancellationToken,
+                                                    EventTrackingId,
+                                                    RequestTimeout).ConfigureAwait(false);
 
 
                 Endtime  = DateTime.UtcNow;
@@ -4931,15 +4999,33 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                     Runtime);
             }
 
+            else if (!LocalAuthentication.AuthToken.HasValue ||
+                     !LocalAuthentication.AuthToken.ToOIOI().HasValue)
+            {
+
+                Endtime  = DateTime.UtcNow;
+                Runtime  = Endtime - StartTime;
+
+                result   = AuthStopResult.NotAuthorized(
+                               Id,
+                               this,
+                               SessionId,
+                               ProviderId: DefaultProviderId,
+                               Runtime:    Runtime
+                           );
+
+            }
+
             else
             {
 
-                var response = await CPORoaming.RFIDVerify(LocalAuthentication.AuthToken.ToOIOI(),
+                var response = await CPORoaming.
+                                         RFIDVerify(LocalAuthentication.AuthToken.ToOIOI().Value,
 
-                                                           Timestamp,
-                                                           CancellationToken,
-                                                           EventTrackingId,
-                                                           RequestTimeout).ConfigureAwait(false);
+                                                    Timestamp,
+                                                    CancellationToken,
+                                                    EventTrackingId,
+                                                    RequestTimeout).ConfigureAwait(false);
 
 
                 Endtime  = DateTime.UtcNow;
@@ -5092,15 +5178,33 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                         Runtime);
             }
 
+            else if (!LocalAuthentication.AuthToken.HasValue ||
+                     !LocalAuthentication.AuthToken.ToOIOI().HasValue)
+            {
+
+                Endtime  = DateTime.UtcNow;
+                Runtime  = Endtime - StartTime;
+
+                result   = AuthStopEVSEResult.NotAuthorized(
+                               Id,
+                               this,
+                               SessionId,
+                               ProviderId: DefaultProviderId,
+                               Runtime:    Runtime
+                           );
+
+            }
+
             else
             {
 
-                var response  = await CPORoaming.RFIDVerify(LocalAuthentication.AuthToken.ToOIOI(),
+                var response = await CPORoaming.
+                                         RFIDVerify(LocalAuthentication.AuthToken.ToOIOI().Value,
 
-                                                            Timestamp,
-                                                            CancellationToken,
-                                                            EventTrackingId,
-                                                            RequestTimeout).ConfigureAwait(false);
+                                                    Timestamp,
+                                                    CancellationToken,
+                                                    EventTrackingId,
+                                                    RequestTimeout).ConfigureAwait(false);
 
 
                 Endtime  = DateTime.UtcNow;
@@ -5255,15 +5359,33 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                    Runtime);
             }
 
+            else if (!LocalAuthentication.AuthToken.HasValue ||
+                     !LocalAuthentication.AuthToken.ToOIOI().HasValue)
+            {
+
+                Endtime  = DateTime.UtcNow;
+                Runtime  = Endtime - StartTime;
+
+                result   = AuthStopChargingStationResult.NotAuthorized(
+                               Id,
+                               this,
+                               SessionId,
+                               ProviderId: DefaultProviderId,
+                               Runtime:    Runtime
+                           );
+
+            }
+
             else
             {
 
-                var response  = await CPORoaming.RFIDVerify(LocalAuthentication.AuthToken.ToOIOI(),
+                var response = await CPORoaming.
+                                         RFIDVerify(LocalAuthentication.AuthToken.ToOIOI().Value,
 
-                                                            Timestamp,
-                                                            CancellationToken,
-                                                            EventTrackingId,
-                                                            RequestTimeout).ConfigureAwait(false);
+                                                    Timestamp,
+                                                    CancellationToken,
+                                                    EventTrackingId,
+                                                    RequestTimeout).ConfigureAwait(false);
 
 
                 Endtime  = DateTime.UtcNow;
@@ -5418,15 +5540,33 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                 Runtime);
             }
 
+            else if (!LocalAuthentication.AuthToken.HasValue ||
+                     !LocalAuthentication.AuthToken.ToOIOI().HasValue)
+            {
+
+                Endtime  = DateTime.UtcNow;
+                Runtime  = Endtime - StartTime;
+
+                result   = AuthStopChargingPoolResult.NotAuthorized(
+                               Id,
+                               this,
+                               SessionId,
+                               ProviderId: DefaultProviderId,
+                               Runtime:    Runtime
+                           );
+
+            }
+
             else
             {
 
-                var response  = await CPORoaming.RFIDVerify(LocalAuthentication.AuthToken.ToOIOI(),
+                var response = await CPORoaming.
+                                         RFIDVerify(LocalAuthentication.AuthToken.ToOIOI().Value,
 
-                                                            Timestamp,
-                                                            CancellationToken,
-                                                            EventTrackingId,
-                                                            RequestTimeout).ConfigureAwait(false);
+                                                    Timestamp,
+                                                    CancellationToken,
+                                                    EventTrackingId,
+                                                    RequestTimeout).ConfigureAwait(false);
 
 
                 Endtime  = DateTime.UtcNow;

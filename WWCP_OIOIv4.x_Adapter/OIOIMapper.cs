@@ -166,6 +166,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         public static RFID_Id ToOIOI(this Auth_Token AuthToken)
             => RFID_Id.Parse(AuthToken.ToString());
 
+        public static RFID_Id? ToOIOI(this Auth_Token? AuthToken)
+            => AuthToken.HasValue
+                   ? RFID_Id.Parse(AuthToken.ToString())
+                   : new RFID_Id?();
+
         #endregion
 
         #region  ToOIOI(this EVSEStatusType)
