@@ -387,7 +387,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  //         -d "{ \"session-start\": { \
                                                  //                   \"user\": { \
                                                  //                       \"identifier-type\": \"evco-id\", \
-                                                 //                       \"identifier\":      \"DE-GDF-123456-7\" }, \
+                                                 //                       \"identifier\":      \"DE-GDF-123456-7\" \
+                                                 //                   }, \
                                                  //                   \"connector-id\":       \"DE*GEF*E12345678\", \
                                                  //                   \"payment-reference\":  \"bitcoins\" } }" \
                                                  //         http://127.0.0.1:4567/api/v4/request
@@ -399,7 +400,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  //         -d "{ \"session-start\": { \
                                                  //                   \"user\": { \
                                                  //                       \"identifier-type\": \"evco-id\", \
-                                                 //                       \"identifier\":      \"DE-BDP-123456-7\" }, \
+                                                 //                       \"identifier\":      \"DE-BDP-123456-7\" \
+                                                 //                   }, \
                                                  //                   \"connector-id\":       \"DE*BDO*EVSE*CI*TESTS*A*1\", \
                                                  //                   \"payment-reference\":  \"bitcoins\" } }" \
                                                  //         http://127.0.0.1:3004/RNs/Prod/IO/PlugSurfing
@@ -407,7 +409,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  #region Data
 
-                                                 JObject               UserJSON             = null;
+                                                 JObject UserJSON             = null;
                                                  IdentifierTypes       IdentifierType       = IdentifierTypes.Unknown;
                                                  eMobilityAccount_Id   eMobilityAccountId   = default(eMobilityAccount_Id);
                                                  String                Token                = null;
