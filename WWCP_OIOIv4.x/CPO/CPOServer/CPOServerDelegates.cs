@@ -57,7 +57,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
     /// <param name="CancellationToken">A token to cancel this task.</param>
     /// <param name="EventTrackingId">An unique event tracking identification for correlating this request with other events.</param>
     /// <param name="RequestTimeout">An optional timeout for this request.</param>
-    public delegate Task<RemoteStartEVSEResult>
+    public delegate Task<RemoteStartResult>
 
         OnSessionStartDelegate        (DateTime              Timestamp,
                                        CPOServer             Sender,
@@ -113,7 +113,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
     /// <param name="CancellationToken">A token to cancel this task.</param>
     /// <param name="EventTrackingId">An unique event tracking identification for correlating this request with other events.</param>
     /// <param name="RequestTimeout">An optional timeout for this request.</param>
-    public delegate Task<RemoteStopEVSEResult>
+    public delegate Task<RemoteStopResult>
 
         OnSessionStopDelegate        (DateTime               Timestamp,
                                       CPOServer              Sender,

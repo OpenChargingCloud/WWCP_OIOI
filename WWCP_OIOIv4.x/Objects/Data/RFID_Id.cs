@@ -53,6 +53,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         #region Properties
 
         /// <summary>
+        /// Indicates whether this identification is null or empty.
+        /// </summary>
+        public Boolean IsNullOrEmpty
+            => InternalId.IsNullOrEmpty();
+
+        /// <summary>
         /// The length of the RFID identification.
         /// </summary>
         public UInt64 Length

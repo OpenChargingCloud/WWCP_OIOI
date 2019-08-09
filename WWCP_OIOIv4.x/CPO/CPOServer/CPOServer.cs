@@ -549,13 +549,13 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  #endregion
 
 
-                                                 var _RemoteStartEVSEResult = RemoteStartEVSEResult.OutOfService;
+                                                 var _RemoteStartResult = RemoteStartResult.OutOfService;
 
                                                  var OnSessionStartLocal = OnSessionStart;
                                                  if (OnSessionStartLocal != null)
                                                  {
 
-                                                     _RemoteStartEVSEResult  = (await Task.WhenAll(OnSessionStartLocal.
+                                                     _RemoteStartResult  = (await Task.WhenAll(OnSessionStartLocal.
                                                                                                        GetInvocationList().
                                                                                                        Select(subscriber => (subscriber as OnSessionStartDelegate)
                                                                                                            (DateTime.UtcNow,
@@ -567,12 +567,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                                                             EventTracking_Id.New,
                                                                                                             TimeSpan.FromSeconds(45))))).
 
-                                                                               FirstOrDefault(result => result.Result != RemoteStartEVSEResultType.Unspecified);
+                                                                               FirstOrDefault(result => result.Result != RemoteStartResultType.Unspecified);
 
                                                  }
 
 
-                                                 switch (_RemoteStartEVSEResult.Result)
+                                                 switch (_RemoteStartResult.Result)
                                                  {
 
                                                      #region Documentation
@@ -599,10 +599,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                      #region Success
 
-                                                     case RemoteStartEVSEResultType.Success:
+                                                     case RemoteStartResultType.Success:
 
                                                          SessionStartResult  = Result.Success("Success!",
-                                                                                              Session_Id.Parse(_RemoteStartEVSEResult.Session.Id.ToString()),
+                                                                                              Session_Id.Parse(_RemoteStartResult.Session.Id.ToString()),
                                                                                               true);
 
                                                          _HTTPResponse       = CreateResponse(Request,
@@ -615,7 +615,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                      #region UnknownEVSE
 
-                                                     case RemoteStartEVSEResultType.UnknownEVSE:
+                                                     case RemoteStartResultType.UnknownLocation:
 
                                                          SessionStartResult  = Result.Error(181, "EVSE not found!");
 
@@ -629,7 +629,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                      #region UnknownOperator
 
-                                                     case RemoteStartEVSEResultType.UnknownOperator:
+                                                     case RemoteStartResultType.UnknownOperator:
 
                                                          SessionStartResult  = Result.Error(300, "Unknown charging station operator!");
 
@@ -643,7 +643,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                      #region Timeout
 
-                                                     case RemoteStartEVSEResultType.Timeout:
+                                                     case RemoteStartResultType.Timeout:
 
                                                          SessionStartResult  = Result.Error(312, "EVSE timeout!");
 
@@ -657,7 +657,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                      #region AlreadyInUse
 
-                                                     case RemoteStartEVSEResultType.AlreadyInUse:
+                                                     case RemoteStartResultType.AlreadyInUse:
 
                                                          SessionStartResult  = Result.Error(320, "EVSE already in use!");
 
@@ -895,7 +895,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  #endregion
 
 
-                                                 var _RemoteEVSEStopResult = RemoteStopEVSEResult.OutOfService(ChargingSession_Id.Parse(SessionId.ToString()));
+                                                 var _RemoteEVSEStopResult = RemoteStopResult.OutOfService(ChargingSession_Id.Parse(SessionId.ToString()));
 
                                                  var OnSessionStopLocal = OnSessionStop;
                                                  if (OnSessionStopLocal == null)
@@ -913,7 +913,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                                                            EventTracking_Id.New,
                                                                                                            TimeSpan.FromSeconds(45))))).
 
-                                                                              FirstOrDefault(result => result.Result != RemoteStopEVSEResultType.Unspecified);
+                                                                              FirstOrDefault(result => result.Result != RemoteStopResultType.Unspecified);
 
                                                  }
 
@@ -939,7 +939,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                      #region Success
 
-                                                     case RemoteStopEVSEResultType.Success:
+                                                     case RemoteStopResultType.Success:
 
                                                          SessionStopResult  = Result.Success("Success!");
 
@@ -953,7 +953,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                      #region UnknownEVSE
 
-                                                     case RemoteStopEVSEResultType.UnknownEVSE:
+                                                     case RemoteStopResultType.UnknownLocation:
 
                                                          SessionStopResult  = Result.Error(181, "EVSE not found!");
 
@@ -967,7 +967,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                      //#region UnknownOperator
 
-                                                     //case RemoteStartEVSEResultType.UnknownOperator:
+                                                     //case RemoteStartResultType.UnknownOperator:
 
                                                      //    SessionStartResult  = Result.Error(300, "Unknown charging station operator!");
 
@@ -981,7 +981,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                      //#region Timeout
 
-                                                     //case RemoteStartEVSEResultType.Timeout:
+                                                     //case RemoteStartResultType.Timeout:
 
                                                      //    SessionStartResult  = Result.Error(312, "EVSE timeout!");
 

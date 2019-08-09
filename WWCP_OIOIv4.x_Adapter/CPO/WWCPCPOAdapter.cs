@@ -33,6 +33,7 @@ using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Hermod.DNS;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets.TCP;
+using Org.BouncyCastle.Crypto.Parameters;
 
 #endregion
 
@@ -550,8 +551,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               Boolean                                         DisableAuthentication                    = false,
                               Boolean                                         DisableSendChargeDetailRecords           = false,
 
-                              PgpPublicKeyRing                                PublicKeyRing                            = null,
-                              PgpSecretKeyRing                                SecretKeyRing                            = null,
+                              String                                          EllipticCurve                            = "P-256",
+                              ECPrivateKeyParameters                          PrivateKey                               = null,
+                              PublicKeyCertificates                           PublicKeyCertificates                    = null,
+
                               DNSClient                                       DNSClient                                = null)
 
             : base(Id,
@@ -571,8 +574,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                    DisableAuthentication,
                    DisableSendChargeDetailRecords,
 
-                   PublicKeyRing,
-                   SecretKeyRing,
+                   EllipticCurve,
+                   PrivateKey,
+                   PublicKeyCertificates,
+
                    DNSClient ?? CPORoaming?.DNSClient)
 
         {
@@ -626,7 +631,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
 
                 var response = await RoamingNetwork.
-                                         RemoteStart(EVSEId:                ConnectorId.ToWWCP(),
+                                         RemoteStart(ChargingLocation:      ChargingLocation.FromEVSEId(ConnectorId.ToWWCP()),
                                                      RemoteAuthentication:  RemoteAuthentication.FromRemoteIdentification(eMAId),
                                                      SessionId:             ChargingSession_Id.New,
 
@@ -703,7 +708,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                               RequestTimeout) => {
 
                 var response = await RoamingNetwork.RemoteStop(SessionId:            SessionId. ToWWCP(),
-                                                               EVSEId:               ConnectorId.ToWWCP(),
+                                                               //EVSEId:               ConnectorId.ToWWCP(),
                                                                RemoteAuthentication: RemoteAuthentication.FromRemoteIdentification(eMAId),
                                                                ReservationHandling:  ReservationHandling.Close,
 
@@ -826,8 +831,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               Boolean                                          DisableAuthentication                    = false,
                               Boolean                                          DisableSendChargeDetailRecords           = false,
 
-                              PgpPublicKeyRing                                 PublicKeyRing                            = null,
-                              PgpSecretKeyRing                                 SecretKeyRing                            = null,
+                              String                                           EllipticCurve                            = "P-256",
+                              ECPrivateKeyParameters                           PrivateKey                               = null,
+                              PublicKeyCertificates                            PublicKeyCertificates                    = null,
+
                               DNSClient                                        DNSClient                                = null)
 
             : this(Id,
@@ -869,8 +876,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                    DisableAuthentication,
                    DisableSendChargeDetailRecords,
 
-                   PublicKeyRing,
-                   SecretKeyRing,
+                   EllipticCurve,
+                   PrivateKey,
+                   PublicKeyCertificates,
+
                    DNSClient ?? CPOServer?.DNSClient)
 
         { }
@@ -990,8 +999,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               Boolean                                         DisableAuthentication                    = false,
                               Boolean                                         DisableSendChargeDetailRecords           = false,
 
-                              PgpPublicKeyRing                                PublicKeyRing                            = null,
-                              PgpSecretKeyRing                                SecretKeyRing                            = null,
+                              String                                          EllipticCurve                            = "P-256",
+                              ECPrivateKeyParameters                          PrivateKey                               = null,
+                              PublicKeyCertificates                           PublicKeyCertificates                    = null,
+
                               DNSClient                                       DNSClient                                = null)
 
             : this(Id,
@@ -1063,8 +1074,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                    DisableAuthentication,
                    DisableSendChargeDetailRecords,
 
-                   PublicKeyRing,
-                   SecretKeyRing,
+                   EllipticCurve,
+                   PrivateKey,
+                   PublicKeyCertificates,
+
                    DNSClient)
 
         {
