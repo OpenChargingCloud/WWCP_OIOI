@@ -1141,31 +1141,35 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #region Get effective number of stations to upload
 
-            var Warnings = new List<Warning>();
+            var Warnings      = new List<Warning>();
 
-            var _Stations = ChargingStations.Where (station => station != null && _IncludeChargingStations(station)).
-                                             Select(station => {
+            var WWCPStations  = new Dictionary<Station_Id, ChargingStation>();
 
-                                                 try
-                                                 {
+            var _Stations     = ChargingStations.Where (station => station != null && _IncludeChargingStations(station)).
+                                                 Select(station => {
 
-                                                     return new Tuple<ChargingStation, Station>(station,
-                                                                                                station.ToOIOI(CustomOperatorIdMapper,
-                                                                                                               CustomEVSEIdMapper,
-                                                                                                               ChargingStation2Station));
+                                                     try
+                                                     {
 
-                                                 }
-                                                 catch (Exception e)
-                                                 {
-                                                     DebugX.  Log(e.Message);
-                                                     Warnings.Add(Warning.Create(e.Message, station));
-                                                 }
+                                                         WWCPStations.Add(station.Id.ToOIOI(), station);
 
-                                                 return null;
+                                                         return new Tuple<ChargingStation, Station>(station,
+                                                                                                    station.ToOIOI(CustomOperatorIdMapper,
+                                                                                                                   CustomEVSEIdMapper,
+                                                                                                                   ChargingStation2Station));
 
-                                             }).
-                                             Where(station => station != null).
-                                             ToArray();
+                                                     }
+                                                     catch (Exception e)
+                                                     {
+                                                         DebugX.  Log(e.Message);
+                                                         Warnings.Add(Warning.Create(e.Message, station));
+                                                     }
+
+                                                     return null;
+
+                                                 }).
+                                                 Where(station => station != null).
+                                                 ToArray();
 
             #endregion
 
@@ -1226,79 +1230,59 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             {
 
                 var semaphore  = new SemaphoreSlim(_maxDegreeOfParallelism, _maxDegreeOfParallelism);
-                var tasks      = new List<Task<HTTPResponse<StationPostResponse>>>();
 
-                for (int i = 0; i < _Stations.Length; i++)
-                {
-                    var item = i;
-                    var task = Task.Run(async () => {
+                var tasks = _Stations.Select(async station => {
 
-                        try
-                        {
+                    await semaphore.WaitAsync().ConfigureAwait(false);
 
-                            await semaphore.WaitAsync();
+                    try
+                    {
 
-                            return await CPORoaming.StationPost(_Stations[i].Item2,
-                                                                CPOClient.StationPartnerIdSelector(_Stations[i].Item2),
+                        return await CPORoaming.StationPost(station.Item2,
+                                                            CPOClient.StationPartnerIdSelector(station.Item2),
 
-                                                                Timestamp,
-                                                                CancellationToken,
-                                                                EventTrackingId,
-                                                                RequestTimeout).
-                                                    ConfigureAwait(false);
-                        }
-                        finally
-                        {
-                            semaphore.Release();
-                        }
+                                                            Timestamp,
+                                                            CancellationToken,
+                                                            EventTrackingId,
+                                                            RequestTimeout).
+                                                ConfigureAwait(false);
 
-                    });
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
 
-                    tasks.Add(task);
-
-                }
+                });
 
                 await Task.WhenAll(tasks);
 
 
+                var results = tasks.Select((task) => {
 
-                //var responses  = await Task.WhenAll(_Stations.
-                //                                        Select(station => CPORoaming.StationPost(station.Item2,
-                //                                                                                 CPOClient.StationPartnerIdSelector(station.Item2),
-
-                //                                                                                 Timestamp,
-                //                                                                                 CancellationToken,
-                //                                                                                 EventTrackingId,
-                //                                                                                 RequestTimeout)).
-                //                                        ToArray()).
-                //                                        ConfigureAwait(false);
-
-                var results = tasks.Select       ( task         => task.Result).
-                                    SelectCounted((response, i) => {
-
-                                        if (response.HTTPStatusCode == HTTPStatusCode.OK &&
-                                            response.Content        != null)
+                                        if (task.Result.HTTPStatusCode == HTTPStatusCode.OK &&
+                                            task.Result.Content        != null)
                                         {
 
-                                            if (response.Content.Code == ResponseCodes.Success)
-                                                return new PushSingleChargingStationDataResult(_Stations[i-1].Item1,
+                                            if (task.Result.Content.Code == ResponseCodes.Success)
+                                                return new PushSingleChargingStationDataResult(WWCPStations[task.Result.Content.Request.Station.Id],
                                                                                                PushSingleDataResultTypes.Success,
-                                                                                               new Warning[] { Warning.Create(response.Content.Message) });
+                                                                                               new Warning[] { Warning.Create(task.Result.Content.Message) });
 
                                             else
-                                                return new PushSingleChargingStationDataResult(_Stations[i-1].Item1,
+                                                return new PushSingleChargingStationDataResult(WWCPStations[task.Result.Content.Request.Station.Id],
                                                                                                PushSingleDataResultTypes.Error,
-                                                                                               new Warning[] { Warning.Create(response.Content.Message) });
+                                                                                               new Warning[] { Warning.Create(task.Result.Content.Message) });
 
                                         }
                                         else
-                                            return new PushSingleChargingStationDataResult(_Stations[i-1].Item1,
+                                            return new PushSingleChargingStationDataResult(WWCPStations[task.Result.Content.Request.Station.Id],
                                                                                            PushSingleDataResultTypes.Error,
                                                                                            new Warning[] {
-                                                                                               Warning.Create(response.HTTPStatusCode.ToString())
+                                                                                               Warning.Create(task.Result.HTTPStatusCode.ToString())
                                                                                            }.Concat(
-                                                                                               response.HTTPBody != null
-                                                                                                   ? Warnings.AddAndReturnList(response.HTTPBody.ToUTF8String())
+                                                                                               task.Result.HTTPBody != null
+                                                                                                   ? Warnings.AddAndReturnList(task.Result.HTTPBody.ToUTF8String())
                                                                                                    : Warnings.AddAndReturnList("No HTTP body received!")
                                                                                            ));
 
