@@ -69,7 +69,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// The start and stop timestamps of charging.
         /// </summary>
         [Optional]
-        public StartEndDateTime?   ChargingInterval     { get; }
+        public StartEndDateTime    ChargingInterval     { get; }
 
         /// <summary>
         /// The consumed energy in kWh.
@@ -103,7 +103,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
                        User                                 User,
                        Connector_Id                         ConnectorId,
                        StartEndDateTime                     SessionInterval,
-                       StartEndDateTime?                    ChargingInterval    = null,
+                       StartEndDateTime                     ChargingInterval    = null,
                        Single?                              EnergyConsumed      = null,
                        Partner_Id?                          PartnerIdentifier   = null,
 
@@ -180,13 +180,13 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
                                                                        )),
 
-                           ChargingInterval.HasValue
+                           ChargingInterval != null
                                ? new JProperty("charging-interval",    JSONObject.Create(
 
-                                                                           new JProperty("start", ChargingInterval.Value.StartTime.ToIso8601(false)),
+                                                                           new JProperty("start", ChargingInterval.StartTime.ToIso8601(false)),
 
-                                                                           ChargingInterval.Value.EndTime.HasValue
-                                                                               ? new JProperty("stop", ChargingInterval.Value.EndTime.Value.ToIso8601(false))
+                                                                           ChargingInterval.EndTime.HasValue
+                                                                               ? new JProperty("stop", ChargingInterval.EndTime.Value.ToIso8601(false))
                                                                                : null
 
                                                                        ))
