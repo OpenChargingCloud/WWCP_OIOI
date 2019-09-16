@@ -22,7 +22,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\org.GraphDefined.WWCP.OIOIv4_x.Adapter.xml</DocumentationFile>
-    <CodeAnalysisRuleSet>..\..\..\..\HeldeleEMP\libs\WWCP_Core\WWCP.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\..\WWCP_Core\WWCP.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
