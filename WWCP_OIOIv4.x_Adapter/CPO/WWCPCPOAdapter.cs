@@ -44,7 +44,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
     /// A WWCP wrapper for the OIOI CPO Roaming client which maps
     /// WWCP data structures onto OIOI data structures and vice versa.
     /// </summary>
-    public class WWCPCPOAdapter : AWWCPCSOAdapter,
+    public class WWCPCPOAdapter : AWWCPCSOAdapter<ChargeDetailRecord>,
                                   ICSORoamingProvider,
                                   IEquatable <WWCPCPOAdapter>,
                                   IComparable<WWCPCPOAdapter>,
@@ -111,6 +111,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// The wrapped CPO roaming object.
         /// </summary>
         public CPORoaming CPORoaming { get; }
+
+
+        public PartnerIdForConnectorIdDelegate ConnectorStatusPartnerIdSelector { get; }
 
 
         /// <summary>
@@ -525,6 +528,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               I18NString                                      Description,
                               RoamingNetwork                                  RoamingNetwork,
 
+                              PartnerIdForConnectorIdDelegate                 ConnectorIdPartnerIdSelector,
+
                               CPORoaming                                      CPORoaming,
                               CustomOperatorIdMapperDelegate                  CustomOperatorIdMapper                   = null,
                               //CustomEVSEIdMapperDelegate                      CustomEVSEIdMapper                       = null,
@@ -582,17 +587,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         {
 
-            #region Initial checks
+            this.ConnectorStatusPartnerIdSelector                  = ConnectorIdPartnerIdSelector ?? throw new ArgumentNullException(nameof(ConnectorIdPartnerIdSelector), "The given delegate must not be null!");
 
-            if (Name.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Name),        "The given roaming provider name must not be null or empty!");
-
-            if (CPORoaming == null)
-                throw new ArgumentNullException(nameof(CPORoaming),  "The given OIOI CPO Roaming object must not be null!");
-
-            #endregion
-
-            this.CPORoaming                                        = CPORoaming;
+            this.CPORoaming                                        = CPORoaming                   ?? throw new ArgumentNullException(nameof(CPORoaming),                   "The given OIOI CPO Roaming object must not be null!");
             this.CustomOperatorIdMapper                            = CustomOperatorIdMapper;
             this.CustomEVSEIdMapper                                = CustomEVSEIdMapper;
             this.ChargingStation2Station                           = ChargingStation2Station;
@@ -803,6 +800,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               I18NString                                       Description,
                               RoamingNetwork                                   RoamingNetwork,
 
+                              PartnerIdForConnectorIdDelegate                  ConnectorIdPartnerIdSelector,
+
                               CPOClient                                        CPOClient,
                               CPOServer                                        CPOServer,
                               String                                           ServerLoggingContext                     = CPOServerLogger.DefaultContext,
@@ -842,6 +841,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                    Name,
                    Description,
                    RoamingNetwork,
+
+                   ConnectorIdPartnerIdSelector,
 
                    new CPORoaming(CPOClient,
                                   CPOServer,
@@ -943,12 +944,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               HTTPHostname                                    RemoteHostname,
                               APIKey                                          APIKey,
                               PartnerIdForStationDelegate                     StationPartnerIdSelector,
-                              PartnerIdForConnectorStatusDelegate             ConnectorStatusPartnerIdSelector,
+                              PartnerIdForConnectorIdDelegate                 ConnectorIdPartnerIdSelector,
                               IPPort?                                         RemoteTCPPort                            = null,
                               RemoteCertificateValidationCallback             RemoteCertificateValidator               = null,
                               LocalCertificateSelectionCallback               ClientCertificateSelector                = null,
                               HTTPHostname?                                   RemoteHTTPVirtualHost                    = null,
-                              HTTPPath?                                        URIPrefix                                = null,
+                              HTTPPath?                                       URIPrefix                                = null,
                               String                                          HTTPUserAgent                            = CPOClient.DefaultHTTPUserAgent,
 
                               IncludeStationDelegate                          IncludeStation                           = null,
@@ -966,7 +967,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               RemoteCertificateValidationCallback             RemoteClientCertificateValidator         = null,
                               LocalCertificateSelectionCallback               RemoteClientCertificateSelector          = null,
                               SslProtocols                                    ServerAllowedTLSProtocols                = SslProtocols.Tls12,
-                              HTTPPath?                                        ServerURIPrefix                          = null,
+                              HTTPPath?                                       ServerURIPrefix                          = null,
                               ServerAPIKeyValidatorDelegate                   ServerAPIKeyValidator                    = null,
                               HTTPContentType                                 ServerContentType                        = null,
                               Boolean                                         ServerRegisterHTTPRootService            = true,
@@ -1011,11 +1012,13 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                    Description,
                    RoamingNetwork,
 
+                   ConnectorIdPartnerIdSelector,
+
                    new CPORoaming(Id.ToString(),
                                   RemoteHostname,
                                   APIKey,
                                   StationPartnerIdSelector,
-                                  ConnectorStatusPartnerIdSelector,
+                                  ConnectorIdPartnerIdSelector,
                                   RemoteTCPPort,
                                   RemoteCertificateValidator,
                                   ClientCertificateSelector,
@@ -1479,7 +1482,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                             await semaphore.WaitAsync();
 
                             return await CPORoaming.ConnectorPostStatus(_ConnectorStatus[i].Item2,
-                                                                        CPOClient.ConnectorStatusPartnerIdSelector(_ConnectorStatus[i].Item2),
+                                                                        CPOClient.ConnectorIdPartnerIdSelector(_ConnectorStatus[i].Item2.Id),
 
                                                                         Timestamp,
                                                                         CancellationToken,
@@ -5805,13 +5808,13 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                             HTTPResponse<SessionPostResponse> response;
 
-                            foreach (var ChargeDetailRecord in ChargeDetailRecords)
+                            foreach (var chargeDetailRecord in ChargeDetailRecords)
                             {
 
                                 try
                                 {
 
-                                    response = await CPORoaming.SessionPost(ChargeDetailRecord.ToOIOI(), //_WWCPChargeDetailRecord2OICPChargeDetailRecord),
+                                    response = await CPORoaming.SessionPost(chargeDetailRecord.ToOIOI(ConnectorStatusPartnerIdSelector(chargeDetailRecord.EVSEId.ToOIOI().Value)),
 
                                                                                        Timestamp,
                                                                                        CancellationToken,
@@ -5822,19 +5825,19 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                         response.Content        != null              &&
                                         response.Content.Code == ResponseCodes.Success)
                                     {
-                                        SendCDRsResults.Add(new SendCDRResult(ChargeDetailRecord,
+                                        SendCDRsResults.Add(new SendCDRResult(chargeDetailRecord,
                                                                               SendCDRResultTypes.Success));
                                     }
 
                                     else
-                                        SendCDRsResults.Add(new SendCDRResult(ChargeDetailRecord,
+                                        SendCDRsResults.Add(new SendCDRResult(chargeDetailRecord,
                                                                               SendCDRResultTypes.Error,
                                                                               response.HTTPBodyAsUTF8String));
 
                                 }
                                 catch (Exception e)
                                 {
-                                    SendCDRsResults.Add(new SendCDRResult(ChargeDetailRecord,
+                                    SendCDRsResults.Add(new SendCDRResult(chargeDetailRecord,
                                                                           SendCDRResultTypes.CouldNotConvertCDRFormat,
                                                                           e.Message));
                                 }

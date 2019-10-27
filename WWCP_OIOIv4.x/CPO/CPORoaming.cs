@@ -113,11 +113,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <summary>
         /// A delegate to select a partner identification based on the given connector.
         /// </summary>
-        public PartnerIdForConnectorStatusDelegate ConnectorStatusPartnerIdSelector
+        public PartnerIdForConnectorIdDelegate ConnectorIdPartnerIdSelector
         {
             get
             {
-                return CPOClient.ConnectorStatusPartnerIdSelector;
+                return CPOClient.ConnectorIdPartnerIdSelector;
             }
         }
 
@@ -799,7 +799,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                           HTTPHostname                         RemoteHostname,
                           APIKey                               APIKey,
                           PartnerIdForStationDelegate          StationPartnerIdSelector,
-                          PartnerIdForConnectorStatusDelegate  ConnectorStatusPartnerIdSelector,
+                          PartnerIdForConnectorIdDelegate  ConnectorStatusPartnerIdSelector,
                           IPPort?                              RemoteTCPPort                      = null,
                           RemoteCertificateValidationCallback  RemoteCertificateValidator         = null,
                           LocalCertificateSelectionCallback    ClientCertificateSelector          = null,
@@ -922,7 +922,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                           HTTPHostname                                 RemoteHostname,
                           APIKey                                       APIKey,
                           PartnerIdForStationDelegate                  StationPartnerIdSelector,
-                          PartnerIdForConnectorStatusDelegate          ConnectorStatusPartnerIdSelector,
+                          PartnerIdForConnectorIdDelegate          ConnectorStatusPartnerIdSelector,
                           IPPort?                                      RemoteTCPPort                      = null,
                           RemoteCertificateValidationCallback          RemoteCertificateValidator         = null,
                           LocalCertificateSelectionCallback            ClientCertificateSelector          = null,

@@ -53,7 +53,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <summary>
         /// A delegate to select a partner identification based on the given connector.
         /// </summary>
-        PartnerIdForConnectorStatusDelegate  ConnectorStatusPartnerIdSelector    { get; }
+        PartnerIdForConnectorIdDelegate  ConnectorIdPartnerIdSelector    { get; }
 
         #endregion
 

@@ -93,7 +93,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                 TimeSpan?            RequestTimeout         = null)
 
             => ICPOClient.ConnectorPostStatus(new ConnectorPostStatusRequest(ConnectorStatus,
-                                                                             PartnerId ?? ICPOClient.ConnectorStatusPartnerIdSelector(ConnectorStatus),
+                                                                             PartnerId ?? ICPOClient.ConnectorIdPartnerIdSelector(ConnectorStatus.Id),
 
                                                                              Timestamp,
                                                                              CancellationToken,

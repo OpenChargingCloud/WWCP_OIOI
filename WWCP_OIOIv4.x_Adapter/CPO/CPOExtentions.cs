@@ -102,7 +102,7 @@ namespace org.GraphDefined.WWCP
                                               HTTPHostname                                                        RemoteHostname,
                                               OIOIv4_x.APIKey                                                     APIKey,
                                               OIOIv4_x.PartnerIdForStationDelegate                                StationPartnerIdSelector,
-                                              OIOIv4_x.PartnerIdForConnectorStatusDelegate                        ConnectorStatusPartnerIdSelector,
+                                              OIOIv4_x.PartnerIdForConnectorIdDelegate                            ConnectorStatusPartnerIdSelector,
 
                                               IPPort?                                                             RemoteTCPPort                                   = null,
                                               HTTPHostname?                                                       RemoteHTTPVirtualHost                           = null,
@@ -281,7 +281,7 @@ namespace org.GraphDefined.WWCP
         /// <param name="RemoteHostname">The hostname of the remote OIOI service.</param>
         /// <param name="APIKey">The PlugSurfing API key.</param>
         /// <param name="StationPartnerIdSelector">A delegate to select a partner identification based on the given charging station.</param>
-        /// <param name="ConnectorStatusPartnerIdSelector">A delegate to select a partner identification based on the given charging connector.</param>
+        /// <param name="ConnectorIdPartnerIdSelector">A delegate to select a partner identification based on the given charging connector.</param>
         /// 
         /// <param name="RemoteTCPPort">An optional TCP port of the remote OIOI service.</param>
         /// <param name="RemoteCertificateValidator">A delegate to verify the remote TLS certificate.</param>
@@ -321,13 +321,13 @@ namespace org.GraphDefined.WWCP
                                               HTTPHostname                                                 RemoteHostname,
                                               OIOIv4_x.APIKey                                              APIKey,
                                               OIOIv4_x.PartnerIdForStationDelegate                         StationPartnerIdSelector,
-                                              OIOIv4_x.PartnerIdForConnectorStatusDelegate                 ConnectorStatusPartnerIdSelector,
+                                              OIOIv4_x.PartnerIdForConnectorIdDelegate                     ConnectorIdPartnerIdSelector,
 
                                               IPPort?                                                      RemoteTCPPort                                   = null,
                                               RemoteCertificateValidationCallback                          RemoteCertificateValidator                      = null,
                                               LocalCertificateSelectionCallback                            ClientCertificateSelector                       = null,
                                               HTTPHostname?                                                RemoteHTTPVirtualHost                           = null,
-                                              HTTPPath?                                                     URIPrefix                                       = null,
+                                              HTTPPath?                                                    URIPrefix                                       = null,
                                               String                                                       HTTPUserAgent                                   = OIOIv4_x.CPO.CPOClient.DefaultHTTPUserAgent,
                                               OIOIv4_x.IncludeStationDelegate                              IncludeStation                                  = null,
                                               OIOIv4_x.IncludeStationIdDelegate                            IncludeStationId                                = null,
@@ -338,7 +338,7 @@ namespace org.GraphDefined.WWCP
                                               Byte?                                                        MaxNumberOfRetries                              = OIOIv4_x.CPO.CPOClient.DefaultMaxNumberOfRetries,
 
                                               HTTPHostname?                                                HTTPHostname                                    = null,
-                                              HTTPPath?                                                     ServerURIPrefix                                 = null,
+                                              HTTPPath?                                                    ServerURIPrefix                                 = null,
                                               OIOIv4_x.CPO.ServerAPIKeyValidatorDelegate                   ServerAPIKeyValidator                           = null,
                                               HTTPContentType                                              ServerContentType                               = null,
                                               Boolean                                                      ServerRegisterHTTPRootService                   = true,
@@ -403,11 +403,13 @@ namespace org.GraphDefined.WWCP
                                                                      Description,
                                                                      RoamingNetwork,
 
+                                                                     ConnectorIdPartnerIdSelector,
+
                                                                      new OIOIv4_x.CPO.CPOClient(Id.ToString(),
                                                                                                 RemoteHostname,
                                                                                                 APIKey,
                                                                                                 StationPartnerIdSelector,
-                                                                                                ConnectorStatusPartnerIdSelector,
+                                                                                                ConnectorIdPartnerIdSelector,
                                                                                                 RemoteTCPPort,
                                                                                                 RemoteCertificateValidator,
                                                                                                 ClientCertificateSelector,

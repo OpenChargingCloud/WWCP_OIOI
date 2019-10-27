@@ -111,36 +111,36 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <summary>
         /// The URI prefix for all HTTP requests.
         /// </summary>
-        public HTTPPath                              URIPrefix                     { get; }
+        public HTTPPath                              URIPrefix                      { get; }
 
         /// <summary>
         /// The API key for all requests.
         /// </summary>
-        public APIKey                               APIKey                        { get; }
+        public APIKey                               APIKey                          { get; }
 
         /// <summary>
         /// A delegate to select a partner identification based on the given charging station.
         /// </summary>
-        public PartnerIdForStationDelegate          StationPartnerIdSelector      { get; }
+        public PartnerIdForStationDelegate          StationPartnerIdSelector        { get; }
 
         /// <summary>
         /// A delegate to select a partner identification based on the given charging connector status.
         /// </summary>
-        public PartnerIdForConnectorStatusDelegate        ConnectorStatusPartnerIdSelector    { get; }
+        public PartnerIdForConnectorIdDelegate      ConnectorIdPartnerIdSelector    { get; }
 
         /// <summary>
         /// The attached OIOI CPO client (HTTP/JSON client) logger.
         /// </summary>
-        public CPOClientLogger                      Logger                        { get; }
+        public CPOClientLogger                      Logger                          { get; }
 
         #endregion
 
-        public IncludeStationDelegate               IncludeStation                { get; }
-        public IncludeStationIdDelegate             IncludeStationId              { get; }
+        public IncludeStationDelegate               IncludeStation                  { get; }
+        public IncludeStationIdDelegate             IncludeStationId                { get; }
 
-        public IncludeConnectorIdDelegate           IncludeConnectorId            { get; }
-        public IncludeConnectorStatusTypesDelegate  IncludeConnectorStatusType    { get; }
-        public IncludeConnectorStatusDelegate       IncludeConnectorStatus        { get; }
+        public IncludeConnectorIdDelegate           IncludeConnectorId              { get; }
+        public IncludeConnectorStatusTypesDelegate  IncludeConnectorStatusType      { get; }
+        public IncludeConnectorStatusDelegate       IncludeConnectorStatus          { get; }
 
         #region Events
 
@@ -483,12 +483,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                          HTTPHostname                         Hostname,
                          APIKey                               APIKey,
                          PartnerIdForStationDelegate          StationPartnerIdSelector,
-                         PartnerIdForConnectorStatusDelegate  ConnectorStatusPartnerIdSelector,
+                         PartnerIdForConnectorIdDelegate  ConnectorStatusPartnerIdSelector,
                          IPPort?                              RemotePort                   = null,
                          RemoteCertificateValidationCallback  RemoteCertificateValidator   = null,
                          LocalCertificateSelectionCallback    ClientCertificateSelector    = null,
                          HTTPHostname?                        HTTPVirtualHost              = null,
-                         HTTPPath?                             URIPrefix                    = null,
+                         HTTPPath?                            URIPrefix                    = null,
                          String                               HTTPUserAgent                = DefaultHTTPUserAgent,
                          IncludeStationDelegate               IncludeStation               = null,
                          IncludeStationIdDelegate             IncludeStationId             = null,
@@ -525,7 +525,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             this.APIKey                            = APIKey;
             this.URIPrefix                         = URIPrefix                        ?? DefaultURIPrefix;
             this.StationPartnerIdSelector          = StationPartnerIdSelector         ?? throw new ArgumentNullException(nameof(StationPartnerIdSelector),         "The given partner identification selector must not be null!"); ;
-            this.ConnectorStatusPartnerIdSelector  = ConnectorStatusPartnerIdSelector ?? throw new ArgumentNullException(nameof(ConnectorStatusPartnerIdSelector), "The given partner identification selector must not be null!");
+            this.ConnectorIdPartnerIdSelector  = ConnectorStatusPartnerIdSelector ?? throw new ArgumentNullException(nameof(ConnectorStatusPartnerIdSelector), "The given partner identification selector must not be null!");
 
             this.IncludeStation                    = IncludeStation                   ?? (station             => true);
             this.IncludeStationId                  = IncludeStationId                 ?? (stationid           => true);
@@ -566,7 +566,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                          HTTPHostname                         Hostname,
                          APIKey                               APIKey,
                          PartnerIdForStationDelegate          StationPartnerIdSelector,
-                         PartnerIdForConnectorStatusDelegate  ConnectorStatusPartnerIdSelector,
+                         PartnerIdForConnectorIdDelegate  ConnectorStatusPartnerIdSelector,
                          IPPort?                              RemotePort                   = null,
                          HTTPPath?                             URIPrefix                    = null,
                          RemoteCertificateValidationCallback  RemoteCertificateValidator   = null,
@@ -606,7 +606,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             this.APIKey                            = APIKey;
             this.URIPrefix                         = URIPrefix                        ?? DefaultURIPrefix;
             this.StationPartnerIdSelector          = StationPartnerIdSelector         ?? throw new ArgumentNullException(nameof(StationPartnerIdSelector),         "The given partner identification selector must not be null!"); ;
-            this.ConnectorStatusPartnerIdSelector  = ConnectorStatusPartnerIdSelector ?? throw new ArgumentNullException(nameof(ConnectorStatusPartnerIdSelector), "The given partner identification selector must not be null!");
+            this.ConnectorIdPartnerIdSelector  = ConnectorStatusPartnerIdSelector ?? throw new ArgumentNullException(nameof(ConnectorStatusPartnerIdSelector), "The given partner identification selector must not be null!");
 
             this.IncludeStation                    = IncludeStation                   ?? (station             => true);
             this.IncludeStationId                  = IncludeStationId                 ?? (stationid           => true);

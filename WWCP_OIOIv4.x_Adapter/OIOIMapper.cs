@@ -44,6 +44,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         public static Connector_Id       ToOIOI(this EVSE_Id             EVSEId)
             => Connector_Id.      Parse(EVSEId.ToString());
 
+        public static Connector_Id?      ToOIOI(this EVSE_Id?            EVSEId)
+            => EVSEId.HasValue
+                   ? new Connector_Id?(Connector_Id.Parse(EVSEId.ToString()))
+                   : null;
+
         public static EVSE_Id            ToWWCP(this Connector_Id        ConnectorId)
             => EVSE_Id.           Parse(ConnectorId.ToString());
 
@@ -276,13 +281,29 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// Convert a WWCP charge detail record into a corresponding OIOI charging session.
         /// </summary>
         /// <param name="ChargeDetailRecord">A WWCP charge detail record.</param>
-        /// <param name="ChargeDetailRecord2Session">An optional delegate to customize the transformation.</param>
+        /// <param name="WWCPChargeDetailRecord2Session">An optional delegate to customize the transformation.</param>
         public static Session ToOIOI(this ChargeDetailRecord                 ChargeDetailRecord,
-                                     CPO.ChargeDetailRecord2SessionDelegate  ChargeDetailRecord2Session = null)
+                                     Partner_Id                              PartnerId,
+                                     //CPO.CustomEVSEIdMapperDelegate          CustomEVSEIdMapper               = null,
+                                     CPO.ChargeDetailRecord2SessionDelegate  WWCPChargeDetailRecord2Session   = null)
 
         {
 
-            return null;
+            var CDR = new Session(Id:                 ChargeDetailRecord.SessionId.ToOIOI(),
+                                  User:               ChargeDetailRecord.AuthenticationStart.AuthToken.HasValue
+                                                          ? new User(ChargeDetailRecord.AuthenticationStart.AuthToken.           Value.ToString(), IdentifierTypes.RFID)
+                                                          : new User(ChargeDetailRecord.AuthenticationStart.RemoteIdentification.Value.ToString(), IdentifierTypes.EVCOId),
+                                  ConnectorId:        ChargeDetailRecord.EVSEId.Value.ToOIOI(),
+                                  SessionInterval:    ChargeDetailRecord.SessionTime,
+                                  ChargingInterval:   new StartEndDateTime(ChargeDetailRecord.EnergyMeteringValues.First().Timestamp,
+                                                                           ChargeDetailRecord.EnergyMeteringValues.Last(). Timestamp),
+                                  EnergyConsumed:     (ChargeDetailRecord.EnergyMeteringValues.Last().Value - ChargeDetailRecord.EnergyMeteringValues.First().Value) / 1000,
+                                  PartnerIdentifier:  PartnerId);
+
+            if (WWCPChargeDetailRecord2Session != null)
+                CDR = WWCPChargeDetailRecord2Session(ChargeDetailRecord, CDR);
+
+            return CDR;
 
             //var Session = new Session(
             //                  ChargeDetailRecord.EVSEId.Value.ToOIOI(),

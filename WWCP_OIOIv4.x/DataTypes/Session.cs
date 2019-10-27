@@ -75,7 +75,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// The consumed energy in kWh.
         /// </summary>
         [Optional]
-        public Single?             EnergyConsumed       { get; }
+        public Decimal?            EnergyConsumed       { get; }
 
         /// <summary>
         /// The partner identifier of the partner that shall be associated with this CDR.
@@ -104,7 +104,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
                        Connector_Id                         ConnectorId,
                        StartEndDateTime                     SessionInterval,
                        StartEndDateTime                     ChargingInterval    = null,
-                       Single?                              EnergyConsumed      = null,
+                       Decimal?                             EnergyConsumed      = null,
                        Partner_Id?                          PartnerIdentifier   = null,
 
                        IReadOnlyDictionary<String, Object>  CustomData          = null)

@@ -64,9 +64,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
     public delegate Partner_Id PartnerIdForStationDelegate          (Station               Station);
 
     /// <summary>
-    /// A delegate for selecting an OIOI partner identification based on the connector status.
+    /// A delegate for selecting an OIOI partner identification based on the connector identification.
     /// </summary>
-    /// <param name="ConnectorStatus">A connector status.</param>
-    public delegate Partner_Id PartnerIdForConnectorStatusDelegate  (ConnectorStatus       ConnectorStatus);
+    /// <param name="ConnectorId">A connector identification.</param>
+    public delegate Partner_Id PartnerIdForConnectorIdDelegate      (Connector_Id          ConnectorId);
 
 }
