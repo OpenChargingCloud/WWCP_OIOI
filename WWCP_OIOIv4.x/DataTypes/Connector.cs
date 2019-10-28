@@ -18,12 +18,12 @@
 #region Usings
 
 using System;
+using System.Globalization;
 using System.Collections.Generic;
 
 using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
-using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Hermod.JSON;
 
 #endregion
@@ -55,7 +55,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <summary>
         /// The maximum charging speed in kW.
         /// </summary>
-        public Single          Speed    { get; }
+        public Decimal         Speed    { get; }
 
         #endregion
 
@@ -70,7 +70,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <param name="CustomData">An optional dictionary of customer-specific data.</param>
         public Connector(Connector_Id                         Id,
                          ConnectorTypes                       Name,
-                         Single                               Speed,
+                         Decimal                              Speed,
                          IReadOnlyDictionary<String, Object>  CustomData   = null)
 
             : base(CustomData)
@@ -96,7 +96,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
         #endregion
 
-        #region (static) Parse(ConnectorJSON, CustomConnectorParser = null, OnException = null)
+        #region (static) Parse   (ConnectorJSON, CustomConnectorParser = null, OnException = null)
 
         /// <summary>
         /// Parse the given JSON representation of an OIOI connector.
@@ -122,7 +122,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
         #endregion
 
-        #region (static) Parse(ConnectorText, CustomConnectorParser = null, OnException = null)
+        #region (static) Parse   (ConnectorText, CustomConnectorParser = null, OnException = null)
 
         /// <summary>
         /// Parse the given text representation of an OIOI connector.
@@ -143,6 +143,58 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
                 return _Connector;
 
             return null;
+
+        }
+
+        #endregion
+
+        #region (static) TryParse(ConnectorJSON, out Connector, CustomConnectorParser = null, OnException = null)
+
+        /// <summary>
+        /// Try to parse the given JSON representation of an OIOI connector.
+        /// </summary>
+        /// <param name="ConnectorJSON">The JSON to parse.</param>
+        /// <param name="Connector">The parsed connector.</param>
+        /// <param name="CustomConnectorParser">A delegate to parse custom Connector JSON elements.</param>
+        /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
+        public static Boolean TryParse(JObject                              ConnectorJSON,
+                                       out Connector                        Connector,
+                                       CustomJSONParserDelegate<Connector>  CustomConnectorParser   = null,
+                                       OnExceptionDelegate                  OnException             = null)
+        {
+
+            try
+            {
+
+                Connector = new Connector(ConnectorJSON.MapValueOrFail("id",
+                                                                       value => Connector_Id.Parse(value.Value<String>()),
+                                                                       "Invalid or missing JSON property 'Id'!"),
+
+                                          ConnectorJSON.MapValueOrFail("name",
+                                                                       value => value.Value<String>().AsConnectorType(),
+                                                                       "Invalid or missing JSON property 'name'!"),
+
+                                          ConnectorJSON.MapValueOrFail("speed",
+                                                                       value => value.Value<Decimal>(),
+                                                                       "Invalid or missing JSON property 'speed'!"));
+
+
+                if (CustomConnectorParser != null)
+                    Connector = CustomConnectorParser(ConnectorJSON,
+                                                      Connector);
+
+                return true;
+
+            }
+            catch (Exception e)
+            {
+
+                OnException?.Invoke(DateTime.UtcNow, ConnectorJSON, e);
+
+                Connector = null;
+                return false;
+
+            }
 
         }
 
@@ -186,58 +238,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
         #endregion
 
-        #region (static) TryParse(ConnectorJSON, out Connector, CustomConnectorParser = null, OnException = null)
-
-        /// <summary>
-        /// Try to parse the given JSON representation of an OIOI connector.
-        /// </summary>
-        /// <param name="ConnectorJSON">The JSON to parse.</param>
-        /// <param name="Connector">The parsed connector.</param>
-        /// <param name="CustomConnectorParser">A delegate to parse custom Connector JSON elements.</param>
-        /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static Boolean TryParse(JObject                              ConnectorJSON,
-                                       out Connector                        Connector,
-                                       CustomJSONParserDelegate<Connector>  CustomConnectorParser   = null,
-                                       OnExceptionDelegate                  OnException             = null)
-        {
-
-            try
-            {
-
-                Connector = new Connector(ConnectorJSON.MapValueOrFail("id",
-                                                                       value => Connector_Id.Parse(value.Value<String>()),
-                                                                       "Invalid or missing JSON property 'Id'!"),
-
-                                          ConnectorJSON.MapValueOrFail("name",
-                                                                       value => value.Value<String>().AsConnectorType(),
-                                                                       "Invalid or missing JSON property 'name'!"),
-
-                                          ConnectorJSON.MapValueOrFail("speed",
-                                                                       value => value.Value<Single>(),
-                                                                       "Invalid or missing JSON property 'speed'!"));
-
-
-                if (CustomConnectorParser != null)
-                    Connector = CustomConnectorParser(ConnectorJSON,
-                                                      Connector);
-
-                return true;
-
-            }
-            catch (Exception e)
-            {
-
-                OnException?.Invoke(DateTime.UtcNow, ConnectorJSON, e);
-
-                Connector = null;
-                return false;
-
-            }
-
-        }
-
-        #endregion
-
         #region ToJSON(CustomConnectorSerializer = null)
 
         /// <summary>
@@ -250,7 +250,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
             var JSON = JSONObject.Create(
                            new JProperty("id",     Id.   ToString()),
                            new JProperty("name",   Name. ToString()),
-                           new JProperty("speed",  Speed)//.ToString("N1").Replace(",", "."))
+                           new JProperty("speed",  Speed.ToString(CultureInfo.InvariantCulture))//.ToString("N1").Replace(",", "."))
                        );
 
             return CustomConnectorSerializer != null
