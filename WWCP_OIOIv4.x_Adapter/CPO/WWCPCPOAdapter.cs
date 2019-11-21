@@ -6271,32 +6271,25 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         protected override Boolean SkipFlushChargeDetailRecordsQueues()
             => ChargeDetailRecordsQueue.Count == 0;
 
-        protected override async Task FlushChargeDetailRecordsQueues()
+        protected override async Task FlushChargeDetailRecordsQueues(IEnumerable<ChargeDetailRecord> ChargeDetailRecords)
         {
 
-            var ChargeDetailRecordsQueueCopy = ChargeDetailRecordsQueue.ToArray();
+            var sendCDRsResult = await SendChargeDetailRecords(ChargeDetailRecords,
+                                                               TransmissionTypes.Direct,
 
-            if (ChargeDetailRecordsQueueCopy.Length > 0)
+                                                               DateTime.UtcNow,
+                                                               new CancellationTokenSource().Token,
+                                                               EventTracking_Id.New,
+                                                               DefaultRequestTimeout).
+                                           ConfigureAwait(false);
+
+            if (sendCDRsResult.Warnings.Any())
             {
 
-                var sendCDRsResult = await SendChargeDetailRecords(ChargeDetailRecordsQueueCopy,
-                                                                   TransmissionTypes.Direct,
-
-                                                                   DateTime.UtcNow,
-                                                                   new CancellationTokenSource().Token,
-                                                                   EventTracking_Id.New,
-                                                                   DefaultRequestTimeout).
-                                               ConfigureAwait(false);
-
-                if (sendCDRsResult.Warnings.Any())
-                {
-
-                    SendOnWarnings(DateTime.UtcNow,
-                                   nameof(WWCPCPOAdapter) + Id,
-                                   "SendChargeDetailRecords",
-                                   sendCDRsResult.Warnings);
-
-                }
+                SendOnWarnings(DateTime.UtcNow,
+                               nameof(WWCPCPOAdapter) + Id,
+                               "SendChargeDetailRecords",
+                               sendCDRsResult.Warnings);
 
             }
 
