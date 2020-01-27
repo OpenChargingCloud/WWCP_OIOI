@@ -567,7 +567,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                                                             EventTracking_Id.New,
                                                                                                             TimeSpan.FromSeconds(45))))).
 
-                                                                               FirstOrDefault(result => result.Result != RemoteStartResultType.Unspecified);
+                                                                               FirstOrDefault(result => result.Result != RemoteStartResultTypes.Unspecified);
 
                                                  }
 
@@ -599,7 +599,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                      #region Success
 
-                                                     case RemoteStartResultType.Success:
+                                                     case RemoteStartResultTypes.Success:
 
                                                          SessionStartResult  = Result.Success("Success!",
                                                                                               Session_Id.Parse(_RemoteStartResult.Session.Id.ToString()),
@@ -615,7 +615,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                      #region UnknownEVSE
 
-                                                     case RemoteStartResultType.UnknownLocation:
+                                                     case RemoteStartResultTypes.UnknownLocation:
 
                                                          SessionStartResult  = Result.Error(181, "EVSE not found!");
 
@@ -629,7 +629,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                      #region UnknownOperator
 
-                                                     case RemoteStartResultType.UnknownOperator:
+                                                     case RemoteStartResultTypes.UnknownOperator:
 
                                                          SessionStartResult  = Result.Error(300, "Unknown charging station operator!");
 
@@ -643,7 +643,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                      #region Timeout
 
-                                                     case RemoteStartResultType.Timeout:
+                                                     case RemoteStartResultTypes.Timeout:
 
                                                          SessionStartResult  = Result.Error(312, "EVSE timeout!");
 
@@ -657,7 +657,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                      #region AlreadyInUse
 
-                                                     case RemoteStartResultType.AlreadyInUse:
+                                                     case RemoteStartResultTypes.AlreadyInUse:
 
                                                          SessionStartResult  = Result.Error(320, "EVSE already in use!");
 
@@ -913,7 +913,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                                                            EventTracking_Id.New,
                                                                                                            TimeSpan.FromSeconds(45))))).
 
-                                                                              FirstOrDefault(result => result.Result != RemoteStopResultType.Unspecified);
+                                                                              FirstOrDefault(result => result.Result != RemoteStopResultTypes.Unspecified);
 
                                                  }
 
@@ -939,7 +939,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                      #region Success
 
-                                                     case RemoteStopResultType.Success:
+                                                     case RemoteStopResultTypes.Success:
 
                                                          SessionStopResult  = Result.Success("Success!");
 
@@ -953,7 +953,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                      #region UnknownEVSE
 
-                                                     case RemoteStopResultType.UnknownLocation:
+                                                     case RemoteStopResultTypes.UnknownLocation:
 
                                                          SessionStopResult  = Result.Error(181, "EVSE not found!");
 
