@@ -5782,7 +5782,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                 {
                                     SendCDRsResults.Add(new SendCDRResult(ChargeDetailRecord,
                                                                           SendCDRResultTypes.CouldNotConvertCDRFormat,
-                                                                          e.Message));
+                                                                          I18NString.Create(Languages.eng, e.Message)));
                                 }
 
                             }
@@ -5832,14 +5832,14 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                     else
                                         SendCDRsResults.Add(new SendCDRResult(chargeDetailRecord,
                                                                               SendCDRResultTypes.Error,
-                                                                              response.HTTPBodyAsUTF8String));
+                                                                              I18NString.Create(Languages.eng, response.HTTPBodyAsUTF8String)));
 
                                 }
                                 catch (Exception e)
                                 {
                                     SendCDRsResults.Add(new SendCDRResult(chargeDetailRecord,
                                                                           SendCDRResultTypes.CouldNotConvertCDRFormat,
-                                                                          e.Message));
+                                                                          I18NString.Create(Languages.eng, e.Message)));
                                 }
 
                             }
