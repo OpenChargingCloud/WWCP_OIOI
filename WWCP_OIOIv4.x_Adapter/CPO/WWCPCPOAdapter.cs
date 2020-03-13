@@ -44,7 +44,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
     /// A WWCP wrapper for the OIOI CPO Roaming client which maps
     /// WWCP data structures onto OIOI data structures and vice versa.
     /// </summary>
-    public class WWCPCPOAdapter : AWWCPCSOAdapter<ChargeDetailRecord>,
+    public class WWCPCPOAdapter : AWWCPCSOAdapter<Session>,
                                   ICSORoamingProvider,
                                   IEquatable <WWCPCPOAdapter>,
                                   IComparable<WWCPCPOAdapter>,
@@ -53,15 +53,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         #region Data
 
-        //private        readonly  CustomOperatorIdMapperDelegate                   _CustomOperatorIdMapper;
-
-        //private        readonly  CustomEVSEIdMapperDelegate                      _CustomEVSEIdMapper;
-
-        //private        readonly  ChargingStation2StationDelegate                  _ChargingStation2Station;
-
-        private        readonly  EVSEStatusUpdate2ConnectorStatusUpdateDelegate   _EVSEStatusUpdate2ConnectorStatusUpdateDelegate;
-
-        private        readonly  ChargeDetailRecord2SessionDelegate               _ChargeDetailRecord2Session;
+        private        readonly  CustomOperatorIdMapperDelegate                   CustomOperatorIdMapper;
+        private        readonly  CustomEVSEIdMapperDelegate                       CustomEVSEIdMapper;
+        private        readonly  ChargingStation2StationDelegate                  ChargingStation2Station;
+        private        readonly  ChargeDetailRecord2SessionDelegate               CustomChargeDetailRecord2Session;
+        private        readonly  EVSEStatusUpdate2ConnectorStatusUpdateDelegate   CustomEVSEStatusUpdate2ConnectorStatusUpdateDelegate;
 
         private        readonly  Station2JSONDelegate                             _Station2JSON;
 
@@ -77,17 +73,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         private readonly        HashSet<ChargingStation>                          StationsToRemoveQueue;
         private readonly        List<EVSEStatusUpdate>                            EVSEStatusUpdatesQueue;
         private readonly        List<EVSEStatusUpdate>                            EVSEStatusUpdatesDelayedQueue;
-        private readonly        List<ChargeDetailRecord>                          ChargeDetailRecordsQueue;
 
-        //private                 UInt64                                            _ServiceRunId;
-        //private                 UInt64                                            _StatusRunId;
         private readonly        IncludeChargingStationDelegate                    _IncludeChargingStations;
 
         public readonly static  TimeSpan                                          DefaultRequestTimeout  = TimeSpan.FromSeconds(30);
         public readonly static  eMobilityProvider_Id                              DefaultProviderId      = eMobilityProvider_Id.Parse("DE*8PS");
-
-
-
 
 
         //private readonly List<Session> OICP_ChargeDetailRecords_Queue;
@@ -113,7 +103,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         public CPORoaming CPORoaming { get; }
 
 
-        public PartnerIdForConnectorIdDelegate ConnectorStatusPartnerIdSelector { get; }
+        public PartnerIdForConnectorIdDelegate ConnectorIdPartnerIdSelector { get; }
 
 
         /// <summary>
@@ -141,9 +131,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         public CPOServerLogger ServerLogger
             => CPORoaming?.CPOServerLogger;
 
-        protected readonly CustomOperatorIdMapperDelegate   CustomOperatorIdMapper;
-        protected readonly CustomEVSEIdMapperDelegate       CustomEVSEIdMapper;
-        protected readonly ChargingStation2StationDelegate  ChargingStation2Station;
 
         private Int32 _maxDegreeOfParallelism = 4;
 
@@ -532,7 +519,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                               CPORoaming                                      CPORoaming,
                               CustomOperatorIdMapperDelegate                  CustomOperatorIdMapper                   = null,
-                              //CustomEVSEIdMapperDelegate                      CustomEVSEIdMapper                       = null,
                               ChargingStation2StationDelegate                 ChargingStation2Station                  = null,
                               EVSEStatusUpdate2ConnectorStatusUpdateDelegate  EVSEStatusUpdate2ConnectorStatusUpdate   = null,
                               ChargeDetailRecord2SessionDelegate              ChargeDetailRecord2Session               = null,
@@ -587,14 +573,14 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         {
 
-            this.ConnectorStatusPartnerIdSelector                  = ConnectorIdPartnerIdSelector ?? throw new ArgumentNullException(nameof(ConnectorIdPartnerIdSelector), "The given delegate must not be null!");
+            this.ConnectorIdPartnerIdSelector                      = ConnectorIdPartnerIdSelector ?? throw new ArgumentNullException(nameof(ConnectorIdPartnerIdSelector), "The given delegate must not be null!");
 
             this.CPORoaming                                        = CPORoaming                   ?? throw new ArgumentNullException(nameof(CPORoaming),                   "The given OIOI CPO Roaming object must not be null!");
             this.CustomOperatorIdMapper                            = CustomOperatorIdMapper;
             this.CustomEVSEIdMapper                                = CustomEVSEIdMapper;
             this.ChargingStation2Station                           = ChargingStation2Station;
-            this._EVSEStatusUpdate2ConnectorStatusUpdateDelegate   = EVSEStatusUpdate2ConnectorStatusUpdate;
-            this._ChargeDetailRecord2Session                       = ChargeDetailRecord2Session;
+            this.CustomEVSEStatusUpdate2ConnectorStatusUpdateDelegate   = EVSEStatusUpdate2ConnectorStatusUpdate;
+            this.CustomChargeDetailRecord2Session                       = ChargeDetailRecord2Session;
             this._Station2JSON                                     = Station2JSON;
             this._ConnectorStatus2JSON                             = ConnectorStatus2JSON;
             this._Session2JSON                                     = Session2JSON;
@@ -611,7 +597,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             this.StationsToRemoveQueue                             = new HashSet<ChargingStation>();
             this.EVSEStatusUpdatesQueue                            = new List<EVSEStatusUpdate>();
             this.EVSEStatusUpdatesDelayedQueue                     = new List<EVSEStatusUpdate>();
-            this.ChargeDetailRecordsQueue                          = new List<ChargeDetailRecord>();
 
             // Link events...
 
@@ -1474,6 +1459,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 for (int i = 0; i < _ConnectorStatus.Length; i++)
                 {
+
                     var item = i;
                     var task = Task.Run(async () => {
 
@@ -5729,7 +5715,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             else
             {
 
-                var invokeTimer  = false;
+                var invokeTimer = false;
                 var LockTaken    = await FlushChargeDetailRecordsLock.WaitAsync(TimeSpan.FromSeconds(60));
 
                 try
@@ -5774,9 +5760,22 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                 try
                                 {
 
-                                    ChargeDetailRecordsQueue.Add(ChargeDetailRecord);
-                                    SendCDRsResults.Add(new SendCDRResult(ChargeDetailRecord,
-                                                                          SendCDRResultTypes.Enqueued));
+                                    var connectorId = ChargeDetailRecord.EVSEId.ToOIOI(CustomEVSEIdMapper);
+                                    if (connectorId.HasValue)
+                                    {
+
+                                        ChargeDetailRecordsQueue.Add(ChargeDetailRecord.ToOIOI(ConnectorIdPartnerIdSelector(connectorId.Value),
+                                                                                               CustomEVSEIdMapper,
+                                                                                               CustomChargeDetailRecord2Session));
+
+                                        SendCDRsResults.Add(new SendCDRResult(ChargeDetailRecord,
+                                                                              SendCDRResultTypes.Enqueued));
+
+                                    }
+                                    else
+                                        SendCDRsResults.Add(new SendCDRResult(ChargeDetailRecord,
+                                                                              SendCDRResultTypes.CouldNotConvertCDRFormat,
+                                                                              I18NString.Create(Languages.eng, "Could not parse connector identification!")));
 
                                 }
                                 catch (Exception e)
@@ -5815,25 +5814,38 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                 try
                                 {
 
-                                    response = await CPORoaming.SessionPost(chargeDetailRecord.ToOIOI(ConnectorStatusPartnerIdSelector(chargeDetailRecord.EVSEId.ToOIOI().Value)),
-
-                                                                                       Timestamp,
-                                                                                       CancellationToken,
-                                                                                       EventTrackingId,
-                                                                                       RequestTimeout);
-
-                                    if (response.HTTPStatusCode == HTTPStatusCode.OK &&
-                                        response.Content        != null              &&
-                                        response.Content.Code == ResponseCodes.Success)
+                                    var connectorId = chargeDetailRecord.EVSEId.ToOIOI(CustomEVSEIdMapper);
+                                    if (connectorId.HasValue)
                                     {
-                                        SendCDRsResults.Add(new SendCDRResult(chargeDetailRecord,
-                                                                              SendCDRResultTypes.Success));
-                                    }
 
+                                        response = await CPORoaming.SessionPost(chargeDetailRecord.ToOIOI(ConnectorIdPartnerIdSelector(connectorId.Value),
+                                                                                                          CustomEVSEIdMapper,
+                                                                                                          CustomChargeDetailRecord2Session),
+
+                                                                                Timestamp,
+                                                                                CancellationToken,
+                                                                                EventTrackingId,
+                                                                                RequestTimeout);
+
+
+                                        if (response.HTTPStatusCode == HTTPStatusCode.OK &&
+                                            response.Content        != null              &&
+                                            response.Content.Code == ResponseCodes.Success)
+                                        {
+                                            SendCDRsResults.Add(new SendCDRResult(chargeDetailRecord,
+                                                                                  SendCDRResultTypes.Success));
+                                        }
+
+                                        else
+                                            SendCDRsResults.Add(new SendCDRResult(chargeDetailRecord,
+                                                                                  SendCDRResultTypes.Error,
+                                                                                  I18NString.Create(Languages.eng, response.HTTPBodyAsUTF8String)));
+
+                                    }
                                     else
                                         SendCDRsResults.Add(new SendCDRResult(chargeDetailRecord,
-                                                                              SendCDRResultTypes.Error,
-                                                                              I18NString.Create(Languages.eng, response.HTTPBodyAsUTF8String)));
+                                                                              SendCDRResultTypes.CouldNotConvertCDRFormat,
+                                                                              I18NString.Create(Languages.eng, "Could not parse connector identification!")));
 
                                 }
                                 catch (Exception e)
@@ -6272,30 +6284,90 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         protected override Boolean SkipFlushChargeDetailRecordsQueues()
             => ChargeDetailRecordsQueue.Count == 0;
 
-        protected override async Task FlushChargeDetailRecordsQueues(IEnumerable<ChargeDetailRecord> ChargeDetailRecords)
+        protected override async Task FlushChargeDetailRecordsQueues(IEnumerable<Session> ChargingSessions)
         {
 
-            var sendCDRsResult = await SendChargeDetailRecords(ChargeDetailRecords,
-                                                               TransmissionTypes.Direct,
+            var SendCDRsResults = new List<SendCDRResult>();
+            HTTPResponse<SessionPostResponse> response;
 
-                                                               DateTime.UtcNow,
-                                                               new CancellationTokenSource().Token,
-                                                               EventTracking_Id.New,
-                                                               DefaultRequestTimeout).
-                                           ConfigureAwait(false);
-
-            if (sendCDRsResult.Warnings.Any())
+            foreach (var chargingSession in ChargingSessions)
             {
 
-                SendOnWarnings(DateTime.UtcNow,
-                               nameof(WWCPCPOAdapter) + Id,
-                               "SendChargeDetailRecords",
-                               sendCDRsResult.Warnings);
+                try
+                {
+
+                    response = await CPORoaming.SessionPost(chargingSession,
+
+                                                            DateTime.UtcNow,
+                                                            new CancellationTokenSource().Token,
+                                                            EventTracking_Id.New,
+                                                            DefaultRequestTimeout).
+                                                ConfigureAwait(false);
+
+                    if (response.HTTPStatusCode == HTTPStatusCode.OK &&
+                        response.Content        != null &&
+                        response.Content.Code   == 0)
+                    {
+                        SendCDRsResults.Add(new SendCDRResult(chargingSession.GetCustomDataAs<ChargeDetailRecord>(OIOIMapper.WWCP_CDR),
+                                                              SendCDRResultTypes.Success));
+                    }
+
+                    else
+                        SendCDRsResults.Add(new SendCDRResult(chargingSession.GetCustomDataAs<ChargeDetailRecord>(OIOIMapper.WWCP_CDR),
+                                                              SendCDRResultTypes.Error,
+                                                              I18NString.Create(Languages.eng, response.HTTPBodyAsUTF8String)));
+
+                }
+                catch (Exception e)
+                {
+                    SendCDRsResults.Add(new SendCDRResult(chargingSession.GetCustomDataAs<ChargeDetailRecord>(OIOIMapper.WWCP_CDR),
+                                                          SendCDRResultTypes.Error,
+                                                          I18NString.Create(Languages.eng, e.Message)));
+                }
+
+                //if (sendCDRsResult.Warnings.Any())
+                //{
+
+                //    SendOnWarnings(DateTime.UtcNow,
+                //                   nameof(WWCPCPOAdapter) + Id,
+                //                   "SendChargeDetailRecords",
+                //                   sendCDRsResult.Warnings);
+
+                //}
 
             }
 
             //ToDo: Send FlushChargeDetailRecordsQueues result event...
             //ToDo: Re-add to queue if it could not be send...
+
+
+
+
+
+
+
+
+
+            //var sendCDRsResult = await CPORoaming.SessionPost(ChargingSessions,
+
+            //                                                   DateTime.UtcNow,
+            //                                                   new CancellationTokenSource().Token,
+            //                                                   EventTracking_Id.New,
+            //                                                   DefaultRequestTimeout).
+            //                               ConfigureAwait(false);
+
+            //if (sendCDRsResult.Warnings.Any())
+            //{
+
+            //    SendOnWarnings(DateTime.UtcNow,
+            //                   nameof(WWCPCPOAdapter) + Id,
+            //                   "SendChargeDetailRecords",
+            //                   sendCDRsResult.Warnings);
+
+            //}
+
+            ////ToDo: Send FlushChargeDetailRecordsQueues result event...
+            ////ToDo: Re-add to queue if it could not be send...
 
         }
 

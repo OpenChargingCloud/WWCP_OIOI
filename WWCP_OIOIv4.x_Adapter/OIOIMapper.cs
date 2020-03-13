@@ -41,13 +41,25 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         public static ChargingStation_Id ToWWCP(this Station_Id          StationId)
             => ChargingStation_Id.Parse(StationId.ToString());
 
-        public static Connector_Id       ToOIOI(this EVSE_Id             EVSEId)
-            => Connector_Id.      Parse(EVSEId.ToString());
 
-        public static Connector_Id?      ToOIOI(this EVSE_Id?            EVSEId)
+
+        public static Connector_Id       ToOIOI(this EVSE_Id                    EVSEId,
+                                                CPO.CustomEVSEIdMapperDelegate  CustomEVSEIdMapper = null)
+
+            => CustomEVSEIdMapper != null
+                   ? CustomEVSEIdMapper(EVSEId)
+                   : Connector_Id.Parse(EVSEId.ToString());
+
+        public static Connector_Id?      ToOIOI(this EVSE_Id?                   EVSEId,
+                                                CPO.CustomEVSEIdMapperDelegate  CustomEVSEIdMapper = null)
+
             => EVSEId.HasValue
-                   ? new Connector_Id?(Connector_Id.Parse(EVSEId.ToString()))
+                   ? CustomEVSEIdMapper != null
+                         ? CustomEVSEIdMapper(EVSEId.Value)
+                         : new Connector_Id?(Connector_Id.Parse(EVSEId.ToString()))
                    : null;
+
+
 
         public static EVSE_Id            ToWWCP(this Connector_Id        ConnectorId)
             => EVSE_Id.           Parse(ConnectorId.ToString());
@@ -277,6 +289,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
             => ChargingSession_Id.Parse(SessionId.ToString());
 
 
+        public static String WWCP_CDR = "WWCP.CDR";
+
         /// <summary>
         /// Convert a WWCP charge detail record into a corresponding OIOI charging session.
         /// </summary>
@@ -284,7 +298,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <param name="WWCPChargeDetailRecord2Session">An optional delegate to customize the transformation.</param>
         public static Session ToOIOI(this ChargeDetailRecord                 ChargeDetailRecord,
                                      Partner_Id                              PartnerId,
-                                     //CPO.CustomEVSEIdMapperDelegate          CustomEVSEIdMapper               = null,
+                                     CPO.CustomEVSEIdMapperDelegate          CustomEVSEIdMapper               = null,
                                      CPO.ChargeDetailRecord2SessionDelegate  WWCPChargeDetailRecord2Session   = null)
 
         {
@@ -293,7 +307,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
                                   User:               ChargeDetailRecord.AuthenticationStart.AuthToken.HasValue
                                                           ? new User(ChargeDetailRecord.AuthenticationStart.AuthToken.           Value.ToString(), IdentifierTypes.RFID)
                                                           : new User(ChargeDetailRecord.AuthenticationStart.RemoteIdentification.Value.ToString(), IdentifierTypes.EVCOId),
-                                  ConnectorId:        ChargeDetailRecord.EVSEId.Value.ToOIOI(),
+                                  ConnectorId:        ChargeDetailRecord.EVSEId.Value.ToOIOI(CustomEVSEIdMapper),
                                   SessionInterval:    ChargeDetailRecord.SessionTime,
                                   ChargingInterval:   new StartEndDateTime(ChargeDetailRecord.EnergyMeteringValues.First().Timestamp,
                                                                            ChargeDetailRecord.EnergyMeteringValues.Last(). Timestamp),

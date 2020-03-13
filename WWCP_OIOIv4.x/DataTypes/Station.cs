@@ -448,7 +448,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
             var NewCustomData = new Dictionary<String, Object>();
 
-            if (CustomData?.Count > 0)
+            if (CustomData.Any())
                 CustomData.ForEach(kvp => NewCustomData.Add(kvp.Key, kvp.Value));
 
             if (Key.IsNeitherNullNorEmpty())
