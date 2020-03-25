@@ -311,7 +311,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
                                   SessionInterval:    ChargeDetailRecord.SessionTime,
                                   ChargingInterval:   new StartEndDateTime(ChargeDetailRecord.EnergyMeteringValues.First().Timestamp,
                                                                            ChargeDetailRecord.EnergyMeteringValues.Last(). Timestamp),
-                                  EnergyConsumed:     (ChargeDetailRecord.EnergyMeteringValues.Last().Value - ChargeDetailRecord.EnergyMeteringValues.First().Value) / 1000,
+                                  EnergyConsumed:     ChargeDetailRecord.EnergyMeteringValues.Last().Value - ChargeDetailRecord.EnergyMeteringValues.First().Value,
                                   PartnerIdentifier:  PartnerId);
 
             if (WWCPChargeDetailRecord2Session != null)
