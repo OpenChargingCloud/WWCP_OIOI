@@ -95,7 +95,7 @@ namespace org.GraphDefined.WWCP
         public static OIOIv4_x.CPO.WWCPCPOAdapter
 
             CreateOIOIv4_x_CPORoamingProvider(this RoamingNetwork                                                 RoamingNetwork,
-                                              CSORoamingProvider_Id                                               Id,
+                                              EMPRoamingProvider_Id                                               Id,
                                               I18NString                                                          Name,
                                               I18NString                                                          Description,
 
@@ -156,7 +156,7 @@ namespace org.GraphDefined.WWCP
                                               Boolean                                                             DisableSendChargeDetailRecords                  = false,
 
                                               Action<OIOIv4_x.CPO.WWCPCPOAdapter>                                 OIOIConfigurator                                = null,
-                                              Action<ICSORoamingProvider>                                         Configurator                                    = null,
+                                              Action<IEMPRoamingProvider>                                         Configurator                                    = null,
 
                                               String                                                              EllipticCurve                                   = "P-256",
                                               ECPrivateKeyParameters                                              PrivateKey                                      = null,
@@ -313,7 +313,7 @@ namespace org.GraphDefined.WWCP
         public static OIOIv4_x.CPO.WWCPCPOAdapter
 
             CreateOIOIv4_x_CPORoamingProvider(this RoamingNetwork                                          RoamingNetwork,
-                                              CSORoamingProvider_Id                                        Id,
+                                              EMPRoamingProvider_Id                                        Id,
                                               I18NString                                                   Name,
                                               I18NString                                                   Description,
                                               HTTPServer                                                   HTTPServer,
@@ -368,7 +368,7 @@ namespace org.GraphDefined.WWCP
                                               Boolean                                                      DisableSendChargeDetailRecords                  = false,
 
                                               Action<OIOIv4_x.CPO.WWCPCPOAdapter>                          OIOIConfigurator                                = null,
-                                              Action<ICSORoamingProvider>                                  Configurator                                    = null,
+                                              Action<IEMPRoamingProvider>                                  Configurator                                    = null,
 
                                               String                                                       EllipticCurve                                   = "P-256",
                                               ECPrivateKeyParameters                                       PrivateKey                                      = null,
