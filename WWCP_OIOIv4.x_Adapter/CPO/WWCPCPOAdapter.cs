@@ -74,8 +74,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         private readonly        List<EVSEStatusUpdate>                            EVSEStatusUpdatesQueue;
         private readonly        List<EVSEStatusUpdate>                            EVSEStatusUpdatesDelayedQueue;
 
-        private readonly        IncludeChargingStationDelegate                    _IncludeChargingStations;
-
         public readonly static  TimeSpan                                          DefaultRequestTimeout  = TimeSpan.FromSeconds(30);
         public readonly static  eMobilityProvider_Id                              DefaultProviderId      = eMobilityProvider_Id.Parse("DE*8PS");
 
@@ -285,43 +283,44 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="DisablePushStatus">This service can be disabled, e.g. for debugging reasons.</param>
         /// <param name="DisableAuthentication">This service can be disabled, e.g. for debugging reasons.</param>
         /// <param name="DisableSendChargeDetailRecords">This service can be disabled, e.g. for debugging reasons.</param>
-        public WWCPCPOAdapter(EMPRoamingProvider_Id                           Id,
-                              I18NString                                      Name,
-                              I18NString                                      Description,
-                              RoamingNetwork                                  RoamingNetwork,
+        public WWCPCPOAdapter(EMPRoamingProvider_Id                            Id,
+                              I18NString                                       Name,
+                              I18NString                                       Description,
+                              RoamingNetwork                                   RoamingNetwork,
 
-                              PartnerIdForConnectorIdDelegate                 ConnectorIdPartnerIdSelector,
+                              PartnerIdForConnectorIdDelegate                  ConnectorIdPartnerIdSelector,
 
-                              CPORoaming                                      CPORoaming,
-                              CustomOperatorIdMapperDelegate                  CustomOperatorIdMapper                   = null,
-                              ChargingStation2StationDelegate                 ChargingStation2Station                  = null,
-                              EVSEStatusUpdate2ConnectorStatusUpdateDelegate  EVSEStatusUpdate2ConnectorStatusUpdate   = null,
-                              ChargeDetailRecord2SessionDelegate              ChargeDetailRecord2Session               = null,
+                              CPORoaming                                       CPORoaming,
 
-                              Station2JSONDelegate                            Station2JSON                             = null,
-                              ConnectorStatus2JSONDelegate                    ConnectorStatus2JSON                     = null,
-                              Session2JSONDelegate                            Session2JSON                             = null,
+                              ChargingStation2StationDelegate                  ChargingStation2Station                  = null,
+                              EVSEStatusUpdate2ConnectorStatusUpdateDelegate   EVSEStatusUpdate2ConnectorStatusUpdate   = null,
+                              ChargeDetailRecord2SessionDelegate               ChargeDetailRecord2Session               = null,
+                              Station2JSONDelegate                             Station2JSON                             = null,
+                              ConnectorStatus2JSONDelegate                     ConnectorStatus2JSON                     = null,
+                              Session2JSONDelegate                             Session2JSON                             = null,
 
-                              IncludeChargingStationDelegate                  IncludeChargingStations                  = null,
+                              IncludeEVSEIdDelegate                            IncludeEVSEIds                           = null,
+                              IncludeEVSEDelegate                              IncludeEVSEs                             = null,
+                              IncludeChargingStationIdDelegate                 IncludeChargingStationIds                = null,
+                              IncludeChargingStationDelegate                   IncludeChargingStations                  = null,
+                              ChargeDetailRecordFilterDelegate                 ChargeDetailRecordFilter                 = null,
+                              CustomOperatorIdMapperDelegate                   CustomOperatorIdMapper                   = null,
+                              CustomEVSEIdMapperDelegate                       CustomEVSEIdMapper                       = null,
 
-                              IncludeEVSEIdDelegate                           IncludeEVSEIds                           = null,
-                              IncludeEVSEDelegate                             IncludeEVSEs                             = null,
-                              CustomEVSEIdMapperDelegate                      CustomEVSEIdMapper                       = null,
+                              TimeSpan?                                        ServiceCheckEvery                        = null,
+                              TimeSpan?                                        StatusCheckEvery                         = null,
+                              TimeSpan?                                        CDRCheckEvery                            = null,
 
-                              TimeSpan?                                       ServiceCheckEvery                        = null,
-                              TimeSpan?                                       StatusCheckEvery                         = null,
-                              TimeSpan?                                       CDRCheckEvery                            = null,
+                              Boolean                                          DisablePushData                          = false,
+                              Boolean                                          DisablePushStatus                        = false,
+                              Boolean                                          DisableAuthentication                    = false,
+                              Boolean                                          DisableSendChargeDetailRecords           = false,
 
-                              Boolean                                         DisablePushData                          = false,
-                              Boolean                                         DisablePushStatus                        = false,
-                              Boolean                                         DisableAuthentication                    = false,
-                              Boolean                                         DisableSendChargeDetailRecords           = false,
+                              String                                           EllipticCurve                            = "P-256",
+                              ECPrivateKeyParameters                           PrivateKey                               = null,
+                              PublicKeyCertificates                            PublicKeyCertificates                    = null,
 
-                              String                                          EllipticCurve                            = "P-256",
-                              ECPrivateKeyParameters                          PrivateKey                               = null,
-                              PublicKeyCertificates                           PublicKeyCertificates                    = null,
-
-                              DNSClient                                       DNSClient                                = null)
+                              DNSClient                                        DNSClient                                = null)
 
             : base(Id,
                    Name,
@@ -330,6 +329,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                    IncludeEVSEIds,
                    IncludeEVSEs,
+                   IncludeChargingStationIds,
+                   IncludeChargingStations,
+                   null,
+                   null,
+                   ChargeDetailRecordFilter,
 
                    ServiceCheckEvery,
                    StatusCheckEvery,
@@ -348,30 +352,28 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         {
 
-            this.ConnectorIdPartnerIdSelector                      = ConnectorIdPartnerIdSelector ?? throw new ArgumentNullException(nameof(ConnectorIdPartnerIdSelector), "The given delegate must not be null!");
+            this.ConnectorIdPartnerIdSelector                          = ConnectorIdPartnerIdSelector ?? throw new ArgumentNullException(nameof(ConnectorIdPartnerIdSelector), "The given delegate must not be null!");
 
-            this.CPORoaming                                        = CPORoaming                   ?? throw new ArgumentNullException(nameof(CPORoaming),                   "The given OIOI CPO Roaming object must not be null!");
-            this.CustomOperatorIdMapper                            = CustomOperatorIdMapper;
-            this.CustomEVSEIdMapper                                = CustomEVSEIdMapper;
-            this.ChargingStation2Station                           = ChargingStation2Station;
-            this.CustomEVSEStatusUpdate2ConnectorStatusUpdateDelegate   = EVSEStatusUpdate2ConnectorStatusUpdate;
-            this.CustomChargeDetailRecord2Session                       = ChargeDetailRecord2Session;
-            this._Station2JSON                                     = Station2JSON;
-            this._ConnectorStatus2JSON                             = ConnectorStatus2JSON;
-            this._Session2JSON                                     = Session2JSON;
+            this.CPORoaming                                            = CPORoaming                   ?? throw new ArgumentNullException(nameof(CPORoaming),                   "The given OIOI CPO Roaming object must not be null!");
+            this.CustomOperatorIdMapper                                = CustomOperatorIdMapper;
+            this.CustomEVSEIdMapper                                    = CustomEVSEIdMapper;
+            this.ChargingStation2Station                               = ChargingStation2Station;
+            this.CustomEVSEStatusUpdate2ConnectorStatusUpdateDelegate  = EVSEStatusUpdate2ConnectorStatusUpdate;
+            this.CustomChargeDetailRecord2Session                      = ChargeDetailRecord2Session;
+            this._Station2JSON                                         = Station2JSON;
+            this._ConnectorStatus2JSON                                 = ConnectorStatus2JSON;
+            this._Session2JSON                                         = Session2JSON;
 
-            this._IncludeChargingStations                          = IncludeChargingStations;
+            this.DisablePushData                                       = DisablePushData;
+            this.DisablePushStatus                                     = DisablePushStatus;
+            this.DisableAuthentication                                 = DisableAuthentication;
+            this.DisableSendChargeDetailRecords                        = DisableSendChargeDetailRecords;
 
-            this.DisablePushData                                   = DisablePushData;
-            this.DisablePushStatus                                 = DisablePushStatus;
-            this.DisableAuthentication                             = DisableAuthentication;
-            this.DisableSendChargeDetailRecords                    = DisableSendChargeDetailRecords;
-
-            this.StationsToAddQueue                                = new HashSet<ChargingStation>();
-            this.StationsToUpdateQueue                             = new HashSet<ChargingStation>();
-            this.StationsToRemoveQueue                             = new HashSet<ChargingStation>();
-            this.EVSEStatusUpdatesQueue                            = new List<EVSEStatusUpdate>();
-            this.EVSEStatusUpdatesDelayedQueue                     = new List<EVSEStatusUpdate>();
+            this.StationsToAddQueue                                    = new HashSet<ChargingStation>();
+            this.StationsToUpdateQueue                                 = new HashSet<ChargingStation>();
+            this.StationsToRemoveQueue                                 = new HashSet<ChargingStation>();
+            this.EVSEStatusUpdatesQueue                                = new List<EVSEStatusUpdate>();
+            this.EVSEStatusUpdatesDelayedQueue                         = new List<EVSEStatusUpdate>();
 
             // Link events...
 
@@ -568,19 +570,19 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               String                                           ServerLoggingContext                     = CPOServerLogger.DefaultContext,
                               LogfileCreatorDelegate                           LogfileCreator                           = null,
 
-                              CustomOperatorIdMapperDelegate                   CustomOperatorIdMapper                   = null,
-                              //CustomEVSEIdMapperDelegate                       CustomEVSEIdMapper                       = null,
                               ChargingStation2StationDelegate                  ChargingStation2Station                  = null,
                               EVSEStatusUpdate2ConnectorStatusUpdateDelegate   EVSEStatusUpdate2ConnectorStatusUpdate   = null,
                               ChargeDetailRecord2SessionDelegate               ChargeDetailRecord2Session               = null,
-
                               Station2JSONDelegate                             Station2JSON                             = null,
                               ConnectorStatus2JSONDelegate                     ConnectorStatus2JSON                     = null,
                               Session2JSONDelegate                             Session2JSON                             = null,
 
-                              IncludeChargingStationDelegate                   IncludeChargingStations                  = null,
                               IncludeEVSEIdDelegate                            IncludeEVSEIds                           = null,
                               IncludeEVSEDelegate                              IncludeEVSEs                             = null,
+                              IncludeChargingStationIdDelegate                 IncludeChargingStationIds                = null,
+                              IncludeChargingStationDelegate                   IncludeChargingStations                  = null,
+                              ChargeDetailRecordFilterDelegate                 ChargeDetailRecordFilter                 = null,
+                              CustomOperatorIdMapperDelegate                   CustomOperatorIdMapper                   = null,
                               CustomEVSEIdMapperDelegate                       CustomEVSEIdMapper                       = null,
 
                               TimeSpan?                                        ServiceCheckEvery                        = null,
@@ -610,17 +612,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                   ServerLoggingContext,
                                   LogfileCreator),
 
-                   CustomOperatorIdMapper,
-                     //CustomEVSEIdMapper,
                    ChargingStation2Station,
                    EVSEStatusUpdate2ConnectorStatusUpdate,
                    ChargeDetailRecord2Session,
-
                    Station2JSON,
                    ConnectorStatus2JSON,
                    Session2JSON,
-
-                   IncludeChargingStations,
 
                    //DefaultOperator,
                    //DefaultOperatorIdFormat,
@@ -628,6 +625,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                    IncludeEVSEIds,
                    IncludeEVSEs,
+                   IncludeChargingStationIds,
+                   IncludeChargingStations,
+                   ChargeDetailRecordFilter,
+                   CustomOperatorIdMapper,
                    CustomEVSEIdMapper,
 
                    ServiceCheckEvery,
@@ -738,19 +739,19 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               String                                          ServerLoggingContext                     = CPOServerLogger.DefaultContext,
                               LogfileCreatorDelegate                          LogfileCreator                           = null,
 
-                              CustomOperatorIdMapperDelegate                  CustomOperatorIdMapper                   = null,
-                              //CustomEVSEIdMapperDelegate                      CustomEVSEIdMapper                       = null,
                               ChargingStation2StationDelegate                 ChargingStation2Station                  = null,
                               EVSEStatusUpdate2ConnectorStatusUpdateDelegate  EVSEStatusUpdate2ConnectorStatusUpdate   = null,
                               ChargeDetailRecord2SessionDelegate              ChargeDetailRecord2Session               = null,
-
                               Station2JSONDelegate                            Station2JSON                             = null,
                               ConnectorStatus2JSONDelegate                    ConnectorStatus2JSON                     = null,
                               Session2JSONDelegate                            Session2JSON                             = null,
 
-                              IncludeChargingStationDelegate                  IncludeChargingStations                  = null,
                               IncludeEVSEIdDelegate                           IncludeEVSEIds                           = null,
                               IncludeEVSEDelegate                             IncludeEVSEs                             = null,
+                              IncludeChargingStationIdDelegate                IncludeChargingStationIds                = null,
+                              IncludeChargingStationDelegate                  IncludeChargingStations                  = null,
+                              ChargeDetailRecordFilterDelegate                ChargeDetailRecordFilter                 = null,
+                              CustomOperatorIdMapperDelegate                  CustomOperatorIdMapper                   = null,
                               CustomEVSEIdMapperDelegate                      CustomEVSEIdMapper                       = null,
 
                               TimeSpan?                                       ServiceCheckEvery                        = null,
@@ -816,18 +817,19 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                   DNSClient),
 
-                   CustomOperatorIdMapper,
                    ChargingStation2Station,
                    EVSEStatusUpdate2ConnectorStatusUpdate,
                    ChargeDetailRecord2Session,
-
                    Station2JSON,
                    ConnectorStatus2JSON,
                    Session2JSON,
 
-                   IncludeChargingStations,
                    IncludeEVSEIds,
                    IncludeEVSEs,
+                   IncludeChargingStationIds,
+                   IncludeChargingStations,
+                   ChargeDetailRecordFilter,
+                   CustomOperatorIdMapper,
                    CustomEVSEIdMapper,
 
                    ServiceCheckEvery,
@@ -909,7 +911,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             var WWCPStations  = new Dictionary<Station_Id, ChargingStation>();
 
-            var _Stations     = ChargingStations.Where (station => station != null && _IncludeChargingStations(station)).
+            var _Stations     = ChargingStations.Where (station => station != null && IncludeChargingStations(station)).
                                                  Select(station => {
 
                                                      try
@@ -1152,7 +1154,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             var Warnings = new List<Warning>();
 
             var _ConnectorStatus = EVSEStatusUpdates.
-                                       Where       (evsestatusupdate => _IncludeChargingStations(evsestatusupdate.EVSE.ChargingStation)).
+                                       Where       (evsestatusupdate => IncludeChargingStations(evsestatusupdate.EVSE.ChargingStation)).
                                        ToLookup    (evsestatusupdate => evsestatusupdate.EVSE.Id,
                                                     evsestatusupdate => evsestatusupdate).
                                        ToDictionary(group            => group.Key,
@@ -1409,8 +1411,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 try
                 {
 
-                    if (_IncludeChargingStations == null ||
-                       (_IncludeChargingStations != null && _IncludeChargingStations(EVSE.ChargingStation)))
+                    if (IncludeChargingStations == null ||
+                       (IncludeChargingStations != null && IncludeChargingStations(EVSE.ChargingStation)))
                     {
 
                         StationsToAddQueue.Add(EVSE.ChargingStation);
@@ -1509,8 +1511,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 try
                 {
 
-                    if (_IncludeChargingStations == null ||
-                       (_IncludeChargingStations != null && _IncludeChargingStations(EVSE.ChargingStation)))
+                    if (IncludeChargingStations == null ||
+                       (IncludeChargingStations != null && IncludeChargingStations(EVSE.ChargingStation)))
                     {
 
                         StationsToAddQueue.Add(EVSE.ChargingStation);
@@ -1616,8 +1618,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 try
                 {
 
-                    if (_IncludeChargingStations == null ||
-                       (_IncludeChargingStations != null && _IncludeChargingStations(EVSE.ChargingStation)))
+                    if (IncludeChargingStations == null ||
+                       (IncludeChargingStations != null && IncludeChargingStations(EVSE.ChargingStation)))
                     {
 
                         StationsToUpdateQueue.Add(EVSE.ChargingStation);
@@ -1716,8 +1718,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 try
                 {
 
-                    if (_IncludeChargingStations == null ||
-                       (_IncludeChargingStations != null && _IncludeChargingStations(EVSE.ChargingStation)))
+                    if (IncludeChargingStations == null ||
+                       (IncludeChargingStations != null && IncludeChargingStations(EVSE.ChargingStation)))
                     {
 
                         StationsToUpdateQueue.Add(EVSE.ChargingStation);
@@ -2021,8 +2023,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 //    try
                 //    {
 
-                //        //if (_IncludeChargingStations == null ||
-                //        //   (_IncludeChargingStations != null && _IncludeChargingStations(EVSE)))
+                //        //if (IncludeChargingStations == null ||
+                //        //   (IncludeChargingStations != null && IncludeChargingStations(EVSE)))
                 //        //{
 
                 //        EVSEStatusUpdatesQueue.AddRange(StatusUpdates);
@@ -2126,8 +2128,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 try
                 {
 
-                    if (_IncludeChargingStations == null ||
-                       (_IncludeChargingStations != null && _IncludeChargingStations(ChargingStation)))
+                    if (IncludeChargingStations == null ||
+                       (IncludeChargingStations != null && IncludeChargingStations(ChargingStation)))
                     {
 
                         StationsToAddQueue.Add(ChargingStation);
@@ -2226,8 +2228,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 try
                 {
 
-                    if (_IncludeChargingStations == null ||
-                       (_IncludeChargingStations != null && _IncludeChargingStations(ChargingStation)))
+                    if (IncludeChargingStations == null ||
+                       (IncludeChargingStations != null && IncludeChargingStations(ChargingStation)))
                     {
 
                         StationsToAddQueue.Add(ChargingStation);
@@ -2331,8 +2333,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 try
                 {
 
-                    if (_IncludeChargingStations == null ||
-                       (_IncludeChargingStations != null && _IncludeChargingStations(ChargingStation)))
+                    if (IncludeChargingStations == null ||
+                       (IncludeChargingStations != null && IncludeChargingStations(ChargingStation)))
                     {
 
                         StationsToUpdateQueue.Add(ChargingStation);
@@ -2724,8 +2726,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                     foreach (var station in ChargingPool)
                     {
 
-                        if (_IncludeChargingStations == null ||
-                           (_IncludeChargingStations != null && _IncludeChargingStations(station)))
+                        if (IncludeChargingStations == null ||
+                           (IncludeChargingStations != null && IncludeChargingStations(station)))
                         {
 
                             StationsToAddQueue.Add(station);
@@ -2829,8 +2831,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                     foreach (var station in ChargingPool)
                     {
 
-                        if (_IncludeChargingStations == null ||
-                           (_IncludeChargingStations != null && _IncludeChargingStations(station)))
+                        if (IncludeChargingStations == null ||
+                           (IncludeChargingStations != null && IncludeChargingStations(station)))
                         {
 
                             StationsToAddQueue.Add(station);
@@ -2940,8 +2942,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                     foreach (var station in ChargingPool)
                     {
 
-                        if (_IncludeChargingStations == null ||
-                           (_IncludeChargingStations != null && _IncludeChargingStations(station)))
+                        if (IncludeChargingStations == null ||
+                           (IncludeChargingStations != null && IncludeChargingStations(station)))
                         {
 
                             StationsToUpdateQueue.Add(station);
@@ -5008,19 +5010,22 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                         response.Content.Code   == 0)
                     {
 
-                        result = SendCDRResult.Success(chargingSession.GetCustomDataAs<ChargeDetailRecord>(OIOIMapper.WWCP_CDR));
+                        result = SendCDRResult.Success(chargingSession.GetCustomDataAs<ChargeDetailRecord>(OIOIMapper.WWCP_CDR),
+                                                       Runtime: response.Runtime);
 
                     }
 
                     else
                         result = SendCDRResult.Error(chargingSession.GetCustomDataAs<ChargeDetailRecord>(OIOIMapper.WWCP_CDR),
-                                                     Warning.Create(I18NString.Create(Languages.eng, response.HTTPBodyAsUTF8String)));
+                                                     Warning.Create(I18NString.Create(Languages.eng, response.HTTPBodyAsUTF8String)),
+                                                     Runtime: response.Runtime);
 
                 }
                 catch (Exception e)
                 {
                     result = SendCDRResult.Error(chargingSession.GetCustomDataAs<ChargeDetailRecord>(OIOIMapper.WWCP_CDR),
-                                                 Warning.Create(I18NString.Create(Languages.eng, e.Message)));
+                                                 Warning.Create(I18NString.Create(Languages.eng, e.Message)),
+                                                 Runtime: TimeSpan.Zero);
                 }
 
                 RoamingNetwork.SessionsStore.CDRForwarded(chargingSession.Id.ToWWCP(), result);
