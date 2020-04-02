@@ -4369,8 +4369,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                     ForwardedCDRs.Add(cdr);
 
                 else
-                    FilteredCDRs.Add(SendCDRResult.Filtered(cdr,
-                                                            Warning.Create(I18NString.Create(Languages.eng, "This charge detail record was filtered!"))));
+                    FilteredCDRs.Add(SendCDRResult.Filtered(DateTime.UtcNow,
+                                                            cdr,
+                                                            Warning: Warning.Create(I18NString.Create(Languages.eng, "This charge detail record was filtered!"))));
 
             }
 
@@ -4408,10 +4409,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 Endtime  = DateTime.UtcNow;
                 Runtime  = Endtime - StartTime;
-                results   = SendCDRsResult.AdminDown(Id,
-                                                    this,
-                                                    ChargeDetailRecords,
-                                                    Runtime: Runtime);
+                results   = SendCDRsResult.AdminDown(DateTime.UtcNow,
+                                                     Id,
+                                                     this,
+                                                     ChargeDetailRecords,
+                                                     Runtime: Runtime);
 
             }
 
@@ -4472,25 +4474,29 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                                                CustomEVSEIdMapper,
                                                                                                CustomChargeDetailRecord2Session));
 
-                                        SendCDRsResults.Add(SendCDRResult.Enqueued(ChargeDetailRecord));
+                                        SendCDRsResults.Add(SendCDRResult.Enqueued(DateTime.UtcNow,
+                                                                                   ChargeDetailRecord));
 
                                     }
                                     else
-                                        SendCDRsResults.Add(SendCDRResult.CouldNotConvertCDRFormat(ChargeDetailRecord,
-                                                                                                   Warning.Create(I18NString.Create(Languages.eng, "Could not parse connector identification!"))));
+                                        SendCDRsResults.Add(SendCDRResult.CouldNotConvertCDRFormat(DateTime.UtcNow,
+                                                                                                   ChargeDetailRecord,
+                                                                                                   Warning: Warning.Create(I18NString.Create(Languages.eng, "Could not parse connector identification!"))));
 
                                 }
                                 catch (Exception e)
                                 {
-                                    SendCDRsResults.Add(SendCDRResult.CouldNotConvertCDRFormat(ChargeDetailRecord,
-                                                                                               Warning.Create(I18NString.Create(Languages.eng, e.Message))));
+                                    SendCDRsResults.Add(SendCDRResult.CouldNotConvertCDRFormat(DateTime.UtcNow,
+                                                                                               ChargeDetailRecord,
+                                                                                               Warning: Warning.Create(I18NString.Create(Languages.eng, e.Message))));
                                 }
 
                             }
 
                             Endtime      = DateTime.UtcNow;
                             Runtime      = Endtime - StartTime;
-                            results      = SendCDRsResult.Enqueued(Id,
+                            results      = SendCDRsResult.Enqueued(DateTime.UtcNow,
+                                                                   Id,
                                                                    this,
                                                                    ChargeDetailRecords,
                                                                    "Enqueued for at least " + FlushChargeDetailRecordsEvery.TotalSeconds + " seconds!",
@@ -4535,23 +4541,27 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                             response.Content.Code   == ResponseCodes.Success)
                                         {
 
-                                            result = SendCDRResult.Success(chargeDetailRecord);
+                                            result = SendCDRResult.Success(DateTime.UtcNow,
+                                                                           chargeDetailRecord);
 
                                         }
 
                                         else
-                                            result = SendCDRResult.Error(chargeDetailRecord,
+                                            result = SendCDRResult.Error(DateTime.UtcNow,
+                                                                         chargeDetailRecord,
                                                                          Warning.Create(I18NString.Create(Languages.eng, response.HTTPBodyAsUTF8String)));
 
                                     }
                                     else
-                                        result = SendCDRResult.CouldNotConvertCDRFormat(chargeDetailRecord,
+                                        result = SendCDRResult.CouldNotConvertCDRFormat(DateTime.UtcNow,
+                                                                                        chargeDetailRecord,
                                                                                         Warning.Create(I18NString.Create(Languages.eng, "Could not parse connector identification!")));
 
                                 }
                                 catch (Exception e)
                                 {
-                                    result = SendCDRResult.CouldNotConvertCDRFormat(chargeDetailRecord,
+                                    result = SendCDRResult.CouldNotConvertCDRFormat(DateTime.UtcNow,
+                                                                                    chargeDetailRecord,
                                                                                     Warning.Create(I18NString.Create(Languages.eng, e.Message)));
                                 }
 
@@ -4564,13 +4574,15 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                             Runtime  = Endtime - StartTime;
 
                             if (SendCDRsResults.All(cdrresult => cdrresult.Result == SendCDRResultTypes.Success))
-                                results = SendCDRsResult.Success(Id,
+                                results = SendCDRsResult.Success(DateTime.UtcNow,
+                                                                 Id,
                                                                  this,
                                                                  ChargeDetailRecords,
                                                                  Runtime: Runtime);
 
                             else
-                                results = SendCDRsResult.Error(Id,
+                                results = SendCDRsResult.Error(DateTime.UtcNow,
+                                                               Id,
                                                                this,
                                                                SendCDRsResults.
                                                                    Where (cdrresult => cdrresult.Result != SendCDRResultTypes.Success).
@@ -4590,12 +4602,13 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                         Endtime  = DateTime.UtcNow;
                         Runtime  = Endtime - StartTime;
-                        results   = SendCDRsResult.Timeout(Id,
-                                                          this,
-                                                          ChargeDetailRecords,
-                                                          "Could not " + (TransmissionType == TransmissionTypes.Enqueue ? "enqueue" : "send") + " charge detail records!",
-                                                          //ChargeDetailRecords.SafeSelect(cdr => new SendCDRResult(cdr, SendCDRResultTypes.Timeout)),
-                                                          Runtime: Runtime);
+                        results   = SendCDRsResult.Timeout(DateTime.UtcNow,
+                                                           Id,
+                                                           this,
+                                                           ChargeDetailRecords,
+                                                           "Could not " + (TransmissionType == TransmissionTypes.Enqueue ? "enqueue" : "send") + " charge detail records!",
+                                                           //ChargeDetailRecords.SafeSelect(cdr => new SendCDRResult(cdr, SendCDRResultTypes.Timeout)),
+                                                           Runtime: Runtime);
 
                     }
 
@@ -5010,20 +5023,23 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                         response.Content.Code   == 0)
                     {
 
-                        result = SendCDRResult.Success(chargingSession.GetCustomDataAs<ChargeDetailRecord>(OIOIMapper.WWCP_CDR),
+                        result = SendCDRResult.Success(DateTime.UtcNow,
+                                                       chargingSession.GetCustomDataAs<ChargeDetailRecord>(OIOIMapper.WWCP_CDR),
                                                        Runtime: response.Runtime);
 
                     }
 
                     else
-                        result = SendCDRResult.Error(chargingSession.GetCustomDataAs<ChargeDetailRecord>(OIOIMapper.WWCP_CDR),
+                        result = SendCDRResult.Error(DateTime.UtcNow,
+                                                     chargingSession.GetCustomDataAs<ChargeDetailRecord>(OIOIMapper.WWCP_CDR),
                                                      Warning.Create(I18NString.Create(Languages.eng, response.HTTPBodyAsUTF8String)),
                                                      Runtime: response.Runtime);
 
                 }
                 catch (Exception e)
                 {
-                    result = SendCDRResult.Error(chargingSession.GetCustomDataAs<ChargeDetailRecord>(OIOIMapper.WWCP_CDR),
+                    result = SendCDRResult.Error(DateTime.UtcNow,
+                                                 chargingSession.GetCustomDataAs<ChargeDetailRecord>(OIOIMapper.WWCP_CDR),
                                                  Warning.Create(I18NString.Create(Languages.eng, e.Message)),
                                                  Runtime: TimeSpan.Zero);
                 }
