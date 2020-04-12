@@ -4499,7 +4499,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                    Id,
                                                                    this,
                                                                    ChargeDetailRecords,
-                                                                   "Enqueued for at least " + FlushChargeDetailRecordsEvery.TotalSeconds + " seconds!",
+                                                                   I18NString.Create(Languages.eng, "Enqueued for at least " + FlushChargeDetailRecordsEvery.TotalSeconds + " seconds!"),
                                                                    //SendCDRsResults.SafeWhere(cdrresult => cdrresult.Result != SendCDRResultTypes.Enqueued),
                                                                    Runtime: Runtime);
                             invokeTimer  = true;
@@ -4602,13 +4602,13 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                         Endtime  = DateTime.UtcNow;
                         Runtime  = Endtime - StartTime;
-                        results   = SendCDRsResult.Timeout(DateTime.UtcNow,
-                                                           Id,
-                                                           this,
-                                                           ChargeDetailRecords,
-                                                           "Could not " + (TransmissionType == TransmissionTypes.Enqueue ? "enqueue" : "send") + " charge detail records!",
-                                                           //ChargeDetailRecords.SafeSelect(cdr => new SendCDRResult(cdr, SendCDRResultTypes.Timeout)),
-                                                           Runtime: Runtime);
+                        results  = SendCDRsResult.Timeout(DateTime.UtcNow,
+                                                          Id,
+                                                          this,
+                                                          ChargeDetailRecords,
+                                                          I18NString.Create(Languages.eng, "Could not " + (TransmissionType == TransmissionTypes.Enqueue ? "enqueue" : "send") + " charge detail records!"),
+                                                          //ChargeDetailRecords.SafeSelect(cdr => new SendCDRResult(cdr, SendCDRResultTypes.Timeout)),
+                                                          Runtime: Runtime);
 
                     }
 
