@@ -35,23 +35,27 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
     public static class OIOIMapper
     {
 
-        public static Station_Id         ToOIOI(this ChargingStation_Id  ChargingStationId)
+        #region ChargingStationId <-> StationId
+
+        public static Station_Id         ToOIOI(this ChargingStation_Id              ChargingStationId)
             => Station_Id.        Parse(ChargingStationId.ToString());
 
-        public static ChargingStation_Id ToWWCP(this Station_Id          StationId)
+        public static ChargingStation_Id ToWWCP(this Station_Id                      StationId)
             => ChargingStation_Id.Parse(StationId.ToString());
 
+        #endregion
 
+        #region EVSEId            <-> ConnectorId
 
-        public static Connector_Id       ToOIOI(this EVSE_Id                    EVSEId,
-                                                CPO.CustomEVSEIdMapperDelegate  CustomEVSEIdMapper = null)
+        public static Connector_Id?      ToOIOI(this EVSE_Id                         EVSEId,
+                                                CPO.CustomEVSEIdMapperDelegate       CustomEVSEIdMapper = null)
 
             => CustomEVSEIdMapper != null
                    ? CustomEVSEIdMapper(EVSEId)
                    : Connector_Id.Parse(EVSEId.ToString());
 
-        public static Connector_Id?      ToOIOI(this EVSE_Id?                   EVSEId,
-                                                CPO.CustomEVSEIdMapperDelegate  CustomEVSEIdMapper = null)
+        public static Connector_Id?      ToOIOI(this EVSE_Id?                        EVSEId,
+                                                CPO.CustomEVSEIdMapperDelegate       CustomEVSEIdMapper = null)
 
             => EVSEId.HasValue
                    ? CustomEVSEIdMapper != null
@@ -59,12 +63,23 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
                          : new Connector_Id?(Connector_Id.Parse(EVSEId.ToString()))
                    : null;
 
+        public static EVSE_Id?           ToWWCP(this Connector_Id                    ConnectorId,
+                                                CPO.CustomConnectorIdMapperDelegate  CustomConnectorIdMapper = null)
 
+            => CustomConnectorIdMapper != null
+                   ? CustomConnectorIdMapper(ConnectorId)
+                   : new EVSE_Id?(EVSE_Id.Parse(ConnectorId.ToString()));
 
-        public static EVSE_Id            ToWWCP(this Connector_Id        ConnectorId)
-            => EVSE_Id.           Parse(ConnectorId.ToString());
+        public static EVSE_Id?           ToWWCP(this Connector_Id?                   ConnectorId,
+                                                CPO.CustomConnectorIdMapperDelegate  CustomConnectorIdMapper = null)
 
+            => ConnectorId.HasValue
+                   ? CustomConnectorIdMapper != null
+                         ? CustomConnectorIdMapper(ConnectorId.Value)
+                         : new EVSE_Id?(EVSE_Id.Parse(ConnectorId.ToString()))
+                   : null;
 
+        #endregion
 
 
         #region ToOIOI(this WWCPAddress)
@@ -170,11 +185,20 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         public static Connector ToOIOI(this EVSE                       EVSE,
                                        CPO.CustomEVSEIdMapperDelegate  CustomEVSEIdMapper = null)
 
-            => new Connector(CustomEVSEIdMapper != null
-                                 ? CustomEVSEIdMapper(EVSE.Id)
-                                 : EVSE.Id.ToOIOI(),
-                             EVSE.SocketOutlets.First().Plug.ToOIOI(),
-                             EVSE.MaxPower.HasValue ? EVSE.MaxPower.Value : 0);
+        {
+
+            var connectorId = CustomEVSEIdMapper != null
+                                  ? CustomEVSEIdMapper(EVSE.Id)
+                                  : EVSE.Id.ToOIOI();
+
+            if (!connectorId.HasValue)
+                return null;
+
+            return new Connector(connectorId.Value,
+                                 EVSE.SocketOutlets.First().Plug.ToOIOI(),
+                                 EVSE.MaxPower.HasValue ? EVSE.MaxPower.Value : 0);
+
+        }
 
         #endregion
 
@@ -303,11 +327,15 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
         {
 
+            var connectorId = ChargeDetailRecord.EVSEId.Value.ToOIOI(CustomEVSEIdMapper);
+            if (!connectorId.HasValue)
+                return null;
+
             var CDR = new Session(Id:                 ChargeDetailRecord.SessionId.ToOIOI(),
                                   User:               ChargeDetailRecord.AuthenticationStart.AuthToken.HasValue
                                                           ? new User(ChargeDetailRecord.AuthenticationStart.AuthToken.           Value.ToString(), IdentifierTypes.RFID)
                                                           : new User(ChargeDetailRecord.AuthenticationStart.RemoteIdentification.Value.ToString(), IdentifierTypes.EVCOId),
-                                  ConnectorId:        ChargeDetailRecord.EVSEId.Value.ToOIOI(CustomEVSEIdMapper),
+                                  ConnectorId:        connectorId.Value,
                                   SessionInterval:    ChargeDetailRecord.SessionTime,
                                   ChargingInterval:   new StartEndDateTime(ChargeDetailRecord.EnergyMeteringValues.First().Timestamp,
                                                                            ChargeDetailRecord.EnergyMeteringValues.Last(). Timestamp),
@@ -386,7 +414,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         }
 
         #endregion
-
 
     }
 

@@ -55,6 +55,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         private        readonly  CustomOperatorIdMapperDelegate                   CustomOperatorIdMapper;
         private        readonly  CustomEVSEIdMapperDelegate                       CustomEVSEIdMapper;
+        private        readonly  CustomConnectorIdMapperDelegate                  CustomConnectorIdMapper;
         private        readonly  ChargingStation2StationDelegate                  ChargingStation2Station;
         private        readonly  ChargeDetailRecord2SessionDelegate               CustomChargeDetailRecord2Session;
         private        readonly  EVSEStatusUpdate2ConnectorStatusUpdateDelegate   CustomEVSEStatusUpdate2ConnectorStatusUpdateDelegate;
@@ -150,7 +151,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         }
 
-        public Func<ChargeDetailRecord, ChargeDetailRecordFilters> ChargeDetailRecordFilter { get; set; }
+        public Func<ChargeDetailRecord, ChargeDetailRecordFilters>  ChargeDetailRecordFilter    { get; set; }
 
         #endregion
 
@@ -306,6 +307,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               ChargeDetailRecordFilterDelegate                 ChargeDetailRecordFilter                 = null,
                               CustomOperatorIdMapperDelegate                   CustomOperatorIdMapper                   = null,
                               CustomEVSEIdMapperDelegate                       CustomEVSEIdMapper                       = null,
+                              CustomConnectorIdMapperDelegate                  CustomConnectorIdMapper                  = null,
 
                               TimeSpan?                                        ServiceCheckEvery                        = null,
                               TimeSpan?                                        StatusCheckEvery                         = null,
@@ -388,10 +390,17 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                EventTrackingId,
                                                                RequestTimeout) => {
 
+                RemoteStartResult response = null;
 
-                var response = await RoamingNetwork.
+                var EVSEId   = ConnectorId.ToWWCP(CustomConnectorIdMapper);
+
+                if (!EVSEId.HasValue)
+                    response = RemoteStartResult.UnknownLocation(TimeSpan.Zero);
+
+                else
+                    response = await RoamingNetwork.
                                          RemoteStart(EMPRoamingProvider:    this,
-                                                     ChargingLocation:      ChargingLocation.FromEVSEId(ConnectorId.ToWWCP()),
+                                                     ChargingLocation:      ChargingLocation.FromEVSEId(EVSEId),
                                                      RemoteAuthentication:  RemoteAuthentication.FromRemoteIdentification(eMAId),
                                                      SessionId:             ChargingSession_Id.New,
 
@@ -584,6 +593,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               ChargeDetailRecordFilterDelegate                 ChargeDetailRecordFilter                 = null,
                               CustomOperatorIdMapperDelegate                   CustomOperatorIdMapper                   = null,
                               CustomEVSEIdMapperDelegate                       CustomEVSEIdMapper                       = null,
+                              CustomConnectorIdMapperDelegate                  CustomConnectorIdMapper                  = null,
 
                               TimeSpan?                                        ServiceCheckEvery                        = null,
                               TimeSpan?                                        StatusCheckEvery                         = null,
@@ -630,6 +640,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                    ChargeDetailRecordFilter,
                    CustomOperatorIdMapper,
                    CustomEVSEIdMapper,
+                   CustomConnectorIdMapper,
 
                    ServiceCheckEvery,
                    StatusCheckEvery,
@@ -753,6 +764,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               ChargeDetailRecordFilterDelegate                ChargeDetailRecordFilter                 = null,
                               CustomOperatorIdMapperDelegate                  CustomOperatorIdMapper                   = null,
                               CustomEVSEIdMapperDelegate                      CustomEVSEIdMapper                       = null,
+                              CustomConnectorIdMapperDelegate                 CustomConnectorIdMapper                  = null,
 
                               TimeSpan?                                       ServiceCheckEvery                        = null,
                               TimeSpan?                                       StatusCheckEvery                         = null,
@@ -831,6 +843,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                    ChargeDetailRecordFilter,
                    CustomOperatorIdMapper,
                    CustomEVSEIdMapper,
+                   CustomConnectorIdMapper,
 
                    ServiceCheckEvery,
                    StatusCheckEvery,
@@ -1164,13 +1177,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                            try
                                            {
 
+                                               var connectorId = evsestatusupdate.Key.ToOIOI(CustomEVSEIdMapper);
+
+                                               if (!connectorId.HasValue)
+                                                   return null;
+
                                                // Only push the current status of the latest status update!
                                                return new Tuple<EVSEStatusUpdate, ConnectorStatus>(
                                                           evsestatusupdate.Value.First(),
                                                           new ConnectorStatus(
-                                                              CustomEVSEIdMapper != null
-                                                                  ? CustomEVSEIdMapper(evsestatusupdate.Key)
-                                                                  : evsestatusupdate.Key.ToOIOI(),
+                                                              connectorId.Value,
                                                               evsestatusupdate.Value.First().NewStatus.Value.ToOIOI()
                                                           )
                                                       );

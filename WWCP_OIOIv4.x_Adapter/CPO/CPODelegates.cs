@@ -39,7 +39,14 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
     /// and OIOI connector identifications.
     /// </summary>
     /// <param name="EVSEId">A WWCP EVSE identification.</param>
-    public delegate Connector_Id                CustomEVSEIdMapperDelegate                    (EVSE_Id                     EVSEId);
+    public delegate Connector_Id?               CustomEVSEIdMapperDelegate                    (EVSE_Id                     EVSEId);
+
+    /// <summary>
+    /// A delegate which allows you to customize the mapping between OIOI connector identifications
+    /// and WWCP EVSE identifications.
+    /// </summary>
+    /// <param name="ConnectorId">An OIOI connector identification.</param>
+    public delegate EVSE_Id?                    CustomConnectorIdMapperDelegate               (Connector_Id                ConnectorId);
 
     /// <summary>
     /// A delegate which allows you to modify charging stations before sending them upstream.

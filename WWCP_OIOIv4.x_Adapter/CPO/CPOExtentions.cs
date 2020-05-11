@@ -149,6 +149,7 @@ namespace org.GraphDefined.WWCP
                                               ChargeDetailRecordFilterDelegate                                    ChargeDetailRecordFilter                        = null,
                                               OIOIv4_x.CPO.CustomOperatorIdMapperDelegate                         CustomOperatorIdMapper                          = null,
                                               OIOIv4_x.CPO.CustomEVSEIdMapperDelegate                             CustomEVSEIdMapper                              = null,
+                                              OIOIv4_x.CPO.CustomConnectorIdMapperDelegate                        CustomConnectorIdMapper                         = null,
 
                                               TimeSpan?                                                           ServiceCheckEvery                               = null,
                                               TimeSpan?                                                           StatusCheckEvery                                = null,
@@ -241,6 +242,7 @@ namespace org.GraphDefined.WWCP
                                                                      ChargeDetailRecordFilter,
                                                                      CustomOperatorIdMapper,
                                                                      CustomEVSEIdMapper,
+                                                                     CustomConnectorIdMapper,
 
                                                                      ServiceCheckEvery,
                                                                      StatusCheckEvery,
@@ -365,6 +367,7 @@ namespace org.GraphDefined.WWCP
                                               ChargeDetailRecordFilterDelegate                             ChargeDetailRecordFilter                        = null,
                                               OIOIv4_x.CPO.CustomOperatorIdMapperDelegate                  CustomOperatorIdMapper                          = null,
                                               OIOIv4_x.CPO.CustomEVSEIdMapperDelegate                      CustomEVSEIdMapper                              = null,
+                                              OIOIv4_x.CPO.CustomConnectorIdMapperDelegate                 CustomConnectorIdMapper                         = null,
 
                                               TimeSpan?                                                    ServiceCheckEvery                               = null,
                                               TimeSpan?                                                    StatusCheckEvery                                = null,
@@ -459,6 +462,7 @@ namespace org.GraphDefined.WWCP
                                                                      ChargeDetailRecordFilter,
                                                                      CustomOperatorIdMapper,
                                                                      CustomEVSEIdMapper,
+                                                                     CustomConnectorIdMapper,
 
                                                                      ServiceCheckEvery,
                                                                      StatusCheckEvery,
