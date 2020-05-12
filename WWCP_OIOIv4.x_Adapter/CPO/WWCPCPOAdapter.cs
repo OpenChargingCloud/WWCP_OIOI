@@ -403,6 +403,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                      ChargingLocation:      ChargingLocation.FromEVSEId(EVSEId),
                                                      RemoteAuthentication:  RemoteAuthentication.FromRemoteIdentification(eMAId),
                                                      SessionId:             ChargingSession_Id.New,
+                                                     ProviderId:            eMAId.ProviderId,
 
                                                      Timestamp:             Timestamp,
                                                      CancellationToken:     CancellationToken,
@@ -410,56 +411,106 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                      RequestTimeout:        RequestTimeout).
                                           ConfigureAwait(false);
 
-            //    #region Response mapping
 
-            //    if (response != null)
-            //    {
-            //        switch (response.Result)
-            //        {
+                Result SessionStartResult = null;
 
-            //            case RemoteStartEVSEResultType.Success:
-            //                return Acknowledgement.Success(
-            //                           response.Session.Id.ToOIOI(),
-            //                           StatusCodeDescription: "Ready to charge!"
-            //                       );
+                switch (response.Result)
+                {
 
-            //            case RemoteStartEVSEResultType.InvalidSessionId:
-            //                return Acknowledgement.SessionIsInvalid(
-            //                           SessionId: SessionId
-            //                       );
+                    #region Documentation
 
-            //            case RemoteStartEVSEResultType.InvalidCredentials:
-            //                return Acknowledgement.NoValidContract();
+                    // HTTP Status codes
+                    //  200 OK             Request was processed successfully
+                    //  401 Unauthorized   The token, username or identifier type were incorrect
+                    //  404 Not found      A connector could not be found by the supplied identifier
 
-            //            case RemoteStartEVSEResultType.Offline:
-            //                return Acknowledgement.CommunicationToEVSEFailed();
+                    // Result codes
+                    //    0                Success
+                    //  140                Authentication failed: No positive authentication response
+                    //  144                Authentication failed: Email does not exist
+                    //  145                Authentication failed: User token not valid
+                    //  181                EVSE not found
+                    //  300                CPO error
+                    //  302                CPO timeout
+                    //  310                EVSE error
+                    //  312                EVSE timeout
+                    //  320                EVSE already in use
+                    //  321                No EV connected to EVSE
 
-            //            case RemoteStartEVSEResultType.Timeout:
-            //            case RemoteStartEVSEResultType.CommunicationError:
-            //                return Acknowledgement.CommunicationToEVSEFailed();
+                    #endregion
 
-            //            case RemoteStartEVSEResultType.Reserved:
-            //                return Acknowledgement.EVSEAlreadyReserved();
+                    #region Success
 
-            //            case RemoteStartEVSEResultType.AlreadyInUse:
-            //                return Acknowledgement.EVSEAlreadyInUse_WrongToken();
+                    case RemoteStartResultTypes.Success:
+                    case RemoteStartResultTypes.AsyncOperation:
 
-            //            case RemoteStartEVSEResultType.UnknownEVSE:
-            //                return Acknowledgement.UnknownEVSEID();
+                        SessionStartResult  = Result.Success("Success!",
+                                                             Session_Id.Parse(response.Session.Id.ToString()),
+                                                             true);
 
-            //            case RemoteStartEVSEResultType.OutOfService:
-            //                return Acknowledgement.EVSEOutOfService();
+                        break;
 
-            //        }
-            //    }
+                    #endregion
 
-            //    return Acknowledgement.ServiceNotAvailable(
-            //               SessionId: SessionId
-            //           );
+                    #region UnknownLocation
 
-            //    #endregion
+                    case RemoteStartResultTypes.UnknownLocation:
 
-                return response;
+                        SessionStartResult  = Result.Error(181, "EVSE not found!");
+
+                        break;
+
+                    #endregion
+
+                    #region UnknownOperator
+
+                    case RemoteStartResultTypes.UnknownOperator:
+
+                        SessionStartResult  = Result.Error(300, "Unknown charging station operator!");
+
+                        break;
+
+                    #endregion
+
+                    #region Timeout
+
+                    case RemoteStartResultTypes.Timeout:
+
+                        SessionStartResult  = Result.Error(312, "EVSE timeout!");
+
+                        break;
+
+                    #endregion
+
+                    #region AlreadyInUse
+
+                    case RemoteStartResultTypes.AlreadyInUse:
+
+                        SessionStartResult  = Result.Error(320, "EVSE already in use!");
+
+                        break;
+
+                    #endregion
+
+                    #region NoEVConnectedToEVSE
+
+                    case RemoteStartResultTypes.NoEVConnectedToEVSE:
+
+                        SessionStartResult  = Result.Error(321, "No EV connected to EVSE!");
+
+                        break;
+
+                    #endregion
+
+                    default:
+
+                        SessionStartResult  = Result.Error(310, "EVSE error!");
+
+                        break;
+
+                }
+
+                return SessionStartResult;
 
             };
 
@@ -476,57 +527,98 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                               EventTrackingId,
                                                               RequestTimeout) => {
 
-                var response = await RoamingNetwork.RemoteStop(EMPRoamingProvider:   this,
-                                                               SessionId:            SessionId. ToWWCP(),
-                                                               //EVSEId:               ConnectorId.ToWWCP(),
-                                                               RemoteAuthentication: RemoteAuthentication.FromRemoteIdentification(eMAId),
-                                                               ReservationHandling:  ReservationHandling.Close,
+                var response = await RoamingNetwork.RemoteStop(EMPRoamingProvider:    this,
+                                                               SessionId:             SessionId. ToWWCP(),
+                                                               //EVSEId:                ConnectorId.ToWWCP(),
+                                                               RemoteAuthentication:  RemoteAuthentication.FromRemoteIdentification(eMAId),
+                                                               ReservationHandling:   ReservationHandling.Close,
+                                                               ProviderId:            eMAId.ProviderId,
 
-                                                               Timestamp:            Timestamp,
-                                                               CancellationToken:    CancellationToken,
-                                                               EventTrackingId:      EventTrackingId,
-                                                               RequestTimeout:       RequestTimeout).
+                                                               Timestamp:             Timestamp,
+                                                               CancellationToken:     CancellationToken,
+                                                               EventTrackingId:       EventTrackingId,
+                                                               RequestTimeout:        RequestTimeout).
                                                     ConfigureAwait(false);
 
-            //    #region Response mapping
 
-            //    if (response != null)
-            //    {
-            //        switch (response.Result)
-            //        {
+                Result SessionStopResult = null;
 
-            //            case RemoteStopEVSEResultType.Success:
-            //                return Acknowledgement.Success(
-            //                           response.SessionId.ToOIOI(),
-            //                           StatusCodeDescription: "Ready to stop charging!"
-            //                       );
+                switch (response.Result)
+                {
 
-            //            case RemoteStopEVSEResultType.InvalidSessionId:
-            //                return Acknowledgement.SessionIsInvalid(
-            //                           SessionId: SessionId
-            //                       );
+                    #region Documentation
 
-            //            case RemoteStopEVSEResultType.Offline:
-            //            case RemoteStopEVSEResultType.Timeout:
-            //            case RemoteStopEVSEResultType.CommunicationError:
-            //                return Acknowledgement.CommunicationToEVSEFailed();
+                    // HTTP Status codes
+                    //  200 OK             Request was processed successfully
+                    //  401 Unauthorized   The token, username or identifier type were incorrect
+                    //  404 Not found      A connector could not be found by the supplied identifier
 
-            //            case RemoteStopEVSEResultType.UnknownEVSE:
-            //                return Acknowledgement.UnknownEVSEID();
+                    // Result codes
+                    //    0                Success
+                    //  140                Authentication failed: No positive authentication response
+                    //  144                Authentication failed: Email does not exist
+                    //  145                Authentication failed: User token not valid
+                    //  181                EVSE not found
 
-            //            case RemoteStopEVSEResultType.OutOfService:
-            //                return Acknowledgement.EVSEOutOfService();
+                    #endregion
 
-            //        }
-            //    }
+                    #region Success
 
-            //    return Acknowledgement.ServiceNotAvailable(
-            //               SessionId: SessionId
-            //           );
+                    case RemoteStopResultTypes.Success:
 
-            //    #endregion
+                        SessionStopResult  = Result.Success("Success!");
 
-                return response;
+                        break;
+
+                    #endregion
+
+                    #region UnknownEVSE
+
+                    case RemoteStopResultTypes.UnknownLocation:
+
+                        SessionStopResult  = Result.Error(181, "EVSE not found!");
+
+                        break;
+
+                    #endregion
+
+                    //#region UnknownOperator
+
+                    //case RemoteStartResultType.UnknownOperator:
+
+                    //    SessionStartResult  = Result.Error(300, "Unknown charging station operator!");
+
+                    //    _HTTPResponse       = CreateResponse(Request,
+                    //                                         HTTPStatusCode.OK,
+                    //                                         SessionStartResult);
+
+                    //    break;
+
+                    //#endregion
+
+                    //#region Timeout
+
+                    //case RemoteStartResultType.Timeout:
+
+                    //    SessionStartResult  = Result.Error(312, "EVSE timeout!");
+
+                    //    _HTTPResponse       = CreateResponse(Request,
+                    //                                         HTTPStatusCode.OK,
+                    //                                         SessionStartResult);
+
+                    //    break;
+
+                    //#endregion
+
+                    default:
+
+                        SessionStopResult  = Result.Error(310, "EVSE error!");
+
+                        break;
+
+                }
+
+                return SessionStopResult;
 
             };
 

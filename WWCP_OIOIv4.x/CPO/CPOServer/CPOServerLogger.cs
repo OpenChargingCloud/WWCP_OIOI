@@ -155,17 +155,17 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #region Register remote start/stop log events
 
-            RegisterEvent("AnyRequest",
-                          handler => CPOServer.OnAnyHTTPRequest += handler,
-                          handler => CPOServer.OnAnyHTTPRequest -= handler,
-                          "Requests", "All").
+            RegisterEvent2("AnyRequest",
+                           handler => CPOServer.OnAnyHTTPRequest += handler,
+                           handler => CPOServer.OnAnyHTTPRequest -= handler,
+                           "Requests", "All").
                 RegisterDefaultConsoleLogTarget(this).
                 RegisterDefaultDiscLogTarget(this);
 
-            RegisterEvent("AnyResponse",
-                          handler => CPOServer.OnAnyHTTPResponse += handler,
-                          handler => CPOServer.OnAnyHTTPResponse -= handler,
-                          "Responses", "All").
+            RegisterEvent2("AnyResponse",
+                           handler => CPOServer.OnAnyHTTPResponse += handler,
+                           handler => CPOServer.OnAnyHTTPResponse -= handler,
+                           "Responses", "All").
                 RegisterDefaultConsoleLogTarget(this).
                 RegisterDefaultDiscLogTarget(this);
 

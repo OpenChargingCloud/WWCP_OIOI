@@ -20,10 +20,9 @@
 using System;
 using System.Linq;
 using System.Threading;
-using System.Reflection;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
+using System.Net.Security;
+using System.Security.Authentication;
 
 using Newtonsoft.Json.Linq;
 
@@ -33,8 +32,6 @@ using org.GraphDefined.Vanaheimr.Hermod.DNS;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets.TCP;
-using System.Security.Authentication;
-using System.Net.Security;
 
 #endregion
 
@@ -105,10 +102,19 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         #region Events
 
+        #region OnAnyHTTPRequest/-Response
+
         /// <summary>
         /// An event sent whenever a HTTP request was received.
         /// </summary>
-        public event RequestLogHandler               OnAnyHTTPRequest;
+        public event HTTPRequestLogHandler           OnAnyHTTPRequest;
+
+        /// <summary>
+        /// An event sent whenever a HTTP response was sent.
+        /// </summary>
+        public event HTTPResponseLogHandler          OnAnyHTTPResponse;
+
+        #endregion
 
         #region OnSessionStart(HTTP)Request/-Response
 
@@ -167,12 +173,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         public event OnSessionStopResponseDelegate  OnSessionStopResponse;
 
         #endregion
-
-        /// <summary>
-        /// An event sent whenever a HTTP response was sent.
-        /// </summary>
-        public event AccessLogHandler                OnAnyHTTPResponse;
-
 
 
         #region Generic HTTP/SOAP server logging
@@ -358,26 +358,24 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                          HTTPMethod.POST,
                                          URIPrefix,
                                          HTTPContentType.JSON_UTF8,
-                                         HTTPDelegate: async Request => {
-
-                                             OnAnyHTTPRequest?.Invoke(DateTime.UtcNow,
-                                                                      this.HTTPServer,
-                                                                      Request);
+                                         HTTPRequestLogger:  OnAnyHTTPRequest,
+                                         HTTPResponseLogger: OnAnyHTTPResponse,
+                                         HTTPDelegate:       async request => {
 
                                              HTTPResponse _HTTPResponse = null;
 
-                                             if (!Request.TryParseJObjectRequestBody(out JObject JSONBody, out HTTPResponse HTTPResponse))
-                                                 return CreateResponse(Request,
+                                             if (!request.TryParseJObjectRequestBody(out JObject JSONBody, out HTTPResponse HTTPResponse))
+                                                 return CreateResponse(request,
                                                                        HTTPStatusCode.BadRequest,
                                                                        Result.Error(140, "Invalid HTTP body!"));
 
-                                             #region Parse Session Start [Optional]
+                                             #region Parse Session Start [optional]
 
                                              if (JSONBody.ParseOptional("session-start",
                                                                         "session-start",
                                                                         HTTPServer.DefaultServerName,
                                                                         out JObject JSONObj,
-                                                                        Request,
+                                                                        request,
                                                                         out HTTPResponse))
                                              {
 
@@ -409,22 +407,18 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  #region Data
 
-                                                 JObject UserJSON             = null;
-                                                 IdentifierTypes       IdentifierType       = IdentifierTypes.Unknown;
-                                                 eMobilityAccount_Id   eMobilityAccountId   = default(eMobilityAccount_Id);
-                                                 String                Token                = null;
-                                                 Connector_Id          ConnectorId;
-                                                 PaymentReference?     PaymentReference     = null;
-
-                                                 Result                SessionStartResult   = null;
+                                                 IdentifierTypes      IdentifierType       = IdentifierTypes.Unknown;
+                                                 eMobilityAccount_Id  eMobilityAccountId   = default;
+                                                 String               Token                = null;
+                                                 Result               SessionStartResult   = null;
 
                                                  #endregion
 
-                                                 #region Send HTTP event
+                                                 #region Send OnSessionStartHTTPRequest event
 
                                                  OnSessionStartHTTPRequest?.Invoke(DateTime.UtcNow,
-                                                                                   this.HTTPServer,
-                                                                                   Request);
+                                                                                   HTTPServer,
+                                                                                   request);
 
                                                  #endregion
 
@@ -433,11 +427,15 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  if (!JSONObj.ParseMandatory("user",
                                                                              "user",
-                                                                             out UserJSON,
+                                                                             out JObject UserJSON,
                                                                              out String ErrorResponse))
-                                                     return SendSessionStartResponse(Request,
+                                                 {
+
+                                                     return SendSessionStartResponse(request,
                                                                                      HTTPStatusCode.BadRequest,
                                                                                      Result.UserTokenNotValid);
+
+                                                 }
 
                                                  #region Parse 'user/identifier-type'
 
@@ -445,9 +443,13 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                               s => s.AsIdentifierTypes(),
                                                                               IdentifierTypes.Unknown,
                                                                               out IdentifierType))
-                                                     return SendSessionStartResponse(Request,
+                                                 {
+
+                                                     return SendSessionStartResponse(request,
                                                                                      HTTPStatusCode.BadRequest,
                                                                                      Result.Error(145, "JSON property 'user/identifier-type' missing or invalid!"));
+
+                                                 }
 
                                                  #endregion
 
@@ -462,13 +464,13 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                                       s => eMobilityAccount_Id.Parse(s),
                                                                                       out eMobilityAccountId,
                                                                                       out ErrorResponse))
-                                                             return SendSessionStartResponse(Request,
+                                                             return SendSessionStartResponse(request,
                                                                                              HTTPStatusCode.BadRequest,
                                                                                              Result.Error(145, "JSON property 'user/identifier' missing or invalid!"));
                                                          break;
 
                                                      default:
-                                                         return SendSessionStartResponse(Request,
+                                                         return SendSessionStartResponse(request,
                                                                                          HTTPStatusCode.BadRequest,
                                                                                          Result.Error(145, "JSON property 'user/identifier' missing or invalid!"));
 
@@ -488,7 +490,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                                      out ErrorResponse))
                                                          {
 
-                                                             return SendSessionStartResponse(Request,
+                                                             return SendSessionStartResponse(request,
                                                                                              HTTPStatusCode.BadRequest,
                                                                                              Result.Error(145, "JSON property 'user/token' invalid!"));
 
@@ -506,11 +508,15 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  if (!JSONObj.ParseMandatory("connector-id",
                                                                              "connector-id",
                                                                              s => Connector_Id.Parse(s),
-                                                                             out ConnectorId,
+                                                                             out Connector_Id ConnectorId,
                                                                              out ErrorResponse))
-                                                     return SendSessionStartResponse(Request,
+                                                 {
+
+                                                     return SendSessionStartResponse(request,
                                                                                      HTTPStatusCode.BadRequest,
                                                                                      Result.Error(310, "JSON property 'connector-id' missing or invalid!"));
+
+                                                 }
 
                                                  #endregion
 
@@ -520,13 +526,13 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                            "payment reference",
                                                                            HTTPServer.DefaultServerName,
                                                                            OIOIv4_x.PaymentReference.TryParse,
-                                                                           out PaymentReference,
-                                                                           Request,
+                                                                           out PaymentReference? PaymentReference,
+                                                                           request,
                                                                            out _HTTPResponse))
                                                  {
 
                                                      if (_HTTPResponse != null)
-                                                         return SendSessionStartResponse(Request,
+                                                         return SendSessionStartResponse(request,
                                                                                          HTTPStatusCode.BadRequest,
                                                                                          Result.Error(310, "JSON property 'payment-reference' missing or invalid!"));
 
@@ -534,10 +540,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  #endregion
 
-                                                 #region Send event
+
+                                                 #region Send OnSessionStartRequest event
 
                                                  OnSessionStartRequest?.Invoke(DateTime.UtcNow,
-                                                                               Request.Timestamp,
+                                                                               request.Timestamp,
                                                                                this,
                                                                                EventTracking_Id.New,
                                                                                new User(eMobilityAccountId.ToString(),
@@ -549,143 +556,69 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  #endregion
 
 
-                                                 var _RemoteStartResult = RemoteStartResult.OutOfService();
-
                                                  var OnSessionStartLocal = OnSessionStart;
                                                  if (OnSessionStartLocal != null)
                                                  {
 
-                                                     _RemoteStartResult  = (await Task.WhenAll(OnSessionStartLocal.
-                                                                                                       GetInvocationList().
-                                                                                                       Select(subscriber => (subscriber as OnSessionStartDelegate)
-                                                                                                           (DateTime.UtcNow,
-                                                                                                            this,
-                                                                                                            eMobilityAccountId,
-                                                                                                            ConnectorId,
-                                                                                                            PaymentReference,
-                                                                                                            new CancellationTokenSource().Token,
-                                                                                                            EventTracking_Id.New,
-                                                                                                            TimeSpan.FromSeconds(45))))).
+                                                     SessionStartResult = (await Task.WhenAll(OnSessionStartLocal.
+                                                                                                  GetInvocationList().
+                                                                                                  Select(subscriber => (subscriber as OnSessionStartDelegate)
+                                                                                                      (DateTime.UtcNow,
+                                                                                                       this,
+                                                                                                       eMobilityAccountId,
+                                                                                                       ConnectorId,
+                                                                                                       PaymentReference,
+                                                                                                       new CancellationTokenSource().Token,
+                                                                                                       EventTracking_Id.New,
+                                                                                                       TimeSpan.FromSeconds(45))))).
 
-                                                                               FirstOrDefault(result => result.Result != RemoteStartResultTypes.Unspecified);
+                                                                                 FirstOrDefault();
 
                                                  }
 
+                                                 #region Map code to HTTP Status Codes
 
-                                                 switch (_RemoteStartResult.Result)
+                                                 var statusCode = HTTPStatusCode.BadRequest;
+
+                                                 switch (SessionStartResult?.Code)
                                                  {
 
-                                                     #region Documentation
-
-                                                     // HTTP Status codes
-                                                     //  200 OK             Request was processed successfully
-                                                     //  401 Unauthorized   The token, username or identifier type were incorrect
-                                                     //  404 Not found      A connector could not be found by the supplied identifier
-
-                                                     // Result codes
-                                                     //    0                Success
-                                                     //  140                Authentication failed: No positive authentication response
-                                                     //  144                Authentication failed: Email does not exist
-                                                     //  145                Authentication failed: User token not valid
-                                                     //  181                EVSE not found
-                                                     //  300                CPO error
-                                                     //  302                CPO timeout
-                                                     //  310                EVSE error
-                                                     //  312                EVSE timeout
-                                                     //  320                EVSE already in use
-                                                     //  321                No EV connected to EVSE
-
-                                                     #endregion
-
-                                                     #region Success
-
-                                                     case RemoteStartResultTypes.Success:
-
-                                                         SessionStartResult  = Result.Success("Success!",
-                                                                                              Session_Id.Parse(_RemoteStartResult.Session.Id.ToString()),
-                                                                                              true);
-
-                                                         _HTTPResponse       = CreateResponse(Request,
-                                                                                              HTTPStatusCode.OK,
-                                                                                              SessionStartResult);
-
+                                                     case 0:
+                                                         statusCode = HTTPStatusCode.OK;
                                                          break;
 
-                                                     #endregion
-
-                                                     #region UnknownEVSE
-
-                                                     case RemoteStartResultTypes.UnknownLocation:
-
-                                                         SessionStartResult  = Result.Error(181, "EVSE not found!");
-
-                                                         _HTTPResponse       = CreateResponse(Request,
-                                                                                              HTTPStatusCode.NotFound,
-                                                                                              SessionStartResult);
-
+                                                     case 140:
+                                                     case 144:
+                                                     case 145:
+                                                         statusCode = HTTPStatusCode.Unauthorized;
                                                          break;
 
-                                                     #endregion
-
-                                                     #region UnknownOperator
-
-                                                     case RemoteStartResultTypes.UnknownOperator:
-
-                                                         SessionStartResult  = Result.Error(300, "Unknown charging station operator!");
-
-                                                         _HTTPResponse       = CreateResponse(Request,
-                                                                                              HTTPStatusCode.OK,
-                                                                                              SessionStartResult);
-
+                                                     case 181:
+                                                         statusCode = HTTPStatusCode.NotFound;
                                                          break;
-
-                                                     #endregion
-
-                                                     #region Timeout
-
-                                                     case RemoteStartResultTypes.Timeout:
-
-                                                         SessionStartResult  = Result.Error(312, "EVSE timeout!");
-
-                                                         _HTTPResponse       = CreateResponse(Request,
-                                                                                              HTTPStatusCode.OK,
-                                                                                              SessionStartResult);
-
-                                                         break;
-
-                                                     #endregion
-
-                                                     #region AlreadyInUse
-
-                                                     case RemoteStartResultTypes.AlreadyInUse:
-
-                                                         SessionStartResult  = Result.Error(320, "EVSE already in use!");
-
-                                                         _HTTPResponse       = CreateResponse(Request,
-                                                                                              HTTPStatusCode.OK,
-                                                                                              SessionStartResult);
-
-                                                         break;
-
-                                                     #endregion
 
                                                      default:
-
-                                                         SessionStartResult  = Result.Error(310, "EVSE error!");
-
-                                                         _HTTPResponse       = CreateResponse(Request,
-                                                                                              HTTPStatusCode.OK,
-                                                                                              SessionStartResult);
-
+                                                         statusCode = HTTPStatusCode.BadRequest;
                                                          break;
 
                                                  }
 
+                                                 #endregion
 
-                                                 #region Send events
+                                                 _HTTPResponse = new HTTPResponse.Builder(request) {
+                                                                     HTTPStatusCode  = statusCode,
+                                                                     Server          = HTTPServer.DefaultServerName,
+                                                                     Date            = DateTime.UtcNow,
+                                                                     ContentType     = HTTPContentType.JSON_UTF8,
+                                                                     Content         = SessionStartResult.ToUTF8Bytes(),
+                                                                     Connection      = "close"
+                                                                 };
+
+
+                                                 #region Send OnSessionStartResponse/OnSessionStartHTTPResponse events
 
                                                  OnSessionStartResponse?.    Invoke(DateTime.UtcNow,
-                                                                                    Request.Timestamp,
+                                                                                    request.Timestamp,
                                                                                     this,
                                                                                     EventTracking_Id.New,
                                                                                     new User(eMobilityAccountId.ToString(),
@@ -694,11 +627,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                                     ConnectorId,
                                                                                     PaymentReference,
                                                                                     SessionStartResult,
-                                                                                    Request.Timestamp - DateTime.UtcNow);
+                                                                                    request.Timestamp - DateTime.UtcNow);
 
                                                  OnSessionStartHTTPResponse?.Invoke(DateTime.UtcNow,
-                                                                                    this.HTTPServer,
-                                                                                    Request,
+                                                                                    HTTPServer,
+                                                                                    request,
                                                                                     _HTTPResponse);
 
                                                  #endregion
@@ -707,34 +640,15 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                              #endregion
 
-                                             #region Parse Session Stop  [Optional]
+                                             #region Parse Session Stop  [optional]
 
                                              else if (JSONBody.ParseOptional("session-stop",
                                                                              "session-stop",
                                                                              HTTPServer.DefaultServerName,
                                                                              out JSONObj,
-                                                                             Request,
+                                                                             request,
                                                                              out HTTPResponse))
                                              {
-
-                                                 #region Documentation
-
-                                                 // {
-                                                 //     "session-stop": {
-                                                 //
-                                                 //         "user": {
-                                                 //             "identifier-type":  "evco-id",
-                                                 //             "identifier":       "DE*8PS*123456*7"
-                                                 //             "token":            "..."   [optional]
-                                                 //         },
-                                                 //
-                                                 //         "connector-id":  "1356",
-                                                 //         "session-id":    "dfdf"         [mandatory, in this implementation!]
-                                                 //
-                                                 //     }
-                                                 // }
-
-                                                 #endregion
 
                                                  // ---------------------------------------------------------
                                                  // curl -v -H "Accept: application/json" \
@@ -762,22 +676,18 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  #region Data
 
-                                                 JObject              UserJSON            = null;
-                                                 IdentifierTypes      IdentifierType      = IdentifierTypes.Unknown;
-                                                 eMobilityAccount_Id  eMobilityAccountId  = default(eMobilityAccount_Id);
-                                                 String               Token               = null;
-                                                 Connector_Id         ConnectorId         = default(Connector_Id);
-                                                 Session_Id           SessionId           = default(Session_Id);
-
-                                                 Result               SessionStopResult   = null;
+                                                 IdentifierTypes      IdentifierType       = IdentifierTypes.Unknown;
+                                                 eMobilityAccount_Id  eMobilityAccountId   = default;
+                                                 String               Token                = null;
+                                                 Result               SessionStopResult    = null;
 
                                                  #endregion
 
-                                                 #region Send HTTP event
+                                                 #region Send OnSessionStopHTTPRequest event
 
                                                  OnSessionStopHTTPRequest?.Invoke(DateTime.UtcNow,
-                                                                                  this.HTTPServer,
-                                                                                  Request);
+                                                                                  HTTPServer,
+                                                                                  request);
 
                                                  #endregion
 
@@ -786,9 +696,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  if (!JSONObj.ParseMandatory("user",
                                                                              "user",
-                                                                             out UserJSON,
+                                                                             out JObject UserJSON,
                                                                              out String ErrorResponse))
-                                                     return SendSessionStopResponse(Request,
+                                                     return SendSessionStopResponse(request,
                                                                                     HTTPStatusCode.BadRequest,
                                                                                     Result.UserTokenNotValid);
 
@@ -798,7 +708,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                               s => s.AsIdentifierTypes(),
                                                                               IdentifierTypes.Unknown,
                                                                               out IdentifierType))
-                                                     return SendSessionStopResponse(Request,
+                                                     return SendSessionStopResponse(request,
                                                                                     HTTPStatusCode.BadRequest,
                                                                                     Result.Error(145, "JSON property 'user/identifier-type' missing or invalid!"));
 
@@ -815,13 +725,13 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                                       s => eMobilityAccount_Id.Parse(s),
                                                                                       out eMobilityAccountId,
                                                                                       out ErrorResponse))
-                                                             return SendSessionStopResponse(Request,
+                                                             return SendSessionStopResponse(request,
                                                                                             HTTPStatusCode.BadRequest,
                                                                                             Result.Error(145, "JSON property 'user/identifier' missing or invalid!"));
                                                          break;
 
                                                      default:
-                                                         return SendSessionStopResponse(Request,
+                                                         return SendSessionStopResponse(request,
                                                                                         HTTPStatusCode.BadRequest,
                                                                                         Result.Error(145, "JSON property 'user/identifier' missing or invalid!"));
 
@@ -841,7 +751,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                                      out ErrorResponse))
                                                          {
 
-                                                             return SendSessionStopResponse(Request,
+                                                             return SendSessionStopResponse(request,
                                                                                             HTTPStatusCode.BadRequest,
                                                                                             Result.Error(145, "JSON property 'user/token' invalid!"));
 
@@ -859,9 +769,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  if (!JSONObj.ParseMandatory("connector-id",
                                                                              "connector-id",
                                                                              s => Connector_Id.Parse(s),
-                                                                             out ConnectorId,
+                                                                             out Connector_Id ConnectorId,
                                                                              out ErrorResponse))
-                                                     return SendSessionStopResponse(Request,
+                                                     return SendSessionStopResponse(request,
                                                                                     HTTPStatusCode.BadRequest,
                                                                                     Result.Error(310, "JSON property 'connector-id' missing or invalid!"));
 
@@ -872,18 +782,19 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  if (!JSONObj.ParseMandatory("session-id",
                                                                              "session-id",
                                                                              s => Session_Id.Parse(s),
-                                                                             out SessionId,
+                                                                             out Session_Id SessionId,
                                                                              out ErrorResponse))
-                                                     return SendSessionStopResponse(Request,
+                                                     return SendSessionStopResponse(request,
                                                                                     HTTPStatusCode.BadRequest,
                                                                                     Result.Error(310, "JSON property 'session-id' missing or invalid!"));
 
                                                  #endregion
 
-                                                 #region Send event
+
+                                                 #region Send OnSessionStopRequest event
 
                                                  OnSessionStopRequest?.Invoke(DateTime.UtcNow,
-                                                                              Request.Timestamp,
+                                                                              request.Timestamp,
                                                                               this,
                                                                               EventTracking_Id.New,
                                                                               new User(eMobilityAccountId.ToString(),
@@ -895,121 +806,69 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  #endregion
 
 
-                                                 var _RemoteEVSEStopResult = RemoteStopResult.OutOfService(ChargingSession_Id.Parse(SessionId.ToString()));
-
                                                  var OnSessionStopLocal = OnSessionStop;
                                                  if (OnSessionStopLocal == null)
                                                  {
 
-                                                     _RemoteEVSEStopResult  = (await Task.WhenAll(OnSessionStopLocal.
-                                                                                                      GetInvocationList().
-                                                                                                      Select(subscriber => (subscriber as OnSessionStopDelegate)
-                                                                                                          (DateTime.UtcNow,
-                                                                                                           this,
-                                                                                                           ConnectorId,
-                                                                                                           SessionId,
-                                                                                                           eMobilityAccountId,
-                                                                                                           new CancellationTokenSource().Token,
-                                                                                                           EventTracking_Id.New,
-                                                                                                           TimeSpan.FromSeconds(45))))).
+                                                     SessionStopResult = (await Task.WhenAll(OnSessionStopLocal.
+                                                                                                 GetInvocationList().
+                                                                                                 Select(subscriber => (subscriber as OnSessionStopDelegate)
+                                                                                                     (DateTime.UtcNow,
+                                                                                                      this,
+                                                                                                      ConnectorId,
+                                                                                                      SessionId,
+                                                                                                      eMobilityAccountId,
+                                                                                                      new CancellationTokenSource().Token,
+                                                                                                      EventTracking_Id.New,
+                                                                                                      TimeSpan.FromSeconds(45))))).
 
-                                                                              FirstOrDefault(result => result.Result != RemoteStopResultTypes.Unspecified);
+                                                                              FirstOrDefault();
 
                                                  }
 
+                                                 #region Map code to HTTP Status Codes
 
-                                                 switch (_RemoteEVSEStopResult.Result)
+                                                 var statusCode = HTTPStatusCode.BadRequest;
+
+                                                 switch (SessionStopResult?.Code)
                                                  {
 
-                                                     #region Documentation
-
-                                                     // HTTP Status codes
-                                                     //  200 OK             Request was processed successfully
-                                                     //  401 Unauthorized   The token, username or identifier type were incorrect
-                                                     //  404 Not found      A connector could not be found by the supplied identifier
-
-                                                     // Result codes
-                                                     //    0                Success
-                                                     //  140                Authentication failed: No positive authentication response
-                                                     //  144                Authentication failed: Email does not exist
-                                                     //  145                Authentication failed: User token not valid
-                                                     //  181                EVSE not found
-
-                                                     #endregion
-
-                                                     #region Success
-
-                                                     case RemoteStopResultTypes.Success:
-
-                                                         SessionStopResult  = Result.Success("Success!");
-
-                                                         _HTTPResponse      = CreateResponse(Request,
-                                                                                             HTTPStatusCode.OK,
-                                                                                             SessionStopResult);
-
+                                                     case 0:
+                                                         statusCode = HTTPStatusCode.OK;
                                                          break;
 
-                                                     #endregion
-
-                                                     #region UnknownEVSE
-
-                                                     case RemoteStopResultTypes.UnknownLocation:
-
-                                                         SessionStopResult  = Result.Error(181, "EVSE not found!");
-
-                                                         _HTTPResponse      = CreateResponse(Request,
-                                                                                             HTTPStatusCode.NotFound,
-                                                                                             SessionStopResult);
-
+                                                     case 140:
+                                                     case 144:
+                                                     case 145:
+                                                         statusCode = HTTPStatusCode.Unauthorized;
                                                          break;
 
-                                                     #endregion
-
-                                                     //#region UnknownOperator
-
-                                                     //case RemoteStartResultType.UnknownOperator:
-
-                                                     //    SessionStartResult  = Result.Error(300, "Unknown charging station operator!");
-
-                                                     //    _HTTPResponse       = CreateResponse(Request,
-                                                     //                                         HTTPStatusCode.OK,
-                                                     //                                         SessionStartResult);
-
-                                                     //    break;
-
-                                                     //#endregion
-
-                                                     //#region Timeout
-
-                                                     //case RemoteStartResultType.Timeout:
-
-                                                     //    SessionStartResult  = Result.Error(312, "EVSE timeout!");
-
-                                                     //    _HTTPResponse       = CreateResponse(Request,
-                                                     //                                         HTTPStatusCode.OK,
-                                                     //                                         SessionStartResult);
-
-                                                     //    break;
-
-                                                     //#endregion
+                                                     case 181:
+                                                         statusCode = HTTPStatusCode.NotFound;
+                                                         break;
 
                                                      default:
-
-                                                         SessionStopResult  = Result.Error(310, "EVSE error!");
-
-                                                         _HTTPResponse      = CreateResponse(Request,
-                                                                                             HTTPStatusCode.OK,
-                                                                                             SessionStopResult);
-
+                                                         statusCode = HTTPStatusCode.BadRequest;
                                                          break;
 
                                                  }
 
+                                                 #endregion
 
-                                                 #region Send events
+                                                 _HTTPResponse = new HTTPResponse.Builder(request) {
+                                                                     HTTPStatusCode  = statusCode,
+                                                                     Server          = HTTPServer.DefaultServerName,
+                                                                     Date            = DateTime.UtcNow,
+                                                                     ContentType     = HTTPContentType.JSON_UTF8,
+                                                                     Content         = SessionStopResult.ToUTF8Bytes(),
+                                                                     Connection      = "close"
+                                                                 };
+
+
+                                                 #region Send OnSessionStopResponse/OnSessionStopHTTPResponse events
 
                                                  OnSessionStopResponse?.    Invoke(DateTime.UtcNow,
-                                                                                   Request.Timestamp,
+                                                                                   request.Timestamp,
                                                                                    this,
                                                                                    EventTracking_Id.New,
                                                                                    new User(eMobilityAccountId.ToString(),
@@ -1018,11 +877,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                                    ConnectorId,
                                                                                    SessionId,
                                                                                    SessionStopResult,
-                                                                                   Request.Timestamp - DateTime.UtcNow);
+                                                                                   request.Timestamp - DateTime.UtcNow);
 
                                                  OnSessionStopHTTPResponse?.Invoke(DateTime.UtcNow,
-                                                                                   this.HTTPServer,
-                                                                                   Request,
+                                                                                   HTTPServer,
+                                                                                   request,
                                                                                    _HTTPResponse);
 
                                                  #endregion
@@ -1033,14 +892,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
 
                                              if (_HTTPResponse == null)
-                                                 _HTTPResponse = CreateResponse(Request,
+                                                 _HTTPResponse = CreateResponse(request,
                                                                                 HTTPStatusCode.BadRequest,
                                                                                 Result.Error(140, "Unknown JSON in HTTP body!"));
-
-                                             OnAnyHTTPResponse?.Invoke(DateTime.UtcNow,
-                                                                       this.HTTPServer,
-                                                                       Request,
-                                                                       _HTTPResponse);
 
                                              return _HTTPResponse;
 
@@ -1107,7 +961,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                OIOIResult);
 
             OnSessionStartHTTPResponse?.Invoke(DateTime.UtcNow,
-                                               this.HTTPServer,
+                                               HTTPServer,
                                                HTTPRequest,
                                                _HTTPResponse);
 
@@ -1129,7 +983,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                OIOIResult);
 
             OnSessionStopHTTPResponse?.Invoke(DateTime.UtcNow,
-                                              this.HTTPServer,
+                                              HTTPServer,
                                               HTTPRequest,
                                               _HTTPResponse);
 
