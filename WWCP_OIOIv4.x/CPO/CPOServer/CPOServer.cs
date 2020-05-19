@@ -583,17 +583,24 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  switch (SessionStartResult?.Code)
                                                  {
 
-                                                     case 0:
+                                                     case 000: // Success
+                                                     case 011: // Successfully started a charging session. The customer is charging at the EVSE.
+                                                     case 012: // Successfully authorized a charging session. The customer must now plug in the cable to start.
+                                                     case 310: // EVSE error
+                                                     case 312: // EVSE timeout
+                                                     case 320: // EVSE already in use
+                                                     case 321: // No EV connected to EVSE
+                                                     case 323: // EVSE already reserved
                                                          statusCode = HTTPStatusCode.OK;
                                                          break;
 
-                                                     case 140:
-                                                     case 144:
-                                                     case 145:
+                                                     case 140: // Authentication failed: No positive authentication response
+                                                     case 145: // Authentication failed: User token not valid
                                                          statusCode = HTTPStatusCode.Unauthorized;
                                                          break;
 
-                                                     case 181:
+                                                     case 181: // EVSE not found
+                                                     case 300: // Unknown charging station operator
                                                          statusCode = HTTPStatusCode.NotFound;
                                                          break;
 

@@ -231,7 +231,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         #endregion
 
 
-        #region (static) Success(Message = null, SessionId = null, IsStoppable = null)
+        #region (static) Success            (Message = null, SessionId = null, IsStoppable = null)
 
         /// <summary>
         /// Return a successful result having the given optional message.
@@ -247,6 +247,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
                           Message ?? "Success!",
                           new JProperty("session-start", JSONObject.Create(
 
+                              new JProperty("success",             true),
+
                               SessionId.  HasValue
                                   ? new JProperty("session-id",    SessionId.  Value.ToString())
                                   : null,
@@ -258,6 +260,67 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
                           )));
 
         #endregion
+
+        #region (static) ChargingSuccess    (Message = null, SessionId = null, IsStoppable = null)
+
+        /// <summary>
+        /// Return a successful result having the given optional message.
+        /// </summary>
+        /// <param name="Message">An optional success message.</param>
+        /// <param name="IsStoppable">A charging session identification.</param>
+        /// <param name="SessionId">Whether the charging session is stoppable via a session-stop command.</param>
+        public static Result ChargingSuccess(String       Message       = null,
+                                             Session_Id?  SessionId     = null,
+                                             Boolean?     IsStoppable   = null)
+
+            => new Result(011,
+                          Message ?? "Success!",
+                          new JProperty("session-start", JSONObject.Create(
+
+                              new JProperty("success",             true),
+
+                              SessionId.  HasValue
+                                  ? new JProperty("session-id",    SessionId.  Value.ToString())
+                                  : null,
+
+                              IsStoppable.HasValue
+                                  ? new JProperty("is-stoppable",  IsStoppable.Value)
+                                  : null
+
+                          )));
+
+        #endregion
+
+        #region (static) SuccessPleasePlugIn(Message = null, SessionId = null, IsStoppable = null)
+
+        /// <summary>
+        /// Return a successful result having the given optional message.
+        /// </summary>
+        /// <param name="Message">An optional success message.</param>
+        /// <param name="IsStoppable">A charging session identification.</param>
+        /// <param name="SessionId">Whether the charging session is stoppable via a session-stop command.</param>
+        public static Result SuccessPleasePlugIn(String       Message       = null,
+                                                 Session_Id?  SessionId     = null,
+                                                 Boolean?     IsStoppable   = null)
+
+            => new Result(012,
+                          Message ?? "Success!",
+                          new JProperty("session-start", JSONObject.Create(
+
+                              new JProperty("success",             true),
+
+                              SessionId.  HasValue
+                                  ? new JProperty("session-id",    SessionId.  Value.ToString())
+                                  : null,
+
+                              IsStoppable.HasValue
+                                  ? new JProperty("is-stoppable",  IsStoppable.Value)
+                                  : null
+
+                          )));
+
+        #endregion
+
 
         #region (static) Error(Code, Message = null)
 

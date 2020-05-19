@@ -86,7 +86,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         #region Properties
 
-        IId ISendAuthorizeStartStop.AuthId
+        IId IAuthorizeStartStop.AuthId
             => Id;
 
         IId ISendChargeDetailRecords.Id
@@ -417,36 +417,37 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 switch (response.Result)
                 {
 
-                    #region Documentation
-
-                    // HTTP Status codes
-                    //  200 OK             Request was processed successfully
-                    //  401 Unauthorized   The token, username or identifier type were incorrect
-                    //  404 Not found      A connector could not be found by the supplied identifier
-
-                    // Result codes
-                    //    0                Success
-                    //  140                Authentication failed: No positive authentication response
-                    //  144                Authentication failed: Email does not exist
-                    //  145                Authentication failed: User token not valid
-                    //  181                EVSE not found
-                    //  300                CPO error
-                    //  302                CPO timeout
-                    //  310                EVSE error
-                    //  312                EVSE timeout
-                    //  320                EVSE already in use
-                    //  321                No EV connected to EVSE
-
-                    #endregion
-
                     #region Success
 
                     case RemoteStartResultTypes.Success:
+
+                        SessionStartResult  = Result.ChargingSuccess("Successfully started a charging session. The customer is charging at the EVSE!",
+                                                                     Session_Id.Parse(response.Session.Id.ToString()),
+                                                                     true);
+
+                        break;
+
+                    #endregion
+
+                    #region AsyncOperation
+
                     case RemoteStartResultTypes.AsyncOperation:
 
-                        SessionStartResult  = Result.Success("Success!",
-                                                             Session_Id.Parse(response.Session.Id.ToString()),
-                                                             true);
+                        SessionStartResult  = Result.ChargingSuccess("Successfully started an async charging session!",
+                                                                     Session_Id.Parse(response.Session.Id.ToString()),
+                                                                     true);
+
+                        break;
+
+                    #endregion
+
+                    #region SuccessPlugInCableToStartCharging
+
+                    case RemoteStartResultTypes.SuccessPlugInCableToStartCharging:
+
+                        SessionStartResult  = Result.SuccessPleasePlugIn("Successfully authorized a charging session. The customer must now plug in the cable to start!",
+                                                                         Session_Id.Parse(response.Session.Id.ToString()),
+                                                                         true);
 
                         break;
 
@@ -467,6 +468,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                     case RemoteStartResultTypes.UnknownOperator:
 
                         SessionStartResult  = Result.Error(300, "Unknown charging station operator!");
+
+                        break;
+
+                    #endregion
+
+                    #region InvalidCredentials
+
+                    case RemoteStartResultTypes.InvalidCredentials:
+
+                        SessionStartResult  = Result.Error(145, "Authentication failed: User token not valid!");
 
                         break;
 
@@ -497,6 +508,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                     case RemoteStartResultTypes.NoEVConnectedToEVSE:
 
                         SessionStartResult  = Result.Error(321, "No EV connected to EVSE!");
+
+                        break;
+
+                    #endregion
+
+                    #region Reserved
+
+                    case RemoteStartResultTypes.Reserved:
+
+                        SessionStartResult  = Result.Error(323, "EVSE already reserved!");
 
                         break;
 
@@ -4119,8 +4140,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             #endregion
 
 
-            DateTime             Endtime;
-            TimeSpan             Runtime;
+            DateTime         Endtime;
+            TimeSpan         Runtime;
             AuthStartResult  result;
 
             if (DisableAuthentication)
@@ -4129,9 +4150,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 Endtime  = DateTime.UtcNow;
                 Runtime  = Endtime - StartTime;
                 result   = AuthStartResult.AdminDown(Id,
-                                                         this,
-                                                         SessionId,
-                                                         Runtime);
+                                                     this,
+                                                     SessionId,
+                                                     Runtime: Runtime);
 
             }
 
@@ -4308,8 +4329,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             #endregion
 
 
-            DateTime            Endtime;
-            TimeSpan            Runtime;
+            DateTime        Endtime;
+            TimeSpan        Runtime;
             AuthStopResult  result;
 
             if (DisableAuthentication)
@@ -4317,9 +4338,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 Endtime  = DateTime.UtcNow;
                 Runtime  = Endtime - StartTime;
                 result   = AuthStopResult.AdminDown(Id,
-                                                        this,
-                                                        SessionId,
-                                                        Runtime);
+                                                    this,
+                                                    SessionId,
+                                                    Runtime: Runtime);
             }
 
             else if (!LocalAuthentication.AuthToken.HasValue ||
