@@ -446,13 +446,13 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         #endregion
 
 
-        public CustomJSONSerializerDelegate<StationPostRequest> CustomStationPostRequestSerializer   { get; set; }
-        public CustomJSONSerializerDelegate<Station>            CustomStationSerializer              { get; set; }
-        public CustomJSONSerializerDelegate<Address>            CustomAddressSerializer              { get; set; }
-        public CustomJSONSerializerDelegate<Connector>          CustomConnectorSerializer            { get; set; }
+        public CustomJObjectSerializerDelegate<StationPostRequest> CustomStationPostRequestSerializer   { get; set; }
+        public CustomJObjectSerializerDelegate<Station>            CustomStationSerializer              { get; set; }
+        public CustomJObjectSerializerDelegate<Address>            CustomAddressSerializer              { get; set; }
+        public CustomJObjectSerializerDelegate<Connector>          CustomConnectorSerializer            { get; set; }
 
-        public CustomJSONSerializerDelegate<SessionPostRequest> CustomSessionPostRequestSerializer   { get; set; }
-        public CustomJSONSerializerDelegate<Session>            CustomSessionSerializer              { get; set; }
+        public CustomJObjectSerializerDelegate<SessionPostRequest> CustomSessionPostRequestSerializer   { get; set; }
+        public CustomJObjectSerializerDelegate<Session>            CustomSessionSerializer              { get; set; }
 
         #endregion
 

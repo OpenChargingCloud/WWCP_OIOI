@@ -125,7 +125,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         /// <param name="CustomSessionStartRequestParser">A delegate to parse custom SessionStart requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static SessionStartRequest Parse(JObject                                        SessionStartRequestJSON,
-                                                CustomJSONParserDelegate<SessionStartRequest>  CustomSessionStartRequestParser   = null,
+                                                CustomJObjectParserDelegate<SessionStartRequest>  CustomSessionStartRequestParser   = null,
                                                 OnExceptionDelegate                            OnException                       = null)
         {
 
@@ -151,7 +151,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         /// <param name="CustomSessionStartRequestParser">A delegate to parse custom SessionStart requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static SessionStartRequest Parse(String                                         SessionStartRequestText,
-                                                CustomJSONParserDelegate<SessionStartRequest>  CustomSessionStartRequestParser   = null,
+                                                CustomJObjectParserDelegate<SessionStartRequest>  CustomSessionStartRequestParser   = null,
                                                 OnExceptionDelegate                            OnException                       = null)
         {
 
@@ -179,7 +179,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static Boolean TryParse(JObject                                        SessionStartRequestJSON,
                                        out SessionStartRequest                        SessionStartRequest,
-                                       CustomJSONParserDelegate<SessionStartRequest>  CustomSessionStartRequestParser   = null,
+                                       CustomJObjectParserDelegate<SessionStartRequest>  CustomSessionStartRequestParser   = null,
                                        OnExceptionDelegate                            OnException                       = null)
         {
 
@@ -232,7 +232,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static Boolean TryParse(String                                         SessionStartRequestText,
                                        out SessionStartRequest                        SessionStartRequest,
-                                       CustomJSONParserDelegate<SessionStartRequest>  CustomSessionStartRequestParser   = null,
+                                       CustomJObjectParserDelegate<SessionStartRequest>  CustomSessionStartRequestParser   = null,
                                        OnExceptionDelegate                            OnException                       = null)
         {
 
@@ -266,8 +266,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         /// </summary>
         /// <param name="CustomSessionStartRequestSerializer">A delegate to serialize custom SessionStart requests.</param>
         /// <param name="CustomUserSerializer">A delegate to serialize custom User JSON objects.</param>
-        public JObject ToJSON(CustomJSONSerializerDelegate<SessionStartRequest>  CustomSessionStartRequestSerializer   = null,
-                              CustomJSONSerializerDelegate<User>                 CustomUserSerializer                  = null)
+        public JObject ToJSON(CustomJObjectSerializerDelegate<SessionStartRequest>  CustomSessionStartRequestSerializer   = null,
+                              CustomJObjectSerializerDelegate<User>                 CustomUserSerializer                  = null)
         {
 
             var JSON = JSONObject.Create(

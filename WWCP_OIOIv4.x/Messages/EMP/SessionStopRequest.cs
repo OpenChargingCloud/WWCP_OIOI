@@ -124,7 +124,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         /// <param name="CustomSessionStopRequestParser">A delegate to parse custom SessionStop requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static SessionStopRequest Parse(JObject                                       SessionStopRequestJSON,
-                                               CustomJSONParserDelegate<SessionStopRequest>  CustomSessionStopRequestParser   = null,
+                                               CustomJObjectParserDelegate<SessionStopRequest>  CustomSessionStopRequestParser   = null,
                                                OnExceptionDelegate                           OnException                      = null)
         {
 
@@ -150,7 +150,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         /// <param name="CustomSessionStopRequestParser">A delegate to parse custom SessionStop requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static SessionStopRequest Parse(String                                        SessionStopRequestText,
-                                               CustomJSONParserDelegate<SessionStopRequest>  CustomSessionStopRequestParser   = null,
+                                               CustomJObjectParserDelegate<SessionStopRequest>  CustomSessionStopRequestParser   = null,
                                                OnExceptionDelegate                           OnException                      = null)
         {
 
@@ -178,7 +178,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static Boolean TryParse(JObject                                       SessionStopRequestJSON,
                                        out SessionStopRequest                        SessionStopRequest,
-                                       CustomJSONParserDelegate<SessionStopRequest>  CustomSessionStopRequestParser   = null,
+                                       CustomJObjectParserDelegate<SessionStopRequest>  CustomSessionStopRequestParser   = null,
                                        OnExceptionDelegate                           OnException                      = null)
         {
 
@@ -231,7 +231,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static Boolean TryParse(String                                        SessionStopRequestText,
                                        out SessionStopRequest                        SessionStopRequest,
-                                       CustomJSONParserDelegate<SessionStopRequest>  CustomSessionStopRequestParser   = null,
+                                       CustomJObjectParserDelegate<SessionStopRequest>  CustomSessionStopRequestParser   = null,
                                        OnExceptionDelegate                           OnException                      = null)
         {
 
@@ -265,8 +265,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         /// </summary>
         /// <param name="CustomSessionStopRequestSerializer">A delegate to serialize custom SessionStop requests.</param>
         /// <param name="CustomUserSerializer">A delegate to serialize custom User JSON objects.</param>
-        public JObject ToJSON(CustomJSONSerializerDelegate<SessionStopRequest>  CustomSessionStopRequestSerializer   = null,
-                              CustomJSONSerializerDelegate<User>                CustomUserSerializer                 = null)
+        public JObject ToJSON(CustomJObjectSerializerDelegate<SessionStopRequest>  CustomSessionStopRequestSerializer   = null,
+                              CustomJObjectSerializerDelegate<User>                CustomUserSerializer                 = null)
         {
 
             var JSON = JSONObject.Create(

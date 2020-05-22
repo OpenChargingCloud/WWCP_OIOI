@@ -380,9 +380,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <param name="CustomStationSerializer">A delegate to serialize custom Station JSON objects.</param>
         /// <param name="CustomAddressSerializer">A delegate to serialize custom Address JSON objects.</param>
         /// <param name="CustomConnectorSerializer">A delegate to serialize custom Connector JSON objects.</param>
-        public JObject ToJSON(CustomJSONSerializerDelegate<Station>    CustomStationSerializer     = null,
-                              CustomJSONSerializerDelegate<Address>    CustomAddressSerializer     = null,
-                              CustomJSONSerializerDelegate<Connector>  CustomConnectorSerializer   = null)
+        public JObject ToJSON(CustomJObjectSerializerDelegate<Station>    CustomStationSerializer     = null,
+                              CustomJObjectSerializerDelegate<Address>    CustomAddressSerializer     = null,
+                              CustomJObjectSerializerDelegate<Connector>  CustomConnectorSerializer   = null)
         {
 
             var JSON = JSONObject.Create(

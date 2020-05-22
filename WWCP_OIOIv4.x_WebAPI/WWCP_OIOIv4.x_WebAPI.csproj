@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="OIOIWebAPI.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Version.cs" />
   </ItemGroup>
@@ -69,6 +70,10 @@
     <ProjectReference Include="..\WWCP_OIOIv4.x\WWCP_OIOIv4.x.csproj">
       <Project>{a8cfdb56-b130-46bd-9136-c4be04a47e47}</Project>
       <Name>WWCP_OIOIv4.x</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WWCP_OIOIv4.x_Adapter\WWCP_OIOIv4.x_Adapter.csproj">
+      <Project>{5A733BC3-1E6F-4D09-9755-1A1C29312983}</Project>
+      <Name>WWCP_OIOIv4.x_Adapter</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

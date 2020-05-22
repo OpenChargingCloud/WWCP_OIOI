@@ -162,7 +162,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// Return a JSON representation of this object.
         /// </summary>
         /// <param name="CustomSessionSerializer">A delegate to serialize custom Session JSON objects.</param>
-        public JObject ToJSON(CustomJSONSerializerDelegate<Session> CustomSessionSerializer = null)
+        public JObject ToJSON(CustomJObjectSerializerDelegate<Session> CustomSessionSerializer = null)
         {
 
             var JSON = JSONObject.Create(

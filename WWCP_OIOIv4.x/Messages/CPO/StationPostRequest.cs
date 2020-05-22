@@ -171,7 +171,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CustomStationPostRequestParser">A delegate to parse custom StationPost requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static StationPostRequest Parse(JObject                                       StationPostRequestJSON,
-                                               CustomJSONParserDelegate<StationPostRequest>  CustomStationPostRequestParser   = null,
+                                               CustomJObjectParserDelegate<StationPostRequest>  CustomStationPostRequestParser   = null,
                                                OnExceptionDelegate                           OnException                      = null)
         {
 
@@ -197,7 +197,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CustomStationPostRequestParser">A delegate to parse custom StationPost requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static StationPostRequest Parse(String                                        StationPostRequestText,
-                                               CustomJSONParserDelegate<StationPostRequest>  CustomStationPostRequestParser   = null,
+                                               CustomJObjectParserDelegate<StationPostRequest>  CustomStationPostRequestParser   = null,
                                                OnExceptionDelegate                           OnException                      = null)
         {
 
@@ -225,7 +225,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static Boolean TryParse(JObject                                       StationPostRequestJSON,
                                        out StationPostRequest                        StationPostRequest,
-                                       CustomJSONParserDelegate<StationPostRequest>  CustomStationPostRequestParser   = null,
+                                       CustomJObjectParserDelegate<StationPostRequest>  CustomStationPostRequestParser   = null,
                                        OnExceptionDelegate                           OnException                      = null)
         {
 
@@ -276,7 +276,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static Boolean TryParse(String                                        StationPostRequestText,
                                        out StationPostRequest                        StationPostRequest,
-                                       CustomJSONParserDelegate<StationPostRequest>  CustomStationPostRequestParser   = null,
+                                       CustomJObjectParserDelegate<StationPostRequest>  CustomStationPostRequestParser   = null,
                                        OnExceptionDelegate                           OnException                      = null)
         {
 
@@ -312,10 +312,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CustomStationSerializer">A delegate to serialize custom Station JSON objects.</param>
         /// <param name="CustomAddressSerializer">A delegate to serialize custom Address JSON objects.</param>
         /// <param name="CustomConnectorSerializer">A delegate to serialize custom Connector JSON objects.</param>
-        public JObject ToJSON(CustomJSONSerializerDelegate<StationPostRequest>  CustomStationPostRequestSerializer   = null,
-                              CustomJSONSerializerDelegate<Station>             CustomStationSerializer              = null,
-                              CustomJSONSerializerDelegate<Address>             CustomAddressSerializer              = null,
-                              CustomJSONSerializerDelegate<Connector>           CustomConnectorSerializer            = null)
+        public JObject ToJSON(CustomJObjectSerializerDelegate<StationPostRequest>  CustomStationPostRequestSerializer   = null,
+                              CustomJObjectSerializerDelegate<Station>             CustomStationSerializer              = null,
+                              CustomJObjectSerializerDelegate<Address>             CustomAddressSerializer              = null,
+                              CustomJObjectSerializerDelegate<Connector>           CustomConnectorSerializer            = null)
         {
 
             var JSON = JSONObject.Create(

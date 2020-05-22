@@ -111,7 +111,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <param name="CustomUserParser">A delegate to parse custom User JSON elements.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static User Parse(JObject                         UserJSON,
-                                 CustomJSONParserDelegate<User>  CustomUserParser   = null,
+                                 CustomJObjectParserDelegate<User>  CustomUserParser   = null,
                                  OnExceptionDelegate             OnException        = null)
         {
 
@@ -137,7 +137,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <param name="CustomUserParser">A delegate to parse custom User JSON elements.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static User Parse(String                          UserText,
-                                 CustomJSONParserDelegate<User>  CustomUserParser   = null,
+                                 CustomJObjectParserDelegate<User>  CustomUserParser   = null,
                                  OnExceptionDelegate             OnException        = null)
         {
 
@@ -165,7 +165,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static Boolean TryParse(String                          UserText,
                                        out User                        User,
-                                       CustomJSONParserDelegate<User>  CustomUserParser   = null,
+                                       CustomJObjectParserDelegate<User>  CustomUserParser   = null,
                                        OnExceptionDelegate             OnException        = null)
         {
 
@@ -203,7 +203,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static Boolean TryParse(JObject                         UserJSON,
                                        out User                        User,
-                                       CustomJSONParserDelegate<User>  CustomUserParser   = null,
+                                       CustomJObjectParserDelegate<User>  CustomUserParser   = null,
                                        OnExceptionDelegate             OnException        = null)
         {
 
@@ -250,7 +250,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// Return a JSON representation of this object.
         /// </summary>
         /// <param name="CustomUserSerializer">A delegate to serialize custom User JSON objects.</param>
-        public JObject ToJSON(CustomJSONSerializerDelegate<User> CustomUserSerializer  = null)
+        public JObject ToJSON(CustomJObjectSerializerDelegate<User> CustomUserSerializer  = null)
         {
 
             var JSON = JSONObject.Create(

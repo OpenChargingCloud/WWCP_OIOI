@@ -222,7 +222,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// Return a JSON representation of this object.
         /// </summary>
         /// <param name="CustomContactSerializer">A delegate to serialize custom Contact JSON objects.</param>
-        public JObject ToJSON(CustomJSONSerializerDelegate<Contact> CustomContactSerializer  = null)
+        public JObject ToJSON(CustomJObjectSerializerDelegate<Contact> CustomContactSerializer  = null)
         {
 
             var JSON = JSONObject.Create(

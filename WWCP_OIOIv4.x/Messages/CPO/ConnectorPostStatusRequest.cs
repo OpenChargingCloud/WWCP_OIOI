@@ -107,7 +107,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CustomConnectorPostStatusRequestParser">A delegate to parse custom ConnectorPostStatus requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static ConnectorPostStatusRequest Parse(JObject                                               ConnectorPostStatusRequestJSON,
-                                                       CustomJSONParserDelegate<ConnectorPostStatusRequest>  CustomConnectorPostStatusRequestParser   = null,
+                                                       CustomJObjectParserDelegate<ConnectorPostStatusRequest>  CustomConnectorPostStatusRequestParser   = null,
                                                        OnExceptionDelegate                                   OnException                              = null)
         {
 
@@ -133,7 +133,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CustomConnectorPostStatusRequestParser">A delegate to parse custom ConnectorPostStatus requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static ConnectorPostStatusRequest Parse(String                                                ConnectorPostStatusRequestText,
-                                                       CustomJSONParserDelegate<ConnectorPostStatusRequest>  CustomConnectorPostStatusRequestParser   = null,
+                                                       CustomJObjectParserDelegate<ConnectorPostStatusRequest>  CustomConnectorPostStatusRequestParser   = null,
                                                        OnExceptionDelegate                                   OnException                              = null)
         {
 
@@ -161,7 +161,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static Boolean TryParse(JObject                                               ConnectorPostStatusRequestJSON,
                                        out ConnectorPostStatusRequest                        ConnectorPostStatusRequest,
-                                       CustomJSONParserDelegate<ConnectorPostStatusRequest>  CustomConnectorPostStatusRequestParser   = null,
+                                       CustomJObjectParserDelegate<ConnectorPostStatusRequest>  CustomConnectorPostStatusRequestParser   = null,
                                        OnExceptionDelegate                                   OnException                              = null)
         {
 
@@ -214,7 +214,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static Boolean TryParse(String                                                ConnectorPostStatusRequestText,
                                        out ConnectorPostStatusRequest                        ConnectorPostStatusRequest,
-                                       CustomJSONParserDelegate<ConnectorPostStatusRequest>  CustomConnectorPostStatusRequestParser   = null,
+                                       CustomJObjectParserDelegate<ConnectorPostStatusRequest>  CustomConnectorPostStatusRequestParser   = null,
                                        OnExceptionDelegate                                   OnException                              = null)
         {
 
@@ -247,7 +247,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// Return a JSON representation of this object.
         /// </summary>
         /// <param name="CustomConnectorPostStatusRequestSerializer">A delegate to serialize custom ConnectorPostStatus request.</param>
-        public JObject ToJSON(CustomJSONSerializerDelegate<ConnectorPostStatusRequest>  CustomConnectorPostStatusRequestSerializer   = null)
+        public JObject ToJSON(CustomJObjectSerializerDelegate<ConnectorPostStatusRequest>  CustomConnectorPostStatusRequestSerializer   = null)
         {
 
             var JSON = JSONObject.Create(

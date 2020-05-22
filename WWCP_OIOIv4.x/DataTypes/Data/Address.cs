@@ -125,7 +125,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <param name="CustomAddressParser">A delegate to parse custom Address JSON elements.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static Address Parse(JObject                            AddressJSON,
-                                    CustomJSONParserDelegate<Address>  CustomAddressParser   = null,
+                                    CustomJObjectParserDelegate<Address>  CustomAddressParser   = null,
                                     OnExceptionDelegate                OnException           = null)
         {
 
@@ -151,7 +151,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <param name="CustomAddressParser">A delegate to parse custom Address JSON elements.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static Address Parse(String                             AddressText,
-                                    CustomJSONParserDelegate<Address>  CustomAddressParser   = null,
+                                    CustomJObjectParserDelegate<Address>  CustomAddressParser   = null,
                                     OnExceptionDelegate                OnException           = null)
         {
 
@@ -179,7 +179,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static Boolean TryParse(String                             AddressText,
                                        out Address                        Address,
-                                       CustomJSONParserDelegate<Address>  CustomAddressParser   = null,
+                                       CustomJObjectParserDelegate<Address>  CustomAddressParser   = null,
                                        OnExceptionDelegate                OnException           = null)
         {
 
@@ -217,7 +217,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static Boolean TryParse(JObject                            AddressJSON,
                                        out Address                        Address,
-                                       CustomJSONParserDelegate<Address>  CustomAddressParser   = null,
+                                       CustomJObjectParserDelegate<Address>  CustomAddressParser   = null,
                                        OnExceptionDelegate                OnException           = null)
         {
 
@@ -264,7 +264,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// Return a JSON representation of this object.
         /// </summary>
         /// <param name="CustomAddressSerializer">A delegate to serialize custom Address JSON objects.</param>
-        public JObject ToJSON(CustomJSONSerializerDelegate<Address> CustomAddressSerializer  = null)
+        public JObject ToJSON(CustomJObjectSerializerDelegate<Address> CustomAddressSerializer  = null)
         {
 
             var JSON = JSONObject.Create(

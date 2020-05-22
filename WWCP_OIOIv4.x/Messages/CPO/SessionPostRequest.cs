@@ -113,7 +113,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CustomSessionPostRequestParser">A delegate to parse custom SessionPost requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static SessionPostRequest Parse(JObject                                       SessionPostRequestJSON,
-                                               CustomJSONParserDelegate<SessionPostRequest>  CustomSessionPostRequestParser   = null,
+                                               CustomJObjectParserDelegate<SessionPostRequest>  CustomSessionPostRequestParser   = null,
                                                OnExceptionDelegate                           OnException                      = null)
         {
 
@@ -139,7 +139,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CustomSessionPostRequestParser">A delegate to parse custom SessionPost requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static SessionPostRequest Parse(String                                        SessionPostRequestText,
-                                               CustomJSONParserDelegate<SessionPostRequest>  CustomSessionPostRequestParser   = null,
+                                               CustomJObjectParserDelegate<SessionPostRequest>  CustomSessionPostRequestParser   = null,
                                                OnExceptionDelegate                           OnException                      = null)
         {
 
@@ -167,7 +167,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static Boolean TryParse(JObject                                       SessionPostRequestJSON,
                                        out SessionPostRequest                        SessionPostRequest,
-                                       CustomJSONParserDelegate<SessionPostRequest>  CustomSessionPostRequestParser   = null,
+                                       CustomJObjectParserDelegate<SessionPostRequest>  CustomSessionPostRequestParser   = null,
                                        OnExceptionDelegate                           OnException                      = null)
         {
 
@@ -215,7 +215,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static Boolean TryParse(String                                        SessionPostRequestText,
                                        out SessionPostRequest                        SessionPostRequest,
-                                       CustomJSONParserDelegate<SessionPostRequest>  CustomSessionPostRequestParser   = null,
+                                       CustomJObjectParserDelegate<SessionPostRequest>  CustomSessionPostRequestParser   = null,
                                        OnExceptionDelegate                           OnException                      = null)
         {
 
@@ -249,8 +249,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// </summary>
         /// <param name="CustomSessionPostRequestSerializer">A delegate to serialize custom CustomSessionPost requests.</param>
         /// <param name="CustomSessionSerializer">A delegate to serialize custom Session JSON objects.</param>
-        public JObject ToJSON(CustomJSONSerializerDelegate<SessionPostRequest>  CustomSessionPostRequestSerializer   = null,
-                              CustomJSONSerializerDelegate<Session>             CustomSessionSerializer              = null)
+        public JObject ToJSON(CustomJObjectSerializerDelegate<SessionPostRequest>  CustomSessionPostRequestSerializer   = null,
+                              CustomJObjectSerializerDelegate<Session>             CustomSessionSerializer              = null)
         {
 
             var JSON = JSONObject.Create(

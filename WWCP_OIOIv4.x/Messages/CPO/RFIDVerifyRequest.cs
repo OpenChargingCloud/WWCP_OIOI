@@ -97,7 +97,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CustomRFIDVerifyRequestParser">A delegate to parse custom RFIDVerify requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static RFIDVerifyRequest Parse(JObject                                      RFIDVerifyRequestJSON,
-                                              CustomJSONParserDelegate<RFIDVerifyRequest>  CustomRFIDVerifyRequestParser   = null,
+                                              CustomJObjectParserDelegate<RFIDVerifyRequest>  CustomRFIDVerifyRequestParser   = null,
                                               OnExceptionDelegate                          OnException                     = null)
         {
 
@@ -123,7 +123,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="CustomRFIDVerifyRequestParser">A delegate to parse custom RFIDVerify requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static RFIDVerifyRequest Parse(String                                       RFIDVerifyRequestText,
-                                              CustomJSONParserDelegate<RFIDVerifyRequest>  CustomRFIDVerifyRequestParser   = null,
+                                              CustomJObjectParserDelegate<RFIDVerifyRequest>  CustomRFIDVerifyRequestParser   = null,
                                               OnExceptionDelegate                          OnException                     = null)
         {
 
@@ -151,7 +151,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static Boolean TryParse(JObject                                      RFIDVerifyRequestJSON,
                                        out RFIDVerifyRequest                        RFIDVerifyRequest,
-                                       CustomJSONParserDelegate<RFIDVerifyRequest>  CustomRFIDVerifyRequestParser   = null,
+                                       CustomJObjectParserDelegate<RFIDVerifyRequest>  CustomRFIDVerifyRequestParser   = null,
                                        OnExceptionDelegate                          OnException                     = null)
         {
 
@@ -198,7 +198,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static Boolean TryParse(String                                       RFIDVerifyRequestText,
                                        out RFIDVerifyRequest                        RFIDVerifyRequest,
-                                       CustomJSONParserDelegate<RFIDVerifyRequest>  CustomRFIDVerifyRequestParser   = null,
+                                       CustomJObjectParserDelegate<RFIDVerifyRequest>  CustomRFIDVerifyRequestParser   = null,
                                        OnExceptionDelegate                          OnException                     = null)
         {
 
@@ -231,7 +231,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// Return a JSON representation of this object.
         /// </summary>
         /// <param name="CustomSessionRFIDVerifyRequestSerializer">A delegate to serialize custom RFIDVerify requests.</param>
-        public JObject ToJSON(CustomJSONSerializerDelegate<RFIDVerifyRequest>  CustomSessionRFIDVerifyRequestSerializer   = null)
+        public JObject ToJSON(CustomJObjectSerializerDelegate<RFIDVerifyRequest>  CustomSessionRFIDVerifyRequestSerializer   = null)
         {
 
             var JSON = JSONObject.Create(

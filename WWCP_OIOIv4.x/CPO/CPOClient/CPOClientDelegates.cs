@@ -18,7 +18,6 @@
 #region Usings
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 using org.GraphDefined.Vanaheimr.Illias;
@@ -40,7 +39,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                        EventTracking_Id                        EventTrackingId,
                                                        Station                                 Station,
                                                        Partner_Id                              PartnerId,
-                                                       TimeSpan?                               RequestTimeout);
+                                                       TimeSpan                                RequestTimeout);
 
     /// <summary>
     /// A delegate called whenever a charging station had been sent upstream.
@@ -52,9 +51,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                        EventTracking_Id                        EventTrackingId,
                                                        Station                                 Station,
                                                        Partner_Id                              PartnerId,
-                                                       TimeSpan?                               RequestTimeout,
+                                                       TimeSpan                                RequestTimeout,
                                                        StationPostResponse                     Result,
-                                                       TimeSpan                                Duration);
+                                                       TimeSpan                                Runtime);
 
     #endregion
 
@@ -70,7 +69,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                EventTracking_Id               EventTrackingId,
                                                                ConnectorStatus                ConnectorStatus,
                                                                Partner_Id                     PartnerId,
-                                                               TimeSpan?                      RequestTimeout);
+                                                               TimeSpan                       RequestTimeout);
 
     /// <summary>
     /// A delegate called whenever a charging connector status had been sent upstream.
@@ -82,9 +81,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                EventTracking_Id               EventTrackingId,
                                                                ConnectorStatus                ConnectorStatus,
                                                                Partner_Id                     PartnerId,
-                                                               TimeSpan?                      RequestTimeout,
+                                                               TimeSpan                       RequestTimeout,
                                                                ConnectorPostStatusResponse    Result,
-                                                               TimeSpan                       Duration);
+                                                               TimeSpan                       Runtime);
 
     #endregion
 
@@ -99,7 +98,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                       String                                  SenderId,
                                                       EventTracking_Id                        EventTrackingId,
                                                       RFID_Id                                 RFIDId,
-                                                      TimeSpan?                               RequestTimeout);
+                                                      TimeSpan                                RequestTimeout);
 
     /// <summary>
     /// A delegate called whenever a RFID identification verification had been sent upstream.
@@ -110,9 +109,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                       String                                  SenderId,
                                                       EventTracking_Id                        EventTrackingId,
                                                       RFID_Id                                 RFIDId,
-                                                      TimeSpan?                               RequestTimeout,
+                                                      TimeSpan                                RequestTimeout,
                                                       RFIDVerifyResponse                      Result,
-                                                      TimeSpan                                Duration);
+                                                      TimeSpan                                Runtime);
 
     #endregion
 
@@ -127,7 +126,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                        String                                  SenderId,
                                                        EventTracking_Id                        EventTrackingId,
                                                        Session                                 Session,
-                                                       TimeSpan?                               RequestTimeout);
+                                                       TimeSpan                                RequestTimeout);
 
     /// <summary>
     /// A delegate called whenever a charging session had been sent upstream.
@@ -138,9 +137,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                        String                                  SenderId,
                                                        EventTracking_Id                        EventTrackingId,
                                                        Session                                 Session,
-                                                       TimeSpan?                               RequestTimeout,
+                                                       TimeSpan                                RequestTimeout,
                                                        SessionPostResponse                     Result,
-                                                       TimeSpan                                Duration);
+                                                       TimeSpan                                Runtime);
 
     #endregion
 
