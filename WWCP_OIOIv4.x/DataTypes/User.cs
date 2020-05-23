@@ -108,7 +108,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// Parse the given JSON representation of an OIOI user.
         /// </summary>
         /// <param name="UserJSON">The JSON to parse.</param>
-        /// <param name="CustomUserParser">A delegate to parse custom User JSON elements.</param>
+        /// <param name="CustomUserParser">A delegate to parse custom User JSON objects.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static User Parse(JObject                         UserJSON,
                                  CustomJObjectParserDelegate<User>  CustomUserParser   = null,
@@ -134,7 +134,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// Parse the given text representation of an OIOI user.
         /// </summary>
         /// <param name="UserText">The text to parse.</param>
-        /// <param name="CustomUserParser">A delegate to parse custom User JSON elements.</param>
+        /// <param name="CustomUserParser">A delegate to parse custom User JSON objects.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static User Parse(String                          UserText,
                                  CustomJObjectParserDelegate<User>  CustomUserParser   = null,
@@ -161,7 +161,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// </summary>
         /// <param name="UserText">The text to parse.</param>
         /// <param name="User">The parsed user.</param>
-        /// <param name="CustomUserParser">A delegate to parse custom User JSON elements.</param>
+        /// <param name="CustomUserParser">A delegate to parse custom User JSON objects.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static Boolean TryParse(String                          UserText,
                                        out User                        User,
@@ -199,7 +199,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// </summary>
         /// <param name="UserJSON">The JSON to parse.</param>
         /// <param name="User">The parsed user.</param>
-        /// <param name="CustomUserParser">A delegate to parse custom User JSON elements.</param>
+        /// <param name="CustomUserParser">A delegate to parse custom User JSON objects.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static Boolean TryParse(JObject                         UserJSON,
                                        out User                        User,

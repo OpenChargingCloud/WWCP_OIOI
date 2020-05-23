@@ -24,6 +24,7 @@ using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
+using org.GraphDefined.Vanaheimr.Hermod.JSON;
 
 #endregion
 
@@ -210,6 +211,35 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                            ResponseCodes.InvalidResponseFormat,
                                            JSONResponse?.ToString(),
                                            CustomData);
+
+
+        #region ToJSON(CustomRFIDVerifyResponseSerializer = null)
+
+        /// <summary>
+        /// Return a JSON representation of this object.
+        /// </summary>
+        /// <param name="CustomRFIDVerifyResponseSerializer">A delegate to serialize custom RFIDVerifyResponse JSON objects.</param>
+        public JObject ToJSON(CustomJObjectSerializerDelegate<RFIDVerifyResponse> CustomRFIDVerifyResponseSerializer   = null)
+
+        {
+
+            var JSON = JSONObject.Create(
+
+                           new JProperty("code",           Code.ToString()),
+
+                           Message.IsNotNullOrEmpty()
+                               ? new JProperty("message",  Message)
+                               : null
+
+                       );
+
+            return CustomRFIDVerifyResponseSerializer != null
+                       ? CustomRFIDVerifyResponseSerializer(this, JSON)
+                       : JSON;
+
+        }
+
+        #endregion
 
 
         #region Operator overloading

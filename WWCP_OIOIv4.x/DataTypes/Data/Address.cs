@@ -122,7 +122,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// Parse the given JSON representation of an OIOI address.
         /// </summary>
         /// <param name="AddressJSON">The JSON to parse.</param>
-        /// <param name="CustomAddressParser">A delegate to parse custom Address JSON elements.</param>
+        /// <param name="CustomAddressParser">A delegate to parse custom Address JSON objects.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static Address Parse(JObject                            AddressJSON,
                                     CustomJObjectParserDelegate<Address>  CustomAddressParser   = null,
@@ -148,7 +148,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// Parse the given text representation of an OIOI address.
         /// </summary>
         /// <param name="AddressText">The text to parse.</param>
-        /// <param name="CustomAddressParser">A delegate to parse custom Address JSON elements.</param>
+        /// <param name="CustomAddressParser">A delegate to parse custom Address JSON objects.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static Address Parse(String                             AddressText,
                                     CustomJObjectParserDelegate<Address>  CustomAddressParser   = null,
@@ -175,7 +175,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// </summary>
         /// <param name="AddressText">The text to parse.</param>
         /// <param name="Address">The parsed address.</param>
-        /// <param name="CustomAddressParser">A delegate to parse custom Address JSON elements.</param>
+        /// <param name="CustomAddressParser">A delegate to parse custom Address JSON objects.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static Boolean TryParse(String                             AddressText,
                                        out Address                        Address,
@@ -213,7 +213,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// </summary>
         /// <param name="AddressJSON">The JSON to parse.</param>
         /// <param name="Address">The parsed address.</param>
-        /// <param name="CustomAddressParser">A delegate to parse custom Address JSON elements.</param>
+        /// <param name="CustomAddressParser">A delegate to parse custom Address JSON objects.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static Boolean TryParse(JObject                            AddressJSON,
                                        out Address                        Address,

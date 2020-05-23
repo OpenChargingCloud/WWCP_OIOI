@@ -329,6 +329,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.WebAPI
 
             _CPOAdapters.Add(CPOAdapter);
 
+            #region OnRFIDVerifyRequest/-Response
+
             CPOAdapter.CPOClient.OnRFIDVerifyRequest += async  (LogTimestamp,
                                                                 RequestTimestamp,
                                                                 Sender,
@@ -337,30 +339,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.WebAPI
                                                                 RFIDId,
                                                                 RequestTimeout) => await DebugLog.SubmitEvent("RFIDVerifyRequest",
                                                                                                               JSONObject.Create(
-                                                                                                                  new JProperty("timestamp",                   RequestTimestamp.    ToIso8601()),
-                                                                                                                  new JProperty("eventTrackingId",             EventTrackingId.     ToString()),
-                                                                                                                  //new JProperty("roamingNetworkId",            RoamingNetworkId.    ToString()),
-                                                                                                                  //EMPRoamingProviderId.HasValue
-                                                                                                                  //    ? new JProperty("EMPRoamingProviderId",  EMPRoamingProviderId.ToString())
-                                                                                                                  //    : null,
-                                                                                                                  //CSORoamingProviderId.HasValue
-                                                                                                                  //    ? new JProperty("CSORoamingProviderId",  CSORoamingProviderId.ToString())
-                                                                                                                  //    : null,
-                                                                                                                  //OperatorId.    HasValue
-                                                                                                                  //    ? new JProperty("operatorId",            OperatorId.          ToString())
-                                                                                                                  //    : null,
-                                                                                                                  new JProperty("RFIDId",                        RFIDId.              ToString()),
-                                                                                                                  //ChargingLocation.IsDefined()
-                                                                                                                  //    ? new JProperty("chargingLocation",      ChargingLocation.    ToJSON())
-                                                                                                                  //    : null,
-                                                                                                                  //ChargingProduct != null
-                                                                                                                  //    ? new JProperty("chargingProduct",       ChargingProduct.     ToJSON())
-                                                                                                                  //    : null,
-                                                                                                                  //SessionId.     HasValue
-                                                                                                                  //    ? new JProperty("sessionId",             SessionId.           ToString())
-                                                                                                                  //    : null,
-                                                                                                                  new JProperty("requestTimeout",        Math.Round(RequestTimeout.TotalSeconds, 0))
-                                                                                                           ));;
+                                                                                                                  new JProperty("timestamp",        RequestTimestamp.ToIso8601()),
+                                                                                                                  new JProperty("eventTrackingId",  EventTrackingId. ToString()),
+                                                                                                                  new JProperty("RFIDId",           RFIDId.          ToString()),
+                                                                                                                  new JProperty("requestTimeout",   Math.Round(RequestTimeout.TotalSeconds, 0))
+                                                                                                             ));
 
             CPOAdapter.CPOClient.OnRFIDVerifyResponse += async (LogTimestamp,
                                                                 RequestTimestamp,
@@ -371,34 +354,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.WebAPI
                                                                 RequestTimeout,
                                                                 Result,
                                                                 Runtime) => await DebugLog.SubmitEvent("RFIDVerifyResponse",
-                                                                                               JSONObject.Create(
-                                                                                                   new JProperty("timestamp",                   RequestTimestamp.    ToIso8601()),
-                                                                                                   new JProperty("eventTrackingId",             EventTrackingId.     ToString()),
-                                                                                                   //new JProperty("roamingNetworkId",            RoamingNetwork.Id.   ToString()),
-                                                                                                   //EMPRoamingProviderId.HasValue
-                                                                                                   //    ? new JProperty("EMPRoamingProviderId",  EMPRoamingProviderId.ToString())
-                                                                                                   //    : null,
-                                                                                                   //CSORoamingProviderId.HasValue
-                                                                                                   //    ? new JProperty("CSORoamingProviderId",  CSORoamingProviderId.ToString())
-                                                                                                   //    : null,
-                                                                                                   //OperatorId.HasValue
-                                                                                                   //    ? new JProperty("operatorId",            OperatorId.          ToString())
-                                                                                                   //    : null,
-                                                                                                   new JProperty("RFIDId",                        RFIDId.      ToString()),
-                                                                                                   //ChargingLocation.IsDefined()
-                                                                                                   //    ? new JProperty("chargingLocation",      ChargingLocation.    ToJSON())
-                                                                                                   //    : null,
-                                                                                                   //ChargingProduct != null
-                                                                                                   //    ? new JProperty("chargingProduct",       ChargingProduct.     ToJSON())
-                                                                                                   //    : null,
-                                                                                                   //SessionId.HasValue
-                                                                                                   //    ? new JProperty("sessionId",             SessionId.           ToString())
-                                                                                                   //    : null,
-                                                                                                   new JProperty("requestTimeout",              Math.Round(RequestTimeout.TotalSeconds, 0)),
-                                                                                                   new JProperty("result",                      Result.              ToJSON()),
-                                                                                                   new JProperty("runtime",                     Math.Round(Runtime.TotalMilliseconds, 0))
+                                                                                                       JSONObject.Create(
+                                                                                                           new JProperty("timestamp",        RequestTimestamp.ToIso8601()),
+                                                                                                           new JProperty("eventTrackingId",  EventTrackingId. ToString()),
+                                                                                                           new JProperty("RFIDId",           RFIDId.          ToString()),
+                                                                                                           new JProperty("requestTimeout",   Math.Round(RequestTimeout.TotalSeconds, 0)),
+                                                                                                           new JProperty("result",           Result.          ToJSON()),
+                                                                                                           new JProperty("runtime",          Math.Round(Runtime.TotalMilliseconds, 0))
+                                                                                                       ));
 
-                                                                                               ));
+            #endregion
 
         }
 

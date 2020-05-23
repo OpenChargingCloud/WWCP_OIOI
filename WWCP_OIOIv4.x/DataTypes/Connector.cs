@@ -102,7 +102,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// Parse the given JSON representation of an OIOI connector.
         /// </summary>
         /// <param name="ConnectorJSON">The JSON to parse.</param>
-        /// <param name="CustomConnectorParser">A delegate to parse custom Connector JSON elements.</param>
+        /// <param name="CustomConnectorParser">A delegate to parse custom Connector JSON objects.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static Connector Parse(JObject                              ConnectorJSON,
                                       CustomJObjectParserDelegate<Connector>  CustomConnectorParser   = null,
@@ -128,7 +128,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// Parse the given text representation of an OIOI connector.
         /// </summary>
         /// <param name="ConnectorText">The text to parse.</param>
-        /// <param name="CustomConnectorParser">A delegate to parse custom Connector JSON elements.</param>
+        /// <param name="CustomConnectorParser">A delegate to parse custom Connector JSON objects.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static Connector Parse(String                               ConnectorText,
                                       CustomJObjectParserDelegate<Connector>  CustomConnectorParser   = null,
@@ -155,7 +155,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// </summary>
         /// <param name="ConnectorJSON">The JSON to parse.</param>
         /// <param name="Connector">The parsed connector.</param>
-        /// <param name="CustomConnectorParser">A delegate to parse custom Connector JSON elements.</param>
+        /// <param name="CustomConnectorParser">A delegate to parse custom Connector JSON objects.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static Boolean TryParse(JObject                              ConnectorJSON,
                                        out Connector                        Connector,
@@ -207,7 +207,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// </summary>
         /// <param name="ConnectorText">The text to parse.</param>
         /// <param name="Connector">The parsed connector.</param>
-        /// <param name="CustomConnectorParser">A delegate to parse custom Connector JSON elements.</param>
+        /// <param name="CustomConnectorParser">A delegate to parse custom Connector JSON objects.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
         public static Boolean TryParse(String                               ConnectorText,
                                        out Connector                        Connector,
