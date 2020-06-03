@@ -129,29 +129,41 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         #region Documentation
 
         // {
+        //     "session-post": {
         //
-        //     "user": {
-        //         "identifier":       "12345678",
-        //         "identifier-type":  "rfid"
-        //     },
+        //         "user": {
+        //             "identifier":        "12345678",
+        //             "identifier-type":   "rfid"
+        //         },
         //
-        //     "session-id":    "abcdef-123456-abc123-456def",
-        //     "connector-id":  "DE*8PS*TABCDE*1",
+        //         "session-id":            "abcdef-123456-abc123-456def",
+        //         "connector-id":          "DE*8PS*ETABCD*1",
         //
-        //     "session-interval": {
-        //         "start":  "2010-01-01T11:00:00+00:00",
-        //         "stop":   "2010-01-01T17:00:00+00:00"
-        //     },
+        //         "session-interval": {
+        //             "start":             "2010-01-01T11:00:00+00:00",
+        //             "stop":              "2010-01-01T17:00:00+00:00"
+        //         },
         //
-        //     "charging-interval": {
-        //         "start":  "2010-01-01T12:00:00+00:00",
-        //         "stop":   "2010-01-01T16:00:00+00:00"
-        //     },
+        //         "charging-interval": {
+        //             "start":             "2010-01-01T12:00:00+00:00",
+        //             "stop":              "2010-01-01T16:00:00+00:00"
+        //         },
         //
-        //     "energy-consumed":     16.5,
+        //         "energy-consumed":       16.5,
         //
-        //     "partner-identifier":  "123456-123456-abcdef-abc123-456def"
+        //         "calculated-cost": {
+        //             "amount":            14.32,
+        //             "currency":          "EUR"
+        //         },
         //
+        //         "meter-value-signed": {
+        //             "start":             "start-signed-value",
+        //             "end":               "end-signed-value"
+        //         },
+        //
+        //         "partner-identifier":    "123456-123456-abcdef-abc123-456def"
+        //
+        //     }
         // }
 
         #endregion

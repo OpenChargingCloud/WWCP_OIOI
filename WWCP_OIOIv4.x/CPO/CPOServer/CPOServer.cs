@@ -440,7 +440,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  #region Parse 'user/identifier-type'
 
                                                  if (!UserJSON.ParseMandatory("identifier-type",
-                                                                              s => s.AsIdentifierTypes(),
+                                                                              s => s.AsIdentifierType(),
                                                                               IdentifierTypes.Unknown,
                                                                               out IdentifierType))
                                                  {
@@ -712,7 +712,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  #region Parse 'user/identifier-type'
 
                                                  if (!UserJSON.ParseMandatory("identifier-type",
-                                                                              s => s.AsIdentifierTypes(),
+                                                                              s => s.AsIdentifierType(),
                                                                               IdentifierTypes.Unknown,
                                                                               out IdentifierType))
                                                      return SendSessionStopResponse(request,

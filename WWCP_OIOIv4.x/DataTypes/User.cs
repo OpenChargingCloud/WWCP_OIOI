@@ -110,17 +110,17 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <param name="UserJSON">The JSON to parse.</param>
         /// <param name="CustomUserParser">A delegate to parse custom User JSON objects.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static User Parse(JObject                         UserJSON,
+        public static User Parse(JObject                            UserJSON,
                                  CustomJObjectParserDelegate<User>  CustomUserParser   = null,
-                                 OnExceptionDelegate             OnException        = null)
+                                 OnExceptionDelegate                OnException        = null)
         {
 
             if (TryParse(UserJSON,
-                         out User _User,
+                         out User user,
                          CustomUserParser,
                          OnException))
 
-                return _User;
+                return user;
 
             return null;
 
@@ -136,17 +136,17 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <param name="UserText">The text to parse.</param>
         /// <param name="CustomUserParser">A delegate to parse custom User JSON objects.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static User Parse(String                          UserText,
+        public static User Parse(String                             UserText,
                                  CustomJObjectParserDelegate<User>  CustomUserParser   = null,
-                                 OnExceptionDelegate             OnException        = null)
+                                 OnExceptionDelegate                OnException        = null)
         {
 
             if (TryParse(UserText,
-                         out User _User,
+                         out User user,
                          CustomUserParser,
                          OnException))
 
-                return _User;
+                return user;
 
             return null;
 
@@ -163,10 +163,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <param name="User">The parsed user.</param>
         /// <param name="CustomUserParser">A delegate to parse custom User JSON objects.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static Boolean TryParse(String                          UserText,
-                                       out User                        User,
+        public static Boolean TryParse(String                             UserText,
+                                       out User                           User,
                                        CustomJObjectParserDelegate<User>  CustomUserParser   = null,
-                                       OnExceptionDelegate             OnException        = null)
+                                       OnExceptionDelegate                OnException        = null)
         {
 
             try
@@ -201,10 +201,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <param name="User">The parsed user.</param>
         /// <param name="CustomUserParser">A delegate to parse custom User JSON objects.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static Boolean TryParse(JObject                         UserJSON,
-                                       out User                        User,
+        public static Boolean TryParse(JObject                            UserJSON,
+                                       out User                           User,
                                        CustomJObjectParserDelegate<User>  CustomUserParser   = null,
-                                       OnExceptionDelegate             OnException        = null)
+                                       OnExceptionDelegate                OnException        = null)
         {
 
             try
@@ -215,7 +215,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
                                                            "Invalid or missing JSON property 'identifier'!"),
 
                                 UserJSON.MapValueOrFail   ("identifier-type",
-                                                           value => value.Value<String>().AsIdentifierTypes(),
+                                                           value => value.Value<String>().AsIdentifierType(),
                                                            "Invalid or missing JSON property 'identifier-type'!"),
 
                                 UserJSON.MapValueOrDefault("token",
@@ -256,11 +256,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
             var JSON = JSONObject.Create(
 
                            new JProperty("identifier",       Identifier),
-                           new JProperty("identifier-type",  IdentifierType.ToString().ToLower()),
+                           new JProperty("identifier-type",  IdentifierType.ToText()),
 
                            Token.IsNotNullOrEmpty()
-                               ? new JProperty("speed",      Token)
+                               ? new JProperty("token",      Token)
                                : null
+
                        );
 
             return CustomUserSerializer != null

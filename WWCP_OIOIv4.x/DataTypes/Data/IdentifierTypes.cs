@@ -15,8 +15,90 @@
  * limitations under the License.
  */
 
+#region Usings
+
+using System;
+
+#endregion
+
 namespace org.GraphDefined.WWCP.OIOIv4_x
 {
+
+    /// <summary>
+    /// Extention methods for identifier types.
+    /// </summary>
+    public static class IdentifierTypesExtentions
+    {
+
+        #region ToText(this IdentifierType)
+
+        /// <summary>
+        /// Return a text representation of the given identifier type.
+        /// </summary>
+        /// <param name="IdentifierType">An identifier type.</param>
+        public static String ToText(this IdentifierTypes IdentifierType)
+        {
+
+            switch (IdentifierType)
+            {
+
+                case IdentifierTypes.EVCOId:
+                    return "evco-id";
+
+                case IdentifierTypes.RFID:
+                    return "rfid";
+
+                case IdentifierTypes.Username:
+                    return "username";
+
+                case IdentifierTypes.Token:
+                    return "token";
+
+                default:
+                    return "unknown";
+
+            }
+
+        }
+
+        #endregion
+
+        #region AsIdentifierType(this Text)
+
+        /// <summary>
+        /// Parse the text representation of the given identifier type.
+        /// </summary>
+        /// <param name="Text">A text representation of an identifier type.</param>
+        public static IdentifierTypes AsIdentifierType(this String Text)
+        {
+
+            switch (Text.ToLower())
+            {
+
+                case "evco-id":
+                    return IdentifierTypes.EVCOId;
+
+                case "rfid":
+                    return IdentifierTypes.RFID;
+
+                case "username":
+                    return IdentifierTypes.Username;
+
+                case "token":
+                    return IdentifierTypes.Token;
+
+                default:
+                    return IdentifierTypes.Unknown;
+
+            }
+
+        }
+
+        #endregion
+
+    }
+
+
 
     /// <summary>
     /// OIOI Identifier types.
@@ -30,19 +112,24 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         Unknown,
 
         /// <summary>
-        /// EVCO Identification.
+        /// EVCO Identification
         /// </summary>
         EVCOId,
 
         /// <summary>
-        /// RFID Identification.
+        /// RFID Identification
         /// </summary>
         RFID,
 
         /// <summary>
-        /// Username (with password).
+        /// Username (with password)
         /// </summary>
-        Username
+        Username,
+
+        /// <summary>
+        /// Token
+        /// </summary>
+        Token
 
     }
 

@@ -32,58 +32,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
     public static class JSON_IO
     {
 
-        #region IdentifierTypes
-
-        public static IdentifierTypes AsIdentifierTypes(this String Text)
-        {
-
-            if (Text.IsNullOrEmpty())
-                return IdentifierTypes.Unknown;
-
-            switch (Text)
-            {
-
-                case "evco-id":
-                    return IdentifierTypes.EVCOId;
-
-                case "rfid":
-                    return IdentifierTypes.RFID;
-
-                case "username":
-                    return IdentifierTypes.Username;
-
-                default:
-                    return IdentifierTypes.Unknown;
-
-            }
-
-        }
-
-        public static String AsText(this IdentifierTypes IdentifierType)
-        {
-
-            switch (IdentifierType)
-            {
-
-                case IdentifierTypes.EVCOId:
-                    return "evco-id";
-
-                case IdentifierTypes.RFID:
-                    return "rfid";
-
-                case IdentifierTypes.Username:
-                    return "username";
-
-                default:
-                    return "unknown";
-
-            }
-
-        }
-
-        #endregion
-
-
         #region ConnectorStatusTypes
 
         public static ConnectorStatusTypes AsConnectorStatusType(this String Text)
