@@ -4188,9 +4188,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 Endtime  = DateTime.UtcNow;
                 Runtime  = Endtime - StartTime;
 
-                if (response.HTTPStatusCode == HTTPStatusCode.OK &&
-                    response.Content        != null              &&
-                    response.Content.Code   == ResponseCodes.Success)
+                if (response?.HTTPStatusCode == HTTPStatusCode.OK &&
+                    response?.Content        != null              &&
+                    response?.Content.Code   == ResponseCodes.Success)
                 {
 
                     result = AuthStartResult.Authorized(
@@ -4375,9 +4375,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 Endtime  = DateTime.UtcNow;
                 Runtime  = Endtime - StartTime;
 
-                if (response.HTTPStatusCode == HTTPStatusCode.OK &&
-                    response.Content        != null              &&
-                    response.Content.Code   == ResponseCodes.Success)
+                if (response?.HTTPStatusCode == HTTPStatusCode.OK &&
+                    response?.Content        != null              &&
+                    response?.Content.Code   == ResponseCodes.Success)
                 {
 
                     result = AuthStopResult.Authorized(
