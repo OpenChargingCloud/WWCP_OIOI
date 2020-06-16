@@ -102,7 +102,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         {
 
             // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(ConnectorStatus1, ConnectorStatus2))
+            if (ReferenceEquals(ConnectorStatus1, ConnectorStatus2))
                 return true;
 
             // If one is null, but not both, return false.

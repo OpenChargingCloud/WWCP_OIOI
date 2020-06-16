@@ -183,7 +183,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         {
 
             // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(TokenId1, TokenId2))
+            if (ReferenceEquals(TokenId1, TokenId2))
                 return true;
 
             // If one is null, but not both, return false.

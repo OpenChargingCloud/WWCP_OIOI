@@ -253,7 +253,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         {
 
             // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(SessionStartResponse1, SessionStartResponse2))
+            if (ReferenceEquals(SessionStartResponse1, SessionStartResponse2))
                 return true;
 
             // If one is null, but not both, return false.

@@ -227,7 +227,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         {
 
             // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(SessionPostResponse1, SessionPostResponse2))
+            if (ReferenceEquals(SessionPostResponse1, SessionPostResponse2))
                 return true;
 
             // If one is null, but not both, return false.

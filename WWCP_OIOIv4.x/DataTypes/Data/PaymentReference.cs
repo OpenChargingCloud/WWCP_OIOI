@@ -184,7 +184,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         {
 
             // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(PaymentReference1, PaymentReference2))
+            if (ReferenceEquals(PaymentReference1, PaymentReference2))
                 return true;
 
             // If one is null, but not both, return false.

@@ -256,7 +256,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         {
 
             // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(RFIDVerifyResponse1, RFIDVerifyResponse2))
+            if (ReferenceEquals(RFIDVerifyResponse1, RFIDVerifyResponse2))
                 return true;
 
             // If one is null, but not both, return false.

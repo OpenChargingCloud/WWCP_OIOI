@@ -32,7 +32,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 {
 
     /// <summary>
-    /// An OIOI station post request.
+    /// A station post request.
     /// </summary>
     public class StationPostRequest : ARequest<StationPostRequest>
     {
@@ -78,14 +78,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         {
 
-            #region Initial checks
-
-            if (Station == null)
-                throw new ArgumentNullException(nameof(Station), "The given charging station must not be null!");
-
-            #endregion
-
-            this.Station            = Station;
+            this.Station            = Station ?? throw new ArgumentNullException(nameof(Station), "The given charging station must not be null!");
             this.PartnerIdentifier  = PartnerIdentifier;
 
         }
@@ -170,17 +163,18 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="StationPostRequestJSON">The JSON to parse.</param>
         /// <param name="CustomStationPostRequestParser">A delegate to parse custom StationPost requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static StationPostRequest Parse(JObject                                       StationPostRequestJSON,
+        public static StationPostRequest Parse(JObject                                          StationPostRequestJSON,
                                                CustomJObjectParserDelegate<StationPostRequest>  CustomStationPostRequestParser   = null,
-                                               OnExceptionDelegate                           OnException                      = null)
+                                               OnExceptionDelegate                              OnException                      = null)
         {
 
             if (TryParse(StationPostRequestJSON,
-                         out StationPostRequest _StationPostRequest,
+                         out StationPostRequest stationPostRequest,
                          CustomStationPostRequestParser,
                          OnException))
-
-                return _StationPostRequest;
+            {
+                return stationPostRequest;
+            }
 
             return null;
 
@@ -196,17 +190,18 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="StationPostRequestText">The text to parse.</param>
         /// <param name="CustomStationPostRequestParser">A delegate to parse custom StationPost requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static StationPostRequest Parse(String                                        StationPostRequestText,
+        public static StationPostRequest Parse(String                                           StationPostRequestText,
                                                CustomJObjectParserDelegate<StationPostRequest>  CustomStationPostRequestParser   = null,
-                                               OnExceptionDelegate                           OnException                      = null)
+                                               OnExceptionDelegate                              OnException                      = null)
         {
 
             if (TryParse(StationPostRequestText,
-                         out StationPostRequest _StationPostRequest,
+                         out StationPostRequest stationPostRequest,
                          CustomStationPostRequestParser,
                          OnException))
-
-                return _StationPostRequest;
+            {
+                return stationPostRequest;
+            }
 
             return null;
 
@@ -223,18 +218,18 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="StationPostRequest">The parsed station post request.</param>
         /// <param name="CustomStationPostRequestParser">A delegate to parse custom StationPost requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static Boolean TryParse(JObject                                       StationPostRequestJSON,
-                                       out StationPostRequest                        StationPostRequest,
+        public static Boolean TryParse(JObject                                          StationPostRequestJSON,
+                                       out StationPostRequest                           StationPostRequest,
                                        CustomJObjectParserDelegate<StationPostRequest>  CustomStationPostRequestParser   = null,
-                                       OnExceptionDelegate                           OnException                      = null)
+                                       OnExceptionDelegate                              OnException                      = null)
         {
 
             try
             {
 
-                var StationPost  = StationPostRequestJSON["station-post"];
-                var Station      = StationPost["station"];
-                var PartnerId    = StationPost["partner-identifier"];
+                var StationPostJSON  = StationPostRequestJSON["station-post"];
+                var Station          = StationPostJSON["station"];
+                var PartnerId        = StationPostJSON["partner-identifier"];
 
                 StationPostRequest = new StationPostRequest(
 
@@ -274,10 +269,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="StationPostRequest">The parsed station post request.</param>
         /// <param name="CustomStationPostRequestParser">A delegate to parse custom StationPost requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static Boolean TryParse(String                                        StationPostRequestText,
-                                       out StationPostRequest                        StationPostRequest,
+        public static Boolean TryParse(String                                           StationPostRequestText,
+                                       out StationPostRequest                           StationPostRequest,
                                        CustomJObjectParserDelegate<StationPostRequest>  CustomStationPostRequestParser   = null,
-                                       OnExceptionDelegate                           OnException                      = null)
+                                       OnExceptionDelegate                              OnException                      = null)
         {
 
             try
@@ -287,8 +282,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                              out StationPostRequest,
                              CustomStationPostRequestParser,
                              OnException))
-
+                {
                     return true;
+                }
 
             }
             catch (Exception e)
@@ -340,42 +336,42 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         #region Operator overloading
 
-        #region Operator == (PushEVSEData1, PushEVSEData2)
+        #region Operator == (StationPost1, StationPost2)
 
         /// <summary>
-        /// Compares two push EVSE data requests for equality.
+        /// Compares two station post requests for equality.
         /// </summary>
-        /// <param name="PushEVSEData1">An push EVSE data request.</param>
-        /// <param name="PushEVSEData2">Another push EVSE data request.</param>
+        /// <param name="StationPost1">An station post request.</param>
+        /// <param name="StationPost2">Another station post request.</param>
         /// <returns>True if both match; False otherwise.</returns>
-        public static Boolean operator == (StationPostRequest PushEVSEData1, StationPostRequest PushEVSEData2)
+        public static Boolean operator == (StationPostRequest StationPost1, StationPostRequest StationPost2)
         {
 
             // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(PushEVSEData1, PushEVSEData2))
+            if (ReferenceEquals(StationPost1, StationPost2))
                 return true;
 
             // If one is null, but not both, return false.
-            if (((Object) PushEVSEData1 == null) || ((Object) PushEVSEData2 == null))
+            if ((StationPost1 is null) || (StationPost2 is null))
                 return false;
 
-            return PushEVSEData1.Equals(PushEVSEData2);
+            return StationPost1.Equals(StationPost2);
 
         }
 
         #endregion
 
-        #region Operator != (PushEVSEData1, PushEVSEData2)
+        #region Operator != (StationPost1, StationPost2)
 
         /// <summary>
-        /// Compares two push EVSE data requests for inequality.
+        /// Compares two station post requests for inequality.
         /// </summary>
-        /// <param name="PushEVSEData1">An push EVSE data request.</param>
-        /// <param name="PushEVSEData2">Another push EVSE data request.</param>
+        /// <param name="StationPost1">An station post request.</param>
+        /// <param name="StationPost2">Another station post request.</param>
         /// <returns>False if both match; True otherwise.</returns>
-        public static Boolean operator != (StationPostRequest PushEVSEData1, StationPostRequest PushEVSEData2)
+        public static Boolean operator != (StationPostRequest StationPost1, StationPostRequest StationPost2)
 
-            => !(PushEVSEData1 == PushEVSEData2);
+            => !(StationPost1 == StationPost2);
 
         #endregion
 
@@ -393,14 +389,13 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         public override Boolean Equals(Object Object)
         {
 
-            if (Object == null)
+            if (Object is null)
                 return false;
 
-            var PushEVSEData = Object as StationPostRequest;
-            if ((Object) PushEVSEData == null)
+            if (!(Object is StationPostRequest StationPostRequest))
                 return false;
 
-            return Equals(PushEVSEData);
+            return Equals(StationPostRequest);
 
         }
 
@@ -416,7 +411,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         public override Boolean Equals(StationPostRequest StationPostRequest)
         {
 
-            if ((Object) StationPostRequest == null)
+            if (StationPostRequest is null)
                 return false;
 
             return Station.          Equals(StationPostRequest.Station) &&

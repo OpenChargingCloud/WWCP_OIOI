@@ -112,17 +112,18 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="SessionPostRequestJSON">The JSON to parse.</param>
         /// <param name="CustomSessionPostRequestParser">A delegate to parse custom SessionPost requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static SessionPostRequest Parse(JObject                                       SessionPostRequestJSON,
+        public static SessionPostRequest Parse(JObject                                          SessionPostRequestJSON,
                                                CustomJObjectParserDelegate<SessionPostRequest>  CustomSessionPostRequestParser   = null,
-                                               OnExceptionDelegate                           OnException                      = null)
+                                               OnExceptionDelegate                              OnException                      = null)
         {
 
             if (TryParse(SessionPostRequestJSON,
-                         out SessionPostRequest _SessionPostRequest,
+                         out SessionPostRequest sessionPostRequest,
                          CustomSessionPostRequestParser,
                          OnException))
-
-                return _SessionPostRequest;
+            {
+                return sessionPostRequest;
+            }
 
             return null;
 
@@ -138,17 +139,18 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="SessionPostRequestText">The text to parse.</param>
         /// <param name="CustomSessionPostRequestParser">A delegate to parse custom SessionPost requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static SessionPostRequest Parse(String                                        SessionPostRequestText,
+        public static SessionPostRequest Parse(String                                           SessionPostRequestText,
                                                CustomJObjectParserDelegate<SessionPostRequest>  CustomSessionPostRequestParser   = null,
-                                               OnExceptionDelegate                           OnException                      = null)
+                                               OnExceptionDelegate                              OnException                      = null)
         {
 
             if (TryParse(SessionPostRequestText,
-                         out SessionPostRequest _SessionPostRequest,
+                         out SessionPostRequest sessionPostRequest,
                          CustomSessionPostRequestParser,
                          OnException))
-
-                return _SessionPostRequest;
+            {
+                return sessionPostRequest;
+            }
 
             return null;
 
@@ -165,16 +167,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="SessionPostRequest">The parsed Session Post request.</param>
         /// <param name="CustomSessionPostRequestParser">A delegate to parse custom SessionPost requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static Boolean TryParse(JObject                                       SessionPostRequestJSON,
-                                       out SessionPostRequest                        SessionPostRequest,
+        public static Boolean TryParse(JObject                                          SessionPostRequestJSON,
+                                       out SessionPostRequest                           SessionPostRequest,
                                        CustomJObjectParserDelegate<SessionPostRequest>  CustomSessionPostRequestParser   = null,
-                                       OnExceptionDelegate                           OnException                      = null)
+                                       OnExceptionDelegate                              OnException                      = null)
         {
 
             try
             {
 
-                var SessionPost = SessionPostRequestJSON["rfid-verify"];
+                //var SessionJSON = Session.TryParse(SessionPostRequestJSON["session-post"] as JObject);
 
                 SessionPostRequest = new SessionPostRequest(
 
@@ -226,8 +228,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                              out SessionPostRequest,
                              CustomSessionPostRequestParser,
                              OnException))
-
+                {
                     return true;
+                }
 
             }
             catch (Exception e)
@@ -280,11 +283,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         {
 
             // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(SessionPost1, SessionPost2))
+            if (ReferenceEquals(SessionPost1, SessionPost2))
                 return true;
 
             // If one is null, but not both, return false.
-            if (((Object) SessionPost1 == null) || ((Object) SessionPost2 == null))
+            if ((SessionPost1 is null) || (SessionPost2 is null))
                 return false;
 
             return SessionPost1.Equals(SessionPost2);
@@ -320,14 +323,13 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         public override Boolean Equals(Object Object)
         {
 
-            if (Object == null)
+            if (Object is null)
                 return false;
 
-            var SessionPost = Object as SessionPostRequest;
-            if ((Object) SessionPost == null)
+            if (!(Object is SessionPostRequest SessionPostRequest))
                 return false;
 
-            return Equals(SessionPost);
+            return Equals(SessionPostRequest);
 
         }
 
@@ -343,7 +345,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         public override Boolean Equals(SessionPostRequest SessionPostRequest)
         {
 
-            if ((Object) SessionPostRequest == null)
+            if (SessionPostRequest is null)
                 return false;
 
             return Session.Equals(SessionPostRequest.Session);

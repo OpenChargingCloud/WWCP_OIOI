@@ -162,7 +162,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 RFIDVerifyRequest = new RFIDVerifyRequest(
 
-                                         RFID_Id.Parse(RFIDVerify["rfid"].Value<String>())
+                                         RFID_Id.Parse(RFIDVerify["rfid"]?.Value<String>())
 
                                      );
 
@@ -262,11 +262,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         {
 
             // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(RFIDVerify1, RFIDVerify2))
+            if (ReferenceEquals(RFIDVerify1, RFIDVerify2))
                 return true;
 
             // If one is null, but not both, return false.
-            if (((Object) RFIDVerify1 == null) || ((Object) RFIDVerify2 == null))
+            if ((RFIDVerify1 is null) || ((object) RFIDVerify2 == null))
                 return false;
 
             return RFIDVerify1.Equals(RFIDVerify2);
@@ -306,11 +306,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             if (Object == null)
                 return false;
 
-            var RFIDVerify = Object as RFIDVerifyRequest;
-            if ((Object) RFIDVerify == null)
+            if (!(Object is RFIDVerifyRequest RFIDVerifyRequest))
                 return false;
 
-            return Equals(RFIDVerify);
+            return Equals(RFIDVerifyRequest);
 
         }
 
@@ -326,7 +325,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         public override Boolean Equals(RFIDVerifyRequest RFIDVerifyRequest)
         {
 
-            if ((Object) RFIDVerifyRequest == null)
+            if (RFIDVerifyRequest is null)
                 return false;
 
             return RFIDId.Equals(RFIDVerifyRequest.RFIDId);

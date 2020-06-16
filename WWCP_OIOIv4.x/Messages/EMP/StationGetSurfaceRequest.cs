@@ -338,7 +338,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         {
 
             // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(StationGetSurface1, StationGetSurface2))
+            if (ReferenceEquals(StationGetSurface1, StationGetSurface2))
                 return true;
 
             // If one is null, but not both, return false.

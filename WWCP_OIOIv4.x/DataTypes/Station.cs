@@ -504,7 +504,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         {
 
             // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(Station1, Station2))
+            if (ReferenceEquals(Station1, Station2))
                 return true;
 
             // If one is null, but not both, return false.
