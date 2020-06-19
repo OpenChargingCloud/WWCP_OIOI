@@ -92,17 +92,17 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <summary>
         /// The default HTTP user agent string.
         /// </summary>
-        public new const           String   DefaultHTTPUserAgent  = "GraphDefined OIOI " + Version.Number + " CPO Client";
+        public new const           String    DefaultHTTPUserAgent  = "GraphDefined OIOI " + Version.Number + " CPO Client";
 
         /// <summary>
         /// The default remote TCP port to connect to.
         /// </summary>
-        public new static readonly IPPort   DefaultRemotePort     = IPPort.Parse(443);
+        public new static readonly IPPort    DefaultRemotePort     = IPPort.Parse(443);
 
         /// <summary>
         /// The default HTTP client URI prefix.
         /// </summary>
-        public     static readonly HTTPPath  DefaultURIPrefix      = HTTPPath.Parse("/api/v4/request");
+        public     static readonly HTTPPath  DefaultURLPrefix      = HTTPPath.Parse("/api/v4/request");
 
         #endregion
 
@@ -111,7 +111,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <summary>
         /// The URI prefix for all HTTP requests.
         /// </summary>
-        public HTTPPath                              URIPrefix                      { get; }
+        public HTTPPath                              URLPrefix                      { get; }
 
         /// <summary>
         /// The API key for all requests.
@@ -473,7 +473,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="ClientCertificateSelector">A delegate to select a TLS client certificate.</param>
         /// <param name="HTTPVirtualHost">An optional HTTP virtual hostname of the remote OIOI service.</param>
         /// <param name="HTTPUserAgent">An optional HTTP user agent identification string for this HTTP client.</param>
-        /// <param name="URIPrefix">The default URI prefix.</param>
+        /// <param name="URLPrefix">The default URI prefix.</param>
         /// <param name="RequestTimeout">An optional timeout for upstream queries.</param>
         /// <param name="MaxNumberOfRetries">The default number of maximum transmission retries.</param>
         /// <param name="DNSClient">An optional DNS client to use.</param>
@@ -488,7 +488,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                          RemoteCertificateValidationCallback  RemoteCertificateValidator   = null,
                          LocalCertificateSelectionCallback    ClientCertificateSelector    = null,
                          HTTPHostname?                        HTTPVirtualHost              = null,
-                         HTTPPath?                            URIPrefix                    = null,
+                         HTTPPath?                            URLPrefix                    = null,
                          String                               HTTPUserAgent                = DefaultHTTPUserAgent,
                          IncludeStationDelegate               IncludeStation               = null,
                          IncludeStationIdDelegate             IncludeStationId             = null,
@@ -523,7 +523,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             #endregion
 
             this.APIKey                            = APIKey;
-            this.URIPrefix                         = URIPrefix                        ?? DefaultURIPrefix;
+            this.URLPrefix                         = URLPrefix                        ?? DefaultURLPrefix;
             this.StationPartnerIdSelector          = StationPartnerIdSelector         ?? throw new ArgumentNullException(nameof(StationPartnerIdSelector),         "The given partner identification selector must not be null!"); ;
             this.ConnectorIdPartnerIdSelector  = ConnectorStatusPartnerIdSelector ?? throw new ArgumentNullException(nameof(ConnectorStatusPartnerIdSelector), "The given partner identification selector must not be null!");
 
@@ -553,7 +553,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="StationPartnerIdSelector">A delegate to select a partner identification based on the given charging station.</param>
         /// <param name="ConnectorStatusPartnerIdSelector">A delegate to select a partner identification based on the given charging connector status.</param>
         /// <param name="RemotePort">An optional TCP port of the remote OIOI service.</param>
-        /// <param name="URIPrefix">The default URI prefix.</param>
+        /// <param name="URLPrefix">The default URI prefix.</param>
         /// <param name="RemoteCertificateValidator">A delegate to verify the remote TLS certificate.</param>
         /// <param name="ClientCertificateSelector">A delegate to select a TLS client certificate.</param>
         /// <param name="HTTPVirtualHost">An optional HTTP virtual hostname of the remote OIOI service.</param>
@@ -568,7 +568,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                          PartnerIdForStationDelegate          StationPartnerIdSelector,
                          PartnerIdForConnectorIdDelegate  ConnectorStatusPartnerIdSelector,
                          IPPort?                              RemotePort                   = null,
-                         HTTPPath?                             URIPrefix                    = null,
+                         HTTPPath?                             URLPrefix                    = null,
                          RemoteCertificateValidationCallback  RemoteCertificateValidator   = null,
                          LocalCertificateSelectionCallback    ClientCertificateSelector    = null,
                          HTTPHostname?                        HTTPVirtualHost              = null,
@@ -604,7 +604,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             #endregion
 
             this.APIKey                            = APIKey;
-            this.URIPrefix                         = URIPrefix                        ?? DefaultURIPrefix;
+            this.URLPrefix                         = URLPrefix                        ?? DefaultURLPrefix;
             this.StationPartnerIdSelector          = StationPartnerIdSelector         ?? throw new ArgumentNullException(nameof(StationPartnerIdSelector),         "The given partner identification selector must not be null!"); ;
             this.ConnectorIdPartnerIdSelector  = ConnectorStatusPartnerIdSelector ?? throw new ArgumentNullException(nameof(ConnectorStatusPartnerIdSelector), "The given partner identification selector must not be null!");
 
@@ -698,7 +698,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 {
 
                     using (var _JSONClient = new JSONClient(Hostname,
-                                                            URIPrefix,
+                                                            URLPrefix,
                                                             VirtualHostname,
                                                             RemotePort,
                                                             RemoteCertificateValidator,
@@ -929,7 +929,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 {
 
                     using (var _JSONClient = new JSONClient(Hostname,
-                                                            URIPrefix,
+                                                            URLPrefix,
                                                             VirtualHostname,
                                                             RemotePort,
                                                             RemoteCertificateValidator,
@@ -1152,7 +1152,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             {
 
                 using (var _JSONClient = new JSONClient(Hostname,
-                                                        URIPrefix,
+                                                        URLPrefix,
                                                         VirtualHostname,
                                                         RemotePort,
                                                         RemoteCertificateValidator,
@@ -1360,7 +1360,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             {
 
                 using (var _JSONClient = new JSONClient(Hostname,
-                                                        URIPrefix,
+                                                        URLPrefix,
                                                         VirtualHostname,
                                                         RemotePort,
                                                         RemoteCertificateValidator,

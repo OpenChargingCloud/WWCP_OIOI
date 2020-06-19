@@ -61,7 +61,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         /// <summary>
         /// The default HTTP client URI prefix.
         /// </summary>
-        public     static readonly HTTPPath     DefaultURIPrefix         = HTTPPath.Parse("/api/v4/request");
+        public     static readonly HTTPPath     DefaultURLPrefix         = HTTPPath.Parse("/api/v4/request");
 
 
         public     static readonly Partner_Id  DefaultDefaultPartnerId  = Partner_Id.Parse("1");
@@ -73,7 +73,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         /// <summary>
         /// The URI prefix for all HTTP requests.
         /// </summary>
-        public HTTPPath          URIPrefix          { get; }
+        public HTTPPath          URLPrefix          { get; }
 
         /// <summary>
         /// The API key for all requests.
@@ -337,7 +337,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         /// <param name="ClientCertificateSelector">A delegate to select a TLS client certificate.</param>
         /// <param name="HTTPVirtualHost">An optional HTTP virtual hostname of the remote OIOI service.</param>
         /// <param name="HTTPUserAgent">An optional HTTP user agent identification string for this HTTP client.</param>
-        /// <param name="URIPrefix">The default URI prefix.</param>
+        /// <param name="URLPrefix">The default URI prefix.</param>
         /// <param name="DefaultPartnerId">The default communication partner identification.</param>
         /// <param name="RequestTimeout">An optional timeout for upstream queries.</param>
         /// <param name="MaxNumberOfRetries">The default number of maximum transmission retries.</param>
@@ -351,7 +351,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                          RemoteCertificateValidationCallback  RemoteCertificateValidator   = null,
                          LocalCertificateSelectionCallback    ClientCertificateSelector    = null,
                          HTTPHostname?                        HTTPVirtualHost              = null,
-                         HTTPPath?                             URIPrefix                    = null,
+                         HTTPPath?                             URLPrefix                    = null,
                          String                               HTTPUserAgent                = DefaultHTTPUserAgent,
                          Partner_Id?                          DefaultPartnerId             = null,
                          TimeSpan?                            RequestTimeout               = null,
@@ -385,7 +385,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
             #endregion
 
             this.APIKey            = APIKey;
-            this.URIPrefix         = URIPrefix        ?? DefaultURIPrefix;
+            this.URLPrefix         = URLPrefix        ?? DefaultURLPrefix;
             this.DefaultPartnerId  = DefaultPartnerId ?? DefaultDefaultPartnerId;
 
             this.Logger            = new EMPClientLogger(this,
@@ -406,7 +406,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         /// <param name="Hostname">The hostname of the remote OIOI service.</param>
         /// <param name="APIKey">The PlugSurfing API key.</param>
         /// <param name="RemotePort">An optional TCP port of the remote OIOI service.</param>
-        /// <param name="URIPrefix">The default URI prefix.</param>
+        /// <param name="URLPrefix">The default URI prefix.</param>
         /// <param name="RemoteCertificateValidator">A delegate to verify the remote TLS certificate.</param>
         /// <param name="ClientCertificateSelector">A delegate to select a TLS client certificate.</param>
         /// <param name="HTTPVirtualHost">An optional HTTP virtual hostname of the remote OIOI service.</param>
@@ -420,7 +420,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                          HTTPHostname                         Hostname,
                          String                               APIKey,
                          IPPort?                              RemotePort                   = null,
-                         HTTPPath?                             URIPrefix                    = null,
+                         HTTPPath?                             URLPrefix                    = null,
                          RemoteCertificateValidationCallback  RemoteCertificateValidator   = null,
                          LocalCertificateSelectionCallback    ClientCertificateSelector    = null,
                          HTTPHostname?                        HTTPVirtualHost              = null,
@@ -456,7 +456,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
             this.Logger            = Logger;
             this.APIKey            = APIKey;
-            this.URIPrefix         = URIPrefix ?? DefaultURIPrefix;
+            this.URLPrefix         = URLPrefix ?? DefaultURLPrefix;
             this.DefaultPartnerId  = DefaultPartnerId.HasValue ? DefaultPartnerId.Value : Partner_Id.Parse("1");
 
         }
@@ -522,7 +522,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
 
             using (var _JSONClient = new JSONClient(Hostname,
-                                                    URIPrefix,
+                                                    URLPrefix,
                                                     VirtualHostname,
                                                     RemotePort,
                                                     RemoteCertificateValidator,
@@ -702,7 +702,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
 
             using (var _JSONClient = new JSONClient(Hostname,
-                                                    URIPrefix,
+                                                    URLPrefix,
                                                     VirtualHostname,
                                                     RemotePort,
                                                     RemoteCertificateValidator,
@@ -876,7 +876,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
 
             using (var _JSONClient = new JSONClient(Hostname,
-                                                    URIPrefix,
+                                                    URLPrefix,
                                                     VirtualHostname,
                                                     RemotePort,
                                                     RemoteCertificateValidator,

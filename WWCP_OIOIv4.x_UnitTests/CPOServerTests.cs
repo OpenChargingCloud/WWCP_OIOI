@@ -87,7 +87,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.UnitTests
         public void Test_SessionStart_1()
         {
 
-            var task0001  = _HTTPClient.Execute(client => client.POST(CPOServer.DefaultURIPrefix,
+            var task0001  = _HTTPClient.Execute(client => client.POST(CPOServer.DefaultURLPrefix,
                                                                       requestbuilder => {
                                                                           requestbuilder.Host         = HTTPHostname.Localhost;
                                                                           requestbuilder.ContentType  = HTTPContentType.JSON_UTF8;
