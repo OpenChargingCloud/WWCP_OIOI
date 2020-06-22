@@ -407,18 +407,30 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  #region Data
 
-                                                 IdentifierTypes      IdentifierType       = IdentifierTypes.Unknown;
-                                                 eMobilityAccount_Id  eMobilityAccountId   = default;
-                                                 String               Token                = null;
                                                  Result               SessionStartResult   = null;
+                                                 eMobilityAccount_Id  eMobilityAccountId;
+                                                 String               Token                = null;
 
                                                  #endregion
 
                                                  #region Send OnSessionStartHTTPRequest event
 
-                                                 OnSessionStartHTTPRequest?.Invoke(DateTime.UtcNow,
-                                                                                   HTTPServer,
-                                                                                   request);
+                                                 try
+                                                 {
+
+                                                     if (OnSessionStartHTTPRequest != null)
+                                                         await Task.WhenAll(OnSessionStartHTTPRequest.GetInvocationList().
+                                                                            Cast<RequestLogHandler>().
+                                                                            Select(e => e(DateTime.UtcNow,
+                                                                                          HTTPServer,
+                                                                                          request))).
+                                                                    ConfigureAwait(false);
+
+                                                 }
+                                                 catch (Exception e)
+                                                 {
+                                                     e.Log(nameof(CPOServer) + "." + nameof(OnSessionStartHTTPRequest));
+                                                 }
 
                                                  #endregion
 
@@ -427,8 +439,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  if (!JSONObj.ParseMandatory("user",
                                                                              "user",
-                                                                             out JObject UserJSON,
-                                                                             out String ErrorResponse))
+                                                                             out JObject  UserJSON,
+                                                                             out String   ErrorResponse))
                                                  {
 
                                                      return SendSessionStartResponse(request,
@@ -440,9 +452,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  #region Parse 'user/identifier-type'
 
                                                  if (!UserJSON.ParseMandatory("identifier-type",
-                                                                              s => s.AsIdentifierType(),
-                                                                              IdentifierTypes.Unknown,
-                                                                              out IdentifierType))
+                                                                              "identifier-type",
+                                                                              IdentifierTypesExtentions.AsIdentifierType,
+                                                                              out IdentifierTypes  IdentifierType,
+                                                                              out                  ErrorResponse))
                                                  {
 
                                                      return SendSessionStartResponse(request,
@@ -461,12 +474,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                      case IdentifierTypes.EVCOId:
                                                          if (!UserJSON.ParseMandatory("identifier",
                                                                                       "identifier",
-                                                                                      s => eMobilityAccount_Id.Parse(s),
+                                                                                      eMobilityAccount_Id.TryParse,
                                                                                       out eMobilityAccountId,
                                                                                       out ErrorResponse))
+                                                         {
+
                                                              return SendSessionStartResponse(request,
                                                                                              HTTPStatusCode.BadRequest,
                                                                                              Result.Error(145, "JSON property 'user/identifier' missing or invalid!"));
+
+                                                         }
                                                          break;
 
                                                      default:
@@ -507,9 +524,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  if (!JSONObj.ParseMandatory("connector-id",
                                                                              "connector-id",
-                                                                             s => Connector_Id.Parse(s),
-                                                                             out Connector_Id ConnectorId,
-                                                                             out ErrorResponse))
+                                                                             Connector_Id.TryParse,
+                                                                             out Connector_Id  ConnectorId,
+                                                                             out               ErrorResponse))
                                                  {
 
                                                      return SendSessionStartResponse(request,
@@ -524,14 +541,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  if (JSONObj.ParseOptional("payment-reference",
                                                                            "payment reference",
-                                                                           HTTPServer.DefaultServerName,
                                                                            OIOIv4_x.PaymentReference.TryParse,
                                                                            out PaymentReference? PaymentReference,
-                                                                           request,
-                                                                           out _HTTPResponse))
+                                                                           out ErrorResponse))
                                                  {
 
-                                                     if (_HTTPResponse != null)
+                                                     if (ErrorResponse != null)
                                                          return SendSessionStartResponse(request,
                                                                                          HTTPStatusCode.BadRequest,
                                                                                          Result.Error(310, "JSON property 'payment-reference' missing or invalid!"));
@@ -543,38 +558,63 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  #region Send OnSessionStartRequest event
 
-                                                 OnSessionStartRequest?.Invoke(DateTime.UtcNow,
-                                                                               request.Timestamp,
-                                                                               this,
-                                                                               EventTracking_Id.New,
-                                                                               new User(eMobilityAccountId.ToString(),
-                                                                                        IdentifierType,
-                                                                                        Token),
-                                                                               ConnectorId,
-                                                                               PaymentReference);
+                                                 try
+                                                 {
+
+                                                     if (OnSessionStartRequest != null)
+                                                         await Task.WhenAll(OnSessionStartRequest.GetInvocationList().
+                                                                            Cast<OnSessionStartRequestDelegate>().
+                                                                            Select(e => e(DateTime.UtcNow,
+                                                                                          request.Timestamp,
+                                                                                          this,
+                                                                                          EventTracking_Id.New,
+                                                                                          new User(eMobilityAccountId.ToString(),
+                                                                                                   IdentifierType,
+                                                                                                   Token),
+                                                                                          ConnectorId,
+                                                                                          PaymentReference))).
+                                                                    ConfigureAwait(false);
+
+                                                 }
+                                                 catch (Exception e)
+                                                 {
+                                                     e.Log(nameof(CPOServer) + "." + nameof(OnSessionStartRequest));
+                                                 }
 
                                                  #endregion
 
 
-                                                 var OnSessionStartLocal = OnSessionStart;
-                                                 if (OnSessionStartLocal != null)
+                                                 try
                                                  {
 
-                                                     SessionStartResult = (await Task.WhenAll(OnSessionStartLocal.
-                                                                                                  GetInvocationList().
-                                                                                                  Select(subscriber => (subscriber as OnSessionStartDelegate)
-                                                                                                      (DateTime.UtcNow,
-                                                                                                       this,
-                                                                                                       eMobilityAccountId,
-                                                                                                       ConnectorId,
-                                                                                                       PaymentReference,
-                                                                                                       new CancellationTokenSource().Token,
-                                                                                                       EventTracking_Id.New,
-                                                                                                       TimeSpan.FromSeconds(45))))).
+                                                     var OnSessionStartLocal = OnSessionStart;
+                                                     if (OnSessionStartLocal != null)
+                                                     {
 
-                                                                                 FirstOrDefault();
+                                                         SessionStartResult = (await Task.WhenAll(OnSessionStartLocal.
+                                                                                                      GetInvocationList().
+                                                                                                      Select(subscriber => (subscriber as OnSessionStartDelegate)
+                                                                                                          (DateTime.UtcNow,
+                                                                                                           this,
+                                                                                                           eMobilityAccountId,
+                                                                                                           ConnectorId,
+                                                                                                           PaymentReference,
+                                                                                                           new CancellationTokenSource().Token,
+                                                                                                           EventTracking_Id.New,
+                                                                                                           TimeSpan.FromSeconds(45))))).
+
+                                                                                     FirstOrDefault();
+
+                                                     }
 
                                                  }
+                                                 catch (Exception e)
+                                                 {
+                                                     e.Log(nameof(CPOServer) + "." + nameof(OnSessionStart));
+                                                 }
+
+                                                 if (SessionStartResult == null)
+                                                     SessionStartResult = Result.Error(310);
 
                                                  #region Map code to HTTP Status Codes
 
@@ -612,6 +652,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  #endregion
 
+
                                                  _HTTPResponse = new HTTPResponse.Builder(request) {
                                                                      HTTPStatusCode  = statusCode,
                                                                      Server          = HTTPServer.DefaultServerName,
@@ -622,24 +663,54 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                  };
 
 
-                                                 #region Send OnSessionStartResponse/OnSessionStartHTTPResponse events
+                                                 #region Send OnSessionStartResponse events
 
-                                                 OnSessionStartResponse?.    Invoke(DateTime.UtcNow,
-                                                                                    request.Timestamp,
-                                                                                    this,
-                                                                                    EventTracking_Id.New,
-                                                                                    new User(eMobilityAccountId.ToString(),
-                                                                                             IdentifierType,
-                                                                                             Token),
-                                                                                    ConnectorId,
-                                                                                    PaymentReference,
-                                                                                    SessionStartResult,
-                                                                                    request.Timestamp - DateTime.UtcNow);
+                                                 try
+                                                 {
 
-                                                 OnSessionStartHTTPResponse?.Invoke(DateTime.UtcNow,
-                                                                                    HTTPServer,
-                                                                                    request,
-                                                                                    _HTTPResponse);
+                                                     if (OnSessionStartResponse != null)
+                                                         await Task.WhenAll(OnSessionStartResponse.GetInvocationList().
+                                                                            Cast<OnSessionStartResponseDelegate>().
+                                                                            Select(e => e(DateTime.UtcNow,
+                                                                                          request.Timestamp,
+                                                                                          this,
+                                                                                          EventTracking_Id.New,
+                                                                                          new User(eMobilityAccountId.ToString(),
+                                                                                                   IdentifierType,
+                                                                                                   Token),
+                                                                                          ConnectorId,
+                                                                                          PaymentReference,
+                                                                                          SessionStartResult,
+                                                                                          request.Timestamp - DateTime.UtcNow))).
+                                                                    ConfigureAwait(false);
+
+                                                 }
+                                                 catch (Exception e)
+                                                 {
+                                                     e.Log(nameof(CPOServer) + "." + nameof(OnSessionStartResponse));
+                                                 }
+
+                                                 #endregion
+
+                                                 #region Send OnSessionStartHTTPResponse events
+
+                                                 try
+                                                 {
+
+                                                     if (OnSessionStartHTTPResponse != null)
+                                                         await Task.WhenAll(OnSessionStartHTTPResponse.GetInvocationList().
+                                                                            Cast<AccessLogHandler>().
+                                                                            Select(e => e(DateTime.UtcNow,
+                                                                                          HTTPServer,
+                                                                                          request,
+                                                                                          _HTTPResponse))).
+                                                                    ConfigureAwait(false);
+
+                                                 }
+                                                 catch (Exception e)
+                                                 {
+                                                     e.Log(nameof(CPOServer) + "." + nameof(OnSessionStartHTTPRequest));
+                                                 }
 
                                                  #endregion
 
@@ -683,18 +754,30 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  #region Data
 
-                                                 IdentifierTypes      IdentifierType       = IdentifierTypes.Unknown;
-                                                 eMobilityAccount_Id  eMobilityAccountId   = default;
-                                                 String               Token                = null;
                                                  Result               SessionStopResult    = null;
+                                                 eMobilityAccount_Id  eMobilityAccountId;
+                                                 String               Token                = null;
 
                                                  #endregion
 
                                                  #region Send OnSessionStopHTTPRequest event
 
-                                                 OnSessionStopHTTPRequest?.Invoke(DateTime.UtcNow,
-                                                                                  HTTPServer,
-                                                                                  request);
+                                                 try
+                                                 {
+
+                                                     if (OnSessionStopHTTPRequest != null)
+                                                         await Task.WhenAll(OnSessionStopHTTPRequest.GetInvocationList().
+                                                                            Cast<RequestLogHandler>().
+                                                                            Select(e => e(DateTime.UtcNow,
+                                                                                          HTTPServer,
+                                                                                          request))).
+                                                                    ConfigureAwait(false);
+
+                                                 }
+                                                 catch (Exception e)
+                                                 {
+                                                     e.Log(nameof(CPOServer) + "." + nameof(OnSessionStopHTTPRequest));
+                                                 }
 
                                                  #endregion
 
@@ -703,21 +786,30 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  if (!JSONObj.ParseMandatory("user",
                                                                              "user",
-                                                                             out JObject UserJSON,
-                                                                             out String ErrorResponse))
+                                                                             out JObject  UserJSON,
+                                                                             out String   ErrorResponse))
+                                                 {
+
                                                      return SendSessionStopResponse(request,
                                                                                     HTTPStatusCode.BadRequest,
                                                                                     Result.UserTokenNotValid);
 
+                                                 }
+
                                                  #region Parse 'user/identifier-type'
 
                                                  if (!UserJSON.ParseMandatory("identifier-type",
-                                                                              s => s.AsIdentifierType(),
-                                                                              IdentifierTypes.Unknown,
-                                                                              out IdentifierType))
+                                                                              "identifier-type",
+                                                                              IdentifierTypesExtentions.AsIdentifierType,
+                                                                              out IdentifierTypes  IdentifierType,
+                                                                              out                  ErrorResponse))
+                                                 {
+
                                                      return SendSessionStopResponse(request,
                                                                                     HTTPStatusCode.BadRequest,
                                                                                     Result.Error(145, "JSON property 'user/identifier-type' missing or invalid!"));
+
+                                                 }
 
                                                  #endregion
 
@@ -729,12 +821,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                      case IdentifierTypes.EVCOId:
                                                          if (!UserJSON.ParseMandatory("identifier",
                                                                                       "identifier",
-                                                                                      s => eMobilityAccount_Id.Parse(s),
+                                                                                      eMobilityAccount_Id.TryParse,
                                                                                       out eMobilityAccountId,
                                                                                       out ErrorResponse))
+                                                         {
+
                                                              return SendSessionStopResponse(request,
                                                                                             HTTPStatusCode.BadRequest,
                                                                                             Result.Error(145, "JSON property 'user/identifier' missing or invalid!"));
+
+                                                         }
                                                          break;
 
                                                      default:
@@ -775,12 +871,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  if (!JSONObj.ParseMandatory("connector-id",
                                                                              "connector-id",
-                                                                             s => Connector_Id.Parse(s),
-                                                                             out Connector_Id ConnectorId,
-                                                                             out ErrorResponse))
+                                                                             Connector_Id.TryParse,
+                                                                             out Connector_Id  ConnectorId,
+                                                                             out               ErrorResponse))
+                                                 {
+
                                                      return SendSessionStopResponse(request,
                                                                                     HTTPStatusCode.BadRequest,
                                                                                     Result.Error(310, "JSON property 'connector-id' missing or invalid!"));
+
+                                                 }
 
                                                  #endregion
 
@@ -788,50 +888,80 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  if (!JSONObj.ParseMandatory("session-id",
                                                                              "session-id",
-                                                                             s => Session_Id.Parse(s),
-                                                                             out Session_Id SessionId,
-                                                                             out ErrorResponse))
+                                                                             Session_Id.Parse,
+                                                                             out Session_Id  SessionId,
+                                                                             out             ErrorResponse))
+                                                 {
+
                                                      return SendSessionStopResponse(request,
                                                                                     HTTPStatusCode.BadRequest,
                                                                                     Result.Error(310, "JSON property 'session-id' missing or invalid!"));
+
+                                                 }
 
                                                  #endregion
 
 
                                                  #region Send OnSessionStopRequest event
 
-                                                 OnSessionStopRequest?.Invoke(DateTime.UtcNow,
-                                                                              request.Timestamp,
-                                                                              this,
-                                                                              EventTracking_Id.New,
-                                                                              new User(eMobilityAccountId.ToString(),
-                                                                                       IdentifierType,
-                                                                                       Token),
-                                                                              ConnectorId,
-                                                                              SessionId);
+                                                 try
+                                                 {
+
+                                                     if (OnSessionStopRequest != null)
+                                                         await Task.WhenAll(OnSessionStopRequest.GetInvocationList().
+                                                                            Cast<OnSessionStopRequestDelegate>().
+                                                                            Select(e => e(DateTime.UtcNow,
+                                                                                          request.Timestamp,
+                                                                                          this,
+                                                                                          EventTracking_Id.New,
+                                                                                          new User(eMobilityAccountId.ToString(),
+                                                                                                   IdentifierType,
+                                                                                                   Token),
+                                                                                          ConnectorId,
+                                                                                          SessionId))).
+                                                                    ConfigureAwait(false);
+
+                                                 }
+                                                 catch (Exception e)
+                                                 {
+                                                     e.Log(nameof(CPOServer) + "." + nameof(OnSessionStopRequest));
+                                                 }
 
                                                  #endregion
 
 
-                                                 var OnSessionStopLocal = OnSessionStop;
-                                                 if (OnSessionStopLocal == null)
+                                                 try
                                                  {
 
-                                                     SessionStopResult = (await Task.WhenAll(OnSessionStopLocal.
-                                                                                                 GetInvocationList().
-                                                                                                 Select(subscriber => (subscriber as OnSessionStopDelegate)
-                                                                                                     (DateTime.UtcNow,
-                                                                                                      this,
-                                                                                                      ConnectorId,
-                                                                                                      SessionId,
-                                                                                                      eMobilityAccountId,
-                                                                                                      new CancellationTokenSource().Token,
-                                                                                                      EventTracking_Id.New,
-                                                                                                      TimeSpan.FromSeconds(45))))).
+                                                     var OnSessionStopLocal = OnSessionStop;
+                                                     if (OnSessionStopLocal != null)
+                                                     {
 
-                                                                              FirstOrDefault();
+                                                         SessionStopResult = (await Task.WhenAll(OnSessionStopLocal.
+                                                                                                     GetInvocationList().
+                                                                                                     Select(subscriber => (subscriber as OnSessionStopDelegate)
+                                                                                                         (DateTime.UtcNow,
+                                                                                                          this,
+                                                                                                          ConnectorId,
+                                                                                                          SessionId,
+                                                                                                          eMobilityAccountId,
+                                                                                                          new CancellationTokenSource().Token,
+                                                                                                          EventTracking_Id.New,
+                                                                                                          TimeSpan.FromSeconds(45))))).
+
+                                                                                  FirstOrDefault();
+
+                                                     }
 
                                                  }
+                                                 catch (Exception e)
+                                                 {
+                                                     e.Log(nameof(CPOServer) + "." + nameof(SessionStopResult));
+                                                 }
+
+                                                 if (SessionStopResult == null)
+                                                     SessionStopResult = Result.Error(310);
+
 
                                                  #region Map code to HTTP Status Codes
 
@@ -862,6 +992,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  #endregion
 
+
                                                  _HTTPResponse = new HTTPResponse.Builder(request) {
                                                                      HTTPStatusCode  = statusCode,
                                                                      Server          = HTTPServer.DefaultServerName,
@@ -872,24 +1003,54 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                  };
 
 
-                                                 #region Send OnSessionStopResponse/OnSessionStopHTTPResponse events
+                                                 #region Send OnSessionStopResponse events
 
-                                                 OnSessionStopResponse?.    Invoke(DateTime.UtcNow,
-                                                                                   request.Timestamp,
-                                                                                   this,
-                                                                                   EventTracking_Id.New,
-                                                                                   new User(eMobilityAccountId.ToString(),
-                                                                                            IdentifierType,
-                                                                                            Token),
-                                                                                   ConnectorId,
-                                                                                   SessionId,
-                                                                                   SessionStopResult,
-                                                                                   request.Timestamp - DateTime.UtcNow);
+                                                 try
+                                                 {
 
-                                                 OnSessionStopHTTPResponse?.Invoke(DateTime.UtcNow,
-                                                                                   HTTPServer,
-                                                                                   request,
-                                                                                   _HTTPResponse);
+                                                     if (OnSessionStopResponse != null)
+                                                         await Task.WhenAll(OnSessionStopResponse.GetInvocationList().
+                                                                            Cast<OnSessionStopResponseDelegate>().
+                                                                            Select(e => e(DateTime.UtcNow,
+                                                                                          request.Timestamp,
+                                                                                          this,
+                                                                                          EventTracking_Id.New,
+                                                                                          new User(eMobilityAccountId.ToString(),
+                                                                                                   IdentifierType,
+                                                                                                   Token),
+                                                                                          ConnectorId,
+                                                                                          SessionId,
+                                                                                          SessionStopResult,
+                                                                                          request.Timestamp - DateTime.UtcNow))).
+                                                                    ConfigureAwait(false);
+
+                                                 }
+                                                 catch (Exception e)
+                                                 {
+                                                     e.Log(nameof(CPOServer) + "." + nameof(OnSessionStopResponse));
+                                                 }
+
+                                                 #endregion
+
+                                                 #region Send OnSessionStopHTTPResponse events
+
+                                                 try
+                                                 {
+
+                                                     if (OnSessionStopHTTPResponse != null)
+                                                         await Task.WhenAll(OnSessionStopHTTPResponse.GetInvocationList().
+                                                                            Cast<AccessLogHandler>().
+                                                                            Select(e => e(DateTime.UtcNow,
+                                                                                          HTTPServer,
+                                                                                          request,
+                                                                                          _HTTPResponse))).
+                                                                    ConfigureAwait(false);
+
+                                                 }
+                                                 catch (Exception e)
+                                                 {
+                                                     e.Log(nameof(CPOServer) + "." + nameof(OnSessionStopHTTPResponse));
+                                                 }
 
                                                  #endregion
 

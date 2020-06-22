@@ -69,7 +69,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// Parse the text representation of the given identifier type.
         /// </summary>
         /// <param name="Text">A text representation of an identifier type.</param>
-        public static IdentifierTypes AsIdentifierType(this String Text)
+        public static IdentifierTypes AsIdentifierType(String Text)
         {
 
             switch (Text.ToLower())

@@ -215,7 +215,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
                                                            "Invalid or missing JSON property 'identifier'!"),
 
                                 UserJSON.MapValueOrFail   ("identifier-type",
-                                                           value => value.Value<String>().AsIdentifierType(),
+                                                           value => IdentifierTypesExtentions.AsIdentifierType(value.Value<String>()),
                                                            "Invalid or missing JSON property 'identifier-type'!"),
 
                                 UserJSON.MapValueOrDefault("token",
