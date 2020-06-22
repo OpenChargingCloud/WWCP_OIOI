@@ -794,7 +794,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// 
         /// <param name="ServerName">An optional identification string for the HTTP server.</param>
         /// <param name="ServerTCPPort">An optional TCP port for the HTTP server.</param>
-        /// <param name="ServerURIPrefix">An optional prefix for the HTTP URIs.</param>
+        /// <param name="ServerURLPrefix">An optional prefix for the HTTP URLs.</param>
         /// <param name="ServerContentType">An optional HTTP content type to use.</param>
         /// <param name="ServerRegisterHTTPRootService">Register HTTP root services for sending a notice to clients connecting via HTML or plain text.</param>
         /// <param name="ServerAutoStart">Whether to start the server immediately or not.</param>
@@ -835,7 +835,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               RemoteCertificateValidationCallback             RemoteCertificateValidator               = null,
                               LocalCertificateSelectionCallback               ClientCertificateSelector                = null,
                               HTTPHostname?                                   RemoteHTTPVirtualHost                    = null,
-                              HTTPPath?                                       URIPrefix                                = null,
+                              HTTPPath?                                       URLPrefix                                = null,
                               String                                          HTTPUserAgent                            = CPOClient.DefaultHTTPUserAgent,
 
                               IncludeStationDelegate                          IncludeStation                           = null,
@@ -853,7 +853,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               RemoteCertificateValidationCallback             RemoteClientCertificateValidator         = null,
                               LocalCertificateSelectionCallback               RemoteClientCertificateSelector          = null,
                               SslProtocols                                    ServerAllowedTLSProtocols                = SslProtocols.Tls12,
-                              HTTPPath?                                       ServerURIPrefix                          = null,
+                              HTTPPath?                                       ServerURLPrefix                          = null,
                               ServerAPIKeyValidatorDelegate                   ServerAPIKeyValidator                    = null,
                               HTTPContentType                                 ServerContentType                        = null,
                               Boolean                                         ServerRegisterHTTPRootService            = true,
@@ -910,7 +910,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                   RemoteCertificateValidator,
                                   ClientCertificateSelector,
                                   RemoteHTTPVirtualHost,
-                                  URIPrefix,
+                                  URLPrefix,
                                   HTTPUserAgent,
                                   IncludeStation,
                                   IncludeStationId,
@@ -927,7 +927,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                   RemoteClientCertificateValidator,
                                   RemoteClientCertificateSelector,
                                   ServerAllowedTLSProtocols,
-                                  ServerURIPrefix,
+                                  ServerURLPrefix,
                                   ServerAPIKeyValidator,
                                   ServerContentType,
                                   ServerRegisterHTTPRootService,

@@ -68,7 +68,7 @@ namespace org.GraphDefined.WWCP
         /// 
         /// <param name="ServerName"> An optional identification string for the HTTP server.</param>
         /// <param name="ServerTCPPort">An optional TCP port for the HTTP server.</param>
-        /// <param name="ServerURIPrefix">An optional prefix for the HTTP URIs.</param>
+        /// <param name="ServerURLPrefix">An optional prefix for the HTTP URLs.</param>
         /// <param name="ServerContentType">An optional HTTP content type to use.</param>
         /// <param name="ServerRegisterHTTPRootService">Register HTTP root services for sending a notice to clients connecting via HTML or plain text.</param>
         /// <param name="ServerAutoStart">Whether to start the server immediately or not.</param>
@@ -108,7 +108,7 @@ namespace org.GraphDefined.WWCP
                                               HTTPHostname?                                                       RemoteHTTPVirtualHost                           = null,
                                               RemoteCertificateValidationCallback                                 RemoteCertificateValidator                      = null,
                                               LocalCertificateSelectionCallback                                   ClientCertificateSelector                       = null,
-                                              HTTPPath?                                                           URIPrefix                                       = null,
+                                              HTTPPath?                                                           URLPrefix                                       = null,
                                               String                                                              HTTPUserAgent                                   = OIOIv4_x.CPO.CPOClient.DefaultHTTPUserAgent,
                                               OIOIv4_x.IncludeStationDelegate                                     IncludeStation                                  = null,
                                               OIOIv4_x.IncludeStationIdDelegate                                   IncludeStationId                                = null,
@@ -125,7 +125,7 @@ namespace org.GraphDefined.WWCP
                                               RemoteCertificateValidationCallback                                 RemoteClientCertificateValidator                = null,
                                               LocalCertificateSelectionCallback                                   RemoteClientCertificateSelector                 = null,
                                               SslProtocols                                                        ServerAllowedTLSProtocols                       = SslProtocols.Tls12,
-                                              HTTPPath?                                                           ServerURIPrefix                                 = null,
+                                              HTTPPath?                                                           ServerURLPrefix                                 = null,
                                               OIOIv4_x.CPO.ServerAPIKeyValidatorDelegate                          ServerAPIKeyValidator                           = null,
                                               HTTPContentType                                                     ServerContentType                               = null,
                                               Boolean                                                             ServerRegisterHTTPRootService                   = true,
@@ -200,7 +200,7 @@ namespace org.GraphDefined.WWCP
                                                                      RemoteCertificateValidator,
                                                                      ClientCertificateSelector,
                                                                      RemoteHTTPVirtualHost,
-                                                                     URIPrefix ?? OIOIv4_x.CPO.CPOClient.DefaultURIPrefix,
+                                                                     URLPrefix ?? OIOIv4_x.CPO.CPOClient.DefaultURLPrefix,
                                                                      HTTPUserAgent,
 
                                                                      IncludeStation,
@@ -218,7 +218,7 @@ namespace org.GraphDefined.WWCP
                                                                      RemoteClientCertificateValidator,
                                                                      RemoteClientCertificateSelector,
                                                                      ServerAllowedTLSProtocols,
-                                                                     ServerURIPrefix ?? OIOIv4_x.CPO.CPOServer.DefaultURIPrefix,
+                                                                     ServerURLPrefix ?? OIOIv4_x.CPO.CPOServer.DefaultURLPrefix,
                                                                      ServerAPIKeyValidator,
                                                                      ServerContentType,
                                                                      ServerRegisterHTTPRootService,
@@ -282,7 +282,7 @@ namespace org.GraphDefined.WWCP
         /// <param name="Id">The unique identification of the roaming provider.</param>
         /// <param name="Name">The offical (multi-language) name of the roaming provider.</param>
         /// <param name="HTTPServer">An optional identification string for the HTTP server.</param>
-        /// <param name="ServerURIPrefix">An optional prefix for the HTTP URIs.</param>
+        /// <param name="ServerURLPrefix">An optional prefix for the HTTP URLs.</param>
         /// 
         /// <param name="RemoteHostname">The hostname of the remote OIOI service.</param>
         /// <param name="APIKey">The PlugSurfing API key.</param>
@@ -333,7 +333,7 @@ namespace org.GraphDefined.WWCP
                                               RemoteCertificateValidationCallback                          RemoteCertificateValidator                      = null,
                                               LocalCertificateSelectionCallback                            ClientCertificateSelector                       = null,
                                               HTTPHostname?                                                RemoteHTTPVirtualHost                           = null,
-                                              HTTPPath?                                                    URIPrefix                                       = null,
+                                              HTTPPath?                                                    URLPrefix                                       = null,
                                               String                                                       HTTPUserAgent                                   = OIOIv4_x.CPO.CPOClient.DefaultHTTPUserAgent,
                                               OIOIv4_x.IncludeStationDelegate                              IncludeStation                                  = null,
                                               OIOIv4_x.IncludeStationIdDelegate                            IncludeStationId                                = null,
@@ -344,7 +344,7 @@ namespace org.GraphDefined.WWCP
                                               Byte?                                                        MaxNumberOfRetries                              = OIOIv4_x.CPO.CPOClient.DefaultMaxNumberOfRetries,
 
                                               HTTPHostname?                                                HTTPHostname                                    = null,
-                                              HTTPPath?                                                    ServerURIPrefix                                 = null,
+                                              HTTPPath?                                                    ServerURLPrefix                                 = null,
                                               OIOIv4_x.CPO.ServerAPIKeyValidatorDelegate                   ServerAPIKeyValidator                           = null,
                                               HTTPContentType                                              ServerContentType                               = null,
                                               Boolean                                                      ServerRegisterHTTPRootService                   = true,
@@ -425,7 +425,7 @@ namespace org.GraphDefined.WWCP
                                                                                                 RemoteCertificateValidator,
                                                                                                 ClientCertificateSelector,
                                                                                                 RemoteHTTPVirtualHost,
-                                                                                                URIPrefix ?? OIOIv4_x.CPO.CPOClient.DefaultURIPrefix,
+                                                                                                URLPrefix ?? OIOIv4_x.CPO.CPOClient.DefaultURLPrefix,
                                                                                                 HTTPUserAgent,
                                                                                                 IncludeStation,
                                                                                                 IncludeStationId,
@@ -440,7 +440,7 @@ namespace org.GraphDefined.WWCP
 
                                                                      new OIOIv4_x.CPO.CPOServer(HTTPServer,
                                                                                                 HTTPHostname,
-                                                                                                ServerURIPrefix ?? OIOIv4_x.CPO.CPOServer.DefaultURIPrefix,
+                                                                                                ServerURLPrefix ?? OIOIv4_x.CPO.CPOServer.DefaultURLPrefix,
                                                                                                 ServerAPIKeyValidator,
                                                                                                 ServerContentType,
                                                                                                 ServerRegisterHTTPRootService),

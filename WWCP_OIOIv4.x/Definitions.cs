@@ -43,7 +43,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <summary>
         /// The default URI prefix of the PlugSurfing API.
         /// </summary>
-        public static readonly String DefaultURIPrefix  = "/api/v4/request";
+        public static readonly String DefaultURLPrefix  = "/api/v4/request";
 
     }
 
