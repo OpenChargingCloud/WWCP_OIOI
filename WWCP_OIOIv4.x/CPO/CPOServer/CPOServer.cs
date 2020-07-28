@@ -451,11 +451,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  #region Parse 'user/identifier-type'
 
-                                                 if (!UserJSON.ParseMandatory("identifier-type",
-                                                                              "identifier-type",
-                                                                              IdentifierTypesExtentions.AsIdentifierType,
-                                                                              out IdentifierTypes  IdentifierType,
-                                                                              out                  ErrorResponse))
+                                                 if (!UserJSON.MapMandatory("identifier-type",
+                                                                            "identifier-type",
+                                                                            IdentifierTypesExtentions.AsIdentifierType,
+                                                                            out IdentifierTypes  IdentifierType,
+                                                                            out                  ErrorResponse))
                                                  {
 
                                                      return SendSessionStartResponse(request,
@@ -503,6 +503,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                      case IdentifierTypes.Username:
 
                                                          if (!UserJSON.ParseOptional("token",
+                                                                                     "user token",
                                                                                      out Token,
                                                                                      out ErrorResponse))
                                                          {
@@ -798,11 +799,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  #region Parse 'user/identifier-type'
 
-                                                 if (!UserJSON.ParseMandatory("identifier-type",
-                                                                              "identifier-type",
-                                                                              IdentifierTypesExtentions.AsIdentifierType,
-                                                                              out IdentifierTypes  IdentifierType,
-                                                                              out                  ErrorResponse))
+                                                 if (!UserJSON.MapMandatory("identifier-type",
+                                                                            "identifier-type",
+                                                                            IdentifierTypesExtentions.AsIdentifierType,
+                                                                            out IdentifierTypes  IdentifierType,
+                                                                            out                  ErrorResponse))
                                                  {
 
                                                      return SendSessionStopResponse(request,
@@ -850,6 +851,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                      case IdentifierTypes.Username:
 
                                                          if (!UserJSON.ParseOptional("token",
+                                                                                     "user token",
                                                                                      out Token,
                                                                                      out ErrorResponse))
                                                          {
@@ -886,11 +888,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  #region Parse 'session-id'
 
-                                                 if (!JSONObj.ParseMandatory("session-id",
-                                                                             "session-id",
-                                                                             Session_Id.Parse,
-                                                                             out Session_Id  SessionId,
-                                                                             out             ErrorResponse))
+                                                 if (!JSONObj.MapMandatory("session-id",
+                                                                           "session-id",
+                                                                           Session_Id.Parse,
+                                                                           out Session_Id  SessionId,
+                                                                           out             ErrorResponse))
                                                  {
 
                                                      return SendSessionStopResponse(request,
