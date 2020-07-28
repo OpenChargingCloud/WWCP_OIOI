@@ -453,7 +453,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  if (!UserJSON.MapMandatory("identifier-type",
                                                                             "identifier-type",
-                                                                            IdentifierTypesExtentions.AsIdentifierType,
+                                                                            IdentifierTypesExtentions.Parse,
                                                                             out IdentifierTypes  IdentifierType,
                                                                             out                  ErrorResponse))
                                                  {
@@ -801,7 +801,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  if (!UserJSON.MapMandatory("identifier-type",
                                                                             "identifier-type",
-                                                                            IdentifierTypesExtentions.AsIdentifierType,
+                                                                            IdentifierTypesExtentions.Parse,
                                                                             out IdentifierTypes  IdentifierType,
                                                                             out                  ErrorResponse))
                                                  {
@@ -889,7 +889,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  #region Parse 'session-id'
 
                                                  if (!JSONObj.MapMandatory("session-id",
-                                                                           "session-id",
+                                                                           "session identification",
                                                                            Session_Id.Parse,
                                                                            out Session_Id  SessionId,
                                                                            out             ErrorResponse))

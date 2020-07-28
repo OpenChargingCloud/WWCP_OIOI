@@ -30,46 +30,13 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
     public static class IdentifierTypesExtentions
     {
 
-        #region ToText(this IdentifierType)
-
-        /// <summary>
-        /// Return a text representation of the given identifier type.
-        /// </summary>
-        /// <param name="IdentifierType">An identifier type.</param>
-        public static String ToText(this IdentifierTypes IdentifierType)
-        {
-
-            switch (IdentifierType)
-            {
-
-                case IdentifierTypes.EVCOId:
-                    return "evco-id";
-
-                case IdentifierTypes.RFID:
-                    return "rfid";
-
-                case IdentifierTypes.Username:
-                    return "username";
-
-                case IdentifierTypes.Token:
-                    return "token";
-
-                default:
-                    return "unknown";
-
-            }
-
-        }
-
-        #endregion
-
-        #region AsIdentifierType(this Text)
+        #region Parse(this Text)
 
         /// <summary>
         /// Parse the text representation of the given identifier type.
         /// </summary>
         /// <param name="Text">A text representation of an identifier type.</param>
-        public static IdentifierTypes AsIdentifierType(String Text)
+        public static IdentifierTypes Parse(String Text)
         {
 
             switch (Text.ToLower())
@@ -89,6 +56,39 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
                 default:
                     return IdentifierTypes.Unknown;
+
+            }
+
+        }
+
+        #endregion
+
+        #region AsText(this IdentifierType)
+
+        /// <summary>
+        /// Return a text representation of the given identifier type.
+        /// </summary>
+        /// <param name="IdentifierType">An identifier type.</param>
+        public static String AsText(this IdentifierTypes IdentifierType)
+        {
+
+            switch (IdentifierType)
+            {
+
+                case IdentifierTypes.EVCOId:
+                    return "evco-id";
+
+                case IdentifierTypes.RFID:
+                    return "rfid";
+
+                case IdentifierTypes.Username:
+                    return "username";
+
+                case IdentifierTypes.Token:
+                    return "token";
+
+                default:
+                    return "unknown";
 
             }
 
