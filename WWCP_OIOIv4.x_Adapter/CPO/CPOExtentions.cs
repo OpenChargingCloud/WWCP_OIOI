@@ -19,15 +19,14 @@
 
 using System;
 using System.Net.Security;
-using System.Security.Cryptography.X509Certificates;
+using System.Security.Authentication;
 
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Hermod.DNS;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets.TCP;
-using System.Security.Authentication;
-using Org.BouncyCastle.Bcpg.OpenPgp;
+
 using Org.BouncyCastle.Crypto.Parameters;
 
 #endregion
@@ -67,7 +66,7 @@ namespace org.GraphDefined.WWCP
         /// <param name="MaxNumberOfRetries">The default number of maximum transmission retries.</param>
         /// 
         /// <param name="ServerName"> An optional identification string for the HTTP server.</param>
-        /// <param name="ServerTCPPort">An optional TCP port for the HTTP server.</param>
+        /// <param name="HTTPServerPort">An optional TCP port for the HTTP server.</param>
         /// <param name="ServerURLPrefix">An optional prefix for the HTTP URLs.</param>
         /// <param name="ServerContentType">An optional HTTP content type to use.</param>
         /// <param name="ServerRegisterHTTPRootService">Register HTTP root services for sending a notice to clients connecting via HTML or plain text.</param>
@@ -120,7 +119,8 @@ namespace org.GraphDefined.WWCP
 
                                               String                                                              ServerName                                      = OIOIv4_x.CPO.CPOServer.DefaultHTTPServerName,
                                               HTTPHostname?                                                       HTTPHostname                                    = null,
-                                              IPPort?                                                             ServerTCPPort                                   = null,
+                                              IPPort?                                                             HTTPServerPort                                  = null,
+                                              String                                                              ServiceName                                     = null,
                                               ServerCertificateSelectorDelegate                                   ServerCertificateSelector                       = null,
                                               RemoteCertificateValidationCallback                                 RemoteClientCertificateValidator                = null,
                                               LocalCertificateSelectionCallback                                   RemoteClientCertificateSelector                 = null,
@@ -213,7 +213,8 @@ namespace org.GraphDefined.WWCP
 
                                                                      ServerName,
                                                                      HTTPHostname,
-                                                                     ServerTCPPort,
+                                                                     HTTPServerPort,
+                                                                     ServiceName,
                                                                      ServerCertificateSelector,
                                                                      RemoteClientCertificateValidator,
                                                                      RemoteClientCertificateSelector,

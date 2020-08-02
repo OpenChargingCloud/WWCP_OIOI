@@ -205,7 +205,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// </summary>
         /// <param name="DefaultServerName">The default HTTP servername, used whenever no HTTP Host-header had been given.</param>
         /// <param name="HTTPHostname">An optional HTTP hostname.</param>
-        /// <param name="HTTPPort">An IP port to listen on.</param>
+        /// <param name="HTTPServerPort">The TCP/IP port to listen on.</param>
         /// <param name="ServerCertificateSelector">An optional delegate to select a SSL/TLS server certificate.</param>
         /// <param name="ClientCertificateValidator">An optional delegate to verify the SSL/TLS client certificate used for authentication.</param>
         /// <param name="ClientCertificateSelector">An optional delegate to select the SSL/TLS client certificate used for authentication.</param>
@@ -226,12 +226,13 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="Autostart">Start the HTTP server thread immediately (default: no).</param>
         public CPOServer(String                               DefaultServerName                  = DefaultHTTPServerName,
                          HTTPHostname?                        HTTPHostname                       = null,
-                         IPPort?                              HTTPPort                           = null,
+                         IPPort?                              HTTPServerPort                     = null,
+                         String                               ServiceName                        = null,
                          ServerCertificateSelectorDelegate    ServerCertificateSelector          = null,
                          RemoteCertificateValidationCallback  ClientCertificateValidator         = null,
                          LocalCertificateSelectionCallback    ClientCertificateSelector          = null,
                          SslProtocols                         AllowedTLSProtocols                = SslProtocols.Tls12,
-                         HTTPPath?                             URLPrefix                          = null,
+                         HTTPPath?                            URLPrefix                          = null,
                          ServerAPIKeyValidatorDelegate        APIKeyValidator                    = null,
                          HTTPContentType                      ServerContentType                  = null,
                          Boolean                              ServerRegisterHTTPRootService      = true,
@@ -249,8 +250,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                          DNSClient                            DNSClient                          = null,
                          Boolean                              Autostart                          = false)
 
-            : this(new HTTPServer(HTTPPort ?? DefaultHTTPServerPort,
+            : this(new HTTPServer(HTTPServerPort ?? DefaultHTTPServerPort,
                                   DefaultServerName.IsNotNullOrEmpty() ? DefaultServerName : DefaultHTTPServerName,
+                                  ServiceName    ?? "OIOI " + Version.Number + " " + nameof(CPOServer),
                                   ServerCertificateSelector,
                                   ClientCertificateValidator,
                                   ClientCertificateSelector,
@@ -320,12 +322,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="HTTPServer">An existing HTTP server.</param>
         /// <param name="HTTPHostname">An optional HTTP hostname.</param>
         /// <param name="URLPrefix">The URI prefix for all incoming HTTP requests.</param>
-        public CPOServer(HTTPServer                                   HTTPServer,
-                         HTTPHostname?                                HTTPHostname                    = null,
-                         HTTPPath?                                     URLPrefix                       = null,
-                         ServerAPIKeyValidatorDelegate                APIKeyValidator                 = null,
-                         HTTPContentType                              ServerContentType               = null,
-                         Boolean                                      ServerRegisterHTTPRootService   = true)
+        public CPOServer(HTTPServer                     HTTPServer,
+                         HTTPHostname?                  HTTPHostname                    = null,
+                         HTTPPath?                      URLPrefix                       = null,
+                         ServerAPIKeyValidatorDelegate  APIKeyValidator                 = null,
+                         HTTPContentType                ServerContentType               = null,
+                         Boolean                        ServerRegisterHTTPRootService   = true)
         {
 
             this.HTTPServer         = HTTPServer   ?? throw new ArgumentNullException(nameof(HTTPServer), "The given HTTP server must not be null!");

@@ -793,7 +793,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="MaxNumberOfRetries">The default number of maximum transmission retries.</param>
         /// 
         /// <param name="ServerName">An optional identification string for the HTTP server.</param>
-        /// <param name="ServerTCPPort">An optional TCP port for the HTTP server.</param>
+        /// <param name="HTTPServerPort">An optional TCP port for the HTTP server.</param>
         /// <param name="ServerURLPrefix">An optional prefix for the HTTP URLs.</param>
         /// <param name="ServerContentType">An optional HTTP content type to use.</param>
         /// <param name="ServerRegisterHTTPRootService">Register HTTP root services for sending a notice to clients connecting via HTML or plain text.</param>
@@ -848,7 +848,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                               String                                          ServerName                               = CPOServer.DefaultHTTPServerName,
                               HTTPHostname?                                   HTTPHostname                             = null,
-                              IPPort?                                         ServerTCPPort                            = null,
+                              IPPort?                                         HTTPServerPort                           = null,
+                              String                                          ServiceName                              = null,
                               ServerCertificateSelectorDelegate               ServerCertificateSelector                = null,
                               RemoteCertificateValidationCallback             RemoteClientCertificateValidator         = null,
                               LocalCertificateSelectionCallback               RemoteClientCertificateSelector          = null,
@@ -922,7 +923,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                   ServerName,
                                   HTTPHostname,
-                                  ServerTCPPort,
+                                  HTTPServerPort,
+                                  ServiceName,
                                   ServerCertificateSelector,
                                   RemoteClientCertificateValidator,
                                   RemoteClientCertificateSelector,
