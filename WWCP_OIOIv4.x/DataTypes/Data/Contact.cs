@@ -63,7 +63,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         #region Constructor(s)
 
         /// <summary>
-        /// Create a new OIOI contact.
+        /// Create a new contact.
         /// </summary>
         /// <param name="Phone">A phone number.</param>
         /// <param name="Fax">An optional fax number.</param>
