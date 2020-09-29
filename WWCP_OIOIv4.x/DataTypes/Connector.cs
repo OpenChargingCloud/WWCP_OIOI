@@ -99,22 +99,22 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         #region (static) Parse   (ConnectorJSON, CustomConnectorParser = null, OnException = null)
 
         /// <summary>
-        /// Parse the given JSON representation of an OIOI connector.
+        /// Parse the given JSON representation of a connector.
         /// </summary>
         /// <param name="ConnectorJSON">The JSON to parse.</param>
-        /// <param name="CustomConnectorParser">A delegate to parse custom Connector JSON objects.</param>
+        /// <param name="CustomConnectorParser">A delegate to parse custom connector JSON objects.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static Connector Parse(JObject                              ConnectorJSON,
+        public static Connector Parse(JObject                                 ConnectorJSON,
                                       CustomJObjectParserDelegate<Connector>  CustomConnectorParser   = null,
-                                      OnExceptionDelegate                  OnException             = null)
+                                      OnExceptionDelegate                     OnException             = null)
         {
 
             if (TryParse(ConnectorJSON,
-                         out Connector _Connector,
+                         out Connector connector,
                          CustomConnectorParser,
                          OnException))
 
-                return _Connector;
+                return connector;
 
             return null;
 
@@ -125,22 +125,22 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         #region (static) Parse   (ConnectorText, CustomConnectorParser = null, OnException = null)
 
         /// <summary>
-        /// Parse the given text representation of an OIOI connector.
+        /// Parse the given text representation of a connector.
         /// </summary>
         /// <param name="ConnectorText">The text to parse.</param>
-        /// <param name="CustomConnectorParser">A delegate to parse custom Connector JSON objects.</param>
+        /// <param name="CustomConnectorParser">A delegate to parse custom connector JSON objects.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static Connector Parse(String                               ConnectorText,
+        public static Connector Parse(String                                  ConnectorText,
                                       CustomJObjectParserDelegate<Connector>  CustomConnectorParser   = null,
-                                      OnExceptionDelegate                  OnException             = null)
+                                      OnExceptionDelegate                     OnException             = null)
         {
 
             if (TryParse(ConnectorText,
-                         out Connector _Connector,
+                         out Connector connector,
                          CustomConnectorParser,
                          OnException))
 
-                return _Connector;
+                return connector;
 
             return null;
 
@@ -151,16 +151,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         #region (static) TryParse(ConnectorJSON, out Connector, CustomConnectorParser = null, OnException = null)
 
         /// <summary>
-        /// Try to parse the given JSON representation of an OIOI connector.
+        /// Try to parse the given JSON representation of a connector.
         /// </summary>
         /// <param name="ConnectorJSON">The JSON to parse.</param>
         /// <param name="Connector">The parsed connector.</param>
-        /// <param name="CustomConnectorParser">A delegate to parse custom Connector JSON objects.</param>
+        /// <param name="CustomConnectorParser">A delegate to parse custom connector JSON objects.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static Boolean TryParse(JObject                              ConnectorJSON,
-                                       out Connector                        Connector,
+        public static Boolean TryParse(JObject                                 ConnectorJSON,
+                                       out Connector                           Connector,
                                        CustomJObjectParserDelegate<Connector>  CustomConnectorParser   = null,
-                                       OnExceptionDelegate                  OnException             = null)
+                                       OnExceptionDelegate                     OnException             = null)
         {
 
             try
@@ -203,16 +203,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         #region (static) TryParse(ConnectorText, out Connector, CustomConnectorParser = null, OnException = null)
 
         /// <summary>
-        /// Try to parse the given text representation of an OIOI connector.
+        /// Try to parse the given text representation of a connector.
         /// </summary>
         /// <param name="ConnectorText">The text to parse.</param>
         /// <param name="Connector">The parsed connector.</param>
-        /// <param name="CustomConnectorParser">A delegate to parse custom Connector JSON objects.</param>
+        /// <param name="CustomConnectorParser">A delegate to parse custom connector JSON objects.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static Boolean TryParse(String                               ConnectorText,
-                                       out Connector                        Connector,
+        public static Boolean TryParse(String                                  ConnectorText,
+                                       out Connector                           Connector,
                                        CustomJObjectParserDelegate<Connector>  CustomConnectorParser   = null,
-                                       OnExceptionDelegate                  OnException             = null)
+                                       OnExceptionDelegate                     OnException             = null)
         {
 
             try
