@@ -301,7 +301,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                      }.AsImmutable);
 
                                              },
-                                             AllowReplacement: URIReplacement.Allow);
+                                             AllowReplacement: URLReplacement.Allow);
 
             #endregion
 
@@ -366,7 +366,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                              HTTPResponse _HTTPResponse = null;
 
-                                             if (!request.TryParseJObjectRequestBody(out JObject JSONBody, out HTTPResponse HTTPResponse))
+                                             if (!request.TryParseJObjectRequestBody(out JObject JSONBody, out HTTPResponse.Builder HTTPResponse))
                                                  return CreateResponse(request,
                                                                        HTTPStatusCode.BadRequest,
                                                                        Result.Error(140, "Invalid HTTP body!"));
