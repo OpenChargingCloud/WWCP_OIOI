@@ -1,5 +1,5 @@
-WWCP OIOI v3.x / v4.x
-=====================
+WWCP OIOI v4.x
+==============
 
 This software will allow the communication between World Wide Charging
 Protocol (WWCP) entities and entities implementing the _OIOI Protocol_,
@@ -10,7 +10,7 @@ on this protocol please visit https://www.plugsurfing.com.
 
 ### Requirements
 
-1. You need .NET 4.7+
+1. You need .NET 4.8+
 2. You will need an API-Key. To get one, just send an e-mail to service@plugsurfing.com.
 3. Read the OIOI documentation at http://docs.plugsurfing.com
 
