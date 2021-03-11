@@ -87,29 +87,29 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.UnitTests
         public void Test_SessionStart_1()
         {
 
-            var task0001  = _HTTPClient.Execute(client => client.POST(CPOServer.DefaultURLPrefix,
-                                                                      requestbuilder => {
-                                                                          requestbuilder.Host         = HTTPHostname.Localhost;
-                                                                          requestbuilder.ContentType  = HTTPContentType.JSON_UTF8;
-                                                                          requestbuilder.Accept.Add(HTTPContentType.JSON_UTF8);
-                                                                          requestbuilder.Content      = JSONObject.Create(
+            var task0001  = _HTTPClient.Execute(client => client.POSTRequest(CPOServer.DefaultURLPrefix,
+                                                                             requestbuilder => {
+                                                                                 requestbuilder.Host         = HTTPHostname.Localhost;
+                                                                                 requestbuilder.ContentType  = HTTPContentType.JSON_UTF8;
+                                                                                 requestbuilder.Accept.Add(HTTPContentType.JSON_UTF8);
+                                                                                 requestbuilder.Content      = JSONObject.Create(
 
-                                                                                                            new JProperty("session-start", new JObject(
+                                                                                                                   new JProperty("session-start", new JObject(
 
-                                                                                                                new JProperty("user", new JObject(
-                                                                                                                    new JProperty("identifier-type", "evco-id"),
-                                                                                                                    new JProperty("identifier",      "DE-GDF-123456-7")
-                                                                                                                )),
+                                                                                                                       new JProperty("user", new JObject(
+                                                                                                                           new JProperty("identifier-type", "evco-id"),
+                                                                                                                           new JProperty("identifier",      "DE-GDF-123456-7")
+                                                                                                                       )),
 
-                                                                                                                new JProperty("connector-id",       EVSE01.Id.ToString()),
-                                                                                                                new JProperty("payment-reference",  "bitcoin")
+                                                                                                                       new JProperty("connector-id",       EVSE01.Id.ToString()),
+                                                                                                                       new JProperty("payment-reference",  "bitcoin")
 
-                                                                                                            ))
+                                                                                                                   ))
 
-                                                                                                        ).ToUTF8Bytes();
-                                                                      }),
-                                                                      RequestTimeout:     Timeout,
-                                                                      CancellationToken:  new CancellationTokenSource().Token);
+                                                                                                               ).ToUTF8Bytes();
+                                                                             }),
+                                                                             RequestTimeout:     Timeout,
+                                                                             CancellationToken:  new CancellationTokenSource().Token);
 
             task0001.Wait(Timeout);
             var result0001 = task0001.Result;

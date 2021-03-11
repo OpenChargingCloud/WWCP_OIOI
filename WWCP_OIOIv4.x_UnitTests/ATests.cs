@@ -114,14 +114,14 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.UnitTests
             var      URI                = HTTPPath.Parse("/RNs");
             String[] RoamingNetworkIds  = null;
 
-            using (var HTTPTask  = _HTTPClient.Execute(client => client.GET(URI,
-                                                                            requestbuilder => {
-                                                                                requestbuilder.Host         = HTTPHostname.Localhost;
-                                                                                requestbuilder.ContentType  = HTTPContentType.JSON_UTF8;
-                                                                                requestbuilder.Accept.Add(HTTPContentType.JSON_UTF8);
-                                                                            }),
-                                                                             RequestTimeout: Timeout,
-                                                                             CancellationToken: new CancellationTokenSource().Token))
+            using (var HTTPTask  = _HTTPClient.Execute(client => client.GETRequest(URI,
+                                                                                   requestbuilder => {
+                                                                                       requestbuilder.Host         = HTTPHostname.Localhost;
+                                                                                       requestbuilder.ContentType  = HTTPContentType.JSON_UTF8;
+                                                                                       requestbuilder.Accept.Add(HTTPContentType.JSON_UTF8);
+                                                                                   }),
+                                                                                    RequestTimeout: Timeout,
+                                                                                    CancellationToken: new CancellationTokenSource().Token))
 
             {
 
@@ -147,14 +147,14 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.UnitTests
 
                 URI = HTTPPath.Parse("/RNs/" + RoamingNetworkId);
 
-                using (var HTTPTask  = _HTTPClient.Execute(client => client.DELETE(URI,
-                                                                                   requestbuilder => {
-                                                                                       requestbuilder.Host         = HTTPHostname.Localhost;
-                                                                                       requestbuilder.ContentType  = HTTPContentType.JSON_UTF8;
-                                                                                       requestbuilder.Accept.Add(HTTPContentType.JSON_UTF8);
-                                                                                   }),
-                                                                                    RequestTimeout: Timeout,
-                                                                                    CancellationToken: new CancellationTokenSource().Token))
+                using (var HTTPTask  = _HTTPClient.Execute(client => client.DELETERequest(URI,
+                                                                                          requestbuilder => {
+                                                                                              requestbuilder.Host         = HTTPHostname.Localhost;
+                                                                                              requestbuilder.ContentType  = HTTPContentType.JSON_UTF8;
+                                                                                              requestbuilder.Accept.Add(HTTPContentType.JSON_UTF8);
+                                                                                          }),
+                                                                                           RequestTimeout: Timeout,
+                                                                                           CancellationToken: new CancellationTokenSource().Token))
 
                 {
 
