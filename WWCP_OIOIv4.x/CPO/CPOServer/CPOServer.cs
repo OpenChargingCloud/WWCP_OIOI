@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2016-2020 GraphDefined GmbH
+ * Copyright (c) 2016-2021 GraphDefined GmbH
  * This file is part of WWCP OIOI <https://github.com/OpenChargingCloud/WWCP_OIOI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -59,7 +59,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <summary>
         /// The default HTTP server URI prefix.
         /// </summary>
-        public     static readonly HTTPPath   DefaultURLPrefix       = HTTPPath.Parse("/api/v4/request");
+        public     static readonly HTTPPath   DefaultURLPathPrefix       = HTTPPath.Parse("/api/v4/request");
 
         /// <summary>
         /// The default query timeout.
@@ -86,7 +86,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <summary>
         /// The common URI prefix of the HTTP server of this API for all incoming requests.
         /// </summary>
-        public HTTPPath                                      URLPrefix           { get; }
+        public HTTPPath                                     URLPathPrefix       { get; }
 
         /// <summary>
         /// The HTTP content type used by this service.
@@ -210,7 +210,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="ClientCertificateValidator">An optional delegate to verify the SSL/TLS client certificate used for authentication.</param>
         /// <param name="ClientCertificateSelector">An optional delegate to select the SSL/TLS client certificate used for authentication.</param>
         /// <param name="AllowedTLSProtocols">The SSL/TLS protocol(s) allowed for this connection.</param>
-        /// <param name="URLPrefix">The URI prefix for all incoming HTTP requests.</param>
+        /// <param name="URLPathPrefix">The URI prefix for all incoming HTTP requests.</param>
         /// 
         /// <param name="ServerThreadName">The optional name of the TCP server thread.</param>
         /// <param name="ServerThreadPriority">The optional priority of the TCP server thread.</param>
@@ -232,7 +232,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                          RemoteCertificateValidationCallback  ClientCertificateValidator         = null,
                          LocalCertificateSelectionCallback    ClientCertificateSelector          = null,
                          SslProtocols                         AllowedTLSProtocols                = SslProtocols.Tls12,
-                         HTTPPath?                            URLPrefix                          = null,
+                         HTTPPath?                            URLPathPrefix                      = null,
                          ServerAPIKeyValidatorDelegate        APIKeyValidator                    = null,
                          HTTPContentType                      ServerContentType                  = null,
                          Boolean                              ServerRegisterHTTPRootService      = true,
@@ -269,7 +269,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                   DNSClient ?? new DNSClient(),
                                   false),
                    HTTPHostname,
-                   URLPrefix ?? DefaultURLPrefix,
+                   URLPathPrefix ?? DefaultURLPathPrefix,
                    APIKeyValidator,
                    ServerContentType,
                    ServerRegisterHTTPRootService)
@@ -279,7 +279,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             #region / (HTTPRoot)
 
             if (ServerRegisterHTTPRootService &&
-                URLPrefix.ToString() != "/")
+                URLPathPrefix.ToString() != "/")
 
                 HTTPServer.AddMethodCallback(HTTPHostname ?? Vanaheimr.Hermod.HTTP.HTTPHostname.Any,
                                              HTTPMethod.GET,
@@ -294,7 +294,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                          ContentType     = HTTPContentType.TEXT_UTF8,
                                                          Content         = String.Concat("Welcome at ", DefaultHTTPServerName, Environment.NewLine,
                                                                                          "This is an OIOI v", Version.Number, " endpoint!", Environment.NewLine, Environment.NewLine,
-                                                                                         "Default endpoint: ", URLPrefix, Environment.NewLine, Environment.NewLine).
+                                                                                         "Default endpoint: ", URLPathPrefix, Environment.NewLine, Environment.NewLine).
                                                                                   ToUTF8Bytes(),
                                                          Connection      = "close"
 
@@ -321,18 +321,18 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// </summary>
         /// <param name="HTTPServer">An existing HTTP server.</param>
         /// <param name="HTTPHostname">An optional HTTP hostname.</param>
-        /// <param name="URLPrefix">The URI prefix for all incoming HTTP requests.</param>
+        /// <param name="URLPathPrefix">The URI prefix for all incoming HTTP requests.</param>
         public CPOServer(HTTPServer                     HTTPServer,
                          HTTPHostname?                  HTTPHostname                    = null,
-                         HTTPPath?                      URLPrefix                       = null,
+                         HTTPPath?                      URLPathPrefix                   = null,
                          ServerAPIKeyValidatorDelegate  APIKeyValidator                 = null,
                          HTTPContentType                ServerContentType               = null,
                          Boolean                        ServerRegisterHTTPRootService   = true)
         {
 
-            this.HTTPServer         = HTTPServer   ?? throw new ArgumentNullException(nameof(HTTPServer), "The given HTTP server must not be null!");
-            this.HTTPHostname       = HTTPHostname ?? Vanaheimr.Hermod.HTTP.HTTPHostname.Any;
-            this.URLPrefix          = URLPrefix    ?? DefaultURLPrefix;
+            this.HTTPServer         = HTTPServer        ?? throw new ArgumentNullException(nameof(HTTPServer), "The given HTTP server must not be null!");
+            this.HTTPHostname       = HTTPHostname      ?? Vanaheimr.Hermod.HTTP.HTTPHostname.Any;
+            this.URLPathPrefix      = URLPathPrefix     ?? DefaultURLPathPrefix;
             this.APIKeyValidator    = APIKeyValidator;
             this.DNSClient          = HTTPServer.DNSClient;
             this.ServerContentType  = ServerContentType ?? HTTPContentType.JSON_UTF8;
@@ -358,7 +358,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                          HTTPMethod.POST,
-                                         URLPrefix,
+                                         URLPathPrefix,
                                          HTTPContentType.JSON_UTF8,
                                          HTTPRequestLogger:  OnAnyHTTPRequest,
                                          HTTPResponseLogger: OnAnyHTTPResponse,
@@ -1093,7 +1093,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             => new CPOServer(HTTPServer,
                              HTTPHostname,
-                             URLPrefix ?? DefaultURLPrefix);
+                             URLPrefix ?? DefaultURLPathPrefix);
 
         #endregion
 

@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2016-2020 GraphDefined GmbH
+ * Copyright (c) 2016-2021 GraphDefined GmbH
  * This file is part of WWCP OIOI <https://github.com/OpenChargingCloud/WWCP_OIOI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,15 +29,15 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 {
 
     /// <summary>
-    /// An OIOI CPO Client.
+    /// The OIOI EMP client.
     /// </summary>
     public partial class EMPClient : AJSONClient
     {
 
         /// <summary>
-        /// An OIOI EMP Client (HTTP/JSON client) logger.
+        /// The OIOI EMP HTTP/JSON client logger.
         /// </summary>
-        public class EMPClientLogger : HTTPClientLogger
+        public class Logger : HTTPClientLogger
         {
 
             #region Data
@@ -68,7 +68,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
             /// <param name="EMPClient">A OIOI EMP Client.</param>
             /// <param name="Context">A context of this API.</param>
             /// <param name="LogFileCreator">A delegate to create a log file from the given context and log file name.</param>
-            public EMPClientLogger(EMPClient               EMPClient,
+            public Logger(EMPClient               EMPClient,
                                    String                  Context         = DefaultContext,
                                    LogfileCreatorDelegate  LogFileCreator  = null)
 
@@ -109,7 +109,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
             /// <param name="LogHTTPError_toHTTPSSE">A delegate to log HTTP errors to a HTTP client sent events source.</param>
             /// 
             /// <param name="LogFileCreator">A delegate to create a log file from the given context and log file name.</param>
-            public EMPClientLogger(IEMPClient                  EMPClient,
+            public Logger(IEMPClient                  EMPClient,
                                    String                      Context,
 
                                    HTTPRequestLoggerDelegate   LogHTTPRequest_toConsole,

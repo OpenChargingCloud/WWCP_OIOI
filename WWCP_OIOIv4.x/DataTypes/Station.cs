@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2016-2020 GraphDefined GmbH
+ * Copyright (c) 2016-2021 GraphDefined GmbH
  * This file is part of WWCP OIOI <https://github.com/OpenChargingCloud/WWCP_OIOI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,7 +36,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
     /// <summary>
     /// An OIOI charging station.
     /// </summary>
-    public class Station : ACustomData,
+    public class Station : AInternalData,
                            IEquatable<Station>,
                            IComparable<Station>,
                            IComparable
@@ -443,49 +443,49 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
         #region AddCustomData(Key, Value)
 
-        public Station AddCustomData(String Key, Object Value)
-        {
+        //public Station AddCustomData(String Key, Object Value)
+        //{
 
-            var NewCustomData = new Dictionary<String, Object>();
+        //    var internalData = new Dictionary<String, Object>();
 
-            if (CustomData.Any())
-                CustomData.ForEach(kvp => NewCustomData.Add(kvp.Key, kvp.Value));
+        //    if (InternalData.Any())
+        //        InternalData.ForEach(kvp => internalData.Add(kvp.Key, kvp.Value));
 
-            if (Key.IsNeitherNullNorEmpty())
-                NewCustomData.Add(Key, Value);
+        //    if (Key.IsNeitherNullNorEmpty())
+        //        internalData.Add(Key, Value);
 
-            return new Station(Id,
-                               Name,
-                               Latitude,
-                               Longitude,
-                               Address,
-                               Contact,
-                               CPOId,
-                               OpeningTime.IsOpen24Hours,
-                               Connectors,
-                               Description,
-                               OpeningTime,
-                               Notes,
-                               IsReservable,
-                               FloorLevel,
-                               IsFreeCharge,
-                               TotalParking,
-                               IsGreenPowerAvailable,
-                               IsPlugInCharge,
-                               IsRoofed,
-                               IsPrivate,
-                               Deleted,
+        //    return new Station(Id,
+        //                       Name,
+        //                       Latitude,
+        //                       Longitude,
+        //                       Address,
+        //                       Contact,
+        //                       CPOId,
+        //                       OpeningTime.IsOpen24Hours,
+        //                       Connectors,
+        //                       Description,
+        //                       OpeningTime,
+        //                       Notes,
+        //                       IsReservable,
+        //                       FloorLevel,
+        //                       IsFreeCharge,
+        //                       TotalParking,
+        //                       IsGreenPowerAvailable,
+        //                       IsPlugInCharge,
+        //                       IsRoofed,
+        //                       IsPrivate,
+        //                       Deleted,
 
-                               NewCustomData);
+        //                       internalData);
 
-        }
+        //}
 
         #endregion
 
         #region AddCustomData(KeyValuePair)
 
-        public Station AddCustomData(KeyValuePair<String, Object> KeyValuePair)
-            => AddCustomData(KeyValuePair.Key, KeyValuePair.Value);
+        //public Station AddCustomData(KeyValuePair<String, Object> KeyValuePair)
+        //    => AddCustomData(KeyValuePair.Key, KeyValuePair.Value);
 
         #endregion
 

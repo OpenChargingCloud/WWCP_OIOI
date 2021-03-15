@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2016-2020 GraphDefined GmbH
+ * Copyright (c) 2016-2021 GraphDefined GmbH
  * This file is part of WWCP OIOI <https://github.com/OpenChargingCloud/WWCP_OIOI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,7 +33,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
     /// <summary>
     /// An OIOI charging session.
     /// </summary>
-    public class Session : ACustomData,
+    public class Session : AInternalData,
                            IEquatable<Session>,
                            IComparable<Session>,
                            IComparable

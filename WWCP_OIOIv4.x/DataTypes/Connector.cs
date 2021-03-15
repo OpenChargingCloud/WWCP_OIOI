@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2016-2020 GraphDefined GmbH
+ * Copyright (c) 2016-2021 GraphDefined GmbH
  * This file is part of WWCP OIOI <https://github.com/OpenChargingCloud/WWCP_OIOI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,7 +34,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
     /// <summary>
     /// An OIOI connector (EVSE).
     /// </summary>
-    public class Connector : ACustomData,
+    public class Connector : AInternalData,
                              IEquatable<Connector>,
                              IComparable<Connector>,
                              IComparable

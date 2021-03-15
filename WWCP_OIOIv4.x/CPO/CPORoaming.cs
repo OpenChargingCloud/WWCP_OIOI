@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2016-2020 GraphDefined GmbH
+ * Copyright (c) 2016-2021 GraphDefined GmbH
  * This file is part of WWCP OIOI <https://github.com/OpenChargingCloud/WWCP_OIOI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,11 +24,8 @@ using System.Security.Cryptography.X509Certificates;
 
 using Newtonsoft.Json.Linq;
 
-using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Hermod.DNS;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
-using org.GraphDefined.Vanaheimr.Hermod.Sockets.TCP;
-using System.Security.Authentication;
 
 #endregion
 
@@ -47,46 +44,126 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <summary>
         /// The CPO client.
         /// </summary>
-        public CPOClient        CPOClient         { get; }
+        public CPOClient  CPOClient    { get; }
 
-        public HTTPHostname Hostname
-            => CPOClient.Hostname;
+        #region ICPOClient
 
-        public HTTPHostname? VirtualHostname
+        /// <summary>
+        /// The remote URL of the OICP HTTP endpoint to connect to.
+        /// </summary>
+        URL                                  IHTTPClient.RemoteURL
+            => CPOClient.RemoteURL;
+
+        /// <summary>
+        /// The virtual HTTP hostname to connect to.
+        /// </summary>
+        HTTPHostname?                        IHTTPClient.VirtualHostname
             => CPOClient.VirtualHostname;
 
-        public IPPort RemotePort
-            => CPOClient.RemotePort;
-
-        public RemoteCertificateValidationCallback RemoteCertificateValidator
-            => CPOClient?.RemoteCertificateValidator;
-
         /// <summary>
-        /// The CPO server.
+        /// An optional description of this CPO client.
         /// </summary>
-        public CPOServer        CPOServer         { get; }
-
-        /// <summary>
-        /// The CPO server logger.
-        /// </summary>
-        public CPOServerLogger  CPOServerLogger   { get; }
-
-        /// <summary>
-        /// The DNS client defines which DNS servers to use.
-        /// </summary>
-        public DNSClient DNSClient
-            => CPOServer.DNSClient;
-
-        /// <summary>
-        /// The default request timeout for this client.
-        /// </summary>
-        public TimeSpan?        RequestTimeout
+        String                               IHTTPClient.Description
         {
+
+            get
+            {
+                return CPOClient.Description;
+            }
+
+            set
+            {
+                CPOClient.Description = value;
+            }
+
+        }
+
+        /// <summary>
+        /// The remote SSL/TLS certificate validator.
+        /// </summary>
+        RemoteCertificateValidationCallback  IHTTPClient.RemoteCertificateValidator
+            => CPOClient.RemoteCertificateValidator;
+
+        /// <summary>
+        /// The SSL/TLS client certificate to use of HTTP authentication.
+        /// </summary>
+        X509Certificate                      IHTTPClient.ClientCert
+            => CPOClient.ClientCert;
+
+        /// <summary>
+        /// The HTTP user agent identification.
+        /// </summary>
+        String                               IHTTPClient.HTTPUserAgent
+            => CPOClient.HTTPUserAgent;
+
+        /// <summary>
+        /// The timeout for upstream requests.
+        /// </summary>
+        TimeSpan                             IHTTPClient.RequestTimeout
+        {
+
             get
             {
                 return CPOClient.RequestTimeout;
             }
+
+            set
+            {
+                CPOClient.RequestTimeout = value;
+            }
+
         }
+
+        /// <summary>
+        /// The delay between transmission retries.
+        /// </summary>
+        TransmissionRetryDelayDelegate       IHTTPClient.TransmissionRetryDelay
+            => CPOClient.TransmissionRetryDelay;
+
+        /// <summary>
+        /// The maximum number of retries when communicationg with the remote OICP service.
+        /// </summary>
+        UInt16                               IHTTPClient.MaxNumberOfRetries
+            => CPOClient.MaxNumberOfRetries;
+
+        /// <summary>
+        /// Make use of HTTP pipelining.
+        /// </summary>
+        Boolean                              IHTTPClient.UseHTTPPipelining
+            => CPOClient.UseHTTPPipelining;
+
+        /// <summary>
+        /// The CPO client (HTTP client) logger.
+        /// </summary>
+        HTTPClientLogger                     IHTTPClient.HTTPLogger
+        {
+
+            get
+            {
+                return CPOClient.HTTPLogger;
+            }
+
+            set
+            {
+                if (value is CPOClient.Logger)
+                    CPOClient.HTTPLogger = value as CPOClient.Logger;
+            }
+
+        }
+
+        /// <summary>
+        /// The DNS client defines which DNS servers to use.
+        /// </summary>
+        DNSClient                            IHTTPClient.DNSClient
+            => CPOClient.DNSClient;
+
+        #endregion
+
+        /// <summary>
+        /// The CPO server.
+        /// </summary>
+        public CPOServer  CPOServer    { get; }
+
 
         /// <summary>
         /// The API key for all requests.
@@ -732,24 +809,17 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         #region Constructor(s)
 
-        #region CPORoaming(CPOClient, CPOServer, ServerLoggingContext = CPOServerLogger.DefaultContext, LogFileCreator = null)
-
         /// <summary>
-        /// Create a new OIOI roaming client for CPOs.
+        /// Create a new roaming client for CPOs.
         /// </summary>
         /// <param name="CPOClient">A CPO client.</param>
-        /// <param name="CPOServer">A CPO sever.</param>
-        /// <param name="ServerLoggingContext">An optional context for logging server methods.</param>
-        /// <param name="LogFileCreator">A delegate to create a log file from the given context and log file name.</param>
-        public CPORoaming(CPOClient               CPOClient,
-                          CPOServer               CPOServer,
-                          String                  ServerLoggingContext  = CPOServerLogger.DefaultContext,
-                          LogfileCreatorDelegate  LogFileCreator        = null)
+        /// <param name="CPOServer">A CPO server.</param>
+        public CPORoaming(CPOClient  CPOClient,
+                          CPOServer  CPOServer)
         {
 
-            this.CPOClient        = CPOClient;
-            this.CPOServer        = CPOServer;
-            this.CPOServerLogger  = new CPOServerLogger(CPOServer, ServerLoggingContext, LogFileCreator);
+            this.CPOClient  = CPOClient;
+            this.CPOServer  = CPOServer;
 
             // Link HTTP events...
             CPOServer.RequestLog   += (HTTPProcessor, ServerTimestamp, Request)                                 => RequestLog. WhenAll(HTTPProcessor, ServerTimestamp, Request);
@@ -757,242 +827,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             CPOServer.ErrorLog     += (HTTPProcessor, ServerTimestamp, Request, Response, Error, LastException) => ErrorLog.   WhenAll(HTTPProcessor, ServerTimestamp, Request, Response, Error, LastException);
 
         }
-
-        #endregion
-
-        #region CPORoaming(ClientId, RemoteHostname, RemoteTCPPort = null, RemoteHTTPVirtualHost = null, ... )
-
-        /// <summary>
-        /// Create a new OIOI roaming client for CPOs.
-        /// </summary>
-        /// <param name="ClientId">A unqiue identification of this client.</param>
-        /// <param name="RemoteHostname">The hostname of the remote OIOI service.</param>
-        /// <param name="APIKey">The PlugSurfing API key.</param>
-        /// <param name="StationPartnerIdSelector">A delegate to select a partner identification based on the given charging station.</param>
-        /// <param name="ConnectorStatusPartnerIdSelector">A delegate to select a partner identification based on the given charging connector status.</param>
-        /// 
-        /// <param name="RemoteTCPPort">An optional TCP port of the remote OIOI service.</param>
-        /// <param name="RemoteCertificateValidator">A delegate to verify the remote TLS certificate.</param>
-        /// <param name="ClientCertificateSelector">A delegate to select a TLS client certificate.</param>
-        /// <param name="RemoteHTTPVirtualHost">An optional HTTP virtual hostname of the remote OIOI service.</param>
-        /// <param name="HTTPUserAgent">An optional HTTP user agent identification string for this HTTP client.</param>
-        /// <param name="RequestTimeout">An optional timeout for upstream queries.</param>
-        /// <param name="MaxNumberOfRetries">The default number of maximum transmission retries.</param>
-        /// 
-        /// <param name="ServerName">An optional identification string for the HTTP server.</param>
-        /// <param name="HTTPServerPort">An optional TCP port for the HTTP server.</param>
-        /// <param name="ServerCertificateSelector">An optional delegate to select a SSL/TLS server certificate.</param>
-        /// <param name="RemoteClientCertificateValidator">An optional delegate to verify the SSL/TLS client certificate used for authentication.</param>
-        /// <param name="RemoteClientCertificateSelector">An optional delegate to select the SSL/TLS client certificate used for authentication.</param>
-        /// <param name="ServerAllowedTLSProtocols">The SSL/TLS protocol(s) allowed for this connection.</param>
-        /// <param name="ServerURLPrefix">An optional prefix for the HTTP URIs.</param>
-        /// <param name="ServerContentType">An optional HTTP content type to use.</param>
-        /// <param name="ServerRegisterHTTPRootService">Register HTTP root services for sending a notice to clients connecting via HTML or plain text.</param>
-        /// <param name="ServerAutoStart">Whether to start the server immediately or not.</param>
-        /// 
-        /// <param name="ClientLoggingContext">An optional context for logging client methods.</param>
-        /// <param name="ServerLoggingContext">An optional context for logging server methods.</param>
-        /// <param name="LogFileCreator">A delegate to create a log file from the given context and log file name.</param>
-        /// 
-        /// <param name="DNSClient">An optional DNS client to use.</param>
-        public CPORoaming(String                               ClientId,
-                          HTTPHostname                         RemoteHostname,
-                          APIKey                               APIKey,
-                          PartnerIdForStationDelegate          StationPartnerIdSelector,
-                          PartnerIdForConnectorIdDelegate      ConnectorStatusPartnerIdSelector,
-                          IPPort?                              RemoteTCPPort                      = null,
-                          RemoteCertificateValidationCallback  RemoteCertificateValidator         = null,
-                          LocalCertificateSelectionCallback    ClientCertificateSelector          = null,
-                          HTTPHostname?                        RemoteHTTPVirtualHost              = null,
-                          HTTPPath?                            URLPrefix                          = null,
-                          String                               HTTPUserAgent                      = CPOClient.DefaultHTTPUserAgent,
-                          IncludeStationDelegate               IncludeStation                     = null,
-                          IncludeStationIdDelegate             IncludeStationId                   = null,
-                          IncludeConnectorIdDelegate           IncludeConnectorId                 = null,
-                          IncludeConnectorStatusTypesDelegate  IncludeConnectorStatusType         = null,
-                          IncludeConnectorStatusDelegate       IncludeConnectorStatus             = null,
-                          TimeSpan?                            RequestTimeout                     = null,
-                          Byte?                                MaxNumberOfRetries                 = CPOClient.DefaultMaxNumberOfRetries,
-
-                          String                               ServerName                         = CPOServer.DefaultHTTPServerName,
-                          HTTPHostname?                        HTTPHostname                       = null,
-                          IPPort?                              HTTPServerPort                     = null,
-                          String                               ServiceName                        = null,
-                          ServerCertificateSelectorDelegate    ServerCertificateSelector          = null,
-                          RemoteCertificateValidationCallback  RemoteClientCertificateValidator   = null,
-                          LocalCertificateSelectionCallback    RemoteClientCertificateSelector    = null,
-                          SslProtocols                         ServerAllowedTLSProtocols          = SslProtocols.Tls12,
-                          HTTPPath?                            ServerURLPrefix                    = null,
-                          ServerAPIKeyValidatorDelegate        ServerAPIKeyValidator              = null,
-                          HTTPContentType                      ServerContentType                  = null,
-                          Boolean                              ServerRegisterHTTPRootService      = true,
-                          Boolean                              ServerAutoStart                    = false,
-
-                          String                               ClientLoggingContext               = CPOClient.CPOClientLogger.DefaultContext,
-                          String                               ServerLoggingContext               = CPOServerLogger.DefaultContext,
-                          LogfileCreatorDelegate               LogFileCreator                     = null,
-
-                          DNSClient                            DNSClient                          = null)
-
-            : this(new CPOClient(ClientId,
-                                 RemoteHostname,
-                                 APIKey,
-                                 StationPartnerIdSelector,
-                                 ConnectorStatusPartnerIdSelector,
-                                 RemoteTCPPort,
-                                 RemoteCertificateValidator,
-                                 ClientCertificateSelector,
-                                 RemoteHTTPVirtualHost,
-                                 URLPrefix ?? CPOClient.DefaultURLPrefix,
-                                 HTTPUserAgent,
-                                 IncludeStation,
-                                 IncludeStationId,
-                                 IncludeConnectorId,
-                                 IncludeConnectorStatusType,
-                                 IncludeConnectorStatus,
-                                 RequestTimeout,
-                                 MaxNumberOfRetries,
-                                 DNSClient,
-                                 ClientLoggingContext,
-                                 LogFileCreator),
-
-                   new CPOServer(ServerName,
-                                 HTTPHostname,
-                                 HTTPServerPort,
-                                 ServiceName,
-                                 ServerCertificateSelector,
-                                 RemoteClientCertificateValidator,
-                                 RemoteClientCertificateSelector,
-                                 ServerAllowedTLSProtocols,
-                                 ServerURLPrefix ?? CPOServer.DefaultURLPrefix,
-                                 ServerAPIKeyValidator,
-                                 ServerContentType,
-                                 ServerRegisterHTTPRootService,
-                                 DNSClient: DNSClient,
-                                 Autostart: false),
-
-                   ServerLoggingContext,
-                   LogFileCreator)
-
-        {
-
-            if (ServerAutoStart)
-                Start();
-
-        }
-
-        #endregion
-
-        #region CPORoaming(ClientId, RemoteHostname, RemoteTCPPort = null, RemoteHTTPVirtualHost = null, ... )
-
-        /// <summary>
-        /// Create a new OIOI roaming client for CPOs.
-        /// </summary>
-        /// <param name="ClientId">A unqiue identification of this client.</param>
-        /// <param name="RemoteHostname">The hostname of the remote OIOI service.</param>
-        /// <param name="APIKey">The PlugSurfing API key.</param>
-        /// <param name="StationPartnerIdSelector">A delegate to select a partner identification based on the given charging station.</param>
-        /// <param name="ConnectorStatusPartnerIdSelector">A delegate to select a partner identification based on the given charging connector status.</param>
-        /// 
-        /// <param name="RemoteTCPPort">An optional TCP port of the remote OIOI service.</param>
-        /// <param name="RemoteCertificateValidator">A delegate to verify the remote TLS certificate.</param>
-        /// <param name="ClientCertificateSelector">A delegate to select a TLS client certificate.</param>
-        /// <param name="RemoteHTTPVirtualHost">An optional HTTP virtual hostname of the remote OIOI service.</param>
-        /// <param name="HTTPUserAgent">An optional HTTP user agent identification string for this HTTP client.</param>
-        /// <param name="RequestTimeout">An optional timeout for upstream queries.</param>
-        /// <param name="MaxNumberOfRetries">The default number of maximum transmission retries.</param>
-        /// 
-        /// <param name="ServerName">An optional identification string for the HTTP server.</param>
-        /// <param name="ServerTCPPort">An optional TCP port for the HTTP server.</param>
-        /// <param name="ServerCertificateSelector">An optional delegate to select a SSL/TLS server certificate.</param>
-        /// <param name="RemoteClientCertificateValidator">An optional delegate to verify the SSL/TLS client certificate used for authentication.</param>
-        /// <param name="RemoteClientCertificateSelector">An optional delegate to select the SSL/TLS client certificate used for authentication.</param>
-        /// <param name="ServerAllowedTLSProtocols">The SSL/TLS protocol(s) allowed for this connection.</param>
-        /// <param name="ServerURLPrefix">An optional prefix for the HTTP URIs.</param>
-        /// <param name="ServerContentType">An optional HTTP content type to use.</param>
-        /// <param name="ServerRegisterHTTPRootService">Register HTTP root services for sending a notice to clients connecting via HTML or plain text.</param>
-        /// <param name="ServerAutoStart">Whether to start the server immediately or not.</param>
-        /// 
-        /// <param name="ClientLoggingContext">An optional context for logging client methods.</param>
-        /// <param name="ServerLoggingContext">An optional context for logging server methods.</param>
-        /// <param name="LogFileCreator">A delegate to create a log file from the given context and log file name.</param>
-        /// 
-        /// <param name="DNSClient">An optional DNS client to use.</param>
-        public CPORoaming(HTTPServer                           HTTPServer,
-                          HTTPHostname                         HTTPHostname,
-                          String                               ClientId,
-                          HTTPHostname                         RemoteHostname,
-                          APIKey                               APIKey,
-                          PartnerIdForStationDelegate          StationPartnerIdSelector,
-                          PartnerIdForConnectorIdDelegate      ConnectorStatusPartnerIdSelector,
-                          IPPort?                              RemoteTCPPort                      = null,
-                          RemoteCertificateValidationCallback  RemoteCertificateValidator         = null,
-                          LocalCertificateSelectionCallback    ClientCertificateSelector          = null,
-                          HTTPHostname?                        RemoteHTTPVirtualHost              = null,
-                          HTTPPath?                            URLPrefix                          = null,
-                          String                               HTTPUserAgent                      = CPOClient.DefaultHTTPUserAgent,
-                          IncludeStationDelegate               IncludeStation                     = null,
-                          IncludeStationIdDelegate             IncludeStationId                   = null,
-                          IncludeConnectorIdDelegate           IncludeConnectorId                 = null,
-                          IncludeConnectorStatusTypesDelegate  IncludeConnectorStatusType         = null,
-                          IncludeConnectorStatusDelegate       IncludeConnectorStatus             = null,
-                          TimeSpan?                            RequestTimeout                     = null,
-                          Byte?                                MaxNumberOfRetries                 = CPOClient.DefaultMaxNumberOfRetries,
-                          ServerCertificateSelectorDelegate    ServerCertificateSelector          = null,
-                          RemoteCertificateValidationCallback  RemoteClientCertificateValidator   = null,
-                          LocalCertificateSelectionCallback    RemoteClientCertificateSelector    = null,
-                          SslProtocols                         ServerAllowedTLSProtocols          = SslProtocols.Tls12,
-                          HTTPPath?                            ServerURLPrefix                    = null,
-                          ServerAPIKeyValidatorDelegate        ServerAPIKeyValidator              = null,
-                          HTTPContentType                      ServerContentType                  = null,
-                          Boolean                              ServerRegisterHTTPRootService      = true,
-                          Boolean                              ServerAutoStart                    = false,
-
-                          String                               ClientLoggingContext               = CPOClient.CPOClientLogger.DefaultContext,
-                          String                               ServerLoggingContext               = CPOServerLogger.DefaultContext,
-                          LogfileCreatorDelegate               LogFileCreator                     = null,
-
-                          DNSClient                            DNSClient                          = null)
-
-            : this(new CPOClient(ClientId,
-                                 RemoteHostname,
-                                 APIKey,
-                                 StationPartnerIdSelector,
-                                 ConnectorStatusPartnerIdSelector,
-                                 RemoteTCPPort,
-                                 RemoteCertificateValidator,
-                                 ClientCertificateSelector,
-                                 RemoteHTTPVirtualHost,
-                                 URLPrefix ?? CPOClient.DefaultURLPrefix,
-                                 HTTPUserAgent,
-                                 IncludeStation,
-                                 IncludeStationId,
-                                 IncludeConnectorId,
-                                 IncludeConnectorStatusType,
-                                 IncludeConnectorStatus,
-                                 RequestTimeout,
-                                 MaxNumberOfRetries,
-                                 DNSClient,
-                                 ClientLoggingContext,
-                                 LogFileCreator),
-
-                   new CPOServer(HTTPServer,
-                                 HTTPHostname,
-                                 ServerURLPrefix ?? CPOServer.DefaultURLPrefix,
-                                 ServerAPIKeyValidator,
-                                 ServerContentType),
-
-                   ServerLoggingContext,
-                   LogFileCreator)
-
-        {
-
-            if (ServerAutoStart)
-                Start();
-
-        }
-
-        #endregion
 
         #endregion
 

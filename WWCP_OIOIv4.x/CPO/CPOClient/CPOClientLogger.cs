@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2016-2020 GraphDefined GmbH
+ * Copyright (c) 2016-2021 GraphDefined GmbH
  * This file is part of WWCP OIOI <https://github.com/OpenChargingCloud/WWCP_OIOI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +21,6 @@ using System;
 
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
-using org.GraphDefined.Vanaheimr.Hermod.SOAP;
 
 #endregion
 
@@ -29,15 +28,15 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 {
 
     /// <summary>
-    /// An OIOI CPO Client.
+    /// The OIOI CPO Client.
     /// </summary>
     public partial class CPOClient : AJSONClient
     {
 
         /// <summary>
-        /// An OIOI CPO Client (HTTP/JSON client) logger.
+        /// The OIOI CPO HTTP/JSON client logger.
         /// </summary>
-        public class CPOClientLogger : HTTPClientLogger
+        public class Logger : HTTPClientLogger
         {
 
             #region Data
@@ -68,7 +67,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             /// <param name="CPOClient">A OIOI CPO Client.</param>
             /// <param name="Context">A context of this API.</param>
             /// <param name="LogFileCreator">A delegate to create a log file from the given context and log file name.</param>
-            public CPOClientLogger(ICPOClient              CPOClient,
+            public Logger(ICPOClient              CPOClient,
                                    String                  Context         = DefaultContext,
                                    LogfileCreatorDelegate  LogFileCreator  = null)
 
@@ -109,7 +108,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             /// <param name="LogHTTPError_toHTTPSSE">A delegate to log HTTP errors to a HTTP client sent events source.</param>
             /// 
             /// <param name="LogFileCreator">A delegate to create a log file from the given context and log file name.</param>
-            public CPOClientLogger(ICPOClient                  CPOClient,
+            public Logger(ICPOClient                  CPOClient,
                                    String                      Context,
 
                                    HTTPRequestLoggerDelegate   LogHTTPRequest_toConsole,

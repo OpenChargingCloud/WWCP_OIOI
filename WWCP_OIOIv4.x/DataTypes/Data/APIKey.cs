@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2016-2020 GraphDefined GmbH
+ * Copyright (c) 2016-2021 GraphDefined GmbH
  * This file is part of WWCP OIOI <https://github.com/OpenChargingCloud/WWCP_OIOI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,11 +27,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 {
 
     /// <summary>
-    /// An OIOI API key.
+    /// An API key.
     /// </summary>
-    public struct APIKey : IId,
-                           IEquatable<APIKey>,
-                           IComparable<APIKey>
+    public readonly struct APIKey : IId,
+                                    IEquatable<APIKey>,
+                                    IComparable<APIKey>
 
     {
 
@@ -53,20 +53,18 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
             => InternalId.IsNullOrEmpty();
 
         /// <summary>
-        /// The length of the partner identificator.
+        /// The length of the clearing house identificator.
         /// </summary>
         public UInt64 Length
-            => (UInt64) InternalId.Length;
+            => (UInt64) InternalId?.Length;
 
         #endregion
 
         #region Constructor(s)
 
         /// <summary>
-        /// Create a new API key.
-        /// based on the given string.
+        /// Create a new API key based on the given string.
         /// </summary>
-        /// <param name="Text">The value of the partner identificator.</param>
         private APIKey(String Text)
         {
             InternalId = Text;
@@ -75,19 +73,47 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         #endregion
 
 
-        #region Parse(Text)
+        #region Parse   (Text)
 
         /// <summary>
         /// Parse the given string as an API key.
         /// </summary>
-        /// <param name="Text">A text representation of an API key.</param>
+        /// <param name="Text">A text-representation of an API key.</param>
         public static APIKey Parse(String Text)
         {
 
-            if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of an API key must not be null or empty!");
+            #region Initial checks
 
-            return new APIKey(Text.Trim());
+            if (Text != null)
+                Text = Text.Trim();
+
+            if (Text.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(Text), "The given text-representation of an API key must not be null or empty!");
+
+            #endregion
+
+            if (TryParse(Text, out APIKey apiKey))
+                return apiKey;
+
+            throw new ArgumentException("Invalid text-representation of an API key: '" + Text + "'!", nameof(Text));
+
+        }
+
+        #endregion
+
+        #region TryParse(Text)
+
+        /// <summary>
+        /// Try to parse the given string as an API key.
+        /// </summary>
+        /// <param name="Text">A text-representation of an API key.</param>
+        public static APIKey? TryParse(String Text)
+        {
+
+            if (TryParse(Text, out APIKey apiKey))
+                return apiKey;
+
+            return default;
 
         }
 
@@ -96,9 +122,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         #region TryParse(Text, out APIKey)
 
         /// <summary>
-        /// Parse the given string as an API key.
+        /// Try to parse the given string as an API key.
         /// </summary>
-        /// <param name="Text">A text representation of an API key.</param>
+        /// <param name="Text">A text-representation of an API key.</param>
         /// <param name="APIKey">The parsed API key.</param>
         public static Boolean TryParse(String Text, out APIKey APIKey)
         {
@@ -110,7 +136,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
             if (Text.IsNullOrEmpty())
             {
-                APIKey = default(APIKey);
+                APIKey = default;
                 return false;
             }
 
@@ -118,11 +144,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
             try
             {
-
                 APIKey = new APIKey(Text);
-
                 return true;
-
             }
 
 #pragma warning disable RCS1075  // Avoid empty catch clause that catches System.Exception.
@@ -132,7 +155,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 #pragma warning restore RCS1075  // Avoid empty catch clause that catches System.Exception.
             { }
 
-            APIKey = default(APIKey);
+            APIKey = default;
             return false;
 
         }
@@ -155,107 +178,93 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
         #region Operator overloading
 
-        #region Operator == (APIKey1, APIKey2)
+        #region Operator == (APIKeyId1, APIKeyId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="APIKey1">A API key.</param>
-        /// <param name="APIKey2">Another API key.</param>
+        /// <param name="APIKeyId1">An API key.</param>
+        /// <param name="APIKeyId2">Another API key.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator == (APIKey APIKey1, APIKey APIKey2)
-        {
+        public static Boolean operator == (APIKey APIKeyId1,
+                                           APIKey APIKeyId2)
 
-            // If both are null, or both are same instance, return true.
-            if (ReferenceEquals(APIKey1, APIKey2))
-                return true;
-
-            // If one is null, but not both, return false.
-            if (((Object) APIKey1 == null) || ((Object) APIKey2 == null))
-                return false;
-
-            return APIKey1.Equals(APIKey2);
-
-        }
+            => APIKeyId1.Equals(APIKeyId2);
 
         #endregion
 
-        #region Operator != (APIKey1, APIKey2)
+        #region Operator != (APIKeyId1, APIKeyId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="APIKey1">A API key.</param>
-        /// <param name="APIKey2">Another API key.</param>
+        /// <param name="APIKeyId1">An API key.</param>
+        /// <param name="APIKeyId2">Another API key.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator != (APIKey APIKey1, APIKey APIKey2)
-            => !(APIKey1 == APIKey2);
+        public static Boolean operator != (APIKey APIKeyId1,
+                                           APIKey APIKeyId2)
+
+            => !APIKeyId1.Equals(APIKeyId2);
 
         #endregion
 
-        #region Operator <  (APIKey1, APIKey2)
+        #region Operator <  (APIKeyId1, APIKeyId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="APIKey1">A API key.</param>
-        /// <param name="APIKey2">Another API key.</param>
+        /// <param name="APIKeyId1">An API key.</param>
+        /// <param name="APIKeyId2">Another API key.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator < (APIKey APIKey1, APIKey APIKey2)
-        {
+        public static Boolean operator < (APIKey APIKeyId1,
+                                          APIKey APIKeyId2)
 
-            if ((Object) APIKey1 == null)
-                throw new ArgumentNullException(nameof(APIKey1), "The given APIKey1 must not be null!");
-
-            return APIKey1.CompareTo(APIKey2) < 0;
-
-        }
+            => APIKeyId1.CompareTo(APIKeyId2) < 0;
 
         #endregion
 
-        #region Operator <= (APIKey1, APIKey2)
+        #region Operator <= (APIKeyId1, APIKeyId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="APIKey1">A API key.</param>
-        /// <param name="APIKey2">Another API key.</param>
+        /// <param name="APIKeyId1">An API key.</param>
+        /// <param name="APIKeyId2">Another API key.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator <= (APIKey APIKey1, APIKey APIKey2)
-            => !(APIKey1 > APIKey2);
+        public static Boolean operator <= (APIKey APIKeyId1,
+                                           APIKey APIKeyId2)
+
+            => APIKeyId1.CompareTo(APIKeyId2) <= 0;
 
         #endregion
 
-        #region Operator >  (APIKey1, APIKey2)
+        #region Operator >  (APIKeyId1, APIKeyId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="APIKey1">A API key.</param>
-        /// <param name="APIKey2">Another API key.</param>
+        /// <param name="APIKeyId1">An API key.</param>
+        /// <param name="APIKeyId2">Another API key.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator > (APIKey APIKey1, APIKey APIKey2)
-        {
+        public static Boolean operator > (APIKey APIKeyId1,
+                                          APIKey APIKeyId2)
 
-            if ((Object) APIKey1 == null)
-                throw new ArgumentNullException(nameof(APIKey1), "The given APIKey1 must not be null!");
-
-            return APIKey1.CompareTo(APIKey2) > 0;
-
-        }
+            => APIKeyId1.CompareTo(APIKeyId2) > 0;
 
         #endregion
 
-        #region Operator >= (APIKey1, APIKey2)
+        #region Operator >= (APIKeyId1, APIKeyId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="APIKey1">A API key.</param>
-        /// <param name="APIKey2">Another API key.</param>
+        /// <param name="APIKeyId1">An API key.</param>
+        /// <param name="APIKeyId2">Another API key.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator >= (APIKey APIKey1, APIKey APIKey2)
-            => !(APIKey1 < APIKey2);
+        public static Boolean operator >= (APIKey APIKeyId1,
+                                           APIKey APIKeyId2)
+
+            => APIKeyId1.CompareTo(APIKeyId2) >= 0;
 
         #endregion
 
@@ -270,18 +279,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// </summary>
         /// <param name="Object">An object to compare with.</param>
         public Int32 CompareTo(Object Object)
-        {
 
-            if (Object == null)
-                throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
-
-            if (!(Object is APIKey))
-                throw new ArgumentException("The given object is not an API key!",
-                                            nameof(Object));
-
-            return CompareTo((APIKey) Object);
-
-        }
+            => Object is APIKey apiKey
+                   ? CompareTo(apiKey)
+                   : throw new ArgumentException("The given object is not an API key!",
+                                                 nameof(Object));
 
         #endregion
 
@@ -292,20 +294,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// </summary>
         /// <param name="APIKey">An object to compare with.</param>
         public Int32 CompareTo(APIKey APIKey)
-        {
 
-            if ((Object) APIKey == null)
-                throw new ArgumentNullException(nameof(APIKey),  "The given API key must not be null!");
-
-            // Compare the length of the APIKeys
-            var _Result = this.Length.CompareTo(APIKey.Length);
-
-            if (_Result == 0)
-                _Result = String.Compare(InternalId, APIKey.InternalId, StringComparison.Ordinal);
-
-            return _Result;
-
-        }
+            => String.Compare(InternalId,
+                              APIKey.InternalId,
+                              StringComparison.Ordinal);
 
         #endregion
 
@@ -321,17 +313,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <param name="Object">An object to compare with.</param>
         /// <returns>true|false</returns>
         public override Boolean Equals(Object Object)
-        {
 
-            if (Object == null)
-                return false;
-
-            if (!(Object is APIKey))
-                return false;
-
-            return Equals((APIKey) Object);
-
-        }
+            => Object is APIKey apiKey &&
+                   Equals(apiKey);
 
         #endregion
 
@@ -340,17 +324,13 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <summary>
         /// Compares two APIKeys for equality.
         /// </summary>
-        /// <param name="APIKey">A API key to compare with.</param>
+        /// <param name="APIKey">An API key to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
         public Boolean Equals(APIKey APIKey)
-        {
 
-            if ((Object) APIKey == null)
-                return false;
-
-            return InternalId.Equals(APIKey.InternalId);
-
-        }
+            => String.Equals(InternalId,
+                             APIKey.InternalId,
+                             StringComparison.Ordinal);
 
         #endregion
 
@@ -359,10 +339,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         #region GetHashCode()
 
         /// <summary>
-        /// Return the HashCode of this object.
+        /// Return the hash code of this object.
         /// </summary>
-        /// <returns>The HashCode of this object.</returns>
+        /// <returns>The hash code of this object.</returns>
         public override Int32 GetHashCode()
+
             => InternalId.GetHashCode();
 
         #endregion
@@ -370,9 +351,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         #region (override) ToString()
 
         /// <summary>
-        /// Return a text representation of this object.
+        /// Return a text-representation of this object.
         /// </summary>
         public override String ToString()
+
             => InternalId;
 
         #endregion

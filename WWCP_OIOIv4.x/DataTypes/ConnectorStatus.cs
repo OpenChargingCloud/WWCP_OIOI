@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2016-2020 GraphDefined GmbH
+ * Copyright (c) 2016-2021 GraphDefined GmbH
  * This file is part of WWCP OIOI <https://github.com/OpenChargingCloud/WWCP_OIOI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,7 +31,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
     /// <summary>
     /// The current timestamped status of an OIOI connector.
     /// </summary>
-    public class ConnectorStatus : ACustomData,
+    public class ConnectorStatus : AInternalData,
                                    IEquatable <ConnectorStatus>,
                                    IComparable<ConnectorStatus>
     {

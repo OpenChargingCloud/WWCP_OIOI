@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2016-2020 GraphDefined GmbH
+ * Copyright (c) 2016-2021 GraphDefined GmbH
  * This file is part of WWCP OIOI <https://github.com/OpenChargingCloud/WWCP_OIOI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,7 +40,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 {
 
     /// <summary>
-    /// An OIOI EMP Client.
+    /// The OIOI EMP client.
     /// </summary>
     public partial class EMPClient : AJSONClient,
                                      IEMPClient
@@ -71,24 +71,29 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         #region Properties
 
         /// <summary>
-        /// The URI prefix for all HTTP requests.
-        /// </summary>
-        public HTTPPath          URLPrefix          { get; }
-
-        /// <summary>
         /// The API key for all requests.
         /// </summary>
-        public String           APIKey             { get; }
+        public APIKey      APIKey              { get; }
 
         /// <summary>
         /// The default communication partner identification for all requests.
         /// </summary>
-        public Partner_Id       DefaultPartnerId   { get; }
+        public Partner_Id  DefaultPartnerId    { get; }
 
         /// <summary>
-        /// The attached OIOI CPO client (HTTP/JSON client) logger.
+        /// The attached HTTP client logger.
         /// </summary>
-        public EMPClientLogger  Logger             { get; }
+        public new Logger HTTPLogger
+        {
+            get
+            {
+                return base.HTTPLogger as Logger;
+            }
+            set
+            {
+                base.HTTPLogger = value;
+            }
+        }
 
         #endregion
 
@@ -324,121 +329,53 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
         #region Constructor(s)
 
-        #region EMPClient(ClientId, Hostname, APIKey, ..., LoggingContext = EMPClientLogger.DefaultContext, ...)
-
         /// <summary>
-        /// Create a new OIOI EMP Client using the given parameters.
+        /// Create a new EMP client.
         /// </summary>
-        /// <param name="ClientId">A unqiue identification of this client.</param>
-        /// <param name="Hostname">The hostname of the remote OIOI service.</param>
+        /// <param name="RemoteURL">The remote URL of the HTTP endpoint to connect to.</param>
         /// <param name="APIKey">The PlugSurfing API key.</param>
-        /// <param name="RemotePort">An optional TCP port of the remote OIOI service.</param>
-        /// <param name="RemoteCertificateValidator">A delegate to verify the remote TLS certificate.</param>
+        /// <param name="VirtualHostname">An optional HTTP virtual hostname.</param>
+        /// <param name="Description">An optional description of this EMP client.</param>
+        /// <param name="RemoteCertificateValidator">The remote SSL/TLS certificate validator.</param>
         /// <param name="ClientCertificateSelector">A delegate to select a TLS client certificate.</param>
-        /// <param name="HTTPVirtualHost">An optional HTTP virtual hostname of the remote OIOI service.</param>
-        /// <param name="HTTPUserAgent">An optional HTTP user agent identification string for this HTTP client.</param>
-        /// <param name="URLPrefix">The default URI prefix.</param>
-        /// <param name="DefaultPartnerId">The default communication partner identification.</param>
-        /// <param name="RequestTimeout">An optional timeout for upstream queries.</param>
-        /// <param name="MaxNumberOfRetries">The default number of maximum transmission retries.</param>
-        /// <param name="DNSClient">An optional DNS client to use.</param>
-        /// <param name="LoggingContext">An optional context for logging client methods.</param>
-        /// <param name="LogFileCreator">A delegate to create a log file from the given context and log file name.</param>
-        public EMPClient(String                               ClientId,
-                         HTTPHostname                         Hostname,
-                         String                               APIKey,
-                         IPPort?                              RemotePort                   = null,
+        /// <param name="ClientCert">The SSL/TLS client certificate to use of HTTP authentication.</param>
+        /// <param name="HTTPUserAgent">The HTTP user agent identification.</param>
+        /// <param name="URLPathPrefix">An optional default URL path prefix.</param>
+        /// <param name="RequestTimeout">An optional request timeout.</param>
+        /// <param name="TransmissionRetryDelay">The delay between transmission retries.</param>
+        /// <param name="MaxNumberOfRetries">The maximum number of transmission retries for HTTP request.</param>
+        /// <param name="DisableLogging">Disable all logging.</param>
+        /// <param name="LoggingContext">An optional context for logging.</param>
+        /// <param name="LogfileCreator">A delegate to create a log file from the given context and log file name.</param>
+        /// <param name="DNSClient">The DNS client to use.</param>
+        public EMPClient(URL                                  RemoteURL,
+                         APIKey                               APIKey,
+                         HTTPHostname?                        VirtualHostname              = null,
+                         String                               Description                  = null,
                          RemoteCertificateValidationCallback  RemoteCertificateValidator   = null,
                          LocalCertificateSelectionCallback    ClientCertificateSelector    = null,
-                         HTTPHostname?                        HTTPVirtualHost              = null,
-                         HTTPPath?                             URLPrefix                    = null,
+                         X509Certificate                      ClientCert                   = null,
                          String                               HTTPUserAgent                = DefaultHTTPUserAgent,
-                         Partner_Id?                          DefaultPartnerId             = null,
+                         HTTPPath?                            URLPathPrefix                = null,
                          TimeSpan?                            RequestTimeout               = null,
-                         Byte?                                MaxNumberOfRetries           = DefaultMaxNumberOfRetries,
-                         DNSClient                            DNSClient                    = null,
-                         String                               LoggingContext               = EMPClientLogger.DefaultContext,
-                         LogfileCreatorDelegate               LogFileCreator               = null)
-
-            : base(ClientId,
-                   Hostname,
-                   RemotePort ?? DefaultRemotePort,
-                   RemoteCertificateValidator,
-                   ClientCertificateSelector,
-                   HTTPVirtualHost,
-                   HTTPUserAgent,
-                   RequestTimeout,
-                   null,
-                   MaxNumberOfRetries,
-                   DNSClient)
-
-        {
-
-            #region Initial checks
-
-            if (ClientId.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(ClientId),  "The given client identification must not be null or empty!");
-
-            if (APIKey.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(APIKey),    "The given API key must not be null or empty!");
-
-            #endregion
-
-            this.APIKey            = APIKey;
-            this.URLPrefix         = URLPrefix        ?? DefaultURLPrefix;
-            this.DefaultPartnerId  = DefaultPartnerId ?? DefaultDefaultPartnerId;
-
-            this.Logger            = new EMPClientLogger(this,
-                                                         LoggingContext,
-                                                         LogFileCreator);
-
-        }
-
-        #endregion
-
-        #region EMPClient(ClientId, Logger, Hostname, APIKey, ...)
-
-        /// <summary>
-        /// Create a new OIOI EMP Client.
-        /// </summary>
-        /// <param name="ClientId">A unqiue identification of this client.</param>
-        /// <param name="Logger">A CPO client logger.</param>
-        /// <param name="Hostname">The hostname of the remote OIOI service.</param>
-        /// <param name="APIKey">The PlugSurfing API key.</param>
-        /// <param name="RemotePort">An optional TCP port of the remote OIOI service.</param>
-        /// <param name="URLPrefix">The default URI prefix.</param>
-        /// <param name="RemoteCertificateValidator">A delegate to verify the remote TLS certificate.</param>
-        /// <param name="ClientCertificateSelector">A delegate to select a TLS client certificate.</param>
-        /// <param name="HTTPVirtualHost">An optional HTTP virtual hostname of the remote OIOI service.</param>
-        /// <param name="HTTPUserAgent">An optional HTTP user agent identification string for this HTTP client.</param>
-        /// <param name="DefaultPartnerId">The default communication partner identification.</param>
-        /// <param name="RequestTimeout">An optional timeout for upstream queries.</param>
-        /// <param name="MaxNumberOfRetries">The default number of maximum transmission retries.</param>
-        /// <param name="DNSClient">An optional DNS client to use.</param>
-        public EMPClient(String                               ClientId,
-                         EMPClientLogger                      Logger,
-                         HTTPHostname                         Hostname,
-                         String                               APIKey,
-                         IPPort?                              RemotePort                   = null,
-                         HTTPPath?                             URLPrefix                    = null,
-                         RemoteCertificateValidationCallback  RemoteCertificateValidator   = null,
-                         LocalCertificateSelectionCallback    ClientCertificateSelector    = null,
-                         HTTPHostname?                        HTTPVirtualHost              = null,
-                         String                               HTTPUserAgent                = DefaultHTTPUserAgent,
-                         Partner_Id?                          DefaultPartnerId             = null,
-                         TimeSpan?                            RequestTimeout               = null,
-                         Byte?                                MaxNumberOfRetries           = DefaultMaxNumberOfRetries,
+                         TransmissionRetryDelayDelegate       TransmissionRetryDelay       = null,
+                         UInt16?                              MaxNumberOfRetries           = DefaultMaxNumberOfRetries,
+                         Boolean                              DisableLogging               = false,
+                         String                               LoggingContext               = null,
+                         LogfileCreatorDelegate               LogfileCreator               = null,
                          DNSClient                            DNSClient                    = null)
 
-            : base(ClientId,
-                   Hostname,
-                   RemotePort ?? DefaultRemotePort,
+
+            : base(RemoteURL,
+                   VirtualHostname,
+                   Description,
                    RemoteCertificateValidator,
                    ClientCertificateSelector,
-                   HTTPVirtualHost,
+                   ClientCert,
                    HTTPUserAgent,
+                   URLPathPrefix,
                    RequestTimeout,
-                   null,
+                   TransmissionRetryDelay,
                    MaxNumberOfRetries,
                    DNSClient)
 
@@ -446,22 +383,20 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
             #region Initial checks
 
-            if (ClientId.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(ClientId),  "The given client identification must not be null or empty!");
-
-            if (APIKey.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(APIKey),    "The given API key must not be null or empty!");
+            if (APIKey.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(APIKey),  "The given API key must not be null or empty!");
 
             #endregion
 
-            this.Logger            = Logger;
-            this.APIKey            = APIKey;
-            this.URLPrefix         = URLPrefix ?? DefaultURLPrefix;
-            this.DefaultPartnerId  = DefaultPartnerId.HasValue ? DefaultPartnerId.Value : Partner_Id.Parse("1");
+            this.APIKey      = APIKey;
+
+            base.HTTPLogger  = DisableLogging == false
+                                   ? new Logger(this,
+                                                LoggingContext,
+                                                LogfileCreator)
+                                   : null;
 
         }
-
-        #endregion
 
         #endregion
 
@@ -503,7 +438,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                 OnStationGetSurfaceRequest?.Invoke(StartTime,
                                                    Request.Timestamp.Value,
                                                    this,
-                                                   ClientId,
+                                                   Description,
                                                    Request.EventTrackingId,
                                                    Request.MinLat,
                                                    Request.MaxLat,
@@ -521,14 +456,17 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
             #endregion
 
 
-            using (var _JSONClient = new JSONClient(Hostname,
-                                                    URLPrefix,
+            using (var _JSONClient = new JSONClient(RemoteURL,
                                                     VirtualHostname,
-                                                    RemotePort,
+                                                    Description,
                                                     RemoteCertificateValidator,
                                                     ClientCertificateSelector,
-                                                    UserAgent,
+                                                    ClientCert,
+                                                    HTTPUserAgent,
+                                                    URLPathPrefix,
                                                     RequestTimeout,
+                                                    TransmissionRetryDelay,
+                                                    MaxNumberOfRetries,
                                                     DNSClient))
             {
 
@@ -623,7 +561,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                 OnStationGetSurfaceResponse?.Invoke(Endtime,
                                                     Request.Timestamp.Value,
                                                     this,
-                                                    ClientId,
+                                                    Description,
                                                     Request.EventTrackingId,
                                                     Request.MinLat,
                                                     Request.MaxLat,
@@ -685,7 +623,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                 OnSessionStartRequest?.Invoke(StartTime,
                                               Request.Timestamp.Value,
                                               this,
-                                              ClientId,
+                                              Description,
                                               Request.EventTrackingId,
                                               Request.User,
                                               Request.ConnectorId,
@@ -701,14 +639,17 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
             #endregion
 
 
-            using (var _JSONClient = new JSONClient(Hostname,
-                                                    URLPrefix,
+            using (var _JSONClient = new JSONClient(RemoteURL,
                                                     VirtualHostname,
-                                                    RemotePort,
+                                                    Description,
                                                     RemoteCertificateValidator,
                                                     ClientCertificateSelector,
-                                                    UserAgent,
+                                                    ClientCert,
+                                                    HTTPUserAgent,
+                                                    URLPathPrefix,
                                                     RequestTimeout,
+                                                    TransmissionRetryDelay,
+                                                    MaxNumberOfRetries,
                                                     DNSClient))
             {
 
@@ -799,7 +740,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                 OnSessionStartResponse?.Invoke(Endtime,
                                                Request.Timestamp.Value,
                                                this,
-                                               ClientId,
+                                               Description,
                                                Request.EventTrackingId,
                                                Request.User,
                                                Request.ConnectorId,
@@ -859,7 +800,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                 OnSessionStopRequest?.Invoke(StartTime,
                                              Request.Timestamp.Value,
                                              this,
-                                             ClientId,
+                                             Description,
                                              Request.EventTrackingId,
                                              Request.User,
                                              Request.ConnectorId,
@@ -875,14 +816,17 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
             #endregion
 
 
-            using (var _JSONClient = new JSONClient(Hostname,
-                                                    URLPrefix,
+            using (var _JSONClient = new JSONClient(RemoteURL,
                                                     VirtualHostname,
-                                                    RemotePort,
+                                                    Description,
                                                     RemoteCertificateValidator,
                                                     ClientCertificateSelector,
-                                                    UserAgent,
+                                                    ClientCert,
+                                                    HTTPUserAgent,
+                                                    URLPathPrefix,
                                                     RequestTimeout,
+                                                    TransmissionRetryDelay,
+                                                    MaxNumberOfRetries,
                                                     DNSClient))
             {
 
@@ -973,7 +917,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                 OnSessionStopResponse?.Invoke(Endtime,
                                               Request.Timestamp.Value,
                                               this,
-                                              ClientId,
+                                              Description,
                                               Request.EventTrackingId,
                                               Request.User,
                                               Request.ConnectorId,

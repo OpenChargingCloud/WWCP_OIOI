@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2016-2020 GraphDefined GmbH
+ * Copyright (c) 2016-2021 GraphDefined GmbH
  * This file is part of WWCP OIOI <https://github.com/OpenChargingCloud/WWCP_OIOI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -109,11 +109,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         #region Properties
 
         /// <summary>
-        /// The URI prefix for all HTTP requests.
-        /// </summary>
-        public HTTPPath                              URLPrefix                      { get; }
-
-        /// <summary>
         /// The API key for all requests.
         /// </summary>
         public APIKey                               APIKey                          { get; }
@@ -129,11 +124,19 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         public PartnerIdForConnectorIdDelegate      ConnectorIdPartnerIdSelector    { get; }
 
         /// <summary>
-        /// The attached OIOI CPO client (HTTP/JSON client) logger.
+        /// The attached HTTP client logger.
         /// </summary>
-        public CPOClientLogger                      Logger                          { get; }
-
-        #endregion
+        public new Logger HTTPLogger
+        {
+            get
+            {
+                return base.HTTPLogger as Logger;
+            }
+            set
+            {
+                base.HTTPLogger = value;
+            }
+        }
 
         public IncludeStationDelegate               IncludeStation                  { get; }
         public IncludeStationIdDelegate             IncludeStationId                { get; }
@@ -141,6 +144,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         public IncludeConnectorIdDelegate           IncludeConnectorId              { get; }
         public IncludeConnectorStatusTypesDelegate  IncludeConnectorStatusType      { get; }
         public IncludeConnectorStatusDelegate       IncludeConnectorStatus          { get; }
+
+        #endregion
 
         #region Events
 
@@ -458,139 +463,62 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         #region Constructor(s)
 
-        #region CPOClient(ClientId, Hostname, APIKey, ..., LoggingContext = CPOClientLogger.DefaultContext, ...)
-
         /// <summary>
-        /// Create a new OIOI CPO Client using the given parameters.
+        /// Create a new CPO client.
         /// </summary>
-        /// <param name="ClientId">A unqiue identification of this client.</param>
-        /// <param name="Hostname">The hostname of the remote OIOI service.</param>
+        /// <param name="RemoteURL">The remote URL of the HTTP endpoint to connect to.</param>
         /// <param name="APIKey">The PlugSurfing API key.</param>
         /// <param name="StationPartnerIdSelector">A delegate to select a partner identification based on the given charging station.</param>
         /// <param name="ConnectorStatusPartnerIdSelector">A delegate to select a partner identification based on the given charging connector status.</param>
-        /// <param name="RemotePort">An optional TCP port of the remote OIOI service.</param>
-        /// <param name="RemoteCertificateValidator">A delegate to verify the remote TLS certificate.</param>
+        /// <param name="VirtualHostname">An optional HTTP virtual hostname.</param>
+        /// <param name="Description">An optional description of this CPO client.</param>
+        /// <param name="RemoteCertificateValidator">The remote SSL/TLS certificate validator.</param>
         /// <param name="ClientCertificateSelector">A delegate to select a TLS client certificate.</param>
-        /// <param name="HTTPVirtualHost">An optional HTTP virtual hostname of the remote OIOI service.</param>
-        /// <param name="HTTPUserAgent">An optional HTTP user agent identification string for this HTTP client.</param>
-        /// <param name="URLPrefix">The default URI prefix.</param>
-        /// <param name="RequestTimeout">An optional timeout for upstream queries.</param>
-        /// <param name="MaxNumberOfRetries">The default number of maximum transmission retries.</param>
-        /// <param name="DNSClient">An optional DNS client to use.</param>
-        /// <param name="LoggingContext">An optional context for logging client methods.</param>
-        /// <param name="LogFileCreator">A delegate to create a log file from the given context and log file name.</param>
-        public CPOClient(String                               ClientId,
-                         HTTPHostname                         Hostname,
-                         APIKey                               APIKey,
+        /// <param name="ClientCert">The SSL/TLS client certificate to use of HTTP authentication.</param>
+        /// <param name="HTTPUserAgent">The HTTP user agent identification.</param>
+        /// <param name="URLPathPrefix">An optional default URL path prefix.</param>
+        /// <param name="RequestTimeout">An optional request timeout.</param>
+        /// <param name="TransmissionRetryDelay">The delay between transmission retries.</param>
+        /// <param name="MaxNumberOfRetries">The maximum number of transmission retries for HTTP request.</param>
+        /// <param name="DisableLogging">Disable all logging.</param>
+        /// <param name="LoggingContext">An optional context for logging.</param>
+        /// <param name="LogfileCreator">A delegate to create a log file from the given context and log file name.</param>
+        /// <param name="DNSClient">The DNS client to use.</param>
+        public CPOClient(APIKey                               APIKey,
                          PartnerIdForStationDelegate          StationPartnerIdSelector,
-                         PartnerIdForConnectorIdDelegate  ConnectorStatusPartnerIdSelector,
-                         IPPort?                              RemotePort                   = null,
+                         PartnerIdForConnectorIdDelegate      ConnectorStatusPartnerIdSelector,
+                         URL?                                 RemoteURL                    = null,
+                         HTTPHostname?                        VirtualHostname              = null,
+                         String                               Description                  = null,
                          RemoteCertificateValidationCallback  RemoteCertificateValidator   = null,
                          LocalCertificateSelectionCallback    ClientCertificateSelector    = null,
-                         HTTPHostname?                        HTTPVirtualHost              = null,
-                         HTTPPath?                            URLPrefix                    = null,
+                         X509Certificate                      ClientCert                   = null,
                          String                               HTTPUserAgent                = DefaultHTTPUserAgent,
+                         HTTPPath?                            URLPathPrefix                = null,
+                         TimeSpan?                            RequestTimeout               = null,
+                         TransmissionRetryDelayDelegate       TransmissionRetryDelay       = null,
+                         UInt16?                              MaxNumberOfRetries           = DefaultMaxNumberOfRetries,
                          IncludeStationDelegate               IncludeStation               = null,
                          IncludeStationIdDelegate             IncludeStationId             = null,
                          IncludeConnectorIdDelegate           IncludeConnectorId           = null,
                          IncludeConnectorStatusTypesDelegate  IncludeConnectorStatusType   = null,
                          IncludeConnectorStatusDelegate       IncludeConnectorStatus       = null,
-                         TimeSpan?                            RequestTimeout               = null,
-                         Byte?                                MaxNumberOfRetries           = DefaultMaxNumberOfRetries,
-                         DNSClient                            DNSClient                    = null,
-                         String                               LoggingContext               = CPOClientLogger.DefaultContext,
-                         LogfileCreatorDelegate               LogFileCreator               = null)
-
-            : base(ClientId,
-                   Hostname,
-                   RemotePort ?? DefaultRemotePort,
-                   RemoteCertificateValidator,
-                   ClientCertificateSelector,
-                   HTTPVirtualHost,
-                   HTTPUserAgent,
-                   RequestTimeout,
-                   null,
-                   MaxNumberOfRetries,
-                   DNSClient)
-
-        {
-
-            #region Initial checks
-
-            if (ClientId.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(ClientId), "The given client identification must not be null or empty!");
-
-            #endregion
-
-            this.APIKey                            = APIKey;
-            this.URLPrefix                         = URLPrefix                        ?? DefaultURLPrefix;
-            this.StationPartnerIdSelector          = StationPartnerIdSelector         ?? throw new ArgumentNullException(nameof(StationPartnerIdSelector),         "The given partner identification selector must not be null!"); ;
-            this.ConnectorIdPartnerIdSelector  = ConnectorStatusPartnerIdSelector ?? throw new ArgumentNullException(nameof(ConnectorStatusPartnerIdSelector), "The given partner identification selector must not be null!");
-
-            this.IncludeStation                    = IncludeStation                   ?? (station             => true);
-            this.IncludeStationId                  = IncludeStationId                 ?? (stationid           => true);
-            this.IncludeConnectorId                = IncludeConnectorId               ?? (connectorid         => true);
-            this.IncludeConnectorStatusType        = IncludeConnectorStatusType       ?? (connectorstatustype => true);
-            this.IncludeConnectorStatus            = IncludeConnectorStatus           ?? (connectorstatus     => true);
-
-            this.Logger                            = new CPOClientLogger(this,
-                                                                         LoggingContext,
-                                                                         LogFileCreator);
-
-        }
-
-        #endregion
-
-        #region CPOClient(ClientId, Logger, Hostname, APIKey, ...)
-
-        /// <summary>
-        /// Create a new OIOI CPO Client.
-        /// </summary>
-        /// <param name="ClientId">A unqiue identification of this client.</param>
-        /// <param name="Logger">A CPO client logger.</param>
-        /// <param name="Hostname">The hostname of the remote OIOI service.</param>
-        /// <param name="APIKey">The PlugSurfing API key.</param>
-        /// <param name="StationPartnerIdSelector">A delegate to select a partner identification based on the given charging station.</param>
-        /// <param name="ConnectorStatusPartnerIdSelector">A delegate to select a partner identification based on the given charging connector status.</param>
-        /// <param name="RemotePort">An optional TCP port of the remote OIOI service.</param>
-        /// <param name="URLPrefix">The default URI prefix.</param>
-        /// <param name="RemoteCertificateValidator">A delegate to verify the remote TLS certificate.</param>
-        /// <param name="ClientCertificateSelector">A delegate to select a TLS client certificate.</param>
-        /// <param name="HTTPVirtualHost">An optional HTTP virtual hostname of the remote OIOI service.</param>
-        /// <param name="HTTPUserAgent">An optional HTTP user agent identification string for this HTTP client.</param>
-        /// <param name="RequestTimeout">An optional timeout for upstream queries.</param>
-        /// <param name="MaxNumberOfRetries">The default number of maximum transmission retries.</param>
-        /// <param name="DNSClient">An optional DNS client to use.</param>
-        public CPOClient(String                               ClientId,
-                         CPOClientLogger                      Logger,
-                         HTTPHostname                         Hostname,
-                         APIKey                               APIKey,
-                         PartnerIdForStationDelegate          StationPartnerIdSelector,
-                         PartnerIdForConnectorIdDelegate  ConnectorStatusPartnerIdSelector,
-                         IPPort?                              RemotePort                   = null,
-                         HTTPPath?                             URLPrefix                    = null,
-                         RemoteCertificateValidationCallback  RemoteCertificateValidator   = null,
-                         LocalCertificateSelectionCallback    ClientCertificateSelector    = null,
-                         HTTPHostname?                        HTTPVirtualHost              = null,
-                         String                               HTTPUserAgent                = DefaultHTTPUserAgent,
-                         IncludeStationDelegate               IncludeStation               = null,
-                         IncludeStationIdDelegate             IncludeStationId             = null,
-                         IncludeConnectorIdDelegate           IncludeConnectorId           = null,
-                         IncludeConnectorStatusTypesDelegate  IncludeConnectorStatusType   = null,
-                         IncludeConnectorStatusDelegate       IncludeConnectorStatus       = null,
-                         TimeSpan?                            RequestTimeout               = null,
-                         Byte?                                MaxNumberOfRetries           = DefaultMaxNumberOfRetries,
+                         Boolean                              DisableLogging               = false,
+                         String                               LoggingContext               = null,
+                         LogfileCreatorDelegate               LogfileCreator               = null,
                          DNSClient                            DNSClient                    = null)
 
-            : base(ClientId,
-                   Hostname,
-                   RemotePort ?? DefaultRemotePort,
+
+            : base(RemoteURL ?? URL.Parse("https://api.plugsurfing.com"),
+                   VirtualHostname,
+                   Description,
                    RemoteCertificateValidator,
                    ClientCertificateSelector,
-                   HTTPVirtualHost,
+                   ClientCert,
                    HTTPUserAgent,
+                   URLPathPrefix,
                    RequestTimeout,
-                   null,
+                   TransmissionRetryDelay,
                    MaxNumberOfRetries,
                    DNSClient)
 
@@ -598,27 +526,28 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #region Initial checks
 
-            if (ClientId.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(ClientId), "The given client identification must not be null or empty!");
+            if (APIKey.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(APIKey),  "The given API key must not be null or empty!");
 
             #endregion
 
-            this.APIKey                            = APIKey;
-            this.URLPrefix                         = URLPrefix                        ?? DefaultURLPrefix;
-            this.StationPartnerIdSelector          = StationPartnerIdSelector         ?? throw new ArgumentNullException(nameof(StationPartnerIdSelector),         "The given partner identification selector must not be null!"); ;
+            this.APIKey                        = APIKey;
+            this.StationPartnerIdSelector      = StationPartnerIdSelector         ?? throw new ArgumentNullException(nameof(StationPartnerIdSelector),         "The given partner identification selector must not be null!"); ;
             this.ConnectorIdPartnerIdSelector  = ConnectorStatusPartnerIdSelector ?? throw new ArgumentNullException(nameof(ConnectorStatusPartnerIdSelector), "The given partner identification selector must not be null!");
 
-            this.IncludeStation                    = IncludeStation                   ?? (station             => true);
-            this.IncludeStationId                  = IncludeStationId                 ?? (stationid           => true);
-            this.IncludeConnectorId                = IncludeConnectorId               ?? (connectorid         => true);
-            this.IncludeConnectorStatusType        = IncludeConnectorStatusType       ?? (connectorstatustype => true);
-            this.IncludeConnectorStatus            = IncludeConnectorStatus           ?? (connectorstatus     => true);
+            this.IncludeStation                = IncludeStation                   ?? (station             => true);
+            this.IncludeStationId              = IncludeStationId                 ?? (stationid           => true);
+            this.IncludeConnectorId            = IncludeConnectorId               ?? (connectorid         => true);
+            this.IncludeConnectorStatusType    = IncludeConnectorStatusType       ?? (connectorstatustype => true);
+            this.IncludeConnectorStatus        = IncludeConnectorStatus           ?? (connectorstatus     => true);
 
-            this.Logger                            = Logger;
+            base.HTTPLogger                    = DisableLogging == false
+                                                     ? new Logger(this,
+                                                                           LoggingContext,
+                                                                           LogfileCreator)
+                                                     : null;
 
         }
-
-        #endregion
 
         #endregion
 
@@ -664,11 +593,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                        Select(e => e(StartTime,
                                                      Request.Timestamp.Value,
                                                      this,
-                                                     ClientId,
+                                                     Description,
                                                      Request.EventTrackingId,
                                                      Request.Station,
                                                      Request.PartnerIdentifier,
-                                                     Request.RequestTimeout ?? RequestTimeout.Value))).
+                                                     Request.RequestTimeout ?? RequestTimeout))).
                                        ConfigureAwait(false);
 
             }
@@ -697,14 +626,17 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 do
                 {
 
-                    using (var _JSONClient = new JSONClient(Hostname,
-                                                            URLPrefix,
+                    using (var _JSONClient = new JSONClient(RemoteURL,
                                                             VirtualHostname,
-                                                            RemotePort,
+                                                            Description,
                                                             RemoteCertificateValidator,
                                                             ClientCertificateSelector,
-                                                            UserAgent,
+                                                            ClientCert,
+                                                            HTTPUserAgent,
+                                                            URLPathPrefix,
                                                             RequestTimeout,
+                                                            TransmissionRetryDelay,
+                                                            MaxNumberOfRetries,
                                                             DNSClient))
                     {
 
@@ -823,11 +755,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                        Select(e => e(Endtime,
                                                      Request.Timestamp.Value,
                                                      this,
-                                                     ClientId,
+                                                     Description,
                                                      Request.EventTrackingId,
                                                      Request.Station,
                                                      Request.PartnerIdentifier,
-                                                     Request.RequestTimeout ?? RequestTimeout.Value,
+                                                     Request.RequestTimeout ?? RequestTimeout,
                                                      result.Content,
                                                      Endtime - StartTime))).
                                        ConfigureAwait(false);
@@ -894,11 +826,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                        Select(e => e(StartTime,
                                                      Request.Timestamp.Value,
                                                      this,
-                                                     ClientId,
+                                                     Description,
                                                      Request.EventTrackingId,
                                                      Request.ConnectorStatus,
                                                      Request.PartnerIdentifier,
-                                                     Request.RequestTimeout ?? RequestTimeout.Value))).
+                                                     Request.RequestTimeout ?? RequestTimeout))).
                                        ConfigureAwait(false);
 
             }
@@ -928,14 +860,17 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 do
                 {
 
-                    using (var _JSONClient = new JSONClient(Hostname,
-                                                            URLPrefix,
+                    using (var _JSONClient = new JSONClient(RemoteURL,
                                                             VirtualHostname,
-                                                            RemotePort,
+                                                            Description,
                                                             RemoteCertificateValidator,
                                                             ClientCertificateSelector,
-                                                            UserAgent,
+                                                            ClientCert,
+                                                            HTTPUserAgent,
+                                                            URLPathPrefix,
                                                             RequestTimeout,
+                                                            TransmissionRetryDelay,
+                                                            MaxNumberOfRetries,
                                                             DNSClient))
                     {
 
@@ -1054,11 +989,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                        Select(e => e(Endtime,
                                                      Request.Timestamp.Value,
                                                      this,
-                                                     ClientId,
+                                                     Description,
                                                      Request.EventTrackingId,
                                                      Request.ConnectorStatus,
                                                      Request.PartnerIdentifier,
-                                                     Request.RequestTimeout ?? RequestTimeout.Value,
+                                                     Request.RequestTimeout ?? RequestTimeout,
                                                      result.Content,
                                                      Endtime - StartTime))).
                                        ConfigureAwait(false);
@@ -1126,10 +1061,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                        Select(e => e(StartTime,
                                                      Request.Timestamp.Value,
                                                      this,
-                                                     ClientId,
+                                                     Description,
                                                      Request.EventTrackingId,
                                                      Request.RFIDId,
-                                                     Request.RequestTimeout ?? RequestTimeout.Value))).
+                                                     Request.RequestTimeout ?? RequestTimeout))).
                                        ConfigureAwait(false);
 
             }
@@ -1151,14 +1086,17 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             do
             {
 
-                using (var _JSONClient = new JSONClient(Hostname,
-                                                        URLPrefix,
+                using (var _JSONClient = new JSONClient(RemoteURL,
                                                         VirtualHostname,
-                                                        RemotePort,
+                                                        Description,
                                                         RemoteCertificateValidator,
                                                         ClientCertificateSelector,
-                                                        UserAgent,
+                                                        ClientCert,
+                                                        HTTPUserAgent,
+                                                        URLPathPrefix,
                                                         RequestTimeout,
+                                                        TransmissionRetryDelay,
+                                                        MaxNumberOfRetries,
                                                         DNSClient))
                 {
 
@@ -1264,10 +1202,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                        Select(e => e(Endtime,
                                                      Request.Timestamp.Value,
                                                      this,
-                                                     ClientId,
+                                                     Description,
                                                      Request.EventTrackingId,
                                                      Request.RFIDId,
-                                                     Request.RequestTimeout ?? RequestTimeout.Value,
+                                                     Request.RequestTimeout ?? RequestTimeout,
                                                      result.Content,
                                                      Endtime - StartTime))).
                                        ConfigureAwait(false);
@@ -1334,10 +1272,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                        Select(e => e(StartTime,
                                                      Request.Timestamp.Value,
                                                      this,
-                                                     ClientId,
+                                                     Description,
                                                      Request.EventTrackingId,
                                                      Request.Session,
-                                                     Request.RequestTimeout ?? RequestTimeout.Value))).
+                                                     Request.RequestTimeout ?? RequestTimeout))).
                                        ConfigureAwait(false);
 
             }
@@ -1359,14 +1297,17 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             do
             {
 
-                using (var _JSONClient = new JSONClient(Hostname,
-                                                        URLPrefix,
+                using (var _JSONClient = new JSONClient(RemoteURL,
                                                         VirtualHostname,
-                                                        RemotePort,
+                                                        Description,
                                                         RemoteCertificateValidator,
                                                         ClientCertificateSelector,
-                                                        UserAgent,
+                                                        ClientCert,
+                                                        HTTPUserAgent,
+                                                        URLPathPrefix,
                                                         RequestTimeout,
+                                                        TransmissionRetryDelay,
+                                                        MaxNumberOfRetries,
                                                         DNSClient))
                 {
 
@@ -1473,10 +1414,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                        Select(e => e(Endtime,
                                                      Request.Timestamp.Value,
                                                      this,
-                                                     ClientId,
+                                                     Description,
                                                      Request.EventTrackingId,
                                                      Request.Session,
-                                                     Request.RequestTimeout ?? RequestTimeout.Value,
+                                                     Request.RequestTimeout ?? RequestTimeout,
                                                      result.Content,
                                                      Endtime - StartTime))).
                                        ConfigureAwait(false);

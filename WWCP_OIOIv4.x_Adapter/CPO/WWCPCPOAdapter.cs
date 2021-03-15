@@ -99,36 +99,14 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <summary>
         /// The wrapped CPO roaming object.
         /// </summary>
-        public CPORoaming CPORoaming { get; }
+        public CPORoaming  CPORoaming    { get; }
 
-
-        public PartnerIdForConnectorIdDelegate ConnectorIdPartnerIdSelector { get; }
-
-
-        /// <summary>
-        /// The CPO client.
-        /// </summary>
         public CPOClient CPOClient
             => CPORoaming?.CPOClient;
 
-        /// <summary>
-        /// The CPO client logger.
-        /// </summary>
-        public CPOClient.CPOClientLogger ClientLogger
-            => CPORoaming?.CPOClient?.Logger;
-
-
-        /// <summary>
-        /// The CPO server.
-        /// </summary>
         public CPOServer CPOServer
             => CPORoaming?.CPOServer;
 
-        /// <summary>
-        /// The CPO server logger.
-        /// </summary>
-        public CPOServerLogger ServerLogger
-            => CPORoaming?.CPOServerLogger;
 
 
         private Int32 _maxDegreeOfParallelism = 4;
@@ -257,8 +235,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         #region Constructor(s)
 
-        #region WWCPCPOAdapter(Id, Name, RoamingNetwork, CPORoaming, ...)
-
         /// <summary>
         /// Create a new WWCP wrapper for the OIOI roaming client for Charging Station Operators/CPOs.
         /// </summary>
@@ -288,9 +264,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               I18NString                                       Name,
                               I18NString                                       Description,
                               RoamingNetwork                                   RoamingNetwork,
-
-                              PartnerIdForConnectorIdDelegate                  ConnectorIdPartnerIdSelector,
-
                               CPORoaming                                       CPORoaming,
 
                               ChargingStation2StationDelegate                  ChargingStation2Station                  = null,
@@ -320,9 +293,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                               String                                           EllipticCurve                            = "P-256",
                               ECPrivateKeyParameters                           PrivateKey                               = null,
-                              PublicKeyCertificates                            PublicKeyCertificates                    = null,
-
-                              DNSClient                                        DNSClient                                = null)
+                              PublicKeyCertificates                            PublicKeyCertificates                    = null)
 
             : base(Id,
                    Name,
@@ -348,15 +319,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                    EllipticCurve,
                    PrivateKey,
-                   PublicKeyCertificates,
-
-                   DNSClient ?? CPORoaming?.DNSClient)
+                   PublicKeyCertificates)
 
         {
 
-            this.ConnectorIdPartnerIdSelector                          = ConnectorIdPartnerIdSelector ?? throw new ArgumentNullException(nameof(ConnectorIdPartnerIdSelector), "The given delegate must not be null!");
-
-            this.CPORoaming                                            = CPORoaming                   ?? throw new ArgumentNullException(nameof(CPORoaming),                   "The given OIOI CPO Roaming object must not be null!");
+            this.CPORoaming                                            = CPORoaming ?? throw new ArgumentNullException(nameof(CPORoaming), "The given OIOI CPO Roaming object must not be null!");
             this.CustomOperatorIdMapper                                = CustomOperatorIdMapper;
             this.CustomEVSEIdMapper                                    = CustomEVSEIdMapper;
             this.ChargingStation2Station                               = ChargingStation2Station;
@@ -649,343 +616,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         #endregion
 
-        #region WWCPCPOAdapter(Id, Name, RoamingNetwork, CPOClient, CPOServer, ...)
-
-        /// <summary>
-        /// Create a new WWCP wrapper for the OIOI roaming client for Charging Station Operators/CPOs.
-        /// </summary>
-        /// <param name="Id">The unique identification of the roaming provider.</param>
-        /// <param name="Name">The offical (multi-language) name of the roaming provider.</param>
-        /// <param name="RoamingNetwork">A WWCP roaming network.</param>
-        /// 
-        /// <param name="CPOClient">An OIOI CPO client.</param>
-        /// <param name="CPOServer">An OIOI CPO sever.</param>
-        /// <param name="ServerLoggingContext">An optional context for logging server methods.</param>
-        /// <param name="LogFileCreator">A delegate to create a log file from the given context and log file name.</param>
-        /// 
-        /// <param name="ChargingStation2Station">A delegate customize the convertion from a WWCP charging station into an OIOI station.</param>
-        /// <param name="EVSEStatusUpdate2ConnectorStatusUpdate">A delegate to customize the convertion from a WWCP EVSE status update into an OIOI connector status update.</param>
-        /// <param name="ChargeDetailRecord2Session">A delegate to customize the convertion from a WWCP charge detail record into an OIOI session.</param>
-        /// 
-        /// <param name="Station2JSON">A delegate to process the JSON representation of an OIOI station, e.g. before uploading it.</param>
-        /// <param name="ConnectorStatus2JSON">A delegate to process the JSON representation of an OIOI connector status, e.g. before uploading it.</param>
-        /// <param name="Session2JSON">A delegate to process the JSON representation of an OIOI session, e.g. before uploading it.</param>
-        /// 
-        /// <param name="IncludeChargingStations">Only include the charging stations matching the given delegate.</param>
-        /// 
-        /// <param name="ServiceCheckEvery">The service check intervall.</param>
-        /// <param name="StatusCheckEvery">The status check intervall.</param>
-        /// 
-        /// <param name="DisablePushData">This service can be disabled, e.g. for debugging reasons.</param>
-        /// <param name="DisablePushStatus">This service can be disabled, e.g. for debugging reasons.</param>
-        /// <param name="DisableAuthentication">This service can be disabled, e.g. for debugging reasons.</param>
-        /// <param name="DisableSendChargeDetailRecords">This service can be disabled, e.g. for debugging reasons.</param>
-        public WWCPCPOAdapter(EMPRoamingProvider_Id                            Id,
-                              I18NString                                       Name,
-                              I18NString                                       Description,
-                              RoamingNetwork                                   RoamingNetwork,
-
-                              PartnerIdForConnectorIdDelegate                  ConnectorIdPartnerIdSelector,
-
-                              CPOClient                                        CPOClient,
-                              CPOServer                                        CPOServer,
-                              String                                           ServerLoggingContext                     = CPOServerLogger.DefaultContext,
-                              LogfileCreatorDelegate                           LogfileCreator                           = null,
-
-                              ChargingStation2StationDelegate                  ChargingStation2Station                  = null,
-                              EVSEStatusUpdate2ConnectorStatusUpdateDelegate   EVSEStatusUpdate2ConnectorStatusUpdate   = null,
-                              ChargeDetailRecord2SessionDelegate               ChargeDetailRecord2Session               = null,
-                              Station2JSONDelegate                             Station2JSON                             = null,
-                              ConnectorStatus2JSONDelegate                     ConnectorStatus2JSON                     = null,
-                              Session2JSONDelegate                             Session2JSON                             = null,
-
-                              IncludeEVSEIdDelegate                            IncludeEVSEIds                           = null,
-                              IncludeEVSEDelegate                              IncludeEVSEs                             = null,
-                              IncludeChargingStationIdDelegate                 IncludeChargingStationIds                = null,
-                              IncludeChargingStationDelegate                   IncludeChargingStations                  = null,
-                              ChargeDetailRecordFilterDelegate                 ChargeDetailRecordFilter                 = null,
-                              CustomOperatorIdMapperDelegate                   CustomOperatorIdMapper                   = null,
-                              CustomEVSEIdMapperDelegate                       CustomEVSEIdMapper                       = null,
-                              CustomConnectorIdMapperDelegate                  CustomConnectorIdMapper                  = null,
-
-                              TimeSpan?                                        ServiceCheckEvery                        = null,
-                              TimeSpan?                                        StatusCheckEvery                         = null,
-                              TimeSpan?                                        CDRCheckEvery                            = null,
-
-                              Boolean                                          DisablePushData                          = false,
-                              Boolean                                          DisablePushStatus                        = false,
-                              Boolean                                          DisableAuthentication                    = false,
-                              Boolean                                          DisableSendChargeDetailRecords           = false,
-
-                              String                                           EllipticCurve                            = "P-256",
-                              ECPrivateKeyParameters                           PrivateKey                               = null,
-                              PublicKeyCertificates                            PublicKeyCertificates                    = null,
-
-                              DNSClient                                        DNSClient                                = null)
-
-            : this(Id,
-                   Name,
-                   Description,
-                   RoamingNetwork,
-
-                   ConnectorIdPartnerIdSelector,
-
-                   new CPORoaming(CPOClient,
-                                  CPOServer,
-                                  ServerLoggingContext,
-                                  LogfileCreator),
-
-                   ChargingStation2Station,
-                   EVSEStatusUpdate2ConnectorStatusUpdate,
-                   ChargeDetailRecord2Session,
-                   Station2JSON,
-                   ConnectorStatus2JSON,
-                   Session2JSON,
-
-                   //DefaultOperator,
-                   //DefaultOperatorIdFormat,
-                   //OperatorNameSelector,
-
-                   IncludeEVSEIds,
-                   IncludeEVSEs,
-                   IncludeChargingStationIds,
-                   IncludeChargingStations,
-                   ChargeDetailRecordFilter,
-                   CustomOperatorIdMapper,
-                   CustomEVSEIdMapper,
-                   CustomConnectorIdMapper,
-
-                   ServiceCheckEvery,
-                   StatusCheckEvery,
-                   CDRCheckEvery,
-
-                   DisablePushData,
-                   DisablePushStatus,
-                   DisableAuthentication,
-                   DisableSendChargeDetailRecords,
-
-                   EllipticCurve,
-                   PrivateKey,
-                   PublicKeyCertificates,
-
-                   DNSClient ?? CPOServer?.DNSClient)
-
-        { }
-
-        #endregion
-
-        #region WWCPCPOAdapter(Id, Name, RoamingNetwork, RemoteHostName, ...)
-
-        /// <summary>
-        /// Create a new WWCP wrapper for the OIOI roaming client for Charging Station Operators/CPOs.
-        /// </summary>
-        /// <param name="Id">The unique identification of the roaming provider.</param>
-        /// <param name="Name">The offical (multi-language) name of the roaming provider.</param>
-        /// <param name="RoamingNetwork">A WWCP roaming network.</param>
-        /// 
-        /// <param name="RemoteHostname">The hostname of the remote OIOI service.</param>
-        /// <param name="RemoteTCPPort">An optional TCP port of the remote OIOI service.</param>
-        /// <param name="RemoteCertificateValidator">A delegate to verify the remote TLS certificate.</param>
-        /// <param name="ClientCertificateSelector">A delegate to select a TLS client certificate.</param>
-        /// <param name="RemoteHTTPVirtualHost">An optional HTTP virtual hostname of the remote OIOI service.</param>
-        /// <param name="HTTPUserAgent">An optional HTTP user agent identification string for this HTTP client.</param>
-        /// <param name="RequestTimeout">An optional timeout for upstream queries.</param>
-        /// <param name="MaxNumberOfRetries">The default number of maximum transmission retries.</param>
-        /// 
-        /// <param name="ServerName">An optional identification string for the HTTP server.</param>
-        /// <param name="HTTPServerPort">An optional TCP port for the HTTP server.</param>
-        /// <param name="ServerURLPrefix">An optional prefix for the HTTP URLs.</param>
-        /// <param name="ServerContentType">An optional HTTP content type to use.</param>
-        /// <param name="ServerRegisterHTTPRootService">Register HTTP root services for sending a notice to clients connecting via HTML or plain text.</param>
-        /// <param name="ServerAutoStart">Whether to start the server immediately or not.</param>
-        /// 
-        /// <param name="ClientLoggingContext">An optional context for logging client methods.</param>
-        /// <param name="ServerLoggingContext">An optional context for logging server methods.</param>
-        /// <param name="LogFileCreator">A delegate to create a log file from the given context and log file name.</param>
-        /// 
-        /// <param name="ChargingStation2Station">A delegate customize the convertion from a WWCP charging station into an OIOI station.</param>
-        /// <param name="EVSEStatusUpdate2ConnectorStatusUpdate">A delegate to customize the convertion from a WWCP EVSE status update into an OIOI connector status update.</param>
-        /// <param name="ChargeDetailRecord2Session">A delegate to customize the convertion from a WWCP charge detail record into an OIOI session.</param>
-        /// 
-        /// <param name="Station2JSON">A delegate to process the JSON representation of an OIOI station, e.g. before uploading it.</param>
-        /// <param name="ConnectorStatus2JSON">A delegate to process the JSON representation of an OIOI connector status, e.g. before uploading it.</param>
-        /// <param name="Session2JSON">A delegate to process the JSON representation of an OIOI session, e.g. before uploading it.</param>
-        /// 
-        /// <param name="IncludeChargingStations">Only include the charging stations matching the given delegate.</param>
-        /// 
-        /// <param name="ServiceCheckEvery">The service check intervall.</param>
-        /// <param name="StatusCheckEvery">The status check intervall.</param>
-        /// 
-        /// <param name="DisablePushData">This service can be disabled, e.g. for debugging reasons.</param>
-        /// <param name="DisablePushStatus">This service can be disabled, e.g. for debugging reasons.</param>
-        /// <param name="DisableAuthentication">This service can be disabled, e.g. for debugging reasons.</param>
-        /// <param name="DisableSendChargeDetailRecords">This service can be disabled, e.g. for debugging reasons.</param>
-        /// 
-        /// <param name="DNSClient">An optional DNS client to use.</param>
-        public WWCPCPOAdapter(EMPRoamingProvider_Id                           Id,
-                              I18NString                                      Name,
-                              I18NString                                      Description,
-                              RoamingNetwork                                  RoamingNetwork,
-
-                              HTTPHostname                                    RemoteHostname,
-                              APIKey                                          APIKey,
-                              PartnerIdForStationDelegate                     StationPartnerIdSelector,
-                              PartnerIdForConnectorIdDelegate                 ConnectorIdPartnerIdSelector,
-                              IPPort?                                         RemoteTCPPort                            = null,
-                              RemoteCertificateValidationCallback             RemoteCertificateValidator               = null,
-                              LocalCertificateSelectionCallback               ClientCertificateSelector                = null,
-                              HTTPHostname?                                   RemoteHTTPVirtualHost                    = null,
-                              HTTPPath?                                       URLPrefix                                = null,
-                              String                                          HTTPUserAgent                            = CPOClient.DefaultHTTPUserAgent,
-
-                              IncludeStationDelegate                          IncludeStation                           = null,
-                              IncludeStationIdDelegate                        IncludeStationId                         = null,
-                              IncludeConnectorIdDelegate                      IncludeConnectorId                       = null,
-                              IncludeConnectorStatusTypesDelegate             IncludeConnectorStatusType               = null,
-                              IncludeConnectorStatusDelegate                  IncludeConnectorStatus                   = null,
-                              TimeSpan?                                       RequestTimeout                           = null,
-                              Byte?                                           MaxNumberOfRetries                       = CPOClient.DefaultMaxNumberOfRetries,
-
-                              String                                          ServerName                               = CPOServer.DefaultHTTPServerName,
-                              HTTPHostname?                                   HTTPHostname                             = null,
-                              IPPort?                                         HTTPServerPort                           = null,
-                              String                                          ServiceName                              = null,
-                              ServerCertificateSelectorDelegate               ServerCertificateSelector                = null,
-                              RemoteCertificateValidationCallback             RemoteClientCertificateValidator         = null,
-                              LocalCertificateSelectionCallback               RemoteClientCertificateSelector          = null,
-                              SslProtocols                                    ServerAllowedTLSProtocols                = SslProtocols.Tls12,
-                              HTTPPath?                                       ServerURLPrefix                          = null,
-                              ServerAPIKeyValidatorDelegate                   ServerAPIKeyValidator                    = null,
-                              HTTPContentType                                 ServerContentType                        = null,
-                              Boolean                                         ServerRegisterHTTPRootService            = true,
-                              Boolean                                         ServerAutoStart                          = false,
-
-                              String                                          ClientLoggingContext                     = CPOClient.CPOClientLogger.DefaultContext,
-                              String                                          ServerLoggingContext                     = CPOServerLogger.DefaultContext,
-                              LogfileCreatorDelegate                          LogfileCreator                           = null,
-
-                              ChargingStation2StationDelegate                 ChargingStation2Station                  = null,
-                              EVSEStatusUpdate2ConnectorStatusUpdateDelegate  EVSEStatusUpdate2ConnectorStatusUpdate   = null,
-                              ChargeDetailRecord2SessionDelegate              ChargeDetailRecord2Session               = null,
-                              Station2JSONDelegate                            Station2JSON                             = null,
-                              ConnectorStatus2JSONDelegate                    ConnectorStatus2JSON                     = null,
-                              Session2JSONDelegate                            Session2JSON                             = null,
-
-                              IncludeEVSEIdDelegate                           IncludeEVSEIds                           = null,
-                              IncludeEVSEDelegate                             IncludeEVSEs                             = null,
-                              IncludeChargingStationIdDelegate                IncludeChargingStationIds                = null,
-                              IncludeChargingStationDelegate                  IncludeChargingStations                  = null,
-                              ChargeDetailRecordFilterDelegate                ChargeDetailRecordFilter                 = null,
-                              CustomOperatorIdMapperDelegate                  CustomOperatorIdMapper                   = null,
-                              CustomEVSEIdMapperDelegate                      CustomEVSEIdMapper                       = null,
-                              CustomConnectorIdMapperDelegate                 CustomConnectorIdMapper                  = null,
-
-                              TimeSpan?                                       ServiceCheckEvery                        = null,
-                              TimeSpan?                                       StatusCheckEvery                         = null,
-                              TimeSpan?                                       CDRCheckEvery                            = null,
-
-                              Boolean                                         DisablePushData                          = false,
-                              Boolean                                         DisablePushStatus                        = false,
-                              Boolean                                         DisableAuthentication                    = false,
-                              Boolean                                         DisableSendChargeDetailRecords           = false,
-
-                              String                                          EllipticCurve                            = "P-256",
-                              ECPrivateKeyParameters                          PrivateKey                               = null,
-                              PublicKeyCertificates                           PublicKeyCertificates                    = null,
-
-                              DNSClient                                       DNSClient                                = null)
-
-            : this(Id,
-                   Name,
-                   Description,
-                   RoamingNetwork,
-
-                   ConnectorIdPartnerIdSelector,
-
-                   new CPORoaming(Id.ToString(),
-                                  RemoteHostname,
-                                  APIKey,
-                                  StationPartnerIdSelector,
-                                  ConnectorIdPartnerIdSelector,
-                                  RemoteTCPPort,
-                                  RemoteCertificateValidator,
-                                  ClientCertificateSelector,
-                                  RemoteHTTPVirtualHost,
-                                  URLPrefix,
-                                  HTTPUserAgent,
-                                  IncludeStation,
-                                  IncludeStationId,
-                                  IncludeConnectorId,
-                                  IncludeConnectorStatusType,
-                                  IncludeConnectorStatus,
-                                  RequestTimeout,
-                                  MaxNumberOfRetries,
-
-                                  ServerName,
-                                  HTTPHostname,
-                                  HTTPServerPort,
-                                  ServiceName,
-                                  ServerCertificateSelector,
-                                  RemoteClientCertificateValidator,
-                                  RemoteClientCertificateSelector,
-                                  ServerAllowedTLSProtocols,
-                                  ServerURLPrefix,
-                                  ServerAPIKeyValidator,
-                                  ServerContentType,
-                                  ServerRegisterHTTPRootService,
-                                  ServerAutoStart,
-
-                                  ////RemoteCertificateValidator,
-                                  ////ClientCertificateSelector,
-
-                                  ClientLoggingContext,
-                                  ServerLoggingContext,
-                                  LogfileCreator,
-
-                                  DNSClient),
-
-                   ChargingStation2Station,
-                   EVSEStatusUpdate2ConnectorStatusUpdate,
-                   ChargeDetailRecord2Session,
-                   Station2JSON,
-                   ConnectorStatus2JSON,
-                   Session2JSON,
-
-                   IncludeEVSEIds,
-                   IncludeEVSEs,
-                   IncludeChargingStationIds,
-                   IncludeChargingStations,
-                   ChargeDetailRecordFilter,
-                   CustomOperatorIdMapper,
-                   CustomEVSEIdMapper,
-                   CustomConnectorIdMapper,
-
-                   ServiceCheckEvery,
-                   StatusCheckEvery,
-                   CDRCheckEvery,
-
-                   DisablePushData,
-                   DisablePushStatus,
-                   DisableAuthentication,
-                   DisableSendChargeDetailRecords,
-
-                   EllipticCurve,
-                   PrivateKey,
-                   PublicKeyCertificates,
-
-                   DNSClient)
-
-        {
-
-            if (ServerAutoStart)
-                CPOServer.Start();
-
-        }
-
-        #endregion
-
-        #endregion
-
 
         // RN -> External service requests...
 
@@ -1029,7 +659,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 EventTrackingId = EventTracking_Id.New;
 
             if (!RequestTimeout.HasValue)
-                RequestTimeout = CPOClient?.RequestTimeout;
+                RequestTimeout = CPORoaming.CPOClient.RequestTimeout;
 
             #endregion
 
@@ -1133,7 +763,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                     {
 
                         return await CPORoaming.StationPost(station.Item2,
-                                                            CPOClient.StationPartnerIdSelector(station.Item2),
+                                                            CPORoaming.CPOClient.StationPartnerIdSelector(station.Item2),
 
                                                             Timestamp,
                                                             CancellationToken,
@@ -1273,7 +903,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 EventTrackingId = EventTracking_Id.New;
 
             if (!RequestTimeout.HasValue)
-                RequestTimeout = CPOClient?.RequestTimeout;
+                RequestTimeout = CPORoaming.CPOClient.RequestTimeout;
 
             #endregion
 
@@ -1377,7 +1007,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                             await semaphore.WaitAsync();
 
                             return await CPORoaming.ConnectorPostStatus(_ConnectorStatus[i].Item2,
-                                                                        CPOClient.ConnectorIdPartnerIdSelector(_ConnectorStatus[i].Item2.Id),
+                                                                        CPORoaming.CPOClient.ConnectorIdPartnerIdSelector(_ConnectorStatus[i].Item2.Id),
 
                                                                         Timestamp,
                                                                         CancellationToken,
@@ -4108,7 +3738,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 EventTrackingId = EventTracking_Id.New;
 
             if (!RequestTimeout.HasValue)
-                RequestTimeout = CPOClient?.RequestTimeout;
+                RequestTimeout = CPORoaming.CPOClient.RequestTimeout;
 
             #endregion
 
@@ -4303,7 +3933,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 EventTrackingId = EventTracking_Id.New;
 
             if (!RequestTimeout.HasValue)
-                RequestTimeout = CPOClient?.RequestTimeout;
+                RequestTimeout = CPORoaming.CPOClient.RequestTimeout;
 
             #endregion
 
@@ -4487,7 +4117,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 EventTrackingId = EventTracking_Id.New;
 
             if (!RequestTimeout.HasValue)
-                RequestTimeout = CPOClient?.RequestTimeout;
+                RequestTimeout = CPORoaming.CPOClient.RequestTimeout;
 
 
             DateTime        Endtime;
@@ -4609,7 +4239,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                     if (connectorId.HasValue)
                                     {
 
-                                        ChargeDetailRecordsQueue.Add(ChargeDetailRecord.ToOIOI(ConnectorIdPartnerIdSelector(connectorId.Value),
+                                        ChargeDetailRecordsQueue.Add(ChargeDetailRecord.ToOIOI(CPOClient.ConnectorIdPartnerIdSelector(connectorId.Value),
                                                                                                CustomEVSEIdMapper,
                                                                                                CustomChargeDetailRecord2Session));
 
@@ -4665,7 +4295,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                     if (connectorId.HasValue)
                                     {
 
-                                        response = await CPORoaming.SessionPost(chargeDetailRecord.ToOIOI(ConnectorIdPartnerIdSelector(connectorId.Value),
+                                        response = await CPORoaming.SessionPost(chargeDetailRecord.ToOIOI(CPOClient.ConnectorIdPartnerIdSelector(connectorId.Value),
                                                                                                           CustomEVSEIdMapper,
                                                                                                           CustomChargeDetailRecord2Session),
 
@@ -5163,14 +4793,14 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                     {
 
                         result = SendCDRResult.Success(DateTime.UtcNow,
-                                                       chargingSession.GetCustomDataAs<ChargeDetailRecord>(OIOIMapper.WWCP_CDR),
+                                                       chargingSession.GetInternalDataAs<ChargeDetailRecord>(OIOIMapper.WWCP_CDR),
                                                        Runtime: response.Runtime);
 
                     }
 
                     else
                         result = SendCDRResult.Error(DateTime.UtcNow,
-                                                     chargingSession.GetCustomDataAs<ChargeDetailRecord>(OIOIMapper.WWCP_CDR),
+                                                     chargingSession.GetInternalDataAs<ChargeDetailRecord>(OIOIMapper.WWCP_CDR),
                                                      Warning.Create(I18NString.Create(Languages.en, response.HTTPBodyAsUTF8String)),
                                                      Runtime: response.Runtime);
 
@@ -5178,7 +4808,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 catch (Exception e)
                 {
                     result = SendCDRResult.Error(DateTime.UtcNow,
-                                                 chargingSession.GetCustomDataAs<ChargeDetailRecord>(OIOIMapper.WWCP_CDR),
+                                                 chargingSession.GetInternalDataAs<ChargeDetailRecord>(OIOIMapper.WWCP_CDR),
                                                  Warning.Create(I18NString.Create(Languages.en, e.Message)),
                                                  Runtime: TimeSpan.Zero);
                 }

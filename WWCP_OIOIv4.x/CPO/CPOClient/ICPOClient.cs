@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2016-2020 GraphDefined GmbH
+ * Copyright (c) 2016-2021 GraphDefined GmbH
  * This file is part of WWCP OIOI <https://github.com/OpenChargingCloud/WWCP_OIOI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,6 @@
 
 #region Usings
 
-using System;
 using System.Threading.Tasks;
 
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
@@ -36,19 +35,14 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         #region Properties
 
         /// <summary>
-        /// The default request timeout for this client.
-        /// </summary>
-        TimeSpan?                      RequestTimeout                { get; }
-
-        /// <summary>
         /// The API key for all requests.
         /// </summary>
-        APIKey                         APIKey                        { get; }
+        APIKey                           APIKey                          { get; }
 
         /// <summary>
         /// A delegate to select a partner identification based on the given station.
         /// </summary>
-        PartnerIdForStationDelegate    StationPartnerIdSelector      { get; }
+        PartnerIdForStationDelegate      StationPartnerIdSelector        { get; }
 
         /// <summary>
         /// A delegate to select a partner identification based on the given connector.

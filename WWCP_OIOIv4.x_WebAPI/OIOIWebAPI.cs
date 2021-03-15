@@ -331,37 +331,37 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.WebAPI
 
             #region OnRFIDVerifyRequest/-Response
 
-            CPOAdapter.CPOClient.OnRFIDVerifyRequest += async  (LogTimestamp,
-                                                                RequestTimestamp,
-                                                                Sender,
-                                                                SenderId,
-                                                                EventTrackingId,
-                                                                RFIDId,
-                                                                RequestTimeout) => await DebugLog.SubmitEvent("RFIDVerifyRequest",
-                                                                                                              JSONObject.Create(
-                                                                                                                  new JProperty("timestamp",        RequestTimestamp.ToIso8601()),
-                                                                                                                  new JProperty("eventTrackingId",  EventTrackingId. ToString()),
-                                                                                                                  new JProperty("RFIDId",           RFIDId.          ToString()),
-                                                                                                                  new JProperty("requestTimeout",   Math.Round(RequestTimeout.TotalSeconds, 0))
-                                                                                                             ));
+            CPOAdapter.CPORoaming.OnRFIDVerifyRequest += async  (LogTimestamp,
+                                                                 RequestTimestamp,
+                                                                 Sender,
+                                                                 SenderId,
+                                                                 EventTrackingId,
+                                                                 RFIDId,
+                                                                 RequestTimeout) => await DebugLog.SubmitEvent("RFIDVerifyRequest",
+                                                                                                               JSONObject.Create(
+                                                                                                                   new JProperty("timestamp",        RequestTimestamp.ToIso8601()),
+                                                                                                                   new JProperty("eventTrackingId",  EventTrackingId. ToString()),
+                                                                                                                   new JProperty("RFIDId",           RFIDId.          ToString()),
+                                                                                                                   new JProperty("requestTimeout",   Math.Round(RequestTimeout.TotalSeconds, 0))
+                                                                                                              ));
 
-            CPOAdapter.CPOClient.OnRFIDVerifyResponse += async (LogTimestamp,
-                                                                RequestTimestamp,
-                                                                Sender,
-                                                                SenderId,
-                                                                EventTrackingId,
-                                                                RFIDId,
-                                                                RequestTimeout,
-                                                                Result,
-                                                                Runtime) => await DebugLog.SubmitEvent("RFIDVerifyResponse",
-                                                                                                       JSONObject.Create(
-                                                                                                           new JProperty("timestamp",        RequestTimestamp.ToIso8601()),
-                                                                                                           new JProperty("eventTrackingId",  EventTrackingId. ToString()),
-                                                                                                           new JProperty("RFIDId",           RFIDId.          ToString()),
-                                                                                                           new JProperty("requestTimeout",   Math.Round(RequestTimeout.TotalSeconds, 0)),
-                                                                                                           new JProperty("result",           Result.          ToJSON()),
-                                                                                                           new JProperty("runtime",          Math.Round(Runtime.TotalMilliseconds, 0))
-                                                                                                       ));
+            CPOAdapter.CPORoaming.OnRFIDVerifyResponse += async (LogTimestamp,
+                                                                 RequestTimestamp,
+                                                                 Sender,
+                                                                 SenderId,
+                                                                 EventTrackingId,
+                                                                 RFIDId,
+                                                                 RequestTimeout,
+                                                                 Result,
+                                                                 Runtime) => await DebugLog.SubmitEvent("RFIDVerifyResponse",
+                                                                                                        JSONObject.Create(
+                                                                                                            new JProperty("timestamp",        RequestTimestamp.ToIso8601()),
+                                                                                                            new JProperty("eventTrackingId",  EventTrackingId. ToString()),
+                                                                                                            new JProperty("RFIDId",           RFIDId.          ToString()),
+                                                                                                            new JProperty("requestTimeout",   Math.Round(RequestTimeout.TotalSeconds, 0)),
+                                                                                                            new JProperty("result",           Result.          ToJSON()),
+                                                                                                            new JProperty("runtime",          Math.Round(Runtime.TotalMilliseconds, 0))
+                                                                                                        ));
 
             #endregion
 
