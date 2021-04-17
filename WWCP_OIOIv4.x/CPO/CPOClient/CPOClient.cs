@@ -92,17 +92,12 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <summary>
         /// The default HTTP user agent string.
         /// </summary>
-        public new const           String    DefaultHTTPUserAgent  = "GraphDefined OIOI " + Version.Number + " CPO Client";
+        public new const       String  DefaultHTTPUserAgent  = "GraphDefined OIOI " + Version.Number + " CPO Client";
 
         /// <summary>
-        /// The default remote TCP port to connect to.
+        /// The default HTTP client remote URL.
         /// </summary>
-        public new static readonly IPPort    DefaultRemotePort     = IPPort.Parse(443);
-
-        /// <summary>
-        /// The default HTTP client URI prefix.
-        /// </summary>
-        public     static readonly HTTPPath  DefaultURLPrefix      = HTTPPath.Parse("/api/v4/request");
+        public static readonly URL     DefaultRemoteURL      = URL.Parse("https://api.plugsurfing.com/api/v4/request");
 
         #endregion
 
@@ -476,7 +471,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="ClientCertificateSelector">A delegate to select a TLS client certificate.</param>
         /// <param name="ClientCert">The SSL/TLS client certificate to use of HTTP authentication.</param>
         /// <param name="HTTPUserAgent">The HTTP user agent identification.</param>
-        /// <param name="URLPathPrefix">An optional default URL path prefix.</param>
         /// <param name="RequestTimeout">An optional request timeout.</param>
         /// <param name="TransmissionRetryDelay">The delay between transmission retries.</param>
         /// <param name="MaxNumberOfRetries">The maximum number of transmission retries for HTTP request.</param>
@@ -494,7 +488,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                          LocalCertificateSelectionCallback    ClientCertificateSelector    = null,
                          X509Certificate                      ClientCert                   = null,
                          String                               HTTPUserAgent                = DefaultHTTPUserAgent,
-                         HTTPPath?                            URLPathPrefix                = null,
                          TimeSpan?                            RequestTimeout               = null,
                          TransmissionRetryDelayDelegate       TransmissionRetryDelay       = null,
                          UInt16?                              MaxNumberOfRetries           = DefaultMaxNumberOfRetries,
@@ -509,14 +502,13 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                          DNSClient                            DNSClient                    = null)
 
 
-            : base(RemoteURL ?? URL.Parse("https://api.plugsurfing.com"),
+            : base(RemoteURL                  ?? DefaultRemoteURL,
                    VirtualHostname,
                    Description,
-                   RemoteCertificateValidator,
+                   RemoteCertificateValidator ?? ((sender, certificate, chain, sslPolicyErrors) => true),
                    ClientCertificateSelector,
                    ClientCert,
                    HTTPUserAgent,
-                   URLPathPrefix,
                    RequestTimeout,
                    TransmissionRetryDelay,
                    MaxNumberOfRetries,
@@ -543,8 +535,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             base.HTTPLogger                    = DisableLogging == false
                                                      ? new Logger(this,
-                                                                           LoggingContext,
-                                                                           LogfileCreator)
+                                                                  LoggingContext,
+                                                                  LogfileCreator)
                                                      : null;
 
         }
@@ -633,7 +625,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                             ClientCertificateSelector,
                                                             ClientCert,
                                                             HTTPUserAgent,
-                                                            URLPathPrefix,
+                                                            //URLPathPrefix,
                                                             RequestTimeout,
                                                             TransmissionRetryDelay,
                                                             MaxNumberOfRetries,
@@ -867,7 +859,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                             ClientCertificateSelector,
                                                             ClientCert,
                                                             HTTPUserAgent,
-                                                            URLPathPrefix,
+                                                            //URLPathPrefix,
                                                             RequestTimeout,
                                                             TransmissionRetryDelay,
                                                             MaxNumberOfRetries,
@@ -1093,7 +1085,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                         ClientCertificateSelector,
                                                         ClientCert,
                                                         HTTPUserAgent,
-                                                        URLPathPrefix,
+                                                        //URLPathPrefix,
                                                         RequestTimeout,
                                                         TransmissionRetryDelay,
                                                         MaxNumberOfRetries,
@@ -1304,7 +1296,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                         ClientCertificateSelector,
                                                         ClientCert,
                                                         HTTPUserAgent,
-                                                        URLPathPrefix,
+                                                        //URLPathPrefix,
                                                         RequestTimeout,
                                                         TransmissionRetryDelay,
                                                         MaxNumberOfRetries,

@@ -51,20 +51,15 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         /// <summary>
         /// The default HTTP user agent string.
         /// </summary>
-        public new const           String      DefaultHTTPUserAgent     = "GraphDefined OIOI " + Version.Number + " EMP Client";
+        public new const       String      DefaultHTTPUserAgent     = "GraphDefined OIOI " + Version.Number + " EMP Client";
 
         /// <summary>
-        /// The default remote TCP port to connect to.
+        /// The default HTTP client remote URL.
         /// </summary>
-        public new static readonly IPPort      DefaultRemotePort        = IPPort.Parse(443);
-
-        /// <summary>
-        /// The default HTTP client URI prefix.
-        /// </summary>
-        public     static readonly HTTPPath     DefaultURLPrefix         = HTTPPath.Parse("/api/v4/request");
+        public static readonly URL         DefaultRemoteURL         = URL.Parse("https://api.plugsurfing.com/api/v4/request");
 
 
-        public     static readonly Partner_Id  DefaultDefaultPartnerId  = Partner_Id.Parse("1");
+        public static readonly Partner_Id  DefaultDefaultPartnerId  = Partner_Id.Parse("1");
 
         #endregion
 
@@ -340,7 +335,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         /// <param name="ClientCertificateSelector">A delegate to select a TLS client certificate.</param>
         /// <param name="ClientCert">The SSL/TLS client certificate to use of HTTP authentication.</param>
         /// <param name="HTTPUserAgent">The HTTP user agent identification.</param>
-        /// <param name="URLPathPrefix">An optional default URL path prefix.</param>
         /// <param name="RequestTimeout">An optional request timeout.</param>
         /// <param name="TransmissionRetryDelay">The delay between transmission retries.</param>
         /// <param name="MaxNumberOfRetries">The maximum number of transmission retries for HTTP request.</param>
@@ -348,15 +342,14 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
         /// <param name="LoggingContext">An optional context for logging.</param>
         /// <param name="LogfileCreator">A delegate to create a log file from the given context and log file name.</param>
         /// <param name="DNSClient">The DNS client to use.</param>
-        public EMPClient(URL                                  RemoteURL,
-                         APIKey                               APIKey,
+        public EMPClient(APIKey                               APIKey,
+                         URL?                                 RemoteURL                    = null,
                          HTTPHostname?                        VirtualHostname              = null,
                          String                               Description                  = null,
                          RemoteCertificateValidationCallback  RemoteCertificateValidator   = null,
                          LocalCertificateSelectionCallback    ClientCertificateSelector    = null,
                          X509Certificate                      ClientCert                   = null,
                          String                               HTTPUserAgent                = DefaultHTTPUserAgent,
-                         HTTPPath?                            URLPathPrefix                = null,
                          TimeSpan?                            RequestTimeout               = null,
                          TransmissionRetryDelayDelegate       TransmissionRetryDelay       = null,
                          UInt16?                              MaxNumberOfRetries           = DefaultMaxNumberOfRetries,
@@ -366,14 +359,13 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                          DNSClient                            DNSClient                    = null)
 
 
-            : base(RemoteURL,
+            : base(RemoteURL                  ?? DefaultRemoteURL,
                    VirtualHostname,
                    Description,
-                   RemoteCertificateValidator,
+                   RemoteCertificateValidator ?? ((sender, certificate, chain, sslPolicyErrors) => true),
                    ClientCertificateSelector,
                    ClientCert,
                    HTTPUserAgent,
-                   URLPathPrefix,
                    RequestTimeout,
                    TransmissionRetryDelay,
                    MaxNumberOfRetries,
@@ -463,7 +455,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                                                     ClientCertificateSelector,
                                                     ClientCert,
                                                     HTTPUserAgent,
-                                                    URLPathPrefix,
+                                                    //URLPathPrefix,
                                                     RequestTimeout,
                                                     TransmissionRetryDelay,
                                                     MaxNumberOfRetries,
@@ -646,7 +638,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                                                     ClientCertificateSelector,
                                                     ClientCert,
                                                     HTTPUserAgent,
-                                                    URLPathPrefix,
+                                                    //URLPathPrefix,
                                                     RequestTimeout,
                                                     TransmissionRetryDelay,
                                                     MaxNumberOfRetries,
@@ -823,7 +815,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
                                                     ClientCertificateSelector,
                                                     ClientCert,
                                                     HTTPUserAgent,
-                                                    URLPathPrefix,
+                                                    //URLPathPrefix,
                                                     RequestTimeout,
                                                     TransmissionRetryDelay,
                                                     MaxNumberOfRetries,
