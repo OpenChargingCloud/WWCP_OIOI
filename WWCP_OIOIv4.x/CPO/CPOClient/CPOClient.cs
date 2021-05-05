@@ -567,171 +567,186 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 throw new ArgumentNullException(nameof(Request), "The mapped StationPost request must not be null!");
 
 
-            Byte                              TransmissionRetry  = 0;
-            HTTPResponse<StationPostResponse> result             = null;
+            var                                StartTime           = DateTime.UtcNow;
+            Byte                               TransmissionRetry   = 0;
+            HTTPResponse<StationPostResponse>  result              = null;
 
             #endregion
-
-            #region Send OnStationPostRequest event
-
-            var StartTime = DateTime.UtcNow;
 
             try
             {
 
-                if (OnStationPostRequest != null)
-                    await Task.WhenAll(OnStationPostRequest.GetInvocationList().
-                                       Cast<OnStationPostRequestDelegate>().
-                                       Select(e => e(StartTime,
-                                                     Request.Timestamp.Value,
-                                                     this,
-                                                     Description,
-                                                     Request.EventTrackingId,
-                                                     Request.Station,
-                                                     Request.PartnerIdentifier,
-                                                     Request.RequestTimeout ?? RequestTimeout))).
-                                       ConfigureAwait(false);
+                #region Send OnStationPostRequest event
+
+                try
+                {
+
+                    if (OnStationPostRequest != null)
+                        await Task.WhenAll(OnStationPostRequest.GetInvocationList().
+                                           Cast<OnStationPostRequestDelegate>().
+                                           Select(e => e(StartTime,
+                                                         Request.Timestamp.Value,
+                                                         this,
+                                                         Description,
+                                                         Request.EventTrackingId,
+                                                         Request.Station,
+                                                         Request.PartnerIdentifier,
+                                                         Request.RequestTimeout ?? RequestTimeout))).
+                                           ConfigureAwait(false);
+
+                }
+                catch (Exception e)
+                {
+
+                    SendException(DateTime.UtcNow,
+                                  this,
+                                  new OIOI_CPOClientException(this,
+                                                              nameof(OnStationPostRequest),
+                                                              "Sending " + nameof(OnStationPostRequest) + " events failed!",
+                                                              e));
+
+                }
+
+                #endregion
+
+
+                // Notes: It is not allowed to change the connectors of an existing station.
+                //        The station’s connectors’ IDs may not be changed once it is created.
+
+                if (IncludeStation  (Request.Station) &&
+                    IncludeStationId(Request.Station.Id))
+                {
+
+                    do
+                    {
+
+                        using (var _JSONClient = new JSONClient(RemoteURL,
+                                                                VirtualHostname,
+                                                                Description,
+                                                                RemoteCertificateValidator,
+                                                                ClientCertificateSelector,
+                                                                ClientCert,
+                                                                HTTPUserAgent,
+                                                                //URLPathPrefix,
+                                                                RequestTimeout,
+                                                                TransmissionRetryDelay,
+                                                                MaxNumberOfRetries,
+                                                                DNSClient))
+                        {
+
+                            result = await _JSONClient.Query(_CustomStationPostJSONRequestMapper(Request,
+                                                                                                 Request.ToJSON(CustomStationPostRequestSerializer,
+                                                                                                                CustomStationSerializer,
+                                                                                                                CustomAddressSerializer,
+                                                                                                                CustomConnectorSerializer)),
+                                                             HTTPRequestBuilder:   request => request.Set("Authorization", "key=" + APIKey),
+                                                             RequestLogDelegate:   OnStationPostHTTPRequest,
+                                                             ResponseLogDelegate:  OnStationPostHTTPResponse,
+                                                             CancellationToken:    Request.CancellationToken,
+                                                             EventTrackingId:      Request.EventTrackingId,
+                                                             RequestTimeout:       Request.RequestTimeout ?? RequestTimeout,
+                                                             NumberOfRetry:        TransmissionRetry,
+
+                                                             #region OnSuccess
+
+                                                             OnSuccess: JSONResponse => JSONResponse.ConvertContent(Request,
+                                                                                                                    (request, json, onexception) =>
+                                                                                                                        StationPostResponse.Parse(request,
+                                                                                                                                                  json,
+                                                                                                                                                  CustomStationPostResponseMapper,
+                                                                                                                                                  onexception)),
+
+                                                             #endregion
+
+                                                             #region OnJSONFault
+
+                                                             OnJSONFault: (timestamp, jsonclient, httpresponse) => {
+
+                                                                 SendJSONError(timestamp, this, httpresponse.Content);
+
+                                                                 return new HTTPResponse<StationPostResponse>(
+                                                                            httpresponse,
+                                                                            StationPostResponse.InvalidResponseFormat(Request,
+                                                                                                                      httpresponse),
+                                                                            IsFault: true);
+
+                                                             },
+
+                                                             #endregion
+
+                                                             #region OnHTTPError
+
+                                                             OnHTTPError: (timestamp, soapclient, httpresponse) => {
+
+                                                                 SendHTTPError(timestamp, this, httpresponse);
+
+                                                                 return new HTTPResponse<StationPostResponse>(
+                                                                            httpresponse,
+                                                                            StationPostResponse.InvalidResponseFormat(Request,
+                                                                                                                      httpresponse),
+                                                                            IsFault: true);
+
+                                                             },
+
+                                                             #endregion
+
+                                                             #region OnException
+
+                                                             OnException: (timestamp, sender, exception) => {
+
+                                                                 SendException(timestamp, sender, exception);
+
+                                                                 return HTTPResponse<StationPostResponse>.ExceptionThrown(
+
+                                                                     StationPostResponse.ClientRequestError(Request,
+                                                                                                            "Exception occured!"),
+
+                                                                     Exception: exception);
+
+                                                             }
+
+                                                             #endregion
+
+                                                            );
+
+                        }
+
+                        if (result == null)
+                            result = HTTPResponse<StationPostResponse>.ClientError(
+                                         StationPostResponse.InvalidResponseFormat(
+                                             Request
+                                         )
+                                     );
+
+                    }
+                    while (result.HTTPStatusCode == HTTPStatusCode.RequestTimeout &&
+                           TransmissionRetry++    < MaxNumberOfRetries);
+
+                }
+
+                #region ...or no station data to push?
+
+                else
+
+                    result = HTTPResponse<StationPostResponse>.OK(
+                                 StationPostResponse.Success(Request,
+                                                             "No station data to push")
+                             );
+
+                #endregion
+
 
             }
             catch (Exception e)
             {
 
-                SendException(DateTime.UtcNow,
-                              this,
-                              new OIOI_CPOClientException(this,
-                                                          nameof(OnStationPostRequest),
-                                                          "Sending " + nameof(OnStationPostRequest) + " events failed!",
-                                                          e));
-
-            }
-
-            #endregion
-
-
-            // Notes: It is not allowed to change the connectors of an existing station.
-            //        The station’s connectors’ IDs may not be changed once it is created.
-
-            if (IncludeStation  (Request.Station) &&
-                IncludeStationId(Request.Station.Id))
-            {
-
-                do
-                {
-
-                    using (var _JSONClient = new JSONClient(RemoteURL,
-                                                            VirtualHostname,
-                                                            Description,
-                                                            RemoteCertificateValidator,
-                                                            ClientCertificateSelector,
-                                                            ClientCert,
-                                                            HTTPUserAgent,
-                                                            //URLPathPrefix,
-                                                            RequestTimeout,
-                                                            TransmissionRetryDelay,
-                                                            MaxNumberOfRetries,
-                                                            DNSClient))
-                    {
-
-                        result = await _JSONClient.Query(_CustomStationPostJSONRequestMapper(Request,
-                                                                                             Request.ToJSON(CustomStationPostRequestSerializer,
-                                                                                                            CustomStationSerializer,
-                                                                                                            CustomAddressSerializer,
-                                                                                                            CustomConnectorSerializer)),
-                                                         HTTPRequestBuilder:   request => request.Set("Authorization", "key=" + APIKey),
-                                                         RequestLogDelegate:   OnStationPostHTTPRequest,
-                                                         ResponseLogDelegate:  OnStationPostHTTPResponse,
-                                                         CancellationToken:    Request.CancellationToken,
-                                                         EventTrackingId:      Request.EventTrackingId,
-                                                         RequestTimeout:       Request.RequestTimeout ?? RequestTimeout,
-                                                         NumberOfRetry:        TransmissionRetry,
-
-                                                         #region OnSuccess
-
-                                                         OnSuccess: JSONResponse => JSONResponse.ConvertContent(Request,
-                                                                                                                (request, json, onexception) =>
-                                                                                                                    StationPostResponse.Parse(request,
-                                                                                                                                              json,
-                                                                                                                                              CustomStationPostResponseMapper,
-                                                                                                                                              onexception)),
-
-                                                         #endregion
-
-                                                         #region OnJSONFault
-
-                                                         OnJSONFault: (timestamp, jsonclient, httpresponse) => {
-
-                                                             SendJSONError(timestamp, this, httpresponse.Content);
-
-                                                             return new HTTPResponse<StationPostResponse>(
-                                                                        httpresponse,
-                                                                        StationPostResponse.InvalidResponseFormat(Request,
-                                                                                                                  httpresponse),
-                                                                        IsFault: true);
-
-                                                         },
-
-                                                         #endregion
-
-                                                         #region OnHTTPError
-
-                                                         OnHTTPError: (timestamp, soapclient, httpresponse) => {
-
-                                                             SendHTTPError(timestamp, this, httpresponse);
-
-                                                             return new HTTPResponse<StationPostResponse>(
-                                                                        httpresponse,
-                                                                        StationPostResponse.InvalidResponseFormat(Request,
-                                                                                                                  httpresponse),
-                                                                        IsFault: true);
-
-                                                         },
-
-                                                         #endregion
-
-                                                         #region OnException
-
-                                                         OnException: (timestamp, sender, exception) => {
-
-                                                             SendException(timestamp, sender, exception);
-
-                                                             return HTTPResponse<StationPostResponse>.ExceptionThrown(
-
-                                                                 StationPostResponse.ClientRequestError(Request,
-                                                                                                        "Exception occured!"),
-
-                                                                 Exception: exception);
-
-                                                         }
-
-                                                         #endregion
-
-                                                        );
-
-                    }
-
-                    if (result == null)
-                        result = HTTPResponse<StationPostResponse>.ClientError(
-                                     StationPostResponse.InvalidResponseFormat(
-                                         Request
-                                     )
-                                 );
-
-                }
-                while (result.HTTPStatusCode == HTTPStatusCode.RequestTimeout &&
-                       TransmissionRetry++    < MaxNumberOfRetries);
-
-            }
-
-            #region ...or no station data to push?
-
-            else
-
-                result = HTTPResponse<StationPostResponse>.OK(
-                             StationPostResponse.Success(Request,
-                                                         "No station data to push")
+                result = HTTPResponse<StationPostResponse>.ClientError(
+                             StationPostResponse.SystemError(
+                                 e.Message
+                             )
                          );
 
-            #endregion
+            }
 
 
             #region Send OnStationPostResponse event

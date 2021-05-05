@@ -208,6 +208,19 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                            CustomData);
 
 
+        public static StationPostResponse
+
+            SystemError(//StationPostRequest                   Request,
+                        String                               Message,
+                        IReadOnlyDictionary<String, Object>  CustomData    = null)
+
+                => new StationPostResponse(null,//Request,
+                                           ResponseCodes.SystemError,
+                                           Message,
+                                           CustomData);
+
+
+
 
         #region Operator overloading
 
