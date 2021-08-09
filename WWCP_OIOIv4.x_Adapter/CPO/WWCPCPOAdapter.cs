@@ -665,17 +665,17 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #region Get effective number of stations to upload
 
-            var Warnings      = new List<Warning>();
+            var warnings      = new List<Warning>();
 
-            var WWCPStations  = new Dictionary<Station_Id, ChargingStation>();
+            var wwcpStations  = new Dictionary<Station_Id, ChargingStation>();
 
-            var _Stations     = ChargingStations.Where (station => station != null && IncludeChargingStations(station)).
+            var stations      = ChargingStations.Where (station => station != null && IncludeChargingStations(station)).
                                                  Select(station => {
 
                                                      try
                                                      {
 
-                                                         WWCPStations.Add(station.Id.ToOIOI(), station);
+                                                         wwcpStations.Add(station.Id.ToOIOI(), station);
 
                                                          return new Tuple<ChargingStation, Station>(station,
                                                                                                     station.ToOIOI(CustomOperatorIdMapper,
@@ -686,7 +686,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                      catch (Exception e)
                                                      {
                                                          DebugX.  Log(e.Message);
-                                                         Warnings.Add(Warning.Create(I18NString.Create(Languages.en, e.Message), station));
+                                                         warnings.Add(Warning.Create(I18NString.Create(Languages.en, e.Message), station));
                                                      }
 
                                                      return null;
@@ -710,9 +710,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  Id,
                                                  EventTrackingId,
                                                  RoamingNetwork.Id,
-                                                 _Stations.ULongCount(),
-                                                 _Stations,
-                                                 Warnings.Where(warning => warning.IsNeitherNullNorEmpty()),
+                                                 stations.ULongCount(),
+                                                 stations,
+                                                 warnings.Where(warning => warning.IsNeitherNullNorEmpty()),
                                                  RequestTimeout);
 
             }
@@ -735,27 +735,28 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 Runtime  = Endtime - StartTime;
                 result   = PushChargingStationDataResult.AdminDown(Id,
                                                                    this,
-                                                                   Warnings: Warnings);
+                                                                   Warnings: warnings);
 
             }
 
-            else if (_Stations.Length == 0)
+            else if (stations.Length == 0)
             {
 
                 Endtime  = DateTime.UtcNow;
                 Runtime  = Endtime - StartTime;
                 result   = PushChargingStationDataResult.NoOperation(Id,
                                                                      this,
-                                                                     Warnings: Warnings);
+                                                                     Warnings: warnings);
 
             }
 
             else
             {
 
-                var semaphore  = new SemaphoreSlim(_maxDegreeOfParallelism, _maxDegreeOfParallelism);
+                var semaphore  = new SemaphoreSlim(_maxDegreeOfParallelism,
+                                                   _maxDegreeOfParallelism);
 
-                var tasks = _Stations.Select(async station => {
+                var tasks      = stations.Select(async station => {
 
                     await semaphore.WaitAsync().ConfigureAwait(false);
 
@@ -789,25 +790,25 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                         {
 
                                             if (task.Result.Content.Code == ResponseCodes.Success)
-                                                return new PushSingleChargingStationDataResult(WWCPStations[task.Result.Content.Request.Station.Id],
+                                                return new PushSingleChargingStationDataResult(wwcpStations[task.Result.Content.Request.Station.Id],
                                                                                                PushSingleDataResultTypes.Success,
                                                                                                new Warning[] { Warning.Create(I18NString.Create(Languages.en, task.Result.Content.Message)) });
 
                                             else
-                                                return new PushSingleChargingStationDataResult(WWCPStations[task.Result.Content.Request.Station.Id],
+                                                return new PushSingleChargingStationDataResult(wwcpStations[task.Result.Content.Request.Station.Id],
                                                                                                PushSingleDataResultTypes.Error,
                                                                                                new Warning[] { Warning.Create(I18NString.Create(Languages.en, task.Result.Content.Message)) });
 
                                         }
                                         else
-                                            return new PushSingleChargingStationDataResult(WWCPStations[task.Result.Content.Request.Station.Id],
+                                            return new PushSingleChargingStationDataResult(wwcpStations[task.Result.Content.Request.Station.Id],
                                                                                            PushSingleDataResultTypes.Error,
                                                                                            new Warning[] {
                                                                                                Warning.Create(I18NString.Create(Languages.en, task.Result.HTTPStatusCode.ToString()))
                                                                                            }.Concat(
                                                                                                task.Result.HTTPBody != null
-                                                                                                   ? Warnings.AddAndReturnList(I18NString.Create(Languages.en, task.Result.HTTPBody.ToUTF8String()))
-                                                                                                   : Warnings.AddAndReturnList(I18NString.Create(Languages.en, "No HTTP body received!"))
+                                                                                                   ? warnings.AddAndReturnList(I18NString.Create(Languages.en, task.Result.HTTPBody.ToUTF8String()))
+                                                                                                   : warnings.AddAndReturnList(I18NString.Create(Languages.en, "No HTTP body received!"))
                                                                                            ));
 
                 });
@@ -820,14 +821,14 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                ? PushChargingStationDataResult.Success(Id,
                                                                        this,
                                                                        null,
-                                                                       Warnings,
+                                                                       warnings,
                                                                        Runtime)
 
                                : PushChargingStationDataResult.Error  (Id,
                                                                        this,
                                                                        results.Where(_ => _.Result != PushSingleDataResultTypes.Success),
                                                                        null,
-                                                                       Warnings,
+                                                                       warnings,
                                                                        Runtime);
 
 
@@ -845,8 +846,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                   Id,
                                                   EventTrackingId,
                                                   RoamingNetwork.Id,
-                                                  _Stations.ULongCount(),
-                                                  _Stations,
+                                                  stations.ULongCount(),
+                                                  stations,
                                                   RequestTimeout,
                                                   result,
                                                   Runtime);
@@ -992,39 +993,32 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             else
             {
 
-                var semaphore  = new SemaphoreSlim(_maxDegreeOfParallelism, _maxDegreeOfParallelism);
-                var tasks      = new List<Task<HTTPResponse<ConnectorPostStatusResponse>>>();
+                var semaphore  = new SemaphoreSlim(_maxDegreeOfParallelism,
+                                                   _maxDegreeOfParallelism);
 
-                for (int i = 0; i < _ConnectorStatus.Length; i++)
-                {
+                var tasks      = _ConnectorStatus.Select(async connectorStatus => {
 
-                    var item = i;
-                    var task = Task.Run(async () => {
+                    await semaphore.WaitAsync().ConfigureAwait(false);
 
-                        try
-                        {
+                    try
+                    {
 
-                            await semaphore.WaitAsync();
+                        return await CPORoaming.ConnectorPostStatus(connectorStatus.Item2,
+                                                                    CPORoaming.CPOClient.ConnectorIdPartnerIdSelector(connectorStatus.Item2.Id),
 
-                            return await CPORoaming.ConnectorPostStatus(_ConnectorStatus[i].Item2,
-                                                                        CPORoaming.CPOClient.ConnectorIdPartnerIdSelector(_ConnectorStatus[i].Item2.Id),
+                                                                    Timestamp,
+                                                                    CancellationToken,
+                                                                    EventTrackingId,
+                                                                    RequestTimeout).
+                                                ConfigureAwait(false);
 
-                                                                        Timestamp,
-                                                                        CancellationToken,
-                                                                        EventTrackingId,
-                                                                        RequestTimeout).
-                                                    ConfigureAwait(false);
-                        }
-                        finally
-                        {
-                            semaphore.Release();
-                        }
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
 
-                    });
-
-                    tasks.Add(task);
-
-                }
+                });
 
                 await Task.WhenAll(tasks);
 
@@ -1750,74 +1744,104 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
         {
 
+            #region Initial checks
+
+            if (StatusUpdates == null || !StatusUpdates.Any())
+                return WWCP.PushEVSEStatusResult.NoOperation(Id, this);
+
+            WWCP.PushEVSEStatusResult result = null;
+
+            #endregion
+
             #region Enqueue, if requested...
 
-            if (TransmissionType == TransmissionTypes.Enqueue)
+            if (TransmissionType == WWCP.TransmissionTypes.Enqueue)
             {
 
-                //#region Send OnEnqueueSendCDRRequest event
+                #region Send OnEnqueueSendCDRRequest event
 
-                ////try
-                ////{
-
-                ////    OnEnqueueSendCDRRequest?.Invoke(DateTime.UtcNow,
-                ////                                    Timestamp.Value,
-                ////                                    this,
-                ////                                    EventTrackingId,
-                ////                                    RoamingNetwork.Id,
-                ////                                    ChargeDetailRecord,
-                ////                                    RequestTimeout);
-
-                ////}
-                ////catch (Exception e)
-                ////{
-                ////    e.Log(nameof(WWCPCPOAdapter) + "." + nameof(OnSendCDRRequest));
-                ////}
-
-                //#endregion
-
-
-                //if (Monitor.TryEnter(StatusCheckLock,
-                //                     TimeSpan.FromMinutes(5)))
+                //try
                 //{
 
-                //    try
-                //    {
-
-                //        //if (IncludeChargingStations == null ||
-                //        //   (IncludeChargingStations != null && IncludeChargingStations(EVSE)))
-                //        //{
-
-                //        EVSEStatusUpdatesQueue.AddRange(StatusUpdates);
-                //        StatusCheckTimer.Change(_StatusCheckEvery, TimeSpan.FromMilliseconds(-1));
-
-                //        //}
-
-                //    }
-                //    finally
-                //    {
-                //        Monitor.Exit(StatusCheckLock);
-                //    }
-
-                //    return PushEVSEStatusResult.Enqueued(Id, this);
+                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.UtcNow,
+                //                                    Timestamp.Value,
+                //                                    this,
+                //                                    EventTrackingId,
+                //                                    RoamingNetwork.Id,
+                //                                    ChargeDetailRecord,
+                //                                    RequestTimeout);
 
                 //}
+                //catch (Exception e)
+                //{
+                //    e.Log(nameof(WWCPEMPAdapter) + "." + nameof(OnSendCDRRequest));
+                //}
 
-                //return PushEVSEStatusResult.LockTimeout(Id, this);
+                #endregion
+
+                var invokeTimer  = false;
+                var LockTaken    = await DataAndStatusLock.WaitAsync(MaxLockWaitingTime);
+
+                try
+                {
+
+                    if (LockTaken)
+                    {
+
+                        var FilteredUpdates = StatusUpdates.Where(statusupdate => IncludeEVSEs  (statusupdate.EVSE) &&
+                                                                                  IncludeEVSEIds(statusupdate.EVSE.Id)).
+                                                            ToArray();
+
+                        if (FilteredUpdates.Length > 0)
+                        {
+
+                            foreach (var Update in FilteredUpdates)
+                            {
+
+                                // Delay the status update until the EVSE data had been uploaded!
+                                if (EVSEsToAddQueue.Any(evse => evse == Update.EVSE))
+                                    EVSEStatusChangesDelayedQueue.Add(Update);
+
+                                else
+                                    EVSEStatusChangesFastQueue.Add(Update);
+
+                            }
+
+                            invokeTimer = true;
+
+                            result = WWCP.PushEVSEStatusResult.Enqueued(Id, this);
+
+                        }
+
+                        result = WWCP.PushEVSEStatusResult.NoOperation(Id, this);
+
+                    }
+
+                }
+                finally
+                {
+                    if (LockTaken)
+                        DataAndStatusLock.Release();
+                }
+
+                if (!LockTaken)
+                    return WWCP.PushEVSEStatusResult.Error(Id, this, Description: "Could not acquire DataAndStatusLock!");
+
+                if (invokeTimer)
+                    FlushEVSEFastStatusTimer.Change(FlushEVSEFastStatusEvery, TimeSpan.FromMilliseconds(-1));
+
+                return result;
 
             }
 
             #endregion
 
-
             return await ConnectorsPostStatus(StatusUpdates,
 
-                                             Timestamp,
-                                             CancellationToken,
-                                             EventTrackingId,
-                                             RequestTimeout).
-
-                                             ConfigureAwait(false);
+                                              Timestamp,
+                                              CancellationToken,
+                                              EventTrackingId,
+                                              RequestTimeout);
 
         }
 
@@ -4466,7 +4490,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 // Copy 'EVSE status changes', remove originals...
                 StationsStatusChangesDelayedQueueCopy        = new List<EVSEStatusUpdate>       (EVSEStatusChangesDelayedQueue);
-                //////StationsStatusChangesDelayedQueueCopy.AddRange(StationsToAddQueueCopy.SelectMany(stations => stations.Connectors).Select(connector => new EVSEStatusUpdate(stations, stations.Status, stations.Status)));
+                StationsStatusChangesDelayedQueueCopy.AddRange(StationsToAddQueueCopy.SelectMany(stations => stations.EVSEs).Select(evse => new EVSEStatusUpdate(evse, evse.Status, evse.Status)));
                 EVSEStatusChangesDelayedQueue.Clear();
 
                 // Copy 'EVSEs to remove', remove originals...
@@ -4500,102 +4524,70 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             // Use events to check if something went wrong!
             var EventTrackingId = EventTracking_Id.New;
 
-            //Thread.Sleep(30000);
+            #region Send new stations data
 
-            #region Send new EVSE data
-
-            if (StationsToAddQueueCopy.Count > 0)
+            if (StationsToAddQueueCopy.Any())
             {
 
-                var responses = await StationsPost(StationsToAddQueueCopy,
-                                                   //Timestamp,
-                                                   //CancellationToken,
-                                                   EventTrackingId: EventTrackingId).
-                                                   //RequestTimeout)
-                                      ConfigureAwait(false);
+                var StationsToAddResult = await StationsPost(StationsToAddQueueCopy,
+                                                             EventTrackingId: EventTrackingId).
+                                                ConfigureAwait(false);
 
-                //var responses = await Task.WhenAll(StationsToAddQueueCopy.
-                //                                       Select(station => CPORoaming.StationPost(station,
-                //                                                                                CPOClient.StationPartnerIdSelector(station),
+                //foreach (var evseId in StationsToUpdateResult.SuccessfulEVSEs)
+                //    SuccessfullyUploadedEVSEs.Add(evseId.Id);
 
-                //                                                                                //Timestamp,
-                //                                                                                //CancellationToken,
-                //                                                                                EventTrackingId: EventTrackingId)).
-                //                                                                                //RequestTimeout)).
-                //                                       ToArray()).
-                //                                       ConfigureAwait(false);
+                if (StationsToAddResult.Warnings.Any())
+                {
+                    try
+                    {
 
+                        SendOnWarnings(DateTime.UtcNow,
+                                       nameof(WWCPCPOAdapter) + Id,
+                                       nameof(StationsToAddResult),
+                                       StationsToAddResult.Warnings);
 
-                //foreach (var response in responses)
-                //{
-
-                    //response.Content.
-
-                    //if (EVSEsToAddTask.Warnings.Any())
-                    //{
-
-                    //    SendOnWarnings(DateTime.UtcNow,
-                    //                   nameof(WWCPCPOAdapter) + Id,
-                    //                   "EVSEsToAddTask",
-                    //                   EVSEsToAddTask.Warnings);
-
-                    //}
-
-                //}
+                    }
+                    catch (Exception)
+                    { }
+                }
 
             }
 
             #endregion
 
-            #region Send changed EVSE data
+            #region Send changed stations data
 
-            if (StationsToUpdateQueueCopy.Count > 0)
+            if (StationsToUpdateQueueCopy.Any())
             {
 
-                // Surpress EVSE data updates for all newly added EVSEs
-                var EVSEsWithoutNewEVSEs = StationsToUpdateQueueCopy.
-                                               Where(evse => !StationsToAddQueueCopy.Contains(evse)).
-                                               ToArray();
+                // Surpress station data updates for all newly added stations
+                foreach (var _station in StationsToUpdateQueueCopy.Where(station => StationsToAddQueueCopy.Contains(station)).ToArray())
+                    StationsToUpdateQueueCopy.Remove(_station);
 
-
-                if (EVSEsWithoutNewEVSEs.Length > 0)
+                if (StationsToUpdateQueueCopy.Any())
                 {
 
-                    var responses = await StationsPost(EVSEsWithoutNewEVSEs,
-                                                       //Timestamp,
-                                                       //CancellationToken,
-                                                       EventTrackingId: EventTrackingId).
-                                                       //RequestTimeout)
-                                          ConfigureAwait(false);
+                    var StationsToUpdateResult = await StationsPost(StationsToUpdateQueueCopy,
+                                                                    EventTrackingId: EventTrackingId).
+                                                       ConfigureAwait(false);
 
-                    //var responses = await Task.WhenAll(EVSEsWithoutNewEVSEs.
-                    //                                   Select(station => CPORoaming.StationPost(station,
-                    //                                                                            CPOClient.StationPartnerIdSelector(station),
+                    //foreach (var evseId in StationsToUpdateResult.SuccessfulEVSEs)
+                    //    SuccessfullyUploadedEVSEs.Add(evseId.Id);
 
-                    //                                                                            //Timestamp,
-                    //                                                                            //CancellationToken,
-                    //                                                                            EventTrackingId: EventTrackingId)).
-                    //                                   //RequestTimeout)).
-                    //                                   ToArray()).
-                    //                                   ConfigureAwait(false);
+                    if (StationsToUpdateResult.Warnings.Any())
+                    {
+                        try
+                        {
 
+                            SendOnWarnings(DateTime.UtcNow,
+                                           nameof(WWCPCPOAdapter) + Id,
+                                           nameof(StationsToUpdateResult),
+                                           StationsToUpdateResult.Warnings);
 
-                    //foreach (var response in responses)
-                    //{
-
-                        //response.Content.
-
-                        //if (EVSEsToAddTask.Warnings.Any())
-                        //{
-
-                        //    SendOnWarnings(DateTime.UtcNow,
-                        //                   nameof(WWCPCPOAdapter) + Id,
-                        //                   "EVSEsToAddTask",
-                        //                   EVSEsToAddTask.Warnings);
-
-                        //}
-
-                    //}
+                        }
+                        catch (Exception)
+                        { }
+                    }
 
                 }
 
@@ -4603,48 +4595,33 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            #region Send changed EVSE status
+            #region Send changed evses status
 
             if (!DisablePushStatus &&
                 StationsStatusChangesDelayedQueueCopy.Count > 0)
             {
 
-                var responses = await ConnectorsPostStatus(StationsStatusChangesDelayedQueueCopy,
-                                                           //Timestamp,
-                                                           //CancellationToken,
-                                                           EventTrackingId: EventTrackingId).
-                                                           //RequestTimeout)
-                                      ConfigureAwait(false);
+                var StationsStatusChangesResult = await ConnectorsPostStatus(StationsStatusChangesDelayedQueueCopy,
+                                                                             EventTrackingId: EventTrackingId).
+                                                        ConfigureAwait(false);
 
-                //var responses = await Task.WhenAll(StationsStatusChangesDelayedQueueCopy.
-                //                                       Select(status => CPORoaming.ConnectorPostStatus(status.EVSE.     Id.   ToOIOI(),
-                //                                                                                       status.NewStatus.Value.ToOIOI(),
+                //foreach (var evseId in StationsToUpdateResult.SuccessfulEVSEs)
+                //    SuccessfullyUploadedEVSEs.Add(evseId.Id);
 
-                //                                                                                       //Timestamp,
-                //                                                                                       //CancellationToken,
-                //                                                                                       EventTrackingId: EventTrackingId)).
-                //                                                                                       //RequestTimeout)).
-                //                                       ToArray()).
-                //                                       ConfigureAwait(false);
+                if (StationsStatusChangesResult.Warnings.Any())
+                {
+                    try
+                    {
 
+                        SendOnWarnings(DateTime.UtcNow,
+                                       nameof(WWCPCPOAdapter) + Id,
+                                       nameof(StationsStatusChangesResult),
+                                       StationsStatusChangesResult.Warnings);
 
-                //var PushEVSEStatusTask = PushEVSEStatus(EVSEStatusChangesDelayedQueueCopy,
-                //                                        _FlushEVSEDataRunId == 1
-                //                                            ? ActionTypes.fullLoad
-                //                                            : ActionTypes.update,
-                //                                        EventTrackingId: EventTrackingId);
-
-                //PushEVSEStatusTask.Wait();
-
-                //if (PushEVSEStatusTask.Result.Warnings.Any())
-                //{
-
-                //    SendOnWarnings(DateTime.UtcNow,
-                //                   nameof(WWCPCPOAdapter) + Id,
-                //                   "PushEVSEStatusTask",
-                //                   PushEVSEStatusTask.Result.Warnings);
-
-                //}
+                    }
+                    catch (Exception)
+                    { }
+                }
 
             }
 
@@ -4736,21 +4713,20 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             if (EVSEStatusFastQueueCopy.Count > 0)
             {
 
-                var pushEVSEStatusResult = await ConnectorsPostStatus(EVSEStatusFastQueueCopy,
+                var ConnectorsPostStatusResult = await ConnectorsPostStatus(EVSEStatusFastQueueCopy,
+                                                                            DateTime.UtcNow,
+                                                                            new CancellationTokenSource().Token,
+                                                                            EventTracking_Id.New,
+                                                                            DefaultRequestTimeout).
+                                                       ConfigureAwait(false);
 
-                                                                      DateTime.UtcNow,
-                                                                      new CancellationTokenSource().Token,
-                                                                      EventTracking_Id.New,
-                                                                      DefaultRequestTimeout).
-                                                     ConfigureAwait(false);
-
-                if (pushEVSEStatusResult.Warnings.Any())
+                if (ConnectorsPostStatusResult.Warnings.Any())
                 {
 
                     SendOnWarnings(DateTime.UtcNow,
                                    nameof(WWCPCPOAdapter) + Id,
-                                   "PushEVSEStatus",
-                                   pushEVSEStatusResult.Warnings);
+                                   nameof(ConnectorsPostStatusResult),
+                                   ConnectorsPostStatusResult.Warnings);
 
                 }
 
