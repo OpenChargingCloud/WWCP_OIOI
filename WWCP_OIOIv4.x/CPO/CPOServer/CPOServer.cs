@@ -431,7 +431,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  }
                                                  catch (Exception e)
                                                  {
-                                                     e.Log(nameof(CPOServer) + "." + nameof(OnSessionStartHTTPRequest));
+                                                     DebugX.LogException(e, nameof(CPOServer) + "." + nameof(OnSessionStartHTTPRequest));
                                                  }
 
                                                  #endregion
@@ -581,7 +581,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  }
                                                  catch (Exception e)
                                                  {
-                                                     e.Log(nameof(CPOServer) + "." + nameof(OnSessionStartRequest));
+                                                     DebugX.LogException(e, nameof(CPOServer) + "." + nameof(OnSessionStartRequest));
                                                  }
 
                                                  #endregion
@@ -613,7 +613,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  }
                                                  catch (Exception e)
                                                  {
-                                                     e.Log(nameof(CPOServer) + "." + nameof(OnSessionStart));
+                                                     DebugX.LogException(e, nameof(CPOServer) + "." + nameof(OnSessionStart));
                                                  }
 
                                                  if (SessionStartResult == null)
@@ -690,7 +690,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  }
                                                  catch (Exception e)
                                                  {
-                                                     e.Log(nameof(CPOServer) + "." + nameof(OnSessionStartResponse));
+                                                     DebugX.LogException(e, nameof(CPOServer) + "." + nameof(OnSessionStartResponse));
                                                  }
 
                                                  #endregion
@@ -712,7 +712,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  }
                                                  catch (Exception e)
                                                  {
-                                                     e.Log(nameof(CPOServer) + "." + nameof(OnSessionStartHTTPRequest));
+                                                     DebugX.LogException(e, nameof(CPOServer) + "." + nameof(OnSessionStartHTTPRequest));
                                                  }
 
                                                  #endregion
@@ -779,7 +779,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  }
                                                  catch (Exception e)
                                                  {
-                                                     e.Log(nameof(CPOServer) + "." + nameof(OnSessionStopHTTPRequest));
+                                                     DebugX.LogException(e, nameof(CPOServer) + "." + nameof(OnSessionStopHTTPRequest));
                                                  }
 
                                                  #endregion
@@ -928,7 +928,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  }
                                                  catch (Exception e)
                                                  {
-                                                     e.Log(nameof(CPOServer) + "." + nameof(OnSessionStopRequest));
+                                                     DebugX.LogException(e, nameof(CPOServer) + "." + nameof(OnSessionStopRequest));
                                                  }
 
                                                  #endregion
@@ -960,7 +960,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  }
                                                  catch (Exception e)
                                                  {
-                                                     e.Log(nameof(CPOServer) + "." + nameof(SessionStopResult));
+                                                     DebugX.LogException(e, nameof(CPOServer) + "." + nameof(SessionStopResult));
                                                  }
 
                                                  if (SessionStopResult == null)
@@ -1031,7 +1031,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  }
                                                  catch (Exception e)
                                                  {
-                                                     e.Log(nameof(CPOServer) + "." + nameof(OnSessionStopResponse));
+                                                     DebugX.LogException(e, nameof(CPOServer) + "." + nameof(OnSessionStopResponse));
                                                  }
 
                                                  #endregion
@@ -1053,7 +1053,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  }
                                                  catch (Exception e)
                                                  {
-                                                     e.Log(nameof(CPOServer) + "." + nameof(OnSessionStopHTTPResponse));
+                                                     DebugX.LogException(e, nameof(CPOServer) + "." + nameof(OnSessionStopHTTPResponse));
                                                  }
 
                                                  #endregion

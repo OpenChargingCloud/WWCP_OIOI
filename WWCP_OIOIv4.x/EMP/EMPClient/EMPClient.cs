@@ -442,7 +442,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
             }
             catch (Exception e)
             {
-                e.Log(nameof(EMPClient) + "." + nameof(OnStationGetSurfaceRequest));
+                DebugX.LogException(e, nameof(EMPClient) + "." + nameof(OnStationGetSurfaceRequest));
             }
 
             #endregion
@@ -567,7 +567,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
             }
             catch (Exception e)
             {
-                e.Log(nameof(EMPClient) + "." + nameof(OnStationGetSurfaceResponse));
+                DebugX.LogException(e, nameof(EMPClient) + "." + nameof(OnStationGetSurfaceResponse));
             }
 
             #endregion
@@ -625,7 +625,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
             }
             catch (Exception e)
             {
-                e.Log(nameof(EMPClient) + "." + nameof(OnSessionStartRequest));
+                DebugX.LogException(e, nameof(EMPClient) + "." + nameof(OnSessionStartRequest));
             }
 
             #endregion
@@ -744,7 +744,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
             }
             catch (Exception e)
             {
-                e.Log(nameof(EMPClient) + "." + nameof(OnSessionStartResponse));
+                DebugX.LogException(e, nameof(EMPClient) + "." + nameof(OnSessionStartResponse));
             }
 
             #endregion
@@ -802,7 +802,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
             }
             catch (Exception e)
             {
-                e.Log(nameof(EMPClient) + "." + nameof(OnSessionStopRequest));
+                DebugX.LogException(e, nameof(EMPClient) + "." + nameof(OnSessionStopRequest));
             }
 
             #endregion
@@ -921,7 +921,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
             }
             catch (Exception e)
             {
-                e.Log(nameof(EMPClient) + "." + nameof(OnSessionStopResponse));
+                DebugX.LogException(e, nameof(EMPClient) + "." + nameof(OnSessionStopResponse));
             }
 
             #endregion
