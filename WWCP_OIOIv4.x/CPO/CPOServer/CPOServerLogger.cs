@@ -28,7 +28,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 {
 
     /// <summary>
-    /// An OIOI CPO server logger.
+    /// The CPO server logger.
     /// </summary>
     public class CPOServerLogger : HTTPServerLogger
     {
@@ -56,16 +56,19 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         #region CPOServerLogger(CPOServer, Context = DefaultContext, LogFileCreator = null)
 
         /// <summary>
-        /// Create a new OIOI CPO server logger using the default logging delegates.
+        /// Create a new CPO server logger using the default logging delegates.
         /// </summary>
         /// <param name="CPOServer">A OIOI CPO server.</param>
+        /// <param name="LoggingPath">The logging path.</param>
         /// <param name="Context">A context of this API.</param>
         /// <param name="LogFileCreator">A delegate to create a log file from the given context and log file name.</param>
         public CPOServerLogger(CPOServer               CPOServer,
+                               String                  LoggingPath,
                                String                  Context         = DefaultContext,
                                LogfileCreatorDelegate  LogFileCreator  = null)
 
             : this(CPOServer,
+                   LoggingPath,
                    Context.IsNotNullOrEmpty() ? Context : DefaultContext,
                    null,
                    null,
@@ -81,9 +84,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         #region CPOServerLogger(CPOServer, Context, ... Logging delegates ...)
 
         /// <summary>
-        /// Create a new OIOI CPO server logger using the given logging delegates.
+        /// Create a new CPO server logger using the given logging delegates.
         /// </summary>
         /// <param name="CPOServer">A OIOI CPO server.</param>
+        /// <param name="LoggingPath">The logging path.</param>
         /// <param name="Context">A context of this API.</param>
         /// 
         /// <param name="LogHTTPRequest_toConsole">A delegate to log incoming HTTP requests to console.</param>
@@ -103,6 +107,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// 
         /// <param name="LogFileCreator">A delegate to create a log file from the given context and log file name.</param>
         public CPOServerLogger(CPOServer                   CPOServer,
+                               String                      LoggingPath,
                                String                      Context,
 
                                HTTPRequestLoggerDelegate   LogHTTPRequest_toConsole,
@@ -123,6 +128,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                LogfileCreatorDelegate      LogFileCreator              = null)
 
             : base(CPOServer.HTTPServer,
+                   LoggingPath,
                    Context.IsNotNullOrEmpty() ? Context : DefaultContext,
 
                    LogHTTPRequest_toConsole,

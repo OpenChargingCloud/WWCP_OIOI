@@ -497,6 +497,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                          IncludeConnectorStatusTypesDelegate  IncludeConnectorStatusType   = null,
                          IncludeConnectorStatusDelegate       IncludeConnectorStatus       = null,
                          Boolean                              DisableLogging               = false,
+                         String                               LoggingPath                  = null,
                          String                               LoggingContext               = null,
                          LogfileCreatorDelegate               LogfileCreator               = null,
                          DNSClient                            DNSClient                    = null)
@@ -535,6 +536,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             base.HTTPLogger                    = DisableLogging == false
                                                      ? new Logger(this,
+                                                                  LoggingPath,
                                                                   LoggingContext,
                                                                   LogfileCreator)
                                                      : null;

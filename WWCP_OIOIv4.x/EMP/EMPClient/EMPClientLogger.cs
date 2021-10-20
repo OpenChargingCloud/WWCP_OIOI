@@ -35,7 +35,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
     {
 
         /// <summary>
-        /// The OIOI EMP HTTP/JSON client logger.
+        /// The EMP HTTP/JSON client logger.
         /// </summary>
         public class Logger : HTTPClientLogger
         {
@@ -63,16 +63,19 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
             #region EMPClientLogger(EMPClient, Context = DefaultContext, LogFileCreator = null)
 
             /// <summary>
-            /// Create a new OIOI EMP Client logger using the default logging delegates.
+            /// Create a new EMP client logger using the default logging delegates.
             /// </summary>
-            /// <param name="EMPClient">A OIOI EMP Client.</param>
+            /// <param name="EMPClient">An OIOI EMP Client.</param>
+            /// <param name="LoggingPath">The logging path.</param>
             /// <param name="Context">A context of this API.</param>
             /// <param name="LogFileCreator">A delegate to create a log file from the given context and log file name.</param>
             public Logger(EMPClient               EMPClient,
-                                   String                  Context         = DefaultContext,
-                                   LogfileCreatorDelegate  LogFileCreator  = null)
+                          String                  LoggingPath,
+                          String                  Context         = DefaultContext,
+                          LogfileCreatorDelegate  LogFileCreator  = null)
 
                 : this(EMPClient,
+                       LoggingPath,
                        Context.IsNotNullOrEmpty() ? Context : DefaultContext,
                        null,
                        null,
@@ -88,9 +91,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
             #region EMPClientLogger(EMPClient, Context, ... Logging delegates ...)
 
             /// <summary>
-            /// Create a new OIOI EMP Client logger using the given logging delegates.
+            /// Create a new EMP client logger using the given logging delegates.
             /// </summary>
-            /// <param name="EMPClient">A OIOI EMP Client.</param>
+            /// <param name="EMPClient">An OIOI EMP Client.</param>
+            /// <param name="LoggingPath">The logging path.</param>
             /// <param name="Context">A context of this API.</param>
             /// 
             /// <param name="LogHTTPRequest_toConsole">A delegate to log incoming HTTP requests to console.</param>
@@ -110,26 +114,28 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
             /// 
             /// <param name="LogFileCreator">A delegate to create a log file from the given context and log file name.</param>
             public Logger(IEMPClient                  EMPClient,
-                                   String                      Context,
+                          String                      LoggingPath,
+                          String                      Context,
 
-                                   HTTPRequestLoggerDelegate   LogHTTPRequest_toConsole,
-                                   HTTPResponseLoggerDelegate  LogHTTPResponse_toConsole,
-                                   HTTPRequestLoggerDelegate   LogHTTPRequest_toDisc,
-                                   HTTPResponseLoggerDelegate  LogHTTPResponse_toDisc,
+                          HTTPRequestLoggerDelegate   LogHTTPRequest_toConsole,
+                          HTTPResponseLoggerDelegate  LogHTTPResponse_toConsole,
+                          HTTPRequestLoggerDelegate   LogHTTPRequest_toDisc,
+                          HTTPResponseLoggerDelegate  LogHTTPResponse_toDisc,
 
-                                   HTTPRequestLoggerDelegate   LogHTTPRequest_toNetwork    = null,
-                                   HTTPResponseLoggerDelegate  LogHTTPResponse_toNetwork   = null,
-                                   HTTPRequestLoggerDelegate   LogHTTPRequest_toHTTPSSE    = null,
-                                   HTTPResponseLoggerDelegate  LogHTTPResponse_toHTTPSSE   = null,
+                          HTTPRequestLoggerDelegate   LogHTTPRequest_toNetwork    = null,
+                          HTTPResponseLoggerDelegate  LogHTTPResponse_toNetwork   = null,
+                          HTTPRequestLoggerDelegate   LogHTTPRequest_toHTTPSSE    = null,
+                          HTTPResponseLoggerDelegate  LogHTTPResponse_toHTTPSSE   = null,
 
-                                   HTTPResponseLoggerDelegate  LogHTTPError_toConsole      = null,
-                                   HTTPResponseLoggerDelegate  LogHTTPError_toDisc         = null,
-                                   HTTPResponseLoggerDelegate  LogHTTPError_toNetwork      = null,
-                                   HTTPResponseLoggerDelegate  LogHTTPError_toHTTPSSE      = null,
+                          HTTPResponseLoggerDelegate  LogHTTPError_toConsole      = null,
+                          HTTPResponseLoggerDelegate  LogHTTPError_toDisc         = null,
+                          HTTPResponseLoggerDelegate  LogHTTPError_toNetwork      = null,
+                          HTTPResponseLoggerDelegate  LogHTTPError_toHTTPSSE      = null,
 
-                                   LogfileCreatorDelegate      LogFileCreator              = null)
+                          LogfileCreatorDelegate      LogFileCreator              = null)
 
                 : base(EMPClient,
+                       LoggingPath,
                        Context.IsNotNullOrEmpty() ? Context : DefaultContext,
 
                        LogHTTPRequest_toConsole,

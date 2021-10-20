@@ -28,13 +28,13 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 {
 
     /// <summary>
-    /// The OIOI CPO Client.
+    /// The CPO client.
     /// </summary>
     public partial class CPOClient : AJSONClient
     {
 
         /// <summary>
-        /// The OIOI CPO HTTP/JSON client logger.
+        /// The CPO HTTP/JSON client logger.
         /// </summary>
         public class Logger : HTTPClientLogger
         {
@@ -59,19 +59,22 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #region Constructor(s)
 
-            #region CPOClientLogger(CPOClient, Context = DefaultContext, LogFileCreator = null)
+            #region Logger(CPOClient, Context = DefaultContext, LogFileCreator = null)
 
             /// <summary>
-            /// Create a new OIOI CPO Client logger using the default logging delegates.
+            /// Create a new CPO Client logger using the default logging delegates.
             /// </summary>
             /// <param name="CPOClient">A OIOI CPO Client.</param>
+            /// <param name="LoggingPath">The logging path.</param>
             /// <param name="Context">A context of this API.</param>
             /// <param name="LogFileCreator">A delegate to create a log file from the given context and log file name.</param>
             public Logger(ICPOClient              CPOClient,
-                                   String                  Context         = DefaultContext,
-                                   LogfileCreatorDelegate  LogFileCreator  = null)
+                          String                  LoggingPath,
+                          String                  Context         = DefaultContext,
+                          LogfileCreatorDelegate  LogFileCreator  = null)
 
                 : this(CPOClient,
+                       LoggingPath,
                        Context.IsNotNullOrEmpty() ? Context : DefaultContext,
                        null,
                        null,
@@ -84,12 +87,13 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #endregion
 
-            #region CPOClientLogger(CPOClient, Context, ... Logging delegates ...)
+            #region Logger(CPOClient, Context, ... Logging delegates ...)
 
             /// <summary>
-            /// Create a new OIOI CPO Client logger using the given logging delegates.
+            /// Create a new CPO Client logger using the given logging delegates.
             /// </summary>
             /// <param name="CPOClient">A OIOI CPO Client.</param>
+            /// <param name="LoggingPath">The logging path.</param>
             /// <param name="Context">A context of this API.</param>
             /// 
             /// <param name="LogHTTPRequest_toConsole">A delegate to log incoming HTTP requests to console.</param>
@@ -109,26 +113,28 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             /// 
             /// <param name="LogFileCreator">A delegate to create a log file from the given context and log file name.</param>
             public Logger(ICPOClient                  CPOClient,
-                                   String                      Context,
+                          String                      LoggingPath,
+                          String                      Context,
 
-                                   HTTPRequestLoggerDelegate   LogHTTPRequest_toConsole,
-                                   HTTPResponseLoggerDelegate  LogHTTPResponse_toConsole,
-                                   HTTPRequestLoggerDelegate   LogHTTPRequest_toDisc,
-                                   HTTPResponseLoggerDelegate  LogHTTPResponse_toDisc,
+                          HTTPRequestLoggerDelegate   LogHTTPRequest_toConsole,
+                          HTTPResponseLoggerDelegate  LogHTTPResponse_toConsole,
+                          HTTPRequestLoggerDelegate   LogHTTPRequest_toDisc,
+                          HTTPResponseLoggerDelegate  LogHTTPResponse_toDisc,
 
-                                   HTTPRequestLoggerDelegate   LogHTTPRequest_toNetwork    = null,
-                                   HTTPResponseLoggerDelegate  LogHTTPResponse_toNetwork   = null,
-                                   HTTPRequestLoggerDelegate   LogHTTPRequest_toHTTPSSE    = null,
-                                   HTTPResponseLoggerDelegate  LogHTTPResponse_toHTTPSSE   = null,
+                          HTTPRequestLoggerDelegate   LogHTTPRequest_toNetwork    = null,
+                          HTTPResponseLoggerDelegate  LogHTTPResponse_toNetwork   = null,
+                          HTTPRequestLoggerDelegate   LogHTTPRequest_toHTTPSSE    = null,
+                          HTTPResponseLoggerDelegate  LogHTTPResponse_toHTTPSSE   = null,
 
-                                   HTTPResponseLoggerDelegate  LogHTTPError_toConsole      = null,
-                                   HTTPResponseLoggerDelegate  LogHTTPError_toDisc         = null,
-                                   HTTPResponseLoggerDelegate  LogHTTPError_toNetwork      = null,
-                                   HTTPResponseLoggerDelegate  LogHTTPError_toHTTPSSE      = null,
+                          HTTPResponseLoggerDelegate  LogHTTPError_toConsole      = null,
+                          HTTPResponseLoggerDelegate  LogHTTPError_toDisc         = null,
+                          HTTPResponseLoggerDelegate  LogHTTPError_toNetwork      = null,
+                          HTTPResponseLoggerDelegate  LogHTTPError_toHTTPSSE      = null,
 
-                                   LogfileCreatorDelegate      LogFileCreator              = null)
+                          LogfileCreatorDelegate      LogFileCreator              = null)
 
                 : base(CPOClient,
+                       LoggingPath,
                        Context.IsNotNullOrEmpty() ? Context : DefaultContext,
 
                        LogHTTPRequest_toConsole,
