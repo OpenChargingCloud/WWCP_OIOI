@@ -25,9 +25,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 {
 
     /// <summary>
-    /// Extention methods for identifier types.
+    /// Extension methods for identifier types.
     /// </summary>
-    public static class IdentifierTypesExtentions
+    public static class IdentifierTypesExtensions
     {
 
         #region Parse(this Text)

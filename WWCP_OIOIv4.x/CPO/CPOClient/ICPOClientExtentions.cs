@@ -30,9 +30,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 {
 
     /// <summary>
-    /// Extention methods for the OIOI CPO client interface.
+    /// Extension methods for the OIOI CPO client interface.
     /// </summary>
-    public static class ICPOClientExtentions
+    public static class ICPOClientExtensions
     {
 
         #region StationPost        (Station,         PartnerId = null, ...)

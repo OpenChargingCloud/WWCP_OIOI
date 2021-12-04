@@ -455,7 +455,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  if (!UserJSON.MapMandatory("identifier-type",
                                                                             "identifier-type",
-                                                                            IdentifierTypesExtentions.Parse,
+                                                                            IdentifierTypesExtensions.Parse,
                                                                             out IdentifierTypes  IdentifierType,
                                                                             out                  ErrorResponse))
                                                  {
@@ -803,7 +803,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                                                  if (!UserJSON.MapMandatory("identifier-type",
                                                                             "identifier-type",
-                                                                            IdentifierTypesExtentions.Parse,
+                                                                            IdentifierTypesExtensions.Parse,
                                                                             out IdentifierTypes  IdentifierType,
                                                                             out                  ErrorResponse))
                                                  {
