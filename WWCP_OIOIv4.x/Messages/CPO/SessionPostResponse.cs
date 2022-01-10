@@ -209,7 +209,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
                 => new SessionPostResponse(Request,
                                            ResponseCodes.InvalidResponseFormat,
-                                           JSONResponse?.ToString(),
+                                           JSONResponse?.HTTPBodyAsUTF8String?.ToString(),
                                            CustomData);
 
 
