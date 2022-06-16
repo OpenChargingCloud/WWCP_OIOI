@@ -197,6 +197,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.WebAPI
         public IEnumerable<KeyValuePair<String, String>>    HTTPLogins          { get; }
 
 
+        public Boolean                                      DisableLogging      { get; }
+
+        public String                                       LoggingPath         { get; }
+
         /// <summary>
         /// Send debug information via HTTP Server Sent Events.
         /// </summary>
@@ -265,7 +269,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.WebAPI
                           //EVSEStatusUpdate2EVSEStatusRecordDelegate    EVSEStatusUpdate2EVSEStatusRecord   = null,
                           //EVSEDataRecord2XMLDelegate                   EVSEDataRecord2XML                  = null,
                           //EVSEStatusRecord2XMLDelegate                 EVSEStatusRecord2XML                = null,
-                          XMLPostProcessingDelegate                    XMLPostProcessing                   = null)
+                          XMLPostProcessingDelegate                    XMLPostProcessing                   = null,
+
+                          Boolean?                                     DisableLogging                      = false,
+                          String?                                      LoggingPath                         = null)
         {
 
             this.HTTPServer                         = HTTPServer    ?? throw new ArgumentNullException(nameof(HTTPServer), "The given HTTP server must not be null!");
@@ -288,14 +295,25 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.WebAPI
             HTTPServer.ResponseLog  += (HTTPProcessor, ServerTimestamp, Request, Response)                       => ResponseLog.WhenAll(HTTPProcessor, ServerTimestamp, Request, Response);
             HTTPServer.ErrorLog     += (HTTPProcessor, ServerTimestamp, Request, Response, Error, LastException) => ErrorLog.   WhenAll(HTTPProcessor, ServerTimestamp, Request, Response, Error, LastException);
 
-            var LogfilePrefix                       = "HTTPSSEs" + Path.DirectorySeparatorChar;
+
+            // Logging
+            this.DisableLogging                     = DisableLogging ?? false;
+            this.LoggingPath                        = LoggingPath    ?? Path.Combine(AppContext.BaseDirectory, "OIOIWebAPI");
+
+            if (this.LoggingPath[^1] != Path.DirectorySeparatorChar)
+                this.LoggingPath += Path.DirectorySeparatorChar;
+
+            if (DisableLogging == false)
+            {
+                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, this.LoggingPath));
+            }
 
             this.DebugLog                           = HTTPServer.AddJSONEventSource(EventIdentification:      DebugLogId,
-                                                                                    URLTemplate:              this.URLPathPrefix + "/DebugLog",
+                                                                                    URLTemplate:              this.URLPathPrefix + "/" + DebugLogId.ToString(),
                                                                                     MaxNumberOfCachedEvents:  10000,
                                                                                     RetryIntervall:           TimeSpan.FromSeconds(5),
                                                                                     EnableLogging:            true,
-                                                                                    LogfilePrefix:            LogfilePrefix);
+                                                                                    LogfilePath:              this.LoggingPath);
 
             RegisterURITemplates();
 
