@@ -305,7 +305,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.WebAPI
 
             if (DisableLogging == false)
             {
-                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, this.LoggingPath));
+                Directory.CreateDirectory(this.LoggingPath);
             }
 
             this.DebugLog                           = HTTPServer.AddJSONEventSource(EventIdentification:      DebugLogId,
