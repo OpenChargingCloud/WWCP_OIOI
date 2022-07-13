@@ -76,7 +76,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         private readonly        List<EVSEStatusUpdate>                            EVSEStatusUpdatesDelayedQueue;
 
         public readonly static  TimeSpan                                          DefaultRequestTimeout  = TimeSpan.FromSeconds(30);
-        public readonly static  eMobilityProvider_Id                              DefaultProviderId      = eMobilityProvider_Id.Parse("DE*8PS");
+        public readonly static  WWCP.eMobilityProvider_Id                         DefaultProviderId      = WWCP.eMobilityProvider_Id.Parse("DE*8PS");
 
 
         //private readonly List<Session> OICP_ChargeDetailRecords_Queue;
@@ -368,9 +368,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                     response = await RoamingNetwork.
                                          RemoteStart(EMPRoamingProvider:    this,
                                                      ChargingLocation:      ChargingLocation.FromEVSEId(EVSEId),
-                                                     RemoteAuthentication:  RemoteAuthentication.FromRemoteIdentification(eMAId),
+                                                     RemoteAuthentication:  RemoteAuthentication.FromRemoteIdentification(WWCP.eMobilityAccount_Id.Parse(eMAId.ToString())),
                                                      SessionId:             ChargingSession_Id.New,
-                                                     ProviderId:            eMAId.ProviderId,
+                                                     ProviderId:            WWCP.eMobilityProvider_Id.Parse(eMAId.ProviderId.ToString()),
 
                                                      Timestamp:             Timestamp,
                                                      CancellationToken:     CancellationToken,
@@ -518,9 +518,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 var response = await RoamingNetwork.RemoteStop(EMPRoamingProvider:    this,
                                                                SessionId:             SessionId. ToWWCP(),
                                                                //EVSEId:                ConnectorId.ToWWCP(),
-                                                               RemoteAuthentication:  RemoteAuthentication.FromRemoteIdentification(eMAId),
+                                                               RemoteAuthentication:  RemoteAuthentication.FromRemoteIdentification(WWCP.eMobilityAccount_Id.Parse(eMAId.ToString())),
                                                                ReservationHandling:   ReservationHandling.Close,
-                                                               ProviderId:            eMAId.ProviderId,
+                                                               ProviderId:            WWCP.eMobilityProvider_Id.Parse(eMAId.ProviderId.ToString()),
 
                                                                Timestamp:             Timestamp,
                                                                CancellationToken:     CancellationToken,
@@ -3732,17 +3732,17 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         public async Task<AuthStartResult>
 
-            AuthorizeStart(LocalAuthentication          LocalAuthentication,
-                           ChargingLocation             ChargingLocation      = null,
-                           ChargingProduct              ChargingProduct       = null,   // [maxlength: 100]
-                           ChargingSession_Id?          SessionId             = null,
-                           ChargingSession_Id?          CPOPartnerSessionId   = null,
-                           ChargingStationOperator_Id?  OperatorId            = null,
+            AuthorizeStart(LocalAuthentication               LocalAuthentication,
+                           ChargingLocation                  ChargingLocation      = null,
+                           ChargingProduct                   ChargingProduct       = null,   // [maxlength: 100]
+                           ChargingSession_Id?               SessionId             = null,
+                           ChargingSession_Id?               CPOPartnerSessionId   = null,
+                           WWCP.ChargingStationOperator_Id?  OperatorId            = null,
 
-                           DateTime?                    Timestamp             = null,
-                           CancellationToken?           CancellationToken     = null,
-                           EventTracking_Id             EventTrackingId       = null,
-                           TimeSpan?                    RequestTimeout        = null)
+                           DateTime?                         Timestamp             = null,
+                           CancellationToken?                CancellationToken     = null,
+                           EventTracking_Id                  EventTrackingId       = null,
+                           TimeSpan?                         RequestTimeout        = null)
 
         {
 
@@ -3929,16 +3929,16 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         public async Task<AuthStopResult>
 
-            AuthorizeStop(ChargingSession_Id           SessionId,
-                          LocalAuthentication          LocalAuthentication,
-                          ChargingLocation             ChargingLocation      = null,
-                          ChargingSession_Id?          CPOPartnerSessionId   = null,
-                          ChargingStationOperator_Id?  OperatorId            = null,
+            AuthorizeStop(ChargingSession_Id                SessionId,
+                          LocalAuthentication               LocalAuthentication,
+                          ChargingLocation                  ChargingLocation      = null,
+                          ChargingSession_Id?               CPOPartnerSessionId   = null,
+                          WWCP.ChargingStationOperator_Id?  OperatorId            = null,
 
-                          DateTime?                    Timestamp             = null,
-                          CancellationToken?           CancellationToken     = null,
-                          EventTracking_Id             EventTrackingId       = null,
-                          TimeSpan?                    RequestTimeout        = null)
+                          DateTime?                         Timestamp             = null,
+                          CancellationToken?                CancellationToken     = null,
+                          EventTracking_Id                  EventTrackingId       = null,
+                          TimeSpan?                         RequestTimeout        = null)
         {
 
             #region Initial checks

@@ -280,7 +280,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
                                        new Contact(ChargingStation.Operator.HotlinePhoneNumber,
                                                    Web:   ChargingStation.Operator.Homepage,
                                                    EMail: ChargingStation.Operator.EMailAddress),
-                                       CustomOperatorIdMapper != null ? CustomOperatorIdMapper(ChargingStation.Operator.Id) : ChargingStation.Operator.Id,
+                                       CustomOperatorIdMapper != null
+                                           ? CustomOperatorIdMapper(ChargingStationOperator_Id.Parse(ChargingStation.Operator.Id.ToString()))
+                                           : ChargingStationOperator_Id.Parse(ChargingStation.Operator.Id.ToString()),
                                        ChargingStation.OpeningTimes != null ? ChargingStation.OpeningTimes.IsOpen24Hours : true,
                                        ChargingStation.EVSEs.Select(evse => evse.ToOIOI(CustomEVSEIdMapper)),
                                        ChargingStation.Description.FirstText(),

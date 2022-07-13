@@ -68,7 +68,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.UnitTests
 
             this._CPOServer = CPOServer.AttachToHTTPAPI(HTTPAPI);
 
-            CSOP01 = _RoamingNetwork.CreateChargingStationOperator(ChargingStationOperator_Id.Parse("DE*GEF"),
+            CSOP01 = _RoamingNetwork.CreateChargingStationOperator(WWCP.ChargingStationOperator_Id.Parse("DE*GEF"),
                                                                    I18NString.Create(Languages.de, "GraphDefined"),
                                                                    AdminStatus: ChargingStationOperatorAdminStatusTypes.Operational);
 
