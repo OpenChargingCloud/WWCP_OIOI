@@ -17,9 +17,8 @@
 
 #region Usings
 
-using System;
 using System.Net.Security;
-using System.Threading.Tasks;
+using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 
 using Newtonsoft.Json.Linq;
@@ -91,6 +90,18 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             => CPOClient.ClientCert;
 
         /// <summary>
+        /// The TLS protocol to use.
+        /// </summary>
+        SslProtocols IHTTPClient.TLSProtocol
+            => CPOClient.TLSProtocol;
+
+        /// <summary>
+        /// Prefer IPv4 instead of IPv6.
+        /// </summary>
+        Boolean IHTTPClient.PreferIPv4
+            => CPOClient.PreferIPv4;
+
+        /// <summary>
         /// The HTTP user agent identification.
         /// </summary>
         String                               IHTTPClient.HTTPUserAgent
@@ -158,6 +169,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             => CPOClient.DNSClient;
 
         #endregion
+
 
         /// <summary>
         /// The CPO server.
