@@ -25,6 +25,7 @@ using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Hermod.DNS;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
+using System.Security.Authentication;
 
 #endregion
 
@@ -92,13 +93,13 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <summary>
         /// The TLS protocol to use.
         /// </summary>
-        SslProtocols IHTTPClient.TLSProtocol
+        SslProtocols                         IHTTPClient.TLSProtocol
             => CPOClient.TLSProtocol;
 
         /// <summary>
         /// Prefer IPv4 instead of IPv6.
         /// </summary>
-        Boolean IHTTPClient.PreferIPv4
+        Boolean                              IHTTPClient.PreferIPv4
             => CPOClient.PreferIPv4;
 
         /// <summary>
