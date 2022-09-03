@@ -148,20 +148,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// The CPO client (HTTP client) logger.
         /// </summary>
         HTTPClientLogger                     IHTTPClient.HTTPLogger
-        {
-
-            get
-            {
-                return CPOClient.HTTPLogger;
-            }
-
-            set
-            {
-                if (value is CPOClient.Logger)
-                    CPOClient.HTTPLogger = value as CPOClient.Logger;
-            }
-
-        }
+            => CPOClient.HTTPLogger;
 
         /// <summary>
         /// The DNS client defines which DNS servers to use.
