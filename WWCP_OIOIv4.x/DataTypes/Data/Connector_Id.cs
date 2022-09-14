@@ -17,7 +17,6 @@
 
 #region Usings
 
-using System;
 using System.Text.RegularExpressions;
 
 using org.GraphDefined.Vanaheimr.Illias;
@@ -38,14 +37,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
         #region Data
 
-        //ToDo: Replace with better randomness!
-        private static readonly Random _Random = new Random(DateTime.UtcNow.Millisecond);
-
         /// <summary>
         /// The regular expression for parsing a connector identification.
         /// </summary>
-        public static readonly Regex  ConnectorId_RegEx = new Regex(@"^([A-Za-z]{2}\*?[A-Za-z0-9]{3})\*?E([A-Za-z0-9\*]{1,30})$",
-                                                                    RegexOptions.IgnorePatternWhitespace);
+        public static readonly Regex  ConnectorId_RegEx = new (@"^([A-Za-z]{2}\*?[A-Za-z0-9]{3})\*?E([A-Za-z0-9\*]{1,30})$",
+                                                               RegexOptions.IgnorePatternWhitespace);
 
         #endregion
 
@@ -110,11 +106,13 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <param name="OperatorId">The unique identification of a charging station operator.</param>
         /// <param name="Mapper">A delegate to modify the newly generated connector identification.</param>
         public static Connector_Id Random(ChargingStationOperator_Id  OperatorId,
-                                          Func<String, String>        Mapper  = null)
+                                          Func<String, String>?       Mapper  = null)
 
 
-            => new Connector_Id(OperatorId,
-                                Mapper != null ? Mapper(_Random.RandomString(12)) : _Random.RandomString(12));
+            => new (OperatorId,
+                    Mapper is not null
+                        ? Mapper(RandomExtensions.RandomString(12))
+                        :        RandomExtensions.RandomString(12));
 
         #endregion
 
