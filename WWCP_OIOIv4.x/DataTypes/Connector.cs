@@ -73,7 +73,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
                          Decimal                              Speed,
                          IReadOnlyDictionary<String, Object>  CustomData   = null)
 
-            : base(CustomData)
+            : base(null,
+                   CustomData)
 
         {
 

@@ -92,10 +92,6 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         IId ISendChargeDetailRecords.Id
             => Id;
 
-        IEnumerable<IId> ISendChargeDetailRecords.Ids
-            => Ids.Cast<IId>();
-
-
         /// <summary>
         /// The wrapped CPO roaming object.
         /// </summary>

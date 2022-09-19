@@ -90,11 +90,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <param name="WWCPAddress">A WWCP address.</param>
         public static Address ToOIOI(this Vanaheimr.Illias.Address WWCPAddress)
 
-            => new Address(WWCPAddress.Street,
-                           WWCPAddress.HouseNumber,
-                           WWCPAddress.City.FirstText(),
-                           WWCPAddress.PostalCode,
-                           WWCPAddress.Country);
+            => new (WWCPAddress.Street,
+                    WWCPAddress.HouseNumber,
+                    WWCPAddress.City.FirstText(),
+                    WWCPAddress.PostalCode,
+                    WWCPAddress.Country);
 
 
         /// <summary>
@@ -103,11 +103,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <param name="OIOIAddress">A address type.</param>
         public static Vanaheimr.Illias.Address ToWWCP(this Address OIOIAddress)
 
-            => Vanaheimr.Illias.Address.Create(OIOIAddress.Country,
-                                               OIOIAddress.ZIP,
-                                               I18NString.Create(Languages.unknown, OIOIAddress.City),
-                                               OIOIAddress.Street,
-                                               OIOIAddress.StreetNumber);
+            => new (OIOIAddress.Street,
+                    OIOIAddress.ZIP,
+                    I18NString.Create(Languages.unknown, OIOIAddress.City),
+                    OIOIAddress.Country,
+                    OIOIAddress.StreetNumber);
 
         #endregion
 

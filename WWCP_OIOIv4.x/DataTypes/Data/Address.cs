@@ -89,7 +89,8 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
 
                        IReadOnlyDictionary<String, Object>  CustomData   = null)
 
-            : base(CustomData)
+            : base(null,
+                   CustomData)
 
         {
 
