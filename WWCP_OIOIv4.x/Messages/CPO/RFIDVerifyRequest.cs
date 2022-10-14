@@ -28,7 +28,7 @@ using org.GraphDefined.Vanaheimr.Hermod;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
+namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 {
 
     /// <summary>
@@ -149,10 +149,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="RFIDVerifyRequest">The parsed RFID verify request.</param>
         /// <param name="CustomRFIDVerifyRequestParser">A delegate to parse custom RFIDVerify requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static Boolean TryParse(JObject                                      RFIDVerifyRequestJSON,
-                                       out RFIDVerifyRequest                        RFIDVerifyRequest,
-                                       CustomJObjectParserDelegate<RFIDVerifyRequest>  CustomRFIDVerifyRequestParser   = null,
-                                       OnExceptionDelegate                          OnException                     = null)
+        public static Boolean TryParse(JObject                                          RFIDVerifyRequestJSON,
+                                       out RFIDVerifyRequest?                           RFIDVerifyRequest,
+                                       CustomJObjectParserDelegate<RFIDVerifyRequest>?  CustomRFIDVerifyRequestParser   = null,
+                                       OnExceptionDelegate?                             OnException                     = null)
         {
 
             try
@@ -176,7 +176,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             catch (Exception e)
             {
 
-                OnException?.Invoke(DateTime.UtcNow, RFIDVerifyRequestJSON, e);
+                OnException?.Invoke(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now, RFIDVerifyRequestJSON, e);
 
                 RFIDVerifyRequest = null;
                 return false;
@@ -196,10 +196,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="RFIDVerifyRequest">The parsed RFID verify request.</param>
         /// <param name="CustomRFIDVerifyRequestParser">A delegate to parse custom RFIDVerify requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static Boolean TryParse(String                                       RFIDVerifyRequestText,
-                                       out RFIDVerifyRequest                        RFIDVerifyRequest,
-                                       CustomJObjectParserDelegate<RFIDVerifyRequest>  CustomRFIDVerifyRequestParser   = null,
-                                       OnExceptionDelegate                          OnException                     = null)
+        public static Boolean TryParse(String                                           RFIDVerifyRequestText,
+                                       out RFIDVerifyRequest?                           RFIDVerifyRequest,
+                                       CustomJObjectParserDelegate<RFIDVerifyRequest>?  CustomRFIDVerifyRequestParser   = null,
+                                       OnExceptionDelegate?                             OnException                     = null)
         {
 
             try
@@ -215,7 +215,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             }
             catch (Exception e)
             {
-                OnException?.Invoke(DateTime.UtcNow, RFIDVerifyRequestText, e);
+                OnException?.Invoke(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now, RFIDVerifyRequestText, e);
             }
 
             RFIDVerifyRequest = null;

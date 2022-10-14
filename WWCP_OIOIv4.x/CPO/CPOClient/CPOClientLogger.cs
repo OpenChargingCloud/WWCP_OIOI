@@ -25,7 +25,7 @@ using org.GraphDefined.Vanaheimr.Hermod.Logging;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
+namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 {
 
     /// <summary>

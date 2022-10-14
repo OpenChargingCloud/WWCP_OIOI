@@ -28,7 +28,7 @@ using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
+namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 {
 
     /// <summary>
@@ -147,7 +147,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             catch (Exception e)
             {
 
-                OnException?.Invoke(DateTime.UtcNow, JSON, e);
+                OnException?.Invoke(Timestamp.Now, JSON, e);
 
                 StationPostResponse = null;
                 return false;

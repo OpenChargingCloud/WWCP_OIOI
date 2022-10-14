@@ -27,7 +27,7 @@ using org.GraphDefined.Vanaheimr.Hermod;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
+namespace cloud.charging.open.protocols.OIOIv4_x.EMP
 {
 
 #pragma warning disable CS0659
@@ -152,7 +152,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
             catch (Exception e)
             {
 
-                OnException?.Invoke(DateTime.UtcNow, JSON, e);
+                OnException?.Invoke(Timestamp.Now, JSON, e);
 
                 SessionStopResponse = null;
                 return false;

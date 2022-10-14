@@ -28,7 +28,7 @@ using org.GraphDefined.Vanaheimr.Hermod.JSON;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
+namespace cloud.charging.open.protocols.OIOIv4_x.EMP
 {
 
     /// <summary>
@@ -209,7 +209,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
             catch (Exception e)
             {
 
-                OnException?.Invoke(DateTime.UtcNow, SessionStopRequestJSON, e);
+                OnException?.Invoke(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now, SessionStopRequestJSON, e);
 
                 SessionStopRequest = null;
                 return false;
@@ -248,7 +248,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
             }
             catch (Exception e)
             {
-                OnException?.Invoke(DateTime.UtcNow, SessionStopRequestText, e);
+                OnException?.Invoke(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now, SessionStopRequestText, e);
             }
 
             SessionStopRequest = null;

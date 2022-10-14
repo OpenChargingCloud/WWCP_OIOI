@@ -17,15 +17,13 @@
 
 #region Usings
 
-using System;
-using System.Linq;
-using System.Collections.Generic;
-
 using org.GraphDefined.Vanaheimr.Illias;
+
+using cloud.charging.open.protocols.WWCP;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv4_x
+namespace cloud.charging.open.protocols.OIOIv4_x
 {
 
     /// <summary>
@@ -88,7 +86,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// Maps a WWCP address to an OIOI address.
         /// </summary>
         /// <param name="WWCPAddress">A WWCP address.</param>
-        public static Address ToOIOI(this Vanaheimr.Illias.Address WWCPAddress)
+        public static Address ToOIOI(this org.GraphDefined.Vanaheimr.Illias.Address WWCPAddress)
 
             => new (WWCPAddress.Street,
                     WWCPAddress.HouseNumber,
@@ -101,7 +99,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// Maps an OIOI address type to a WWCP address type.
         /// </summary>
         /// <param name="OIOIAddress">A address type.</param>
-        public static Vanaheimr.Illias.Address ToWWCP(this Address OIOIAddress)
+        public static org.GraphDefined.Vanaheimr.Illias.Address ToWWCP(this Address OIOIAddress)
 
             => new (OIOIAddress.Street,
                     OIOIAddress.ZIP,

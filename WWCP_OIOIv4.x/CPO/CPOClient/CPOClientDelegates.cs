@@ -24,7 +24,7 @@ using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
+namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 {
 
     #region OnStationPostRequest/-Response

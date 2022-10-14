@@ -29,7 +29,7 @@ using org.GraphDefined.Vanaheimr.Hermod;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
+namespace cloud.charging.open.protocols.OIOIv4_x.EMP
 {
 
     /// <summary>
@@ -244,7 +244,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
             catch (Exception e)
             {
 
-                OnException?.Invoke(DateTime.UtcNow, StationGetSurfaceRequestJSON, e);
+                OnException?.Invoke(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now, StationGetSurfaceRequestJSON, e);
 
                 StationGetSurfaceRequest = null;
                 return false;
@@ -280,7 +280,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
             }
             catch (Exception e)
             {
-                OnException?.Invoke(DateTime.UtcNow, StationGetSurfaceRequestText, e);
+                OnException?.Invoke(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now, StationGetSurfaceRequestText, e);
             }
 
             StationGetSurfaceRequest = null;

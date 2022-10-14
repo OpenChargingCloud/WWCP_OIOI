@@ -24,7 +24,7 @@ using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv4_x
+namespace cloud.charging.open.protocols.OIOIv4_x
 {
 
     /// <summary>
@@ -80,11 +80,11 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         public ARequest(DateTime?           Timestamp           = null,
                         CancellationToken?  CancellationToken   = null,
-                        EventTracking_Id    EventTrackingId     = null,
+                        EventTracking_Id?   EventTrackingId     = null,
                         TimeSpan?           RequestTimeout      = null)
         {
 
-            this.Timestamp          = Timestamp.        HasValue ? Timestamp            : DateTime.UtcNow;
+            this.Timestamp          = Timestamp.        HasValue ? Timestamp            : org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
             this.CancellationToken  = CancellationToken.HasValue ? CancellationToken    : new CancellationTokenSource().Token;
             this.EventTrackingId    = EventTrackingId ?? EventTracking_Id.New;
             this.RequestTimeout     = RequestTimeout.   HasValue ? RequestTimeout.Value : DefaultRequestTimeout;

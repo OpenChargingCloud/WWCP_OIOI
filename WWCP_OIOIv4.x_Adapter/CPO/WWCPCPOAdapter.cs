@@ -34,10 +34,11 @@ using org.GraphDefined.Vanaheimr.Hermod.DNS;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets.TCP;
 using Org.BouncyCastle.Crypto.Parameters;
+using cloud.charging.open.protocols.WWCP;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
+namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 {
 
     /// <summary>
@@ -292,9 +293,9 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                               PublicKeyCertificates                            PublicKeyCertificates                    = null)
 
             : base(Id,
+                   RoamingNetwork,
                    Name,
                    Description,
-                   RoamingNetwork,
 
                    IncludeEVSEIds,
                    IncludeEVSEs,
@@ -365,7 +366,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                          RemoteStart(EMPRoamingProvider:    this,
                                                      ChargingLocation:      ChargingLocation.FromEVSEId(EVSEId),
                                                      RemoteAuthentication:  RemoteAuthentication.FromRemoteIdentification(WWCP.eMobilityAccount_Id.Parse(eMAId.ToString())),
-                                                     SessionId:             ChargingSession_Id.New,
+                                                     SessionId:             ChargingSession_Id.NewRandom,
                                                      ProviderId:            WWCP.eMobilityProvider_Id.Parse(eMAId.ProviderId.ToString()),
 
                                                      Timestamp:             Timestamp,

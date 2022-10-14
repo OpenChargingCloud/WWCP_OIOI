@@ -35,12 +35,12 @@ using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets.TCP;
 
-using org.GraphDefined.WWCP.OIOIv4_x;
-using org.GraphDefined.WWCP.OIOIv4_x.CPO;
+using cloud.charging.open.protocols.WWCP;
+using cloud.charging.open.protocols.OIOIv4_x.CPO;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv4_x.UnitTests
+namespace cloud.charging.open.protocols.OIOIv4_x.UnitTests
 {
 
     /// <summary>
@@ -70,7 +70,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.UnitTests
 
             CSOP01 = _RoamingNetwork.CreateChargingStationOperator(WWCP.ChargingStationOperator_Id.Parse("DE*GEF"),
                                                                    I18NString.Create(Languages.de, "GraphDefined"),
-                                                                   AdminStatus: ChargingStationOperatorAdminStatusTypes.Operational);
+                                                                   InitialAdminStatus: ChargingStationOperatorAdminStatusTypes.Operational);
 
             CP01   = CSOP01.CreateChargingPool   (ChargingPool_Id.   Parse("DE*GEF*P123456"));
             CS01   = CP01.  CreateChargingStation(ChargingStation_Id.Parse("DE*GEF*S123456*A"));

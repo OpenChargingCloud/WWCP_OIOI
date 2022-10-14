@@ -22,10 +22,11 @@ using System.Collections.Generic;
 
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
+using Newtonsoft.Json.Linq;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv4_x
+namespace cloud.charging.open.protocols.OIOIv4_x
 {
 
     /// <summary>
@@ -70,19 +71,20 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <param name="Status">The current status of the connector.</param>
         /// <param name="Timestamp">An optional timestamp of the current status of the connector.</param>
         /// <param name="CustomData">An optional dictionary of customer-specific data.</param>
-        public ConnectorStatus(Connector_Id                         Id,
-                               ConnectorStatusTypes                 Status,
-                               DateTime?                            Timestamp    = null,
-                               IReadOnlyDictionary<String, Object>  CustomData   = null)
+        public ConnectorStatus(Connector_Id            Id,
+                               ConnectorStatusTypes    Status,
+                               DateTime?               Timestamp      = null,
+                               JObject?                CustomData     = null,
+                               UserDefinedDictionary?  InternalData   = null)
 
-            : base(null,
-                   CustomData)
+            : base(CustomData,
+                   InternalData)
 
         {
 
             this.Id         = Id;
             this.Status     = Status;
-            this.Timestamp  = Timestamp ?? DateTime.UtcNow;
+            this.Timestamp  = Timestamp ?? org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
 
         }
 

@@ -25,7 +25,7 @@ using System.Collections.Generic;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv4_x
+namespace cloud.charging.open.protocols.OIOIv4_x
 {
 
     /// <summary>
@@ -104,7 +104,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
             this.Message            = Message;
             this.CustomData         = CustomData;
             this.CustomMapper       = CustomMapper;
-            this.ResponseTimestamp  = ResponseTimestamp ?? DateTime.UtcNow;
+            this.ResponseTimestamp  = ResponseTimestamp ?? Timestamp.Now;
 
         }
 

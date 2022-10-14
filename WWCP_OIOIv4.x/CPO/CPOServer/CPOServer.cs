@@ -17,10 +17,6 @@
 
 #region Usings
 
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Net.Security;
 using System.Security.Authentication;
 
@@ -35,7 +31,7 @@ using org.GraphDefined.Vanaheimr.Hermod.Sockets.TCP;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
+namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 {
 
     /// <summary>
@@ -283,7 +279,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             if (ServerRegisterHTTPRootService &&
                 URLPathPrefix.ToString() != "/")
 
-                HTTPServer.AddMethodCallback(HTTPHostname ?? Vanaheimr.Hermod.HTTP.HTTPHostname.Any,
+                HTTPServer.AddMethodCallback(HTTPHostname ?? org.GraphDefined.Vanaheimr.Hermod.HTTP.HTTPHostname.Any,
                                              HTTPMethod.GET,
                                              HTTPPath.Parse("/"),
                                              HTTPContentType.TEXT_UTF8,
@@ -333,7 +329,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         {
 
             this.HTTPServer         = HTTPServer        ?? throw new ArgumentNullException(nameof(HTTPServer), "The given HTTP server must not be null!");
-            this.HTTPHostname       = HTTPHostname      ?? Vanaheimr.Hermod.HTTP.HTTPHostname.Any;
+            this.HTTPHostname       = HTTPHostname      ?? org.GraphDefined.Vanaheimr.Hermod.HTTP.HTTPHostname.Any;
             this.URLPathPrefix      = URLPathPrefix     ?? DefaultURLPathPrefix;
             this.APIKeyValidator    = APIKeyValidator;
             this.DNSClient          = HTTPServer.DNSClient;
@@ -425,7 +421,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                      if (OnSessionStartHTTPRequest != null)
                                                          await Task.WhenAll(OnSessionStartHTTPRequest.GetInvocationList().
                                                                             Cast<RequestLogHandler>().
-                                                                            Select(e => e(DateTime.UtcNow,
+                                                                            Select(e => e(Timestamp.Now,
                                                                                           HTTPServer,
                                                                                           request))).
                                                                     ConfigureAwait(false);
@@ -569,7 +565,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                      if (OnSessionStartRequest != null)
                                                          await Task.WhenAll(OnSessionStartRequest.GetInvocationList().
                                                                             Cast<OnSessionStartRequestDelegate>().
-                                                                            Select(e => e(DateTime.UtcNow,
+                                                                            Select(e => e(Timestamp.Now,
                                                                                           request.Timestamp,
                                                                                           this,
                                                                                           EventTracking_Id.New,
@@ -599,7 +595,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                          SessionStartResult = (await Task.WhenAll(OnSessionStartLocal.
                                                                                                       GetInvocationList().
                                                                                                       Select(subscriber => (subscriber as OnSessionStartDelegate)
-                                                                                                          (DateTime.UtcNow,
+                                                                                                          (Timestamp.Now,
                                                                                                            this,
                                                                                                            eMobilityAccountId,
                                                                                                            ConnectorId,
@@ -661,7 +657,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  _HTTPResponse = new HTTPResponse.Builder(request) {
                                                                      HTTPStatusCode  = statusCode,
                                                                      Server          = HTTPServer.DefaultServerName,
-                                                                     Date            = DateTime.UtcNow,
+                                                                     Date            = Timestamp.Now,
                                                                      ContentType     = HTTPContentType.JSON_UTF8,
                                                                      Content         = SessionStartResult.ToUTF8Bytes(),
                                                                      Connection      = "close"
@@ -676,7 +672,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                      if (OnSessionStartResponse != null)
                                                          await Task.WhenAll(OnSessionStartResponse.GetInvocationList().
                                                                             Cast<OnSessionStartResponseDelegate>().
-                                                                            Select(e => e(DateTime.UtcNow,
+                                                                            Select(e => e(Timestamp.Now,
                                                                                           request.Timestamp,
                                                                                           this,
                                                                                           EventTracking_Id.New,
@@ -686,7 +682,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                                           ConnectorId,
                                                                                           PaymentReference,
                                                                                           SessionStartResult,
-                                                                                          request.Timestamp - DateTime.UtcNow))).
+                                                                                          request.Timestamp - Timestamp.Now))).
                                                                     ConfigureAwait(false);
 
                                                  }
@@ -705,7 +701,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                      if (OnSessionStartHTTPResponse != null)
                                                          await Task.WhenAll(OnSessionStartHTTPResponse.GetInvocationList().
                                                                             Cast<AccessLogHandler>().
-                                                                            Select(e => e(DateTime.UtcNow,
+                                                                            Select(e => e(Timestamp.Now,
                                                                                           HTTPServer,
                                                                                           request,
                                                                                           _HTTPResponse))).
@@ -773,7 +769,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                      if (OnSessionStopHTTPRequest != null)
                                                          await Task.WhenAll(OnSessionStopHTTPRequest.GetInvocationList().
                                                                             Cast<RequestLogHandler>().
-                                                                            Select(e => e(DateTime.UtcNow,
+                                                                            Select(e => e(Timestamp.Now,
                                                                                           HTTPServer,
                                                                                           request))).
                                                                     ConfigureAwait(false);
@@ -916,7 +912,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                      if (OnSessionStopRequest != null)
                                                          await Task.WhenAll(OnSessionStopRequest.GetInvocationList().
                                                                             Cast<OnSessionStopRequestDelegate>().
-                                                                            Select(e => e(DateTime.UtcNow,
+                                                                            Select(e => e(Timestamp.Now,
                                                                                           request.Timestamp,
                                                                                           this,
                                                                                           EventTracking_Id.New,
@@ -946,7 +942,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                          SessionStopResult = (await Task.WhenAll(OnSessionStopLocal.
                                                                                                      GetInvocationList().
                                                                                                      Select(subscriber => (subscriber as OnSessionStopDelegate)
-                                                                                                         (DateTime.UtcNow,
+                                                                                                         (Timestamp.Now,
                                                                                                           this,
                                                                                                           ConnectorId,
                                                                                                           SessionId,
@@ -1002,7 +998,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                  _HTTPResponse = new HTTPResponse.Builder(request) {
                                                                      HTTPStatusCode  = statusCode,
                                                                      Server          = HTTPServer.DefaultServerName,
-                                                                     Date            = DateTime.UtcNow,
+                                                                     Date            = Timestamp.Now,
                                                                      ContentType     = HTTPContentType.JSON_UTF8,
                                                                      Content         = SessionStopResult.ToUTF8Bytes(),
                                                                      Connection      = "close"
@@ -1017,7 +1013,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                      if (OnSessionStopResponse != null)
                                                          await Task.WhenAll(OnSessionStopResponse.GetInvocationList().
                                                                             Cast<OnSessionStopResponseDelegate>().
-                                                                            Select(e => e(DateTime.UtcNow,
+                                                                            Select(e => e(Timestamp.Now,
                                                                                           request.Timestamp,
                                                                                           this,
                                                                                           EventTracking_Id.New,
@@ -1027,7 +1023,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                                                           ConnectorId,
                                                                                           SessionId,
                                                                                           SessionStopResult,
-                                                                                          request.Timestamp - DateTime.UtcNow))).
+                                                                                          request.Timestamp - Timestamp.Now))).
                                                                     ConfigureAwait(false);
 
                                                  }
@@ -1046,7 +1042,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                      if (OnSessionStopHTTPResponse != null)
                                                          await Task.WhenAll(OnSessionStopHTTPResponse.GetInvocationList().
                                                                             Cast<AccessLogHandler>().
-                                                                            Select(e => e(DateTime.UtcNow,
+                                                                            Select(e => e(Timestamp.Now,
                                                                                           HTTPServer,
                                                                                           request,
                                                                                           _HTTPResponse))).
@@ -1115,7 +1111,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             => new HTTPResponse.Builder(HTTPRequest) {
                    HTTPStatusCode  = HTTPStatusCode,
                    Server          = HTTPRequest.HTTPServer.DefaultServerName,
-                   Date            = DateTime.UtcNow,
+                   Date            = Timestamp.Now,
                    ContentType     = HTTPContentType.JSON_UTF8,
                    Content         = OIOIResult.ToUTF8Bytes(),
                    Connection      = "close"
@@ -1134,7 +1130,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                HTTPStatusCode,
                                                OIOIResult);
 
-            OnSessionStartHTTPResponse?.Invoke(DateTime.UtcNow,
+            OnSessionStartHTTPResponse?.Invoke(Timestamp.Now,
                                                HTTPServer,
                                                HTTPRequest,
                                                _HTTPResponse);
@@ -1156,7 +1152,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                                                HTTPStatusCode,
                                                OIOIResult);
 
-            OnSessionStopHTTPResponse?.Invoke(DateTime.UtcNow,
+            OnSessionStopHTTPResponse?.Invoke(Timestamp.Now,
                                               HTTPServer,
                                               HTTPRequest,
                                               _HTTPResponse);

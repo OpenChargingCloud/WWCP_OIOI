@@ -29,9 +29,11 @@ using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Hermod.DNS;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 
+using cloud.charging.open.protocols.WWCP;
+
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv4_x.UnitTests
+namespace cloud.charging.open.protocols.OIOIv4_x.UnitTests
 {
 
     /// <summary>

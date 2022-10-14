@@ -30,7 +30,7 @@ using org.GraphDefined.Vanaheimr.Hermod.JSON;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv4_x
+namespace cloud.charging.open.protocols.OIOIv4_x
 {
 
     /// <summary>
@@ -213,32 +213,33 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <param name="Deleted">Soft delete this charging station and its related connectors.</param>
         /// 
         /// <param name="CustomData">An optional dictionary of customer-specific data.</param>
-        public Station(Station_Id                           Id,
-                       String                               Name,
-                       Latitude                             Latitude,
-                       Longitude                            Longitude,
-                       Address                              Address,
-                       Contact                              Contact,
-                       ChargingStationOperator_Id           CPOId,
-                       Boolean                              IsOpen24Hours,
-                       IEnumerable<Connector>               Connectors,
-                       String                               Description             = null,
-                       OpeningTimes                         OpeningTime             = null,
-                       String                               Notes                   = null,
-                       Boolean                              IsReservable            = false,
-                       Int16?                               FloorLevel              = null,
-                       Boolean                              IsFreeCharge            = false,
-                       UInt16?                              TotalParking            = null,
-                       Boolean                              IsGreenPowerAvailable   = false,
-                       Boolean                              IsPlugInCharge          = false,
-                       Boolean                              IsRoofed                = false,
-                       Boolean                              IsPrivate               = false,
-                       Boolean                              Deleted                 = false,
+        public Station(Station_Id                  Id,
+                       String                      Name,
+                       Latitude                    Latitude,
+                       Longitude                   Longitude,
+                       Address                     Address,
+                       Contact                     Contact,
+                       ChargingStationOperator_Id  CPOId,
+                       Boolean                     IsOpen24Hours,
+                       IEnumerable<Connector>      Connectors,
+                       String                      Description             = null,
+                       OpeningTimes                OpeningTime             = null,
+                       String                      Notes                   = null,
+                       Boolean                     IsReservable            = false,
+                       Int16?                      FloorLevel              = null,
+                       Boolean                     IsFreeCharge            = false,
+                       UInt16?                     TotalParking            = null,
+                       Boolean                     IsGreenPowerAvailable   = false,
+                       Boolean                     IsPlugInCharge          = false,
+                       Boolean                     IsRoofed                = false,
+                       Boolean                     IsPrivate               = false,
+                       Boolean                     Deleted                 = false,
 
-                       IReadOnlyDictionary<String, Object>  CustomData              = null)
+                       JObject?                    CustomData              = null,
+                       UserDefinedDictionary?      InternalData            = null)
 
-            : base(null,
-                   CustomData)
+            : base(CustomData,
+                   InternalData)
 
         {
 

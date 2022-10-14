@@ -36,7 +36,7 @@ using org.GraphDefined.Vanaheimr.Hermod.SOAP;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
+namespace cloud.charging.open.protocols.OIOIv4_x.EMP
 {
 
     /// <summary>

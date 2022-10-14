@@ -28,7 +28,7 @@ using org.GraphDefined.Vanaheimr.Hermod.JSON;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv4_x
+namespace cloud.charging.open.protocols.OIOIv4_x
 {
 
     /// <summary>
@@ -81,16 +81,17 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <param name="Country">The country.</param>
         /// 
         /// <param name="CustomData">An optional dictionary of customer-specific data.</param>
-        public Address(String                               Street,
-                       String                               StreetNumber,
-                       String                               City,
-                       String                               ZIP,
-                       Country                              Country,
+        public Address(String                  Street,
+                       String                  StreetNumber,
+                       String                  City,
+                       String                  ZIP,
+                       Country                 Country,
 
-                       IReadOnlyDictionary<String, Object>  CustomData   = null)
+                       JObject?                CustomData     = null,
+                       UserDefinedDictionary?  InternalData   = null)
 
-            : base(null,
-                   CustomData)
+            : base(CustomData,
+                   InternalData)
 
         {
 
@@ -196,7 +197,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
             catch (Exception e)
             {
 
-                OnException?.Invoke(DateTime.UtcNow, AddressText, e);
+                OnException?.Invoke(Timestamp.Now, AddressText, e);
 
                 Address = null;
                 return false;
@@ -248,7 +249,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
             catch (Exception e)
             {
 
-                OnException?.Invoke(DateTime.UtcNow, AddressJSON, e);
+                OnException?.Invoke(Timestamp.Now, AddressJSON, e);
 
                 Address = null;
                 return false;

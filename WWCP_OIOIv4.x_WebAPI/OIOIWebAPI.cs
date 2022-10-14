@@ -24,16 +24,17 @@ using System.Collections.Generic;
 
 using Newtonsoft.Json.Linq;
 
-using org.GraphDefined.WWCP.OIOIv4_x.CPO;
-
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod.DNS;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Hermod.SOAP;
 
+using cloud.charging.open.protocols.WWCP;
+using cloud.charging.open.protocols.OIOIv4_x.CPO;
+
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv4_x.WebAPI
+namespace cloud.charging.open.protocols.OIOIv4_x.WebAPI
 {
 
     /// <summary>

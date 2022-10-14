@@ -17,17 +17,14 @@
 
 #region Usings
 
-using System;
-using System.Collections.Generic;
 
 using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
-using org.GraphDefined.Vanaheimr.Hermod.JSON;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv4_x
+namespace cloud.charging.open.protocols.OIOIv4_x
 {
 
     /// <summary>
@@ -69,7 +66,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// The start and stop timestamps of charging.
         /// </summary>
         [Optional]
-        public StartEndDateTime    ChargingInterval     { get; }
+        public StartEndDateTime?   ChargingInterval     { get; }
 
         /// <summary>
         /// The consumed energy in kWh.
@@ -99,18 +96,19 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <param name="PartnerIdentifier">The partner identifier of the partner that shall be associated with this CDR.</param>
         /// 
         /// <param name="CustomData">An optional dictionary of customer-specific data.</param>
-        public Session(Session_Id                           Id,
-                       User                                 User,
-                       Connector_Id                         ConnectorId,
-                       StartEndDateTime                     SessionInterval,
-                       StartEndDateTime                     ChargingInterval    = null,
-                       Decimal?                             EnergyConsumed      = null,
-                       Partner_Id?                          PartnerIdentifier   = null,
+        public Session(Session_Id              Id,
+                       User                    User,
+                       Connector_Id            ConnectorId,
+                       StartEndDateTime        SessionInterval,
+                       StartEndDateTime?       ChargingInterval    = null,
+                       Decimal?                EnergyConsumed      = null,
+                       Partner_Id?             PartnerIdentifier   = null,
 
-                       IReadOnlyDictionary<String, Object>  CustomData          = null)
+                       JObject?                CustomData          = null,
+                       UserDefinedDictionary?  InternalData        = null)
 
-            : base(null,
-                   CustomData)
+            : base(CustomData,
+                   InternalData)
 
         {
 

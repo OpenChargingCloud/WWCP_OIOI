@@ -17,17 +17,14 @@
 
 #region Usings
 
-using System;
-
 using org.GraphDefined.Vanaheimr.Illias;
 
 using Org.BouncyCastle.Crypto.Parameters;
-using org.GraphDefined.WWCP.OIOIv4_x.CPO;
-using org.GraphDefined.WWCP.OIOIv4_x;
+using cloud.charging.open.protocols.OIOIv4_x.CPO;
 
 #endregion
 
-namespace org.GraphDefined.WWCP
+namespace cloud.charging.open.protocols.WWCP
 {
 
     /// <summary>

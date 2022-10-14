@@ -35,7 +35,7 @@ using org.GraphDefined.Vanaheimr.Hermod.Logging;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
+namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 {
 
     public class OIOI_Exception : ApplicationException
@@ -572,7 +572,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 throw new ArgumentNullException(nameof(Request), "The mapped StationPost request must not be null!");
 
 
-            var                                StartTime           = DateTime.UtcNow;
+            var                                StartTime           = Timestamp.Now;
             Byte                               TransmissionRetry   = 0;
             HTTPResponse<StationPostResponse>  result              = null;
 
@@ -603,7 +603,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
                 catch (Exception e)
                 {
 
-                    SendException(DateTime.UtcNow,
+                    SendException(Timestamp.Now,
                                   this,
                                   new OIOI_CPOClientException(this,
                                                               nameof(OnStationPostRequest),
@@ -758,7 +758,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #region Send OnStationPostResponse event
 
-            var Endtime = DateTime.UtcNow;
+            var Endtime = Timestamp.Now;
 
             try
             {
@@ -782,7 +782,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             catch (Exception e)
             {
 
-                SendException(DateTime.UtcNow,
+                SendException(Timestamp.Now,
                               this,
                               new OIOI_CPOClientException(this,
                                                           nameof(OnStationPostResponse),
@@ -829,7 +829,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #region Send OnConnectorPostStatusRequest event
 
-            var StartTime = DateTime.UtcNow;
+            var StartTime = Timestamp.Now;
 
             try
             {
@@ -851,7 +851,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             catch (Exception e)
             {
 
-                SendException(DateTime.UtcNow,
+                SendException(Timestamp.Now,
                               this,
                               new OIOI_CPOClientException(this,
                                                           nameof(OnConnectorPostStatusRequest),
@@ -994,7 +994,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #region Send OnConnectorPostStatusResponse event
 
-            var Endtime = DateTime.UtcNow;
+            var Endtime = Timestamp.Now;
 
             try
             {
@@ -1018,7 +1018,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             catch (Exception e)
             {
 
-                SendException(DateTime.UtcNow,
+                SendException(Timestamp.Now,
                               this,
                               new OIOI_CPOClientException(this,
                                                           nameof(OnConnectorPostStatusResponse),
@@ -1066,7 +1066,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #region Send OnRFIDVerifyRequest event
 
-            var StartTime = DateTime.UtcNow;
+            var StartTime = Timestamp.Now;
 
             try
             {
@@ -1087,7 +1087,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             catch (Exception e)
             {
 
-                SendException(DateTime.UtcNow,
+                SendException(Timestamp.Now,
                               this,
                               new OIOI_CPOClientException(this,
                                                           nameof(OnRFIDVerifyRequest),
@@ -1209,7 +1209,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #region Send OnRFIDVerifyResponse event
 
-            var Endtime = DateTime.UtcNow;
+            var Endtime = Timestamp.Now;
 
             try
             {
@@ -1232,7 +1232,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             catch (Exception e)
             {
 
-                SendException(DateTime.UtcNow,
+                SendException(Timestamp.Now,
                               this,
                               new OIOI_CPOClientException(this,
                                                           nameof(OnRFIDVerifyResponse),
@@ -1279,7 +1279,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #region Send OnSessionPostRequest event
 
-            var StartTime = DateTime.UtcNow;
+            var StartTime = Timestamp.Now;
 
             try
             {
@@ -1300,7 +1300,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             catch (Exception e)
             {
 
-                SendException(DateTime.UtcNow,
+                SendException(Timestamp.Now,
                               this,
                               new OIOI_CPOClientException(this,
                                                           nameof(OnSessionPostRequest),
@@ -1423,7 +1423,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
 
             #region Send OnRFIDVerifyResponse event
 
-            var Endtime = DateTime.UtcNow;
+            var Endtime = Timestamp.Now;
 
             try
             {
@@ -1446,7 +1446,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             catch (Exception e)
             {
 
-                SendException(DateTime.UtcNow,
+                SendException(Timestamp.Now,
                               this,
                               new OIOI_CPOClientException(this,
                                                           nameof(OnRFIDVerifyResponse),

@@ -28,7 +28,7 @@ using org.GraphDefined.Vanaheimr.Hermod.JSON;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
+namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 {
 
     /// <summary>
@@ -159,10 +159,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="ConnectorPostStatusRequest">The parsed connector post status request.</param>
         /// <param name="CustomConnectorPostStatusRequestParser">A delegate to parse custom ConnectorPostStatus requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static Boolean TryParse(JObject                                               ConnectorPostStatusRequestJSON,
-                                       out ConnectorPostStatusRequest                        ConnectorPostStatusRequest,
-                                       CustomJObjectParserDelegate<ConnectorPostStatusRequest>  CustomConnectorPostStatusRequestParser   = null,
-                                       OnExceptionDelegate                                   OnException                              = null)
+        public static Boolean TryParse(JObject                                                   ConnectorPostStatusRequestJSON,
+                                       out ConnectorPostStatusRequest?                           ConnectorPostStatusRequest,
+                                       CustomJObjectParserDelegate<ConnectorPostStatusRequest>?  CustomConnectorPostStatusRequestParser   = null,
+                                       OnExceptionDelegate?                                      OnException                              = null)
         {
 
             try
@@ -192,7 +192,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             catch (Exception e)
             {
 
-                OnException?.Invoke(DateTime.UtcNow, ConnectorPostStatusRequestJSON, e);
+                OnException?.Invoke(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now, ConnectorPostStatusRequestJSON, e);
 
                 ConnectorPostStatusRequest = null;
                 return false;
@@ -212,10 +212,10 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
         /// <param name="ConnectorPostStatusRequest">The parsed connector post status request.</param>
         /// <param name="CustomConnectorPostStatusRequestParser">A delegate to parse custom ConnectorPostStatus requests.</param>
         /// <param name="OnException">An optional delegate called whenever an exception occured.</param>
-        public static Boolean TryParse(String                                                ConnectorPostStatusRequestText,
-                                       out ConnectorPostStatusRequest                        ConnectorPostStatusRequest,
-                                       CustomJObjectParserDelegate<ConnectorPostStatusRequest>  CustomConnectorPostStatusRequestParser   = null,
-                                       OnExceptionDelegate                                   OnException                              = null)
+        public static Boolean TryParse(String                                                    ConnectorPostStatusRequestText,
+                                       out ConnectorPostStatusRequest?                           ConnectorPostStatusRequest,
+                                       CustomJObjectParserDelegate<ConnectorPostStatusRequest>?  CustomConnectorPostStatusRequestParser   = null,
+                                       OnExceptionDelegate?                                      OnException                              = null)
         {
 
             try
@@ -231,7 +231,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.CPO
             }
             catch (Exception e)
             {
-                OnException?.Invoke(DateTime.UtcNow, ConnectorPostStatusRequestText, e);
+                OnException?.Invoke(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now, ConnectorPostStatusRequestText, e);
             }
 
             ConnectorPostStatusRequest = null;

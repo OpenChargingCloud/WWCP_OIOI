@@ -26,7 +26,7 @@ using System.Collections.Generic;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
+namespace cloud.charging.open.protocols.OIOIv4_x.EMP
 {
 
     #region OnStationGetSurfaceRequest/-Response

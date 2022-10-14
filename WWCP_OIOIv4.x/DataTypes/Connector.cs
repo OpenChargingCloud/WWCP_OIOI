@@ -17,18 +17,15 @@
 
 #region Usings
 
-using System;
 using System.Globalization;
-using System.Collections.Generic;
 
 using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
-using org.GraphDefined.Vanaheimr.Hermod.JSON;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv4_x
+namespace cloud.charging.open.protocols.OIOIv4_x
 {
 
     /// <summary>
@@ -68,13 +65,14 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
         /// <param name="Name">The type of the connector.</param>
         /// <param name="Speed">The maximum charging speed in kW.</param>
         /// <param name="CustomData">An optional dictionary of customer-specific data.</param>
-        public Connector(Connector_Id                         Id,
-                         ConnectorTypes                       Name,
-                         Decimal                              Speed,
-                         IReadOnlyDictionary<String, Object>  CustomData   = null)
+        public Connector(Connector_Id            Id,
+                         ConnectorTypes          Name,
+                         Decimal                 Speed,
+                         JObject?                CustomData     = null,
+                         UserDefinedDictionary?  InternalData   = null)
 
-            : base(null,
-                   CustomData)
+            : base(CustomData,
+                   InternalData)
 
         {
 
@@ -190,7 +188,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
             catch (Exception e)
             {
 
-                OnException?.Invoke(DateTime.UtcNow, ConnectorJSON, e);
+                OnException?.Invoke(Timestamp.Now, ConnectorJSON, e);
 
                 Connector = null;
                 return false;
@@ -228,7 +226,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x
             catch (Exception e)
             {
 
-                OnException?.Invoke(DateTime.UtcNow, ConnectorText, e);
+                OnException?.Invoke(Timestamp.Now, ConnectorText, e);
 
                 Connector = null;
                 return false;

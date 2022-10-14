@@ -37,7 +37,7 @@ using org.GraphDefined.Vanaheimr.Hermod.Logging;
 
 #endregion
 
-namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
+namespace cloud.charging.open.protocols.OIOIv4_x.EMP
 {
 
     /// <summary>
@@ -427,7 +427,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
             #region Send OnStationGetSurfaceRequest event
 
-            var StartTime = DateTime.UtcNow;
+            var StartTime = Timestamp.Now;
 
             try
             {
@@ -552,7 +552,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
             #region Send OnStationGetSurfaceResponse event
 
-            var Endtime = DateTime.UtcNow;
+            var Endtime = Timestamp.Now;
 
             try
             {
@@ -614,7 +614,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
             #region Send OnSessionStartRequest event
 
-            var StartTime = DateTime.UtcNow;
+            var StartTime = Timestamp.Now;
 
             try
             {
@@ -733,7 +733,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
             #region Send OnSessionStartResponse event
 
-            var Endtime = DateTime.UtcNow;
+            var Endtime = Timestamp.Now;
 
             try
             {
@@ -793,7 +793,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
             #region Send OnSessionStopRequest event
 
-            var StartTime = DateTime.UtcNow;
+            var StartTime = Timestamp.Now;
 
             try
             {
@@ -912,7 +912,7 @@ namespace org.GraphDefined.WWCP.OIOIv4_x.EMP
 
             #region Send OnSessionStopResponse event
 
-            var Endtime = DateTime.UtcNow;
+            var Endtime = Timestamp.Now;
 
             try
             {
