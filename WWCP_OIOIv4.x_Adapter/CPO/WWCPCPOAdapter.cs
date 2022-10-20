@@ -77,7 +77,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         private readonly        List<EVSEStatusUpdate>                            EVSEStatusUpdatesDelayedQueue;
 
         public readonly static  TimeSpan                                          DefaultRequestTimeout  = TimeSpan.FromSeconds(30);
-        public readonly static  WWCP.eMobilityProvider_Id                         DefaultProviderId      = WWCP.eMobilityProvider_Id.Parse("DE*8PS");
+        public readonly static  WWCP.EMobilityProvider_Id                         DefaultProviderId      = WWCP.EMobilityProvider_Id.Parse("DE*8PS");
 
 
         //private readonly List<Session> OICP_ChargeDetailRecords_Queue;
@@ -367,7 +367,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                                      ChargingLocation:      ChargingLocation.FromEVSEId(EVSEId),
                                                      RemoteAuthentication:  RemoteAuthentication.FromRemoteIdentification(WWCP.eMobilityAccount_Id.Parse(eMAId.ToString())),
                                                      SessionId:             ChargingSession_Id.NewRandom,
-                                                     ProviderId:            WWCP.eMobilityProvider_Id.Parse(eMAId.ProviderId.ToString()),
+                                                     ProviderId:            WWCP.EMobilityProvider_Id.Parse(eMAId.ProviderId.ToString()),
 
                                                      Timestamp:             Timestamp,
                                                      CancellationToken:     CancellationToken,
@@ -517,7 +517,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                                                //EVSEId:                ConnectorId.ToWWCP(),
                                                                RemoteAuthentication:  RemoteAuthentication.FromRemoteIdentification(WWCP.eMobilityAccount_Id.Parse(eMAId.ToString())),
                                                                ReservationHandling:   ReservationHandling.Close,
-                                                               ProviderId:            WWCP.eMobilityProvider_Id.Parse(eMAId.ProviderId.ToString()),
+                                                               ProviderId:            WWCP.EMobilityProvider_Id.Parse(eMAId.ProviderId.ToString()),
 
                                                                Timestamp:             Timestamp,
                                                                CancellationToken:     CancellationToken,
