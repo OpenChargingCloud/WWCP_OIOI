@@ -910,8 +910,8 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
             var Warnings = new List<Warning>();
 
             var _ConnectorStatus = EVSEStatusUpdates.
-                                       Where       (evsestatusupdate => IncludeChargingStations(evsestatusupdate.EVSE.ChargingStation)).
-                                       ToLookup    (evsestatusupdate => evsestatusupdate.EVSE.Id,
+                                       //Where       (evsestatusupdate => IncludeChargingStations(evsestatusupdate.EVSE.ChargingStation)).
+                                       ToLookup    (evsestatusupdate => evsestatusupdate.Id,
                                                     evsestatusupdate => evsestatusupdate).
                                        ToDictionary(group            => group.Key,
                                                     group            => group.AsEnumerable().OrderByDescending(item => item.NewStatus.Timestamp)).
@@ -1785,8 +1785,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                     if (LockTaken)
                     {
 
-                        var FilteredUpdates = StatusUpdates.Where(statusupdate => IncludeEVSEs  (statusupdate.EVSE) &&
-                                                                                  IncludeEVSEIds(statusupdate.EVSE.Id)).
+                        var FilteredUpdates = StatusUpdates.Where(statusupdate => IncludeEVSEIds(statusupdate.Id)).
                                                             ToArray();
 
                         if (FilteredUpdates.Length > 0)
@@ -1796,7 +1795,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                             {
 
                                 // Delay the status update until the EVSE data had been uploaded!
-                                if (EVSEsToAddQueue.Any(evse => evse == Update.EVSE))
+                                if (EVSEsToAddQueue.Any(evse => evse.Id == Update.Id))
                                     EVSEStatusChangesDelayedQueue.Add(Update);
 
                                 else
@@ -4487,7 +4486,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
                 // Copy 'EVSE status changes', remove originals...
                 StationsStatusChangesDelayedQueueCopy       = new List<EVSEStatusUpdate>         (EVSEStatusChangesDelayedQueue);
-                StationsStatusChangesDelayedQueueCopy.AddRange(StationsToAddQueueCopy.SelectMany(stations => stations.EVSEs).Select(evse => new EVSEStatusUpdate(evse, evse.Status, evse.Status)));
+                StationsStatusChangesDelayedQueueCopy.AddRange(StationsToAddQueueCopy.SelectMany(stations => stations.EVSEs).Select(evse => new EVSEStatusUpdate(evse.Id, evse.Status, evse.Status)));
                 EVSEStatusChangesDelayedQueue.Clear();
 
                 // Copy 'EVSEs to remove', remove originals...
@@ -4681,10 +4680,10 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                 {
 
                     // Copy 'EVSE status changes', remove originals...
-                    EVSEStatusFastQueueCopy = new List<EVSEStatusUpdate>(EVSEStatusChangesFastQueue.Where(evsestatuschange => !StationsToAddQueue.Any(station => station.EVSEs.Any(evse => evse.Id == evsestatuschange.EVSE.Id))));
+                    EVSEStatusFastQueueCopy = new List<EVSEStatusUpdate>(EVSEStatusChangesFastQueue.Where(evsestatuschange => !StationsToAddQueue.Any(station => station.EVSEs.Any(evse => evse.Id == evsestatuschange.Id))));
 
                     // Add all evse status changes of EVSE *NOT YET UPLOADED* into the delayed queue...
-                    var EVSEStatusChangesDelayed = EVSEStatusChangesFastQueue.Where(evsestatuschange => StationsToAddQueue.Any(station => station.EVSEs.Any(evse => evse.Id == evsestatuschange.EVSE.Id))).ToArray();
+                    var EVSEStatusChangesDelayed = EVSEStatusChangesFastQueue.Where(evsestatuschange => StationsToAddQueue.Any(station => station.EVSEs.Any(evse => evse.Id == evsestatuschange.Id))).ToArray();
 
                     if (EVSEStatusChangesDelayed.Length > 0)
                         EVSEStatusChangesDelayedQueue.AddRange(EVSEStatusChangesDelayed);

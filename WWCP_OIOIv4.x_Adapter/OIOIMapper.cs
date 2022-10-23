@@ -195,37 +195,32 @@ namespace cloud.charging.open.protocols.OIOIv4_x
         public static ConnectorStatusTypes ToOIOI(this EVSEStatusTypes EVSEStatusType)
         {
 
-            switch (EVSEStatusType)
-            {
+            if      (EVSEStatusType == EVSEStatusTypes.Offline)
+                return ConnectorStatusTypes.Offline;
 
-                case EVSEStatusTypes.Offline:
-                    return ConnectorStatusTypes.Offline;
+            else if (EVSEStatusType == EVSEStatusTypes.Available)
+                return ConnectorStatusTypes.Available;
 
-                case EVSEStatusTypes.Available:
-                    return ConnectorStatusTypes.Available;
+            else if (EVSEStatusType == EVSEStatusTypes.Reserved)
+                return ConnectorStatusTypes.Reserved;
 
-                case EVSEStatusTypes.Reserved:
-                    return ConnectorStatusTypes.Reserved;
+            else if (EVSEStatusType == EVSEStatusTypes.Charging)
+                return ConnectorStatusTypes.Occupied;
 
-                case EVSEStatusTypes.Charging:
-                    return ConnectorStatusTypes.Occupied;
+            //case EVSEStatusTypes.Unspecified
+            //case EVSEStatusTypes.Planned
+            //case EVSEStatusTypes.InDeployment
+            //case EVSEStatusTypes.OutOfService
+            //case EVSEStatusTypes.Blocked
+            //case EVSEStatusTypes.WaitingForPlugin
+            //case EVSEStatusTypes.PluggedIn
+            //case EVSEStatusTypes.DoorNotClosed
+            //case EVSEStatusTypes.Faulted
+            //case EVSEStatusTypes.Private
+            //case EVSEStatusTypes.Deleted
 
-                //case EVSEStatusTypes.Unspecified
-                //case EVSEStatusTypes.Planned
-                //case EVSEStatusTypes.InDeployment
-                //case EVSEStatusTypes.OutOfService
-                //case EVSEStatusTypes.Blocked
-                //case EVSEStatusTypes.WaitingForPlugin
-                //case EVSEStatusTypes.PluggedIn
-                //case EVSEStatusTypes.DoorNotClosed
-                //case EVSEStatusTypes.Faulted
-                //case EVSEStatusTypes.Private
-                //case EVSEStatusTypes.Deleted
-
-                default:
-                    return ConnectorStatusTypes.Unknown;
-
-            }
+            else
+                return ConnectorStatusTypes.Unknown;
 
         }
 

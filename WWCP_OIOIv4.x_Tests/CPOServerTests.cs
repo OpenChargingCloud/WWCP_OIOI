@@ -52,12 +52,12 @@ namespace cloud.charging.open.protocols.OIOIv4_x.UnitTests
 
         #region Data
 
-        private CPOServer                _CPOServer;
+        private CPOServer                 _CPOServer;
 
-        private ChargingStationOperator  CSOP01;
-        private ChargingPool             CP01;
-        private ChargingStation          CS01;
-        private EVSE                     EVSE01;
+        private IChargingStationOperator  CSOP01;
+        private IChargingPool             CP01;
+        private IChargingStation          CS01;
+        private IEVSE                     EVSE01;
 
         #endregion
 
