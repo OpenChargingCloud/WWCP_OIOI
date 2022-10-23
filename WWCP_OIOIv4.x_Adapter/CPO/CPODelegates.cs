@@ -53,7 +53,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
     /// </summary>
     /// <param name="ChargingStation">A WWCP charging station.</param>
     /// <param name="Station">A charging station.</param>
-    public delegate Station                     ChargingStation2StationDelegate               (ChargingStation             ChargingStation,
+    public delegate Station                     ChargingStation2StationDelegate               (IChargingStation            ChargingStation,
                                                                                                Station                     Station);
 
     /// <summary>
@@ -84,32 +84,32 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
     /// <summary>
     /// A delegate called whenever a new station will be send upstream.
     /// </summary>
-    public delegate void OnStationPostWWCPRequestDelegate (DateTime                                       LogTimestamp,
-                                                           DateTime                                       RequestTimestamp,
-                                                           Object                                         Sender,
-                                                           EMPRoamingProvider_Id                          SenderId,
-                                                           EventTracking_Id                               EventTrackingId,
-                                                           RoamingNetwork_Id                              RoamingNetworkId,
-                                                           UInt64                                         NumberOfStations,
-                                                           IEnumerable<Tuple<ChargingStation, Station>>   Stations,
-                                                           IEnumerable<Warning>                           Warnings,
-                                                           TimeSpan?                                      RequestTimeout);
+    public delegate void OnStationPostWWCPRequestDelegate (DateTime                                        LogTimestamp,
+                                                           DateTime                                        RequestTimestamp,
+                                                           Object                                          Sender,
+                                                           EMPRoamingProvider_Id                           SenderId,
+                                                           EventTracking_Id                                EventTrackingId,
+                                                           RoamingNetwork_Id                               RoamingNetworkId,
+                                                           UInt64                                          NumberOfStations,
+                                                           IEnumerable<Tuple<IChargingStation, Station>>   Stations,
+                                                           IEnumerable<Warning>                            Warnings,
+                                                           TimeSpan?                                       RequestTimeout);
 
 
     /// <summary>
     /// A delegate called whenever a new station had been send upstream.
     /// </summary>
-    public delegate void OnStationPostWWCPResponseDelegate(DateTime                                       LogTimestamp,
-                                                           DateTime                                       RequestTimestamp,
-                                                           Object                                         Sender,
-                                                           EMPRoamingProvider_Id                          SenderId,
-                                                           EventTracking_Id                               EventTrackingId,
-                                                           RoamingNetwork_Id                              RoamingNetworkId,
-                                                           UInt64                                         NumberOfStations,
-                                                           IEnumerable<Tuple<ChargingStation, Station>>   Stations,
-                                                           TimeSpan?                                      RequestTimeout,
-                                                           PushChargingStationDataResult                  Result,
-                                                           TimeSpan                                       Runtime);
+    public delegate void OnStationPostWWCPResponseDelegate(DateTime                                        LogTimestamp,
+                                                           DateTime                                        RequestTimestamp,
+                                                           Object                                          Sender,
+                                                           EMPRoamingProvider_Id                           SenderId,
+                                                           EventTracking_Id                                EventTrackingId,
+                                                           RoamingNetwork_Id                               RoamingNetworkId,
+                                                           UInt64                                          NumberOfStations,
+                                                           IEnumerable<Tuple<IChargingStation, Station>>   Stations,
+                                                           TimeSpan?                                       RequestTimeout,
+                                                           PushChargingStationDataResult                   Result,
+                                                           TimeSpan                                        Runtime);
 
 
     /// <summary>

@@ -178,28 +178,6 @@ namespace cloud.charging.open.protocols.OIOIv4_x
 
         #endregion
 
-        #region  ToOIOI(this EVSE, CustomEVSEIdMapper = null)
-
-        public static Connector ToOIOI(this EVSE                       EVSE,
-                                       CPO.CustomEVSEIdMapperDelegate  CustomEVSEIdMapper = null)
-
-        {
-
-            var connectorId = CustomEVSEIdMapper != null
-                                  ? CustomEVSEIdMapper(EVSE.Id)
-                                  : EVSE.Id.ToOIOI();
-
-            if (!connectorId.HasValue)
-                return null;
-
-            return new Connector(connectorId.Value,
-                                 EVSE.SocketOutlets.First().Plug.ToOIOI(),
-                                 EVSE.MaxPower.HasValue ? EVSE.MaxPower.Value : 0);
-
-        }
-
-        #endregion
-
         #region  ToOIOI(this AuthToken)
 
         public static RFID_Id ToOIOI(this Auth_Token AuthToken)
@@ -264,31 +242,53 @@ namespace cloud.charging.open.protocols.OIOIv4_x
         /// <param name="CustomEVSEIdMapper">A custom WWCP EVSE identification to OIOI connector identification mapper.</param>
         /// <param name="ChargingStation2Station">A delegate to process a charging station, e.g. before pushing it to a roaming provider.</param>
         /// <returns>The corresponding OIOI charging station.</returns>
-        public static Station ToOIOI(this ChargingStation                 ChargingStation,
-                                     CPO.CustomOperatorIdMapperDelegate   CustomOperatorIdMapper   = null,
-                                     CPO.CustomEVSEIdMapperDelegate       CustomEVSEIdMapper       = null,
-                                     CPO.ChargingStation2StationDelegate  ChargingStation2Station  = null)
+        public static Station? ToOIOI(this IChargingStation                 ChargingStation,
+                                      CPO.CustomOperatorIdMapperDelegate?   CustomOperatorIdMapper    = null,
+                                      CPO.CustomEVSEIdMapperDelegate?       CustomEVSEIdMapper        = null,
+                                      CPO.ChargingStation2StationDelegate?  ChargingStation2Station   = null)
         {
 
-            var _Station = new Station(ChargingStation.Id.         ToOIOI(),
-                                       ChargingStation.Name.       FirstText(),
-                                       ChargingStation.GeoLocation.Value.Latitude,
-                                       ChargingStation.GeoLocation.Value.Longitude,
-                                       ChargingStation.Address.    ToOIOI(),
-                                       new Contact(ChargingStation.Operator.HotlinePhoneNumber,
-                                                   Web:   ChargingStation.Operator.Homepage,
-                                                   EMail: ChargingStation.Operator.EMailAddress),
-                                       CustomOperatorIdMapper != null
-                                           ? CustomOperatorIdMapper(ChargingStationOperator_Id.Parse(ChargingStation.Operator.Id.ToString()))
-                                           : ChargingStationOperator_Id.Parse(ChargingStation.Operator.Id.ToString()),
-                                       ChargingStation.OpeningTimes != null ? ChargingStation.OpeningTimes.IsOpen24Hours : true,
-                                       ChargingStation.EVSEs.Select(evse => evse.ToOIOI(CustomEVSEIdMapper)),
-                                       ChargingStation.Description.FirstText(),
-                                       ChargingStation.OpeningTimes);
+            var station = new Station(ChargingStation.Id.         ToOIOI(),
+                                      ChargingStation.Name.       FirstText(),
+                                      ChargingStation.GeoLocation.Value.Latitude,
+                                      ChargingStation.GeoLocation.Value.Longitude,
+                                      ChargingStation.Address.    ToOIOI(),
+                                      new Contact(ChargingStation.Operator.HotlinePhoneNumber,
+                                                  Web:   ChargingStation.Operator.Homepage,
+                                                  EMail: ChargingStation.Operator.EMailAddress),
+                                      CustomOperatorIdMapper != null
+                                          ? CustomOperatorIdMapper(ChargingStationOperator_Id.Parse(ChargingStation.Operator.Id.ToString()))
+                                          : ChargingStationOperator_Id.Parse(ChargingStation.Operator.Id.ToString()),
+                                      ChargingStation.OpeningTimes != null ? ChargingStation.OpeningTimes.IsOpen24Hours : true,
+                                      ChargingStation.EVSEs.Select(evse => evse.ToOIOI(CustomEVSEIdMapper)),
+                                      ChargingStation.Description.FirstText(),
+                                      ChargingStation.OpeningTimes);
 
-            return ChargingStation2Station != null
-                       ? ChargingStation2Station(ChargingStation, _Station)
-                       : _Station;
+            return ChargingStation2Station is not null
+                       ? ChargingStation2Station(ChargingStation, station)
+                       : station;
+
+        }
+
+        #endregion
+
+        #region  ToOIOI(this EVSE,            CustomEVSEIdMapper      = null)
+
+        public static Connector? ToOIOI(this IEVSE                       EVSE,
+                                        CPO.CustomEVSEIdMapperDelegate?  CustomEVSEIdMapper = null)
+
+        {
+
+            var connectorId = CustomEVSEIdMapper is not null
+                                  ? CustomEVSEIdMapper(EVSE.Id)
+                                  : EVSE.Id.ToOIOI();
+
+            if (!connectorId.HasValue)
+                return null;
+
+            return new Connector(connectorId.Value,
+                                 EVSE.SocketOutlets.First().Plug.ToOIOI(),
+                                 EVSE.MaxPower ?? 0);
 
         }
 
@@ -414,6 +414,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x
         }
 
         #endregion
+
 
     }
 
