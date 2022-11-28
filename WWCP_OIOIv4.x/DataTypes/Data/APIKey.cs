@@ -95,7 +95,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x
             if (TryParse(Text, out APIKey apiKey))
                 return apiKey;
 
-            throw new ArgumentException("Invalid text-representation of an API key: '" + Text + "'!", nameof(Text));
+            throw new ArgumentException("Invalid text representation of an API key: '" + Text + "'!", nameof(Text));
 
         }
 
