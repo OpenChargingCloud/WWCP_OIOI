@@ -78,7 +78,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x
         /// <summary>
         /// Parse the given string as an API key.
         /// </summary>
-        /// <param name="Text">A text-representation of an API key.</param>
+        /// <param name="Text">A text representation of an API key.</param>
         public static APIKey Parse(String Text)
         {
 
@@ -88,7 +88,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x
                 Text = Text.Trim();
 
             if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text-representation of an API key must not be null or empty!");
+                throw new ArgumentNullException(nameof(Text), "The given text representation of an API key must not be null or empty!");
 
             #endregion
 
@@ -106,7 +106,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x
         /// <summary>
         /// Try to parse the given string as an API key.
         /// </summary>
-        /// <param name="Text">A text-representation of an API key.</param>
+        /// <param name="Text">A text representation of an API key.</param>
         public static APIKey? TryParse(String Text)
         {
 
@@ -124,7 +124,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x
         /// <summary>
         /// Try to parse the given string as an API key.
         /// </summary>
-        /// <param name="Text">A text-representation of an API key.</param>
+        /// <param name="Text">A text representation of an API key.</param>
         /// <param name="APIKey">The parsed API key.</param>
         public static Boolean TryParse(String Text, out APIKey APIKey)
         {
@@ -351,7 +351,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x
         #region (override) ToString()
 
         /// <summary>
-        /// Return a text-representation of this object.
+        /// Return a text representation of this object.
         /// </summary>
         public override String ToString()
 

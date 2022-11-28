@@ -180,10 +180,10 @@ namespace cloud.charging.open.protocols.OIOIv4_x
 
         #region  ToOIOI(this AuthToken)
 
-        public static RFID_Id ToOIOI(this Auth_Token AuthToken)
+        public static RFID_Id ToOIOI(this AuthenticationToken AuthToken)
             => RFID_Id.Parse(AuthToken.ToString());
 
-        public static RFID_Id? ToOIOI(this Auth_Token? AuthToken)
+        public static RFID_Id? ToOIOI(this AuthenticationToken? AuthToken)
             => AuthToken.HasValue
                    ? RFID_Id.Parse(AuthToken.ToString())
                    : new RFID_Id?();
