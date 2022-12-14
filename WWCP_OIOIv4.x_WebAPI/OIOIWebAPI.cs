@@ -310,6 +310,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.WebAPI
             }
 
             this.DebugLog                           = HTTPServer.AddJSONEventSource(EventIdentification:      DebugLogId,
+                                                                                    HTTPAPI:                  null,
                                                                                     URLTemplate:              this.URLPathPrefix + "/" + DebugLogId.ToString(),
                                                                                     MaxNumberOfCachedEvents:  10000,
                                                                                     RetryIntervall:           TimeSpan.FromSeconds(5),
@@ -330,7 +331,8 @@ namespace cloud.charging.open.protocols.OIOIv4_x.WebAPI
 
             #region / (HTTPRoot)
 
-            HTTPServer.RegisterResourcesFolder(HTTPHostname.Any,
+            HTTPServer.RegisterResourcesFolder(null,
+                                               HTTPHostname.Any,
                                                URLPathPrefix + "/",
                                                "org.GraphDefined.WWCP.OIOIv2_2.WebAPI.HTTPRoot",
                                                DefaultFilename: "index.html");
