@@ -10,7 +10,7 @@ on this protocol please visit https://www.plugsurfing.com.
 
 ### End of Life!
 
-Plugsurfing is deprecating their OIOI API, therefore also this project has
+Plugsurfing is deprecating its OIOI API, therefore also this project has
 reached the end of its lifetime.
 
 
