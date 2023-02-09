@@ -8,9 +8,15 @@ are the communication aspects of an e-mobility provider. For more details
 on this protocol please visit https://www.plugsurfing.com.
 
 
+### End of Life!
+
+Plugsurfing is deprecating its OIOI API in favour of OCPI, therefore also this
+project has reached its end of life.
+
+
 ### Requirements
 
-1. You need .NET 4.8+
+1. You need .NET6
 2. You will need an API-Key. To get one, just send an e-mail to service@plugsurfing.com.
 3. Read the OIOI documentation at http://docs.plugsurfing.com
 
