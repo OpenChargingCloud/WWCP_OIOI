@@ -284,6 +284,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                               TimeSpan?                                        CDRCheckEvery                            = null,
 
                               Boolean                                          DisablePushData                          = false,
+                              Boolean                                          DisablePushAdminStatus                   = true,
                               Boolean                                          DisablePushStatus                        = false,
                               Boolean                                          DisableAuthentication                    = false,
                               Boolean                                          DisableSendChargeDetailRecords           = false,
@@ -310,6 +311,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                    CDRCheckEvery,
 
                    DisablePushData,
+                   DisablePushAdminStatus,
                    DisablePushStatus,
                    DisableAuthentication,
                    DisableSendChargeDetailRecords,
