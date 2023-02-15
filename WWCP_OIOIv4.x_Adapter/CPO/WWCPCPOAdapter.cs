@@ -1848,7 +1848,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushEVSEDataResult>
+        async Task<PushChargingStationDataResult>
 
             ISendPOIData.SetStaticData(IChargingStation    ChargingStation,
                                        TransmissionTypes   TransmissionType,
@@ -1859,13 +1859,6 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                        TimeSpan?           RequestTimeout)
 
         {
-
-            #region Initial checks
-
-            if (ChargingStation == null)
-                throw new ArgumentNullException(nameof(ChargingStation), "The given charging station must not be null!");
-
-            #endregion
 
             #region Enqueue, if requested...
 
@@ -1898,13 +1891,14 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                 try
                 {
 
-                    if (IncludeChargingStations == null ||
-                       (IncludeChargingStations != null && IncludeChargingStations(ChargingStation)))
+                    if (IncludeChargingStations is null ||
+                       (IncludeChargingStations is not null && IncludeChargingStations(ChargingStation)))
                     {
 
                         StationsToAddQueue.Add(ChargingStation);
 
-                        FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery, TimeSpan.FromMilliseconds(-1));
+                        FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery,
+                                                           TimeSpan.FromMilliseconds(-1));
 
                     }
 
@@ -1914,23 +1908,35 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                     DataAndStatusLock.Release();
                 }
 
-                return PushEVSEDataResult.Enqueued(Id, this, null);
+                return PushChargingStationDataResult.Enqueued(
+                           Id,
+                           this,
+                           new IChargingStation [] {
+                               ChargingStation
+                           }
+                       );
 
             }
 
             #endregion
 
+            var result = await StationsPost(new IChargingStation[] { ChargingStation },
 
-            return (await StationsPost(new IChargingStation[] { ChargingStation },
+                                            Timestamp,
+                                            CancellationToken,
+                                            EventTrackingId,
+                                            RequestTimeout);
 
-                                       Timestamp,
-                                       CancellationToken,
-                                       EventTrackingId,
-                                       RequestTimeout).
-
-                          ConfigureAwait(false)).
-
-                          ToPushEVSEDataResult();
+            return new PushChargingStationDataResult(
+                       result.Id,
+                       this,
+                       result.Result,
+                       Array.Empty<PushSingleChargingStationDataResult>(),
+                       Array.Empty<PushSingleChargingStationDataResult>(),
+                       result.Description,
+                       result.Warnings,
+                       result.Runtime
+                   );
 
         }
 
@@ -1991,8 +1997,8 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                 try
                 {
 
-                    if (IncludeChargingStations == null ||
-                       (IncludeChargingStations != null && IncludeChargingStations(ChargingStation)))
+                    if (IncludeChargingStations is null ||
+                       (IncludeChargingStations is not null && IncludeChargingStations(ChargingStation)))
                     {
 
                         StationsToAddQueue.Add(ChargingStation);
@@ -2007,7 +2013,13 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                     DataAndStatusLock.Release();
                 }
 
-                return PushChargingStationDataResult.Enqueued(Id, this, null);
+                return PushChargingStationDataResult.Enqueued(
+                           Id,
+                           this,
+                           new IChargingStation[] {
+                               ChargingStation
+                           }
+                       );
 
             }
 
@@ -2050,7 +2062,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushEVSEDataResult>
+        async Task<PushChargingStationDataResult>
 
             ISendPOIData.UpdateStaticData(IChargingStation    ChargingStation,
                                           String?             PropertyName,
@@ -2064,13 +2076,6 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                           TimeSpan?           RequestTimeout)
 
         {
-
-            #region Initial checks
-
-            if (ChargingStation == null)
-                throw new ArgumentNullException(nameof(ChargingStation), "The given charging station must not be null!");
-
-            #endregion
 
             #region Enqueue, if requested...
 
@@ -2119,22 +2124,35 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                     DataAndStatusLock.Release();
                 }
 
-                return PushEVSEDataResult.Enqueued(Id, this, null);
+                return PushChargingStationDataResult.Enqueued(
+                           Id,
+                           this,
+                           new IChargingStation[] {
+                               ChargingStation
+                           }
+                       );
 
             }
 
             #endregion
 
-            return (await StationsPost(new IChargingStation[] { ChargingStation },
+            var result = await StationsPost(new IChargingStation[] { ChargingStation },
 
-                                       Timestamp,
-                                       CancellationToken,
-                                       EventTrackingId,
-                                       RequestTimeout).
+                                            Timestamp,
+                                            CancellationToken,
+                                            EventTrackingId,
+                                            RequestTimeout);
 
-                          ConfigureAwait(false)).
-
-                          ToPushEVSEDataResult();
+            return new PushChargingStationDataResult(
+                       result.Id,
+                       this,
+                       result.Result,
+                       Array.Empty<PushSingleChargingStationDataResult>(),
+                       Array.Empty<PushSingleChargingStationDataResult>(),
+                       result.Description,
+                       result.Warnings,
+                       result.Runtime
+                   );
 
         }
 
@@ -2152,7 +2170,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushEVSEDataResult>
+        async Task<PushChargingStationDataResult>
 
             ISendPOIData.DeleteStaticData(IChargingStation    ChargingStation,
                                           TransmissionTypes   TransmissionType,
@@ -2164,23 +2182,82 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
         {
 
-            #region Initial checks
+            #region Enqueue, if requested...
 
-            if (ChargingStation == null)
-                throw new ArgumentNullException(nameof(ChargingStation), "The given charging station must not be null!");
+            if (TransmissionType == TransmissionTypes.Enqueue)
+            {
+
+                #region Send OnEnqueueSendCDRRequest event
+
+                //try
+                //{
+
+                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.UtcNow,
+                //                                    Timestamp.Value,
+                //                                    this,
+                //                                    EventTrackingId,
+                //                                    RoamingNetwork.Id,
+                //                                    ChargeDetailRecord,
+                //                                    RequestTimeout);
+
+                //}
+                //catch (Exception e)
+                //{
+                //    DebugX.LogException(e, nameof(WWCPCPOAdapter) + "." + nameof(OnSendCDRRequest));
+                //}
+
+                #endregion
+
+                await DataAndStatusLock.WaitAsync();
+
+                try
+                {
+
+                    if (IncludeChargingStations == null ||
+                       (IncludeChargingStations != null && IncludeChargingStations(ChargingStation)))
+                    {
+
+                        StationsToUpdateQueue.Add(ChargingStation);
+
+                        FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery, TimeSpan.FromMilliseconds(-1));
+
+                    }
+
+                }
+                finally
+                {
+                    DataAndStatusLock.Release();
+                }
+
+                return PushChargingStationDataResult.Enqueued(
+                           Id,
+                           this,
+                           new IChargingStation[] {
+                               ChargingStation
+                           }
+                       );
+
+            }
 
             #endregion
 
-            return (await StationsPost(new IChargingStation[] { ChargingStation },
+            var result = await StationsPost(new IChargingStation[] { ChargingStation },
 
-                                       Timestamp,
-                                       CancellationToken,
-                                       EventTrackingId,
-                                       RequestTimeout).
+                                            Timestamp,
+                                            CancellationToken,
+                                            EventTrackingId,
+                                            RequestTimeout);
 
-                          ConfigureAwait(false)).
-
-                          ToPushEVSEDataResult();
+            return new PushChargingStationDataResult(
+                       result.Id,
+                       this,
+                       result.Result,
+                       Array.Empty<PushSingleChargingStationDataResult>(),
+                       Array.Empty<PushSingleChargingStationDataResult>(),
+                       result.Description,
+                       result.Warnings,
+                       result.Runtime
+                   );
 
         }
 
@@ -2199,7 +2276,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushEVSEDataResult>
+        async Task<PushChargingStationDataResult>
 
             ISendPOIData.SetStaticData(IEnumerable<IChargingStation>  ChargingStations,
                                        TransmissionTypes              TransmissionType,
@@ -2211,23 +2288,86 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
         {
 
-            #region Initial checks
+            #region Enqueue, if requested...
 
-            if (ChargingStations == null)
-                throw new ArgumentNullException(nameof(ChargingStations), "The given enumeration of charging stations must not be null!");
+            if (TransmissionType == TransmissionTypes.Enqueue)
+            {
+
+                #region Send OnEnqueueSendCDRRequest event
+
+                //try
+                //{
+
+                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.UtcNow,
+                //                                    Timestamp.Value,
+                //                                    this,
+                //                                    EventTrackingId,
+                //                                    RoamingNetwork.Id,
+                //                                    ChargeDetailRecord,
+                //                                    RequestTimeout);
+
+                //}
+                //catch (Exception e)
+                //{
+                //    DebugX.LogException(e, nameof(WWCPCPOAdapter) + "." + nameof(OnSendCDRRequest));
+                //}
+
+                #endregion
+
+                await DataAndStatusLock.WaitAsync();
+
+                try
+                {
+
+                    foreach (var chargingStation in ChargingStations)
+                    {
+
+                        if (IncludeChargingStations is null ||
+                           (IncludeChargingStations is not null && IncludeChargingStations(chargingStation)))
+                        {
+
+                            StationsToUpdateQueue.Add(chargingStation);
+
+                            FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery,
+                                                               TimeSpan.FromMilliseconds(-1));
+
+                        }
+
+                    }
+
+                }
+                finally
+                {
+                    DataAndStatusLock.Release();
+                }
+
+                return PushChargingStationDataResult.Enqueued(
+                           Id,
+                           this,
+                           ChargingStations
+                       );
+
+            }
 
             #endregion
 
-            return (await StationsPost(ChargingStations,
+            var result = await StationsPost(ChargingStations,
 
-                                       Timestamp,
-                                       CancellationToken,
-                                       EventTrackingId,
-                                       RequestTimeout).
+                                            Timestamp,
+                                            CancellationToken,
+                                            EventTrackingId,
+                                            RequestTimeout);
 
-                          ConfigureAwait(false)).
-
-                          ToPushEVSEDataResult();
+            return new PushChargingStationDataResult(
+                       result.Id,
+                       this,
+                       result.Result,
+                       Array.Empty<PushSingleChargingStationDataResult>(),
+                       Array.Empty<PushSingleChargingStationDataResult>(),
+                       result.Description,
+                       result.Warnings,
+                       result.Runtime
+                   );
 
         }
 
@@ -2245,7 +2385,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushEVSEDataResult>
+        async Task<PushChargingStationDataResult>
 
             ISendPOIData.AddStaticData(IEnumerable<IChargingStation>  ChargingStations,
                                        TransmissionTypes              TransmissionType,
@@ -2258,23 +2398,86 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
         {
 
-            #region Initial checks
+            #region Enqueue, if requested...
 
-            if (ChargingStations == null)
-                throw new ArgumentNullException(nameof(ChargingStations), "The given enumeration of charging stations must not be null!");
+            if (TransmissionType == TransmissionTypes.Enqueue)
+            {
+
+                #region Send OnEnqueueSendCDRRequest event
+
+                //try
+                //{
+
+                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.UtcNow,
+                //                                    Timestamp.Value,
+                //                                    this,
+                //                                    EventTrackingId,
+                //                                    RoamingNetwork.Id,
+                //                                    ChargeDetailRecord,
+                //                                    RequestTimeout);
+
+                //}
+                //catch (Exception e)
+                //{
+                //    DebugX.LogException(e, nameof(WWCPCPOAdapter) + "." + nameof(OnSendCDRRequest));
+                //}
+
+                #endregion
+
+                await DataAndStatusLock.WaitAsync();
+
+                try
+                {
+
+                    foreach (var chargingStation in ChargingStations)
+                    {
+
+                        if (IncludeChargingStations is null ||
+                           (IncludeChargingStations is not null && IncludeChargingStations(chargingStation)))
+                        {
+
+                            StationsToUpdateQueue.Add(chargingStation);
+
+                            FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery,
+                                                               TimeSpan.FromMilliseconds(-1));
+
+                        }
+
+                    }
+
+                }
+                finally
+                {
+                    DataAndStatusLock.Release();
+                }
+
+                return PushChargingStationDataResult.Enqueued(
+                           Id,
+                           this,
+                           ChargingStations
+                       );
+
+            }
 
             #endregion
 
-            return (await StationsPost(ChargingStations,
+            var result = await StationsPost(ChargingStations,
 
-                                       Timestamp,
-                                       CancellationToken,
-                                       EventTrackingId,
-                                       RequestTimeout).
+                                            Timestamp,
+                                            CancellationToken,
+                                            EventTrackingId,
+                                            RequestTimeout);
 
-                          ConfigureAwait(false)).
-
-                          ToPushEVSEDataResult();
+            return new PushChargingStationDataResult(
+                       result.Id,
+                       this,
+                       result.Result,
+                       Array.Empty<PushSingleChargingStationDataResult>(),
+                       Array.Empty<PushSingleChargingStationDataResult>(),
+                       result.Description,
+                       result.Warnings,
+                       result.Runtime
+                   );
 
         }
 
@@ -2292,7 +2495,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushEVSEDataResult>
+        async Task<PushChargingStationDataResult>
 
             ISendPOIData.UpdateStaticData(IEnumerable<IChargingStation>  ChargingStations,
                                           TransmissionTypes              TransmissionType,
@@ -2304,23 +2507,86 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
         {
 
-            #region Initial checks
+            #region Enqueue, if requested...
 
-            if (ChargingStations == null)
-                throw new ArgumentNullException(nameof(ChargingStations), "The given enumeration of charging stations must not be null!");
+            if (TransmissionType == TransmissionTypes.Enqueue)
+            {
+
+                #region Send OnEnqueueSendCDRRequest event
+
+                //try
+                //{
+
+                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.UtcNow,
+                //                                    Timestamp.Value,
+                //                                    this,
+                //                                    EventTrackingId,
+                //                                    RoamingNetwork.Id,
+                //                                    ChargeDetailRecord,
+                //                                    RequestTimeout);
+
+                //}
+                //catch (Exception e)
+                //{
+                //    DebugX.LogException(e, nameof(WWCPCPOAdapter) + "." + nameof(OnSendCDRRequest));
+                //}
+
+                #endregion
+
+                await DataAndStatusLock.WaitAsync();
+
+                try
+                {
+
+                    foreach (var chargingStation in ChargingStations)
+                    {
+
+                        if (IncludeChargingStations is null ||
+                           (IncludeChargingStations is not null && IncludeChargingStations(chargingStation)))
+                        {
+
+                            StationsToUpdateQueue.Add(chargingStation);
+
+                            FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery,
+                                                               TimeSpan.FromMilliseconds(-1));
+
+                        }
+
+                    }
+
+                }
+                finally
+                {
+                    DataAndStatusLock.Release();
+                }
+
+                return PushChargingStationDataResult.Enqueued(
+                           Id,
+                           this,
+                           ChargingStations
+                       );
+
+            }
 
             #endregion
 
-            return (await StationsPost(ChargingStations,
+            var result = await StationsPost(ChargingStations,
 
-                                       Timestamp,
-                                       CancellationToken,
-                                       EventTrackingId,
-                                       RequestTimeout).
+                                            Timestamp,
+                                            CancellationToken,
+                                            EventTrackingId,
+                                            RequestTimeout);
 
-                          ConfigureAwait(false)).
-
-                          ToPushEVSEDataResult();
+            return new PushChargingStationDataResult(
+                       result.Id,
+                       this,
+                       result.Result,
+                       Array.Empty<PushSingleChargingStationDataResult>(),
+                       Array.Empty<PushSingleChargingStationDataResult>(),
+                       result.Description,
+                       result.Warnings,
+                       result.Runtime
+                   );
 
         }
 
@@ -2338,7 +2604,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushEVSEDataResult>
+        async Task<PushChargingStationDataResult>
 
             ISendPOIData.DeleteStaticData(IEnumerable<IChargingStation>  ChargingStations,
                                           TransmissionTypes              TransmissionType,
@@ -2350,23 +2616,86 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
         {
 
-            #region Initial checks
+            #region Enqueue, if requested...
 
-            if (ChargingStations == null)
-                throw new ArgumentNullException(nameof(ChargingStations), "The given enumeration of charging stations must not be null!");
+            if (TransmissionType == TransmissionTypes.Enqueue)
+            {
+
+                #region Send OnEnqueueSendCDRRequest event
+
+                //try
+                //{
+
+                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.UtcNow,
+                //                                    Timestamp.Value,
+                //                                    this,
+                //                                    EventTrackingId,
+                //                                    RoamingNetwork.Id,
+                //                                    ChargeDetailRecord,
+                //                                    RequestTimeout);
+
+                //}
+                //catch (Exception e)
+                //{
+                //    DebugX.LogException(e, nameof(WWCPCPOAdapter) + "." + nameof(OnSendCDRRequest));
+                //}
+
+                #endregion
+
+                await DataAndStatusLock.WaitAsync();
+
+                try
+                {
+
+                    foreach (var chargingStation in ChargingStations)
+                    {
+
+                        if (IncludeChargingStations is null ||
+                           (IncludeChargingStations is not null && IncludeChargingStations(chargingStation)))
+                        {
+
+                            StationsToUpdateQueue.Add(chargingStation);
+
+                            FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery,
+                                                               TimeSpan.FromMilliseconds(-1));
+
+                        }
+
+                    }
+
+                }
+                finally
+                {
+                    DataAndStatusLock.Release();
+                }
+
+                return PushChargingStationDataResult.Enqueued(
+                           Id,
+                           this,
+                           ChargingStations
+                       );
+
+            }
 
             #endregion
 
-            return (await StationsPost(ChargingStations, //ToDo: Mark them as deleted!
+            var result = await StationsPost(ChargingStations,
 
-                                       Timestamp,
-                                       CancellationToken,
-                                       EventTrackingId,
-                                       RequestTimeout).
+                                            Timestamp,
+                                            CancellationToken,
+                                            EventTrackingId,
+                                            RequestTimeout);
 
-                          ConfigureAwait(false)).
-
-                          ToPushEVSEDataResult();
+            return new PushChargingStationDataResult(
+                       result.Id,
+                       this,
+                       result.Result,
+                       Array.Empty<PushSingleChargingStationDataResult>(),
+                       Array.Empty<PushSingleChargingStationDataResult>(),
+                       result.Description,
+                       result.Warnings,
+                       result.Runtime
+                   );
 
         }
 
@@ -2443,7 +2772,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushEVSEDataResult>
+        async Task<PushChargingPoolDataResult>
 
             ISendPOIData.SetStaticData(IChargingPool       ChargingPool,
                                        TransmissionTypes   TransmissionType,
@@ -2454,13 +2783,6 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                        TimeSpan?           RequestTimeout)
 
         {
-
-            #region Initial checks
-
-            if (ChargingPool == null)
-                throw new ArgumentNullException(nameof(ChargingPool), "The given charging pool must not be null!");
-
-            #endregion
 
             #region Enqueue, if requested...
 
@@ -2514,23 +2836,30 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                     DataAndStatusLock.Release();
                 }
 
-                return PushEVSEDataResult.Enqueued(Id, this, null);
+                return PushChargingPoolDataResult.Enqueued(Id, this, new IChargingPool[] { ChargingPool });
 
             }
 
             #endregion
 
 
-            return (await StationsPost(ChargingPool.ChargingStations,
+            var result = await StationsPost(ChargingPool.ChargingStations,
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                            Timestamp,
+                                            CancellationToken,
+                                            EventTrackingId,
+                                            RequestTimeout);
 
-                          ConfigureAwait(false)).
-
-                          ToPushEVSEDataResult();
+            return new PushChargingPoolDataResult(
+                       result.Id,
+                       this,
+                       result.Result,
+                       Array.Empty<PushSingleChargingPoolDataResult>(),
+                       Array.Empty<PushSingleChargingPoolDataResult>(),
+                       result.Description,
+                       result.Warnings,
+                       result.Runtime
+                   );
 
         }
 
@@ -2560,13 +2889,6 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
         {
 
-            #region Initial checks
-
-            if (ChargingPool == null)
-                throw new ArgumentNullException(nameof(ChargingPool), "The given charging pool must not be null!");
-
-            #endregion
-
             #region Enqueue, if requested...
 
             if (TransmissionType == TransmissionTypes.Enqueue)
@@ -2619,7 +2941,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                     DataAndStatusLock.Release();
                 }
 
-                return PushChargingPoolDataResult.Enqueued(Id, this, null);
+                return PushChargingPoolDataResult.Enqueued(Id, this, new IChargingPool[] { ChargingPool });
 
             }
 
@@ -2663,7 +2985,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushEVSEDataResult>
+        async Task<PushChargingPoolDataResult>
 
             ISendPOIData.UpdateStaticData(IChargingPool       ChargingPool,
                                           String?             PropertyName,
@@ -2677,13 +2999,6 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                           TimeSpan?           RequestTimeout)
 
         {
-
-            #region Initial checks
-
-            if (ChargingPool == null)
-                throw new ArgumentNullException(nameof(ChargingPool), "The given charging pool must not be null!");
-
-            #endregion
 
             #region Enqueue, if requested...
 
@@ -2737,23 +3052,30 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                     DataAndStatusLock.Release();
                 }
 
-                return PushEVSEDataResult.Enqueued(Id, this, null);
+                return PushChargingPoolDataResult.Enqueued(Id, this, new IChargingPool[] { ChargingPool });
 
             }
 
             #endregion
 
 
-            return (await StationsPost(ChargingPool.ChargingStations,
+            var result = await StationsPost(ChargingPool.ChargingStations,
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                            Timestamp,
+                                            CancellationToken,
+                                            EventTrackingId,
+                                            RequestTimeout);
 
-                          ConfigureAwait(false)).
-
-                          ToPushEVSEDataResult();
+            return new PushChargingPoolDataResult(
+                       result.Id,
+                       this,
+                       result.Result,
+                       Array.Empty<PushSingleChargingPoolDataResult>(),
+                       Array.Empty<PushSingleChargingPoolDataResult>(),
+                       result.Description,
+                       result.Warnings,
+                       result.Runtime
+                   );
 
         }
 
@@ -2771,7 +3093,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushEVSEDataResult>
+        async Task<PushChargingPoolDataResult>
 
             ISendPOIData.DeleteStaticData(IChargingPool       ChargingPool,
                                           TransmissionTypes   TransmissionType,
@@ -2783,24 +3105,24 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
         {
 
-            #region Initial checks
+            // Mark as deleted?
+            var result = await StationsPost(ChargingPool.ChargingStations,
 
-            if (ChargingPool == null)
-                throw new ArgumentNullException(nameof(ChargingPool), "The given charging pool must not be null!");
+                                            Timestamp,
+                                            CancellationToken,
+                                            EventTrackingId,
+                                            RequestTimeout);
 
-            #endregion
-
-
-            return (await StationsPost(ChargingPool.ChargingStations, // Mark as deleted?
-
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
-
-                          ConfigureAwait(false)).
-
-                          ToPushEVSEDataResult();
+            return new PushChargingPoolDataResult(
+                       result.Id,
+                       this,
+                       result.Result,
+                       Array.Empty<PushSingleChargingPoolDataResult>(),
+                       Array.Empty<PushSingleChargingPoolDataResult>(),
+                       result.Description,
+                       result.Warnings,
+                       result.Runtime
+                   );
 
         }
 
@@ -2819,7 +3141,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushEVSEDataResult>
+        async Task<PushChargingPoolDataResult>
 
             ISendPOIData.SetStaticData(IEnumerable<IChargingPool>  ChargingPools,
                                        TransmissionTypes           TransmissionType,
@@ -2833,22 +3155,34 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
             #region Initial checks
 
-            if (ChargingPools == null)
-                throw new ArgumentNullException(nameof(ChargingPools), "The given enumeration of charging pools must not be null!");
+            if (!ChargingPools.Any())
+                return new PushChargingPoolDataResult(
+                           Id,
+                           this,
+                           PushDataResultTypes.NoOperation,
+                           Array.Empty<PushSingleChargingPoolDataResult>(),
+                           Array.Empty<PushSingleChargingPoolDataResult>()
+                       );
 
             #endregion
 
+            var result = await StationsPost(ChargingPools.SafeSelectMany(pool => pool.ChargingStations),
 
-            return (await StationsPost(ChargingPools.SafeSelectMany(pool => pool.ChargingStations),
+                                            Timestamp,
+                                            CancellationToken,
+                                            EventTrackingId,
+                                            RequestTimeout);
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
-
-                          ConfigureAwait(false)).
-
-                          ToPushEVSEDataResult();
+            return new PushChargingPoolDataResult(
+                       result.Id,
+                       this,
+                       result.Result,
+                       Array.Empty<PushSingleChargingPoolDataResult>(),
+                       Array.Empty<PushSingleChargingPoolDataResult>(),
+                       result.Description,
+                       result.Warnings,
+                       result.Runtime
+                   );
 
         }
 
@@ -2866,7 +3200,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushEVSEDataResult>
+        async Task<PushChargingPoolDataResult>
 
             ISendPOIData.AddStaticData(IEnumerable<IChargingPool>  ChargingPools,
                                        TransmissionTypes           TransmissionType,
@@ -2880,21 +3214,34 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
             #region Initial checks
 
-            if (ChargingPools == null)
-                throw new ArgumentNullException(nameof(ChargingPools), "The given enumeration of charging pools must not be null!");
+            if (!ChargingPools.Any())
+                return new PushChargingPoolDataResult(
+                           Id,
+                           this,
+                           PushDataResultTypes.NoOperation,
+                           Array.Empty<PushSingleChargingPoolDataResult>(),
+                           Array.Empty<PushSingleChargingPoolDataResult>()
+                       );
 
             #endregion
 
-            return (await StationsPost(ChargingPools.SafeSelectMany(pool => pool.ChargingStations),
+            var result = await StationsPost(ChargingPools.SafeSelectMany(pool => pool.ChargingStations),
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+                                            Timestamp,
+                                            CancellationToken,
+                                            EventTrackingId,
+                                            RequestTimeout);
 
-                          ConfigureAwait(false)).
-
-                          ToPushEVSEDataResult();
+            return new PushChargingPoolDataResult(
+                       result.Id,
+                       this,
+                       result.Result,
+                       Array.Empty<PushSingleChargingPoolDataResult>(),
+                       Array.Empty<PushSingleChargingPoolDataResult>(),
+                       result.Description,
+                       result.Warnings,
+                       result.Runtime
+                   );
 
         }
 
@@ -2912,7 +3259,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushEVSEDataResult>
+        async Task<PushChargingPoolDataResult>
 
             ISendPOIData.UpdateStaticData(IEnumerable<IChargingPool>  ChargingPools,
                                           TransmissionTypes           TransmissionType,
@@ -2926,22 +3273,34 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
             #region Initial checks
 
-            if (ChargingPools == null)
-                throw new ArgumentNullException(nameof(ChargingPools), "The given enumeration of charging pools must not be null!");
+            if (!ChargingPools.Any())
+                return new PushChargingPoolDataResult(
+                           Id,
+                           this,
+                           PushDataResultTypes.NoOperation,
+                           Array.Empty<PushSingleChargingPoolDataResult>(),
+                           Array.Empty<PushSingleChargingPoolDataResult>()
+                       );
 
             #endregion
 
+            var result = await StationsPost(ChargingPools.SafeSelectMany(pool => pool.ChargingStations),
 
-            return (await StationsPost(ChargingPools.SafeSelectMany(pool => pool.ChargingStations),
+                                            Timestamp,
+                                            CancellationToken,
+                                            EventTrackingId,
+                                            RequestTimeout);
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
-
-                          ConfigureAwait(false)).
-
-                          ToPushEVSEDataResult();
+            return new PushChargingPoolDataResult(
+                       result.Id,
+                       this,
+                       result.Result,
+                       Array.Empty<PushSingleChargingPoolDataResult>(),
+                       Array.Empty<PushSingleChargingPoolDataResult>(),
+                       result.Description,
+                       result.Warnings,
+                       result.Runtime
+                   );
 
         }
 
@@ -2959,7 +3318,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushEVSEDataResult>
+        async Task<PushChargingPoolDataResult>
 
             ISendPOIData.DeleteStaticData(IEnumerable<IChargingPool>  ChargingPools,
                                           TransmissionTypes           TransmissionType,
@@ -2973,22 +3332,34 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
             #region Initial checks
 
-            if (ChargingPools == null)
-                throw new ArgumentNullException(nameof(ChargingPools), "The given enumeration of charging pools must not be null!");
+            if (!ChargingPools.Any())
+                return new PushChargingPoolDataResult(
+                           Id,
+                           this,
+                           PushDataResultTypes.NoOperation,
+                           Array.Empty<PushSingleChargingPoolDataResult>(),
+                           Array.Empty<PushSingleChargingPoolDataResult>()
+                       );
 
             #endregion
 
+            var result = await StationsPost(ChargingPools.SafeSelectMany(pool => pool.ChargingStations),
 
-            return (await StationsPost(ChargingPools.SafeSelectMany(pool => pool.ChargingStations),
+                                            Timestamp,
+                                            CancellationToken,
+                                            EventTrackingId,
+                                            RequestTimeout);
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
-
-                          ConfigureAwait(false)).
-
-                          ToPushEVSEDataResult();
+            return new PushChargingPoolDataResult(
+                       result.Id,
+                       this,
+                       result.Result,
+                       Array.Empty<PushSingleChargingPoolDataResult>(),
+                       Array.Empty<PushSingleChargingPoolDataResult>(),
+                       result.Description,
+                       result.Warnings,
+                       result.Runtime
+                   );
 
         }
 
