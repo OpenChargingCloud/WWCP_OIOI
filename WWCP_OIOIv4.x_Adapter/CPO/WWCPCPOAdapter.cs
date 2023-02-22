@@ -4836,9 +4836,9 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
             var StationsToUpdateQueueCopy              = new HashSet<IChargingStation>();
             var StationsStatusChangesDelayedQueueCopy  = new List   <EVSEStatusUpdate>();
             var StationsToRemoveQueueCopy              = new HashSet<IChargingStation>();
-            var StationsUpdateLogCopy                  = new Dictionary<Station,          PropertyUpdateInfos[]>();
-            var ChargingStationsUpdateLogCopy          = new Dictionary<IChargingStation, PropertyUpdateInfos[]>();
-            var ChargingPoolsUpdateLogCopy             = new Dictionary<IChargingPool,    PropertyUpdateInfos[]>();
+            var StationsUpdateLogCopy                  = new Dictionary<Station,          PropertyUpdateInfo[]>();
+            var ChargingStationsUpdateLogCopy          = new Dictionary<IChargingStation, PropertyUpdateInfo[]>();
+            var ChargingPoolsUpdateLogCopy             = new Dictionary<IChargingPool,    PropertyUpdateInfo[]>();
 
             await DataAndStatusLock.WaitAsync();
 
