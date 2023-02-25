@@ -248,9 +248,11 @@ namespace cloud.charging.open.protocols.OIOIv4_x
                                       ChargingStation.GeoLocation.Value.Latitude,
                                       ChargingStation.GeoLocation.Value.Longitude,
                                       ChargingStation.Address.    ToOIOI(),
-                                      new Contact(ChargingStation.Operator.HotlinePhoneNumber,
-                                                  Web:   ChargingStation.Operator.Homepage,
-                                                  EMail: ChargingStation.Operator.EMailAddress),
+                                      new Contact(
+                                          Phone: ChargingStation.Operator.HotlinePhoneNumber?.ToString(),
+                                          Web:   ChargingStation.Operator.Homepage?.          ToString(),
+                                          EMail: ChargingStation.Operator.EMailAddress?.      ToString()
+                                      ),
                                       CustomOperatorIdMapper != null
                                           ? CustomOperatorIdMapper(ChargingStationOperator_Id.Parse(ChargingStation.Operator.Id.ToString()))
                                           : ChargingStationOperator_Id.Parse(ChargingStation.Operator.Id.ToString()),

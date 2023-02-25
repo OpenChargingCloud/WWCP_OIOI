@@ -17,13 +17,10 @@
 
 #region Usings
 
-using System;
-
 using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
-using org.GraphDefined.Vanaheimr.Hermod.JSON;
 
 #endregion
 
@@ -41,22 +38,22 @@ namespace cloud.charging.open.protocols.OIOIv4_x
         /// <summary>
         /// A phone number.
         /// </summary>
-        public String Phone     { get; }
+        public String  Phone     { get; }
 
         /// <summary>
         /// A fax number.
         /// </summary>
-        public String Fax       { get; }
+        public String?  Fax      { get; }
 
         /// <summary>
         /// An URI.
         /// </summary>
-        public String Web       { get; }
+        public String?  Web      { get; }
 
         /// <summary>
         /// An e-mail address.
         /// </summary>
-        public String EMail     { get; }
+        public String?  EMail    { get; }
 
         #endregion
 
@@ -69,23 +66,16 @@ namespace cloud.charging.open.protocols.OIOIv4_x
         /// <param name="Fax">An optional fax number.</param>
         /// <param name="Web">An optional URI.</param>
         /// <param name="EMail">An optional e-mail address.</param>
-        public Contact(String  Phone,
-                       String  Fax    = null,
-                       String  Web    = null,
-                       String  EMail  = null)
+        public Contact(String   Phone,
+                       String?  Fax     = null,
+                       String?  Web     = null,
+                       String?  EMail   = null)
         {
 
-            #region Initial checks
-
-            if (Phone.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Phone), "The given phone number must not be null or empty!");
-
-            #endregion
-
-            this.Phone  = Phone.Trim();
-            this.Fax    = Fax.  IsNotNullOrEmpty() ? Fax.  Trim() : null;
-            this.Web    = Web.  IsNotNullOrEmpty() ? Web.  Trim() : null;
-            this.EMail  = EMail.IsNotNullOrEmpty() ? EMail.Trim() : null;
+            this.Phone  = Phone. Trim();
+            this.Fax    = Fax?.  Trim();
+            this.Web    = Web?.  Trim();
+            this.EMail  = EMail?.Trim();
 
         }
 
