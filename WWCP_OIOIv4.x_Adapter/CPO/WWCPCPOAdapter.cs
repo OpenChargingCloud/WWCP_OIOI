@@ -90,7 +90,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         IId IAuthorizeStartStop.AuthId
             => Id;
 
-        IId ISendChargeDetailRecords.Id
+        IId ISendChargeDetailRecords.SendChargeDetailRecordsId
             => Id;
 
         /// <summary>
