@@ -1186,7 +1186,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
             #endregion
 
 
-            return (await StationsPost(new ChargingStation[] { EVSE.ChargingStation },
+            return (await StationsPost(new[] { EVSE.ChargingStation },
 
                                        Timestamp,
                                        CancellationToken,
@@ -1279,7 +1279,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
             #endregion
 
 
-            return (await StationsPost(new ChargingStation[] { EVSE.ChargingStation },
+            return (await StationsPost(new[] { EVSE.ChargingStation },
 
                                        Timestamp,
                                        CancellationToken,
@@ -1386,7 +1386,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
             #endregion
 
 
-            return (await StationsPost(new ChargingStation[] { EVSE.ChargingStation },
+            return (await StationsPost(new[] { EVSE.ChargingStation },
 
                                        Timestamp,
                                        CancellationToken,
@@ -1486,7 +1486,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
             #endregion
 
 
-            return (await StationsPost(new ChargingStation[] { EVSE.ChargingStation },
+            return (await StationsPost(new[] { EVSE.ChargingStation },
 
                                        Timestamp,
                                        CancellationToken,
