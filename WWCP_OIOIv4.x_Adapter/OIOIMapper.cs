@@ -111,36 +111,36 @@ namespace cloud.charging.open.protocols.OIOIv4_x
 
         #region  ToOIOI(this PlugType)
 
-        public static ConnectorTypes ToOIOI(this PlugTypes PlugType)
+        public static ConnectorTypes ToOIOI(this ChargingPlugTypes PlugType)
         {
 
             switch (PlugType)
             {
 
-                case PlugTypes.TeslaConnector:
-                case PlugTypes.TESLA_Roadster:
-                case PlugTypes.TESLA_ModelS:
+                case ChargingPlugTypes.TeslaConnector:
+                case ChargingPlugTypes.TESLA_Roadster:
+                case ChargingPlugTypes.TESLA_ModelS:
                     return ConnectorTypes.Tesla;
 
-                case PlugTypes.TypeEFrenchStandard:
+                case ChargingPlugTypes.TypeEFrenchStandard:
                     return ConnectorTypes.TypeE;
 
-                case PlugTypes.TypeFSchuko:
+                case ChargingPlugTypes.TypeFSchuko:
                     return ConnectorTypes.Schuko;
 
 
-                case PlugTypes.Type1Connector_CableAttached:
+                case ChargingPlugTypes.Type1Connector_CableAttached:
                     return ConnectorTypes.Type1;
 
-                case PlugTypes.Type2Outlet:
-                case PlugTypes.Type2Connector_CableAttached:
+                case ChargingPlugTypes.Type2Outlet:
+                case ChargingPlugTypes.Type2Connector_CableAttached:
                     return ConnectorTypes.Type2;
 
-                case PlugTypes.Type3Outlet:
+                case ChargingPlugTypes.Type3Outlet:
                     return ConnectorTypes.Type3;
 
 
-                case PlugTypes.CHAdeMO:
+                case ChargingPlugTypes.CHAdeMO:
                     return ConnectorTypes.Chademo;
 
                 // Combo
@@ -284,7 +284,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x
                 return null;
 
             return new Connector(connectorId.Value,
-                                 EVSE.SocketOutlets.First().Plug.ToOIOI(),
+                                 EVSE.ChargingConnectors.First().Plug.ToOIOI(),
                                  EVSE.MaxPower ?? 0);
 
         }
