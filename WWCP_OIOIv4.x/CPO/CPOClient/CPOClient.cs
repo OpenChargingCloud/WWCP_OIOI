@@ -671,11 +671,11 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
                                                                  SendJSONError(timestamp, this, httpresponse.Content);
 
-                                                                 return new HTTPResponse<StationPostResponse>(
+                                                                 return HTTPResponse<StationPostResponse>.IsFault(
                                                                             httpresponse,
                                                                             StationPostResponse.InvalidResponseFormat(Request,
-                                                                                                                      httpresponse),
-                                                                            IsFault: true);
+                                                                                                                      httpresponse)
+                                                                        );
 
                                                              },
 
@@ -687,11 +687,11 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
                                                                  SendHTTPError(timestamp, this, httpresponse);
 
-                                                                 return new HTTPResponse<StationPostResponse>(
+                                                                 return HTTPResponse<StationPostResponse>.IsFault(
                                                                             httpresponse,
                                                                             StationPostResponse.InvalidResponseFormat(Request,
-                                                                                                                      httpresponse),
-                                                                            IsFault: true);
+                                                                                                                      httpresponse)
+                                                                        );
 
                                                              },
 
@@ -917,11 +917,11 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
                                                              SendJSONError(timestamp, this, httpresponse.Content);
 
-                                                             return new HTTPResponse<ConnectorPostStatusResponse>(
+                                                             return HTTPResponse<ConnectorPostStatusResponse>.IsFault(
                                                                         httpresponse,
                                                                         ConnectorPostStatusResponse.InvalidResponseFormat(Request,
-                                                                                                                          httpresponse),
-                                                                        IsFault: true);
+                                                                                                                          httpresponse)
+                                                                    );
 
                                                          },
 
@@ -936,11 +936,11 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
                                                              SendHTTPError(timestamp, this, httpresponse);
 
-                                                             return new HTTPResponse<ConnectorPostStatusResponse>(
+                                                             return HTTPResponse<ConnectorPostStatusResponse>.IsFault(
                                                                         httpresponse,
                                                                         ConnectorPostStatusResponse.InvalidResponseFormat(Request,
-                                                                                                                          httpresponse),
-                                                                        IsFault: true);
+                                                                                                                          httpresponse)
+                                                                    );
 
                                                          },
 
@@ -1145,11 +1145,11 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
                                                          SendJSONError(timestamp, this, httpresponse.Content);
 
-                                                         return new HTTPResponse<RFIDVerifyResponse>(
+                                                         return HTTPResponse<RFIDVerifyResponse>.IsFault(
                                                                     httpresponse,
                                                                     RFIDVerifyResponse.InvalidResponseFormat(Request,
-                                                                                                             httpresponse),
-                                                                    IsFault: true);
+                                                                                                             httpresponse)
+                                                                );
 
                                                      },
 
@@ -1164,11 +1164,11 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
                                                          SendHTTPError(timestamp, this, httpresponse);
 
-                                                         return new HTTPResponse<RFIDVerifyResponse>(
+                                                         return HTTPResponse<RFIDVerifyResponse>.IsFault(
                                                                     httpresponse,
                                                                     RFIDVerifyResponse.InvalidResponseFormat(Request,
-                                                                                                             httpresponse),
-                                                                    IsFault: true);
+                                                                                                             httpresponse)
+                                                                );
 
                                                      },
 
@@ -1359,11 +1359,11 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
                                                          SendJSONError(timestamp, this, httpresponse.Content);
 
-                                                         return new HTTPResponse<SessionPostResponse>(
+                                                         return HTTPResponse<SessionPostResponse>.IsFault(
                                                                     httpresponse,
                                                                     SessionPostResponse.InvalidResponseFormat(Request,
-                                                                                                              httpresponse),
-                                                                    IsFault: true);
+                                                                                                              httpresponse)
+                                                                );
 
                                                      },
 
@@ -1378,11 +1378,11 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
                                                          SendHTTPError(timestamp, this, httpresponse);
 
-                                                         return new HTTPResponse<SessionPostResponse>(
+                                                         return HTTPResponse<SessionPostResponse>.IsFault(
                                                                     httpresponse,
                                                                     SessionPostResponse.InvalidResponseFormat(Request,
-                                                                                                              httpresponse),
-                                                                    IsFault: true);
+                                                                                                              httpresponse)
+                                                                );
 
                                                      },
 

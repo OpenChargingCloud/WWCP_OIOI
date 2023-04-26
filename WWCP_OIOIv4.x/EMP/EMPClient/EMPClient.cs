@@ -495,12 +495,13 @@ namespace cloud.charging.open.protocols.OIOIv4_x.EMP
 
                                                      SendJSONError(timestamp, this, httpresponse.Content);
 
-                                                     return new HTTPResponse<StationGetSurfaceResponse>(httpresponse,
-                                                                                                        new StationGetSurfaceResponse(Request,
-                                                                                                                                      ResponseCodes.SystemError,
-                                                                                                                                      "Invalid JSON response!",
-                                                                                                                                      new Station[0]),
-                                                                                                        IsFault: true);
+                                                     return HTTPResponse<StationGetSurfaceResponse>.IsFault(
+                                                                httpresponse,
+                                                                new StationGetSurfaceResponse(Request,
+                                                                                              ResponseCodes.SystemError,
+                                                                                              "Invalid JSON response!",
+                                                                                              Array.Empty<Station>())
+                                                            );
 
                                                  },
 
@@ -512,12 +513,15 @@ namespace cloud.charging.open.protocols.OIOIv4_x.EMP
 
                                                      SendHTTPError(timestamp, this, httpresponse);
 
-                                                     return new HTTPResponse<StationGetSurfaceResponse>(httpresponse,
-                                                                                                        new StationGetSurfaceResponse(Request,
-                                                                                                                                      ResponseCodes.SystemError,
-                                                                                                                                      "Invalid HTTP response!",
-                                                                                                                                      new Station[0]),
-                                                                                                        IsFault: true);
+                                                     return HTTPResponse<StationGetSurfaceResponse>.IsFault(
+                                                                httpresponse,
+                                                                new StationGetSurfaceResponse(
+                                                                    Request,
+                                                                    ResponseCodes.SystemError,
+                                                                    "Invalid HTTP response!",
+                                                                    Array.Empty<Station>()
+                                                                )
+                                                            );
 
                                                  },
 
@@ -680,11 +684,14 @@ namespace cloud.charging.open.protocols.OIOIv4_x.EMP
 
                                                      SendJSONError(timestamp, this, httpresponse.Content);
 
-                                                     return new HTTPResponse<SessionStartResponse>(httpresponse,
-                                                                                                   new SessionStartResponse(Request,
-                                                                                                                            ResponseCodes.SystemError,
-                                                                                                                            "Invalid JSON response!"),
-                                                                                                   IsFault: true);
+                                                     return HTTPResponse<SessionStartResponse>.IsFault(
+                                                                httpresponse,
+                                                                new SessionStartResponse(
+                                                                    Request,
+                                                                    ResponseCodes.SystemError,
+                                                                    "Invalid JSON response!"
+                                                                )
+                                                            );
 
                                                  },
 
@@ -696,11 +703,14 @@ namespace cloud.charging.open.protocols.OIOIv4_x.EMP
 
                                                      SendHTTPError(timestamp, this, httpresponse);
 
-                                                     return new HTTPResponse<SessionStartResponse>(httpresponse,
-                                                                                                   new SessionStartResponse(Request,
-                                                                                                                            ResponseCodes.SystemError,
-                                                                                                                            "Invalid HTTP response!"),
-                                                                                                   IsFault: true);
+                                                     return HTTPResponse<SessionStartResponse>.IsFault(
+                                                                httpresponse,
+                                                                new SessionStartResponse(
+                                                                    Request,
+                                                                    ResponseCodes.SystemError,
+                                                                    "Invalid HTTP response!"
+                                                                )
+                                                            );
 
                                                  },
 
@@ -859,11 +869,14 @@ namespace cloud.charging.open.protocols.OIOIv4_x.EMP
 
                                                      SendJSONError(timestamp, this, httpresponse.Content);
 
-                                                     return new HTTPResponse<SessionStopResponse>(httpresponse,
-                                                                                                  new SessionStopResponse(Request,
-                                                                                                                          ResponseCodes.SystemError,
-                                                                                                                          "Invalid JSON response!"),
-                                                                                                  IsFault: true);
+                                                     return HTTPResponse<SessionStopResponse>.IsFault(
+                                                                httpresponse,
+                                                                new SessionStopResponse(
+                                                                    Request,
+                                                                    ResponseCodes.SystemError,
+                                                                    "Invalid JSON response!"
+                                                                )
+                                                            );
 
                                                  },
 
@@ -875,11 +888,14 @@ namespace cloud.charging.open.protocols.OIOIv4_x.EMP
 
                                                      SendHTTPError(timestamp, this, httpresponse);
 
-                                                     return new HTTPResponse<SessionStopResponse>(httpresponse,
-                                                                                                  new SessionStopResponse(Request,
-                                                                                                                          ResponseCodes.SystemError,
-                                                                                                                          "Invalid HTTP response!"),
-                                                                                                  IsFault: true);
+                                                     return HTTPResponse<SessionStopResponse>.IsFault(
+                                                                httpresponse,
+                                                                new SessionStopResponse(
+                                                                    Request,
+                                                                    ResponseCodes.SystemError,
+                                                                    "Invalid HTTP response!"
+                                                                )
+                                                            );
 
                                                  },
 
