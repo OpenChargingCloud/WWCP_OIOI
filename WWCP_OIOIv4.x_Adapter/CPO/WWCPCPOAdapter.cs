@@ -1317,8 +1317,9 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
             ISendPOIData.UpdateStaticData(IEVSE               EVSE,
                                           String              PropertyName,
-                                          Object              OldValue,
-                                          Object              NewValue,
+                                          Object?             NewValue,
+                                          Object?             OldValue,
+                                          String?             DataSource,
                                           TransmissionTypes   TransmissionType,
 
                                           DateTime?           Timestamp,
@@ -2056,112 +2057,112 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
         #region UpdateStaticData(ChargingStation, PropertyName = null, OldValue = null, NewValue = null, TransmissionType = Enqueue, ...)
 
-        /// <summary>
-        /// Update the EVSE data of the given charging station within the static EVSE data at the OIOI server.
-        /// </summary>
-        /// <param name="ChargingStation">A charging station.</param>
-        /// <param name="PropertyName">The name of the charging station property to update.</param>
-        /// <param name="OldValue">The old value of the charging station property to update.</param>
-        /// <param name="NewValue">The new value of the charging station property to update.</param>
-        /// <param name="TransmissionType">Whether to send the charging station update directly or enqueue it for a while.</param>
-        /// 
-        /// <param name="Timestamp">The optional timestamp of the request.</param>
-        /// <param name="CancellationToken">An optional token to cancel this request.</param>
-        /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
-        /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushChargingStationDataResult>
+        ///// <summary>
+        ///// Update the EVSE data of the given charging station within the static EVSE data at the OIOI server.
+        ///// </summary>
+        ///// <param name="ChargingStation">A charging station.</param>
+        ///// <param name="PropertyName">The name of the charging station property to update.</param>
+        ///// <param name="OldValue">The old value of the charging station property to update.</param>
+        ///// <param name="NewValue">The new value of the charging station property to update.</param>
+        ///// <param name="TransmissionType">Whether to send the charging station update directly or enqueue it for a while.</param>
+        ///// 
+        ///// <param name="Timestamp">The optional timestamp of the request.</param>
+        ///// <param name="CancellationToken">An optional token to cancel this request.</param>
+        ///// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
+        ///// <param name="RequestTimeout">An optional timeout for this request.</param>
+        //async Task<PushChargingStationDataResult>
 
-            ISendPOIData.UpdateStaticData(IChargingStation    ChargingStation,
-                                          String?             PropertyName,
-                                          Object?             OldValue,
-                                          Object?             NewValue,
-                                          TransmissionTypes   TransmissionType,
+        //    ISendPOIData.UpdateStaticData(IChargingStation    ChargingStation,
+        //                                  String?             PropertyName,
+        //                                  Object?             OldValue,
+        //                                  Object?             NewValue,
+        //                                  TransmissionTypes   TransmissionType,
 
-                                          DateTime?           Timestamp,
-                                          CancellationToken?  CancellationToken,
-                                          EventTracking_Id?   EventTrackingId,
-                                          TimeSpan?           RequestTimeout)
+        //                                  DateTime?           Timestamp,
+        //                                  CancellationToken?  CancellationToken,
+        //                                  EventTracking_Id?   EventTrackingId,
+        //                                  TimeSpan?           RequestTimeout)
 
-        {
+        //{
 
-            #region Enqueue, if requested...
+        //    #region Enqueue, if requested...
 
-            if (TransmissionType == TransmissionTypes.Enqueue)
-            {
+        //    if (TransmissionType == TransmissionTypes.Enqueue)
+        //    {
 
-                #region Send OnEnqueueSendCDRRequest event
+        //        #region Send OnEnqueueSendCDRRequest event
 
-                //try
-                //{
+        //        //try
+        //        //{
 
-                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.UtcNow,
-                //                                    Timestamp.Value,
-                //                                    this,
-                //                                    EventTrackingId,
-                //                                    RoamingNetwork.Id,
-                //                                    ChargeDetailRecord,
-                //                                    RequestTimeout);
+        //        //    OnEnqueueSendCDRRequest?.Invoke(DateTime.UtcNow,
+        //        //                                    Timestamp.Value,
+        //        //                                    this,
+        //        //                                    EventTrackingId,
+        //        //                                    RoamingNetwork.Id,
+        //        //                                    ChargeDetailRecord,
+        //        //                                    RequestTimeout);
 
-                //}
-                //catch (Exception e)
-                //{
-                //    DebugX.LogException(e, nameof(WWCPCPOAdapter) + "." + nameof(OnSendCDRRequest));
-                //}
+        //        //}
+        //        //catch (Exception e)
+        //        //{
+        //        //    DebugX.LogException(e, nameof(WWCPCPOAdapter) + "." + nameof(OnSendCDRRequest));
+        //        //}
 
-                #endregion
+        //        #endregion
 
-                await DataAndStatusLock.WaitAsync();
+        //        await DataAndStatusLock.WaitAsync();
 
-                try
-                {
+        //        try
+        //        {
 
-                    if (IncludeChargingStations == null ||
-                       (IncludeChargingStations != null && IncludeChargingStations(ChargingStation)))
-                    {
+        //            if (IncludeChargingStations == null ||
+        //               (IncludeChargingStations != null && IncludeChargingStations(ChargingStation)))
+        //            {
 
-                        StationsToUpdateQueue.Add(ChargingStation);
+        //                StationsToUpdateQueue.Add(ChargingStation);
 
-                        FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery, TimeSpan.FromMilliseconds(-1));
+        //                FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery, TimeSpan.FromMilliseconds(-1));
 
-                    }
+        //            }
 
-                }
-                finally
-                {
-                    DataAndStatusLock.Release();
-                }
+        //        }
+        //        finally
+        //        {
+        //            DataAndStatusLock.Release();
+        //        }
 
-                return PushChargingStationDataResult.Enqueued(
-                           Id,
-                           this,
-                           new IChargingStation[] {
-                               ChargingStation
-                           }
-                       );
+        //        return PushChargingStationDataResult.Enqueued(
+        //                   Id,
+        //                   this,
+        //                   new IChargingStation[] {
+        //                       ChargingStation
+        //                   }
+        //               );
 
-            }
+        //    }
 
-            #endregion
+        //    #endregion
 
-            var result = await StationsPost(new IChargingStation[] { ChargingStation },
+        //    var result = await StationsPost(new IChargingStation[] { ChargingStation },
 
-                                            Timestamp,
-                                            CancellationToken,
-                                            EventTrackingId,
-                                            RequestTimeout);
+        //                                    Timestamp,
+        //                                    CancellationToken,
+        //                                    EventTrackingId,
+        //                                    RequestTimeout);
 
-            return new PushChargingStationDataResult(
-                       result.Id,
-                       this,
-                       result.Result,
-                       Array.Empty<PushSingleChargingStationDataResult>(),
-                       Array.Empty<PushSingleChargingStationDataResult>(),
-                       result.Description,
-                       result.Warnings,
-                       result.Runtime
-                   );
+        //    return new PushChargingStationDataResult(
+        //               result.Id,
+        //               this,
+        //               result.Result,
+        //               Array.Empty<PushSingleChargingStationDataResult>(),
+        //               Array.Empty<PushSingleChargingStationDataResult>(),
+        //               result.Description,
+        //               result.Warnings,
+        //               result.Runtime
+        //           );
 
-        }
+        //}
 
         #endregion
 
@@ -2996,8 +2997,9 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
             ISendPOIData.UpdateStaticData(IChargingPool       ChargingPool,
                                           String?             PropertyName,
-                                          Object?             OldValue,
                                           Object?             NewValue,
+                                          Object?             OldValue,
+                                          String?             DataSource,
                                           TransmissionTypes   TransmissionType,
 
                                           DateTime?           Timestamp,
@@ -3537,9 +3539,10 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         async Task<PushEVSEDataResult>
 
             ISendPOIData.UpdateStaticData(IChargingStationOperator  ChargingStationOperator,
-                                          String?                   PropertyName,
-                                          Object?                   OldValue,
+                                          String                    PropertyName,
                                           Object?                   NewValue,
+                                          Object?                   OldValue,
+                                          String?                   DataSource,
                                           TransmissionTypes         TransmissionType,
 
                                           DateTime?                 Timestamp,
@@ -3963,9 +3966,10 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         async Task<PushEVSEDataResult>
 
             ISendPOIData.UpdateStaticData(IRoamingNetwork     RoamingNetwork,
-                                          String?             PropertyName,
-                                          Object?             OldValue,
+                                          String              PropertyName,
                                           Object?             NewValue,
+                                          Object?             OldValue,
+                                          String?             DataSource,
                                           TransmissionTypes   TransmissionType,
 
                                           DateTime?           Timestamp,
