@@ -1319,7 +1319,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                           String              PropertyName,
                                           Object?             NewValue,
                                           Object?             OldValue,
-                                          String?             DataSource,
+                                          Context?            DataSource,
                                           TransmissionTypes   TransmissionType,
 
                                           DateTime?           Timestamp,
@@ -2999,7 +2999,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                           String?             PropertyName,
                                           Object?             NewValue,
                                           Object?             OldValue,
-                                          String?             DataSource,
+                                          Context?            DataSource,
                                           TransmissionTypes   TransmissionType,
 
                                           DateTime?           Timestamp,
@@ -3542,7 +3542,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                           String                    PropertyName,
                                           Object?                   NewValue,
                                           Object?                   OldValue,
-                                          String?                   DataSource,
+                                          Context?                  DataSource,
                                           TransmissionTypes         TransmissionType,
 
                                           DateTime?                 Timestamp,
@@ -3969,7 +3969,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                           String              PropertyName,
                                           Object?             NewValue,
                                           Object?             OldValue,
-                                          String?             DataSource,
+                                          Context?            DataSource,
                                           TransmissionTypes   TransmissionType,
 
                                           DateTime?           Timestamp,

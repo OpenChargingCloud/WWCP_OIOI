@@ -225,7 +225,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x
                 throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
 
             if (!(Object is ConnectorStatusUpdate))
-                throw new ArgumentException("The given object is not a EVSEStatus!",
+                throw new ArgumentException("The given object is not an EVSEStatus!",
                                             nameof(Object));
 
             return CompareTo((ConnectorStatusUpdate) Object);
