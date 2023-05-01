@@ -72,19 +72,19 @@ namespace cloud.charging.open.protocols.OIOIv4_x.EMP
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        public SessionStopRequest(User                User,
-                                  Connector_Id        ConnectorId,
-                                  Session_Id?         SessionId           = null,
+        public SessionStopRequest(User               User,
+                                  Connector_Id       ConnectorId,
+                                  Session_Id?        SessionId           = null,
 
-                                  DateTime?           Timestamp           = null,
-                                  CancellationToken?  CancellationToken   = null,
-                                  EventTracking_Id    EventTrackingId     = null,
-                                  TimeSpan?           RequestTimeout      = null)
+                                  DateTime?          Timestamp           = null,
+                                  CancellationToken  CancellationToken   = default,
+                                  EventTracking_Id?  EventTrackingId     = null,
+                                  TimeSpan?          RequestTimeout      = null)
 
             : base(Timestamp,
-                   CancellationToken,
                    EventTrackingId,
-                   RequestTimeout)
+                   RequestTimeout,
+                   CancellationToken)
 
         {
 

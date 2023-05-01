@@ -94,14 +94,14 @@ namespace cloud.charging.open.protocols.OIOIv4_x.EMP
                                         IEnumerable<ConnectorTypes>  IncludeConnectorTypes  = null,
 
                                         DateTime?                    Timestamp              = null,
-                                        CancellationToken?           CancellationToken      = null,
+                                        CancellationToken            CancellationToken      = default,
                                         EventTracking_Id             EventTrackingId        = null,
                                         TimeSpan?                    RequestTimeout         = null)
 
             : base(Timestamp,
-                   CancellationToken,
                    EventTrackingId,
-                   RequestTimeout)
+                   RequestTimeout,
+                   CancellationToken)
 
         {
 

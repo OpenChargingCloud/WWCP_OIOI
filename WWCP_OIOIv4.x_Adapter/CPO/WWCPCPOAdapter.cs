@@ -641,7 +641,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
             StationsPost(IEnumerable<IChargingStation>  ChargingStations,
 
                          DateTime?                      Timestamp           = null,
-                         CancellationToken?             CancellationToken   = null,
+                         CancellationToken              CancellationToken   = default,
                          EventTracking_Id?              EventTrackingId     = null,
                          TimeSpan?                      RequestTimeout      = null)
 
@@ -655,9 +655,6 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
             if (!Timestamp.HasValue)
                 Timestamp = DateTime.UtcNow;
-
-            if (!CancellationToken.HasValue)
-                CancellationToken = new CancellationTokenSource().Token;
 
             if (EventTrackingId == null)
                 EventTrackingId = EventTracking_Id.New;
@@ -889,7 +886,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
             ConnectorsPostStatus(IEnumerable<EVSEStatusUpdate>  EVSEStatusUpdates,
 
                                  DateTime?                      Timestamp           = null,
-                                 CancellationToken?             CancellationToken   = null,
+                                 CancellationToken              CancellationToken   = default,
                                  EventTracking_Id?              EventTrackingId     = null,
                                  TimeSpan?                      RequestTimeout      = null)
 
@@ -903,9 +900,6 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
             if (!Timestamp.HasValue)
                 Timestamp = DateTime.UtcNow;
-
-            if (!CancellationToken.HasValue)
-                CancellationToken = new CancellationTokenSource().Token;
 
             if (EventTrackingId == null)
                 EventTrackingId = EventTracking_Id.New;
@@ -1129,7 +1123,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                        TransmissionTypes   TransmissionType,
 
                                        DateTime?           Timestamp,
-                                       CancellationToken?  CancellationToken,
+                                       CancellationToken   CancellationToken,
                                        EventTracking_Id?   EventTrackingId,
                                        TimeSpan?           RequestTimeout)
 
@@ -1222,7 +1216,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                        TransmissionTypes   TransmissionType,
 
                                        DateTime?           Timestamp,
-                                       CancellationToken?  CancellationToken,
+                                       CancellationToken   CancellationToken,
                                        EventTracking_Id?   EventTrackingId,
                                        TimeSpan?           RequestTimeout)
 
@@ -1323,7 +1317,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                           TransmissionTypes   TransmissionType,
 
                                           DateTime?           Timestamp,
-                                          CancellationToken?  CancellationToken,
+                                          CancellationToken   CancellationToken,
                                           EventTracking_Id    EventTrackingId,
                                           TimeSpan?           RequestTimeout)
 
@@ -1423,7 +1417,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                           TransmissionTypes   TransmissionType,
 
                                           DateTime?           Timestamp,
-                                          CancellationToken?  CancellationToken,
+                                          CancellationToken   CancellationToken,
                                           EventTracking_Id    EventTrackingId,
                                           TimeSpan?           RequestTimeout)
 
@@ -1523,7 +1517,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                        TransmissionTypes   TransmissionType,
 
                                        DateTime?           Timestamp,
-                                       CancellationToken?  CancellationToken,
+                                       CancellationToken   CancellationToken,
                                        EventTracking_Id    EventTrackingId,
                                        TimeSpan?           RequestTimeout)
 
@@ -1568,7 +1562,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                        TransmissionTypes   TransmissionType,
 
                                        DateTime?           Timestamp,
-                                       CancellationToken?  CancellationToken,
+                                       CancellationToken   CancellationToken,
                                        EventTracking_Id    EventTrackingId,
                                        TimeSpan?           RequestTimeout)
 
@@ -1613,7 +1607,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                           TransmissionTypes   TransmissionType,
 
                                           DateTime?           Timestamp,
-                                          CancellationToken?  CancellationToken,
+                                          CancellationToken   CancellationToken,
                                           EventTracking_Id    EventTrackingId,
                                           TimeSpan?           RequestTimeout)
 
@@ -1658,7 +1652,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                           TransmissionTypes   TransmissionType,
 
                                           DateTime?           Timestamp,
-                                          CancellationToken?  CancellationToken,
+                                          CancellationToken   CancellationToken,
                                           EventTracking_Id    EventTrackingId,
                                           TimeSpan?           RequestTimeout)
 
@@ -1705,8 +1699,8 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                                TransmissionTypes                   TransmissionType,
 
                                                DateTime?                           Timestamp,
-                                               CancellationToken?                  CancellationToken,
-                                               EventTracking_Id                    EventTrackingId,
+                                               CancellationToken                   CancellationToken,
+                                               EventTracking_Id?                   EventTrackingId,
                                                TimeSpan?                           RequestTimeout)
 
 
@@ -1732,7 +1726,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                      TransmissionTypes              TransmissionType,
 
                                      DateTime?                      Timestamp,
-                                     CancellationToken?             CancellationToken,
+                                     CancellationToken              CancellationToken,
                                      EventTracking_Id               EventTrackingId,
                                      TimeSpan?                      RequestTimeout)
 
@@ -1862,7 +1856,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                        TransmissionTypes   TransmissionType,
 
                                        DateTime?           Timestamp,
-                                       CancellationToken?  CancellationToken,
+                                       CancellationToken   CancellationToken,
                                        EventTracking_Id?   EventTrackingId,
                                        TimeSpan?           RequestTimeout)
 
@@ -1968,7 +1962,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                        TransmissionTypes   TransmissionType,
 
                                        DateTime?           Timestamp,
-                                       CancellationToken?  CancellationToken,
+                                       CancellationToken   CancellationToken,
                                        EventTracking_Id?   EventTrackingId,
                                        TimeSpan?           RequestTimeout)
 
@@ -2079,7 +2073,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         //                                  TransmissionTypes   TransmissionType,
 
         //                                  DateTime?           Timestamp,
-        //                                  CancellationToken?  CancellationToken,
+        //                                  CancellationToken   CancellationToken,
         //                                  EventTracking_Id?   EventTrackingId,
         //                                  TimeSpan?           RequestTimeout)
 
@@ -2184,7 +2178,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                           TransmissionTypes   TransmissionType,
 
                                           DateTime?           Timestamp,
-                                          CancellationToken?  CancellationToken,
+                                          CancellationToken   CancellationToken,
                                           EventTracking_Id?   EventTrackingId,
                                           TimeSpan?           RequestTimeout)
 
@@ -2290,7 +2284,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                        TransmissionTypes              TransmissionType,
 
                                        DateTime?                      Timestamp,
-                                       CancellationToken?             CancellationToken,
+                                       CancellationToken              CancellationToken,
                                        EventTracking_Id?              EventTrackingId,
                                        TimeSpan?                      RequestTimeout)
 
@@ -2400,7 +2394,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
 
                                        DateTime?                      Timestamp,
-                                       CancellationToken?             CancellationToken,
+                                       CancellationToken              CancellationToken,
                                        EventTracking_Id?              EventTrackingId,
                                        TimeSpan?                      RequestTimeout)
 
@@ -2509,7 +2503,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                           TransmissionTypes              TransmissionType,
 
                                           DateTime?                      Timestamp,
-                                          CancellationToken?             CancellationToken,
+                                          CancellationToken              CancellationToken,
                                           EventTracking_Id?              EventTrackingId,
                                           TimeSpan?                      RequestTimeout)
 
@@ -2618,7 +2612,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                           TransmissionTypes              TransmissionType,
 
                                           DateTime?                      Timestamp,
-                                          CancellationToken?             CancellationToken,
+                                          CancellationToken              CancellationToken,
                                           EventTracking_Id?              EventTrackingId,
                                           TimeSpan?                      RequestTimeout)
 
@@ -2728,8 +2722,8 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                                TransmissionTypes                              TransmissionType,
 
                                                DateTime?                                      Timestamp,
-                                               CancellationToken?                             CancellationToken,
-                                               EventTracking_Id                               EventTrackingId,
+                                               CancellationToken                              CancellationToken,
+                                               EventTracking_Id?                              EventTrackingId,
                                                TimeSpan?                                      RequestTimeout)
 
 
@@ -2755,8 +2749,8 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                      TransmissionTypes                         TransmissionType,
 
                                      DateTime?                                 Timestamp,
-                                     CancellationToken?                        CancellationToken,
-                                     EventTracking_Id                          EventTrackingId,
+                                     CancellationToken                         CancellationToken,
+                                     EventTracking_Id?                         EventTrackingId,
                                      TimeSpan?                                 RequestTimeout)
 
 
@@ -2786,7 +2780,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                        TransmissionTypes   TransmissionType,
 
                                        DateTime?           Timestamp,
-                                       CancellationToken?  CancellationToken,
+                                       CancellationToken   CancellationToken,
                                        EventTracking_Id?   EventTrackingId,
                                        TimeSpan?           RequestTimeout)
 
@@ -2891,7 +2885,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                        TransmissionTypes   TransmissionType,
 
                                        DateTime?           Timestamp,
-                                       CancellationToken?  CancellationToken,
+                                       CancellationToken   CancellationToken,
                                        EventTracking_Id?   EventTrackingId,
                                        TimeSpan?           RequestTimeout)
 
@@ -3003,7 +2997,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                           TransmissionTypes   TransmissionType,
 
                                           DateTime?           Timestamp,
-                                          CancellationToken?  CancellationToken,
+                                          CancellationToken   CancellationToken,
                                           EventTracking_Id?   EventTrackingId,
                                           TimeSpan?           RequestTimeout)
 
@@ -3108,7 +3102,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                           TransmissionTypes   TransmissionType,
 
                                           DateTime?           Timestamp,
-                                          CancellationToken?  CancellationToken,
+                                          CancellationToken   CancellationToken,
                                           EventTracking_Id?   EventTrackingId,
                                           TimeSpan?           RequestTimeout)
 
@@ -3156,7 +3150,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                        TransmissionTypes           TransmissionType,
 
                                        DateTime?                   Timestamp,
-                                       CancellationToken?          CancellationToken,
+                                       CancellationToken           CancellationToken,
                                        EventTracking_Id?           EventTrackingId,
                                        TimeSpan?                   RequestTimeout)
 
@@ -3215,7 +3209,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                        TransmissionTypes           TransmissionType,
 
                                        DateTime?                   Timestamp,
-                                       CancellationToken?          CancellationToken,
+                                       CancellationToken           CancellationToken,
                                        EventTracking_Id?           EventTrackingId,
                                        TimeSpan?                   RequestTimeout)
 
@@ -3274,7 +3268,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                           TransmissionTypes           TransmissionType,
 
                                           DateTime?                   Timestamp,
-                                          CancellationToken?          CancellationToken,
+                                          CancellationToken           CancellationToken,
                                           EventTracking_Id?           EventTrackingId,
                                           TimeSpan?                   RequestTimeout)
 
@@ -3333,7 +3327,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                           TransmissionTypes           TransmissionType,
 
                                           DateTime?                   Timestamp,
-                                          CancellationToken?          CancellationToken,
+                                          CancellationToken           CancellationToken,
                                           EventTracking_Id?           EventTrackingId,
                                           TimeSpan?                   RequestTimeout)
 
@@ -3393,7 +3387,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                                TransmissionTypes                           TransmissionType,
 
                                                DateTime?                                   Timestamp,
-                                               CancellationToken?                          CancellationToken,
+                                               CancellationToken                           CancellationToken,
                                                EventTracking_Id?                           EventTrackingId,
                                                TimeSpan?                                   RequestTimeout)
 
@@ -3420,7 +3414,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                      TransmissionTypes                      TransmissionType,
 
                                      DateTime?                              Timestamp,
-                                     CancellationToken?                     CancellationToken,
+                                     CancellationToken                      CancellationToken,
                                      EventTracking_Id?                      EventTrackingId,
                                      TimeSpan?                              RequestTimeout)
 
@@ -3450,7 +3444,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                        TransmissionTypes         TransmissionType,
 
                                        DateTime?                 Timestamp,
-                                       CancellationToken?        CancellationToken,
+                                       CancellationToken         CancellationToken,
                                        EventTracking_Id?          EventTrackingId,
                                        TimeSpan?                 RequestTimeout)
 
@@ -3496,7 +3490,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                        TransmissionTypes         TransmissionType,
 
                                        DateTime?                 Timestamp,
-                                       CancellationToken?        CancellationToken,
+                                       CancellationToken         CancellationToken,
                                        EventTracking_Id?         EventTrackingId,
                                        TimeSpan?                 RequestTimeout)
 
@@ -3546,7 +3540,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                           TransmissionTypes         TransmissionType,
 
                                           DateTime?                 Timestamp,
-                                          CancellationToken?        CancellationToken,
+                                          CancellationToken         CancellationToken,
                                           EventTracking_Id?         EventTrackingId,
                                           TimeSpan?                 RequestTimeout)
 
@@ -3592,7 +3586,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                           TransmissionTypes         TransmissionType,
 
                                           DateTime?                 Timestamp,
-                                          CancellationToken?        CancellationToken,
+                                          CancellationToken         CancellationToken,
                                           EventTracking_Id?         EventTrackingId,
                                           TimeSpan?                 RequestTimeout)
 
@@ -3639,7 +3633,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                        TransmissionTypes                      TransmissionType,
 
                                        DateTime?                              Timestamp,
-                                       CancellationToken?                     CancellationToken,
+                                       CancellationToken                      CancellationToken,
                                        EventTracking_Id?                      EventTrackingId,
                                        TimeSpan?                              RequestTimeout)
 
@@ -3685,7 +3679,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                        TransmissionTypes                      TransmissionType,
 
                                        DateTime?                              Timestamp,
-                                       CancellationToken?                     CancellationToken,
+                                       CancellationToken                      CancellationToken,
                                        EventTracking_Id?                      EventTrackingId,
                                        TimeSpan?                              RequestTimeout)
 
@@ -3730,7 +3724,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                           TransmissionTypes                      TransmissionType,
 
                                           DateTime?                              Timestamp,
-                                          CancellationToken?                     CancellationToken,
+                                          CancellationToken                      CancellationToken,
                                           EventTracking_Id?                      EventTrackingId,
                                           TimeSpan?                              RequestTimeout)
 
@@ -3775,7 +3769,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                           TransmissionTypes                      TransmissionType,
 
                                           DateTime?                              Timestamp,
-                                          CancellationToken?                     CancellationToken,
+                                          CancellationToken                      CancellationToken,
                                           EventTracking_Id?                      EventTrackingId,
                                           TimeSpan?                              RequestTimeout)
 
@@ -3822,8 +3816,8 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                                TransmissionTypes                                      TransmissionType,
 
                                                DateTime?                                              Timestamp,
-                                               CancellationToken?                                     CancellationToken,
-                                               EventTracking_Id                                       EventTrackingId,
+                                               CancellationToken                                      CancellationToken,
+                                               EventTracking_Id?                                      EventTrackingId,
                                                TimeSpan?                                              RequestTimeout)
 
 
@@ -3849,8 +3843,8 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                      TransmissionTypes                                 TransmissionType,
 
                                      DateTime?                                         Timestamp,
-                                     CancellationToken?                                CancellationToken,
-                                     EventTracking_Id                                  EventTrackingId,
+                                     CancellationToken                                 CancellationToken,
+                                     EventTracking_Id?                                 EventTrackingId,
                                      TimeSpan?                                         RequestTimeout)
 
 
@@ -3879,7 +3873,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                        TransmissionTypes   TransmissionType,
 
                                        DateTime?           Timestamp,
-                                       CancellationToken?  CancellationToken,
+                                       CancellationToken   CancellationToken,
                                        EventTracking_Id?   EventTrackingId,
                                        TimeSpan?           RequestTimeout)
 
@@ -3924,7 +3918,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                        TransmissionTypes   TransmissionType,
 
                                        DateTime?           Timestamp,
-                                       CancellationToken?  CancellationToken,
+                                       CancellationToken   CancellationToken,
                                        EventTracking_Id?   EventTrackingId,
                                        TimeSpan?           RequestTimeout)
 
@@ -3973,7 +3967,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                           TransmissionTypes   TransmissionType,
 
                                           DateTime?           Timestamp,
-                                          CancellationToken?  CancellationToken,
+                                          CancellationToken   CancellationToken,
                                           EventTracking_Id?   EventTrackingId,
                                           TimeSpan?           RequestTimeout)
 
@@ -4018,7 +4012,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                           TransmissionTypes   TransmissionType,
 
                                           DateTime?           Timestamp,
-                                          CancellationToken?  CancellationToken,
+                                          CancellationToken   CancellationToken,
                                           EventTracking_Id?   EventTrackingId,
                                           TimeSpan?           RequestTimeout)
 
@@ -4065,8 +4059,8 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                                TransmissionTypes                             TransmissionType,
 
                                                DateTime?                                     Timestamp,
-                                               CancellationToken?                            CancellationToken,
-                                               EventTracking_Id                              EventTrackingId,
+                                               CancellationToken                             CancellationToken,
+                                               EventTracking_Id?                             EventTrackingId,
                                                TimeSpan?                                     RequestTimeout)
 
 
@@ -4092,8 +4086,8 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                      TransmissionTypes                        TransmissionType,
 
                                      DateTime?                                Timestamp,
-                                     CancellationToken?                       CancellationToken,
-                                     EventTracking_Id                         EventTrackingId,
+                                     CancellationToken                        CancellationToken,
+                                     EventTracking_Id?                        EventTrackingId,
                                      TimeSpan?                                RequestTimeout)
 
 
@@ -4125,15 +4119,15 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         public async Task<AuthStartResult>
 
             AuthorizeStart(LocalAuthentication               LocalAuthentication,
-                           ChargingLocation                  ChargingLocation      = null,
-                           ChargingProduct                   ChargingProduct       = null,   // [maxlength: 100]
+                           ChargingLocation?                 ChargingLocation      = null,
+                           ChargingProduct?                  ChargingProduct       = null,   // [maxlength: 100]
                            ChargingSession_Id?               SessionId             = null,
                            ChargingSession_Id?               CPOPartnerSessionId   = null,
                            WWCP.ChargingStationOperator_Id?  OperatorId            = null,
 
                            DateTime?                         Timestamp             = null,
-                           CancellationToken?                CancellationToken     = null,
-                           EventTracking_Id                  EventTrackingId       = null,
+                           CancellationToken                 CancellationToken     = default,
+                           EventTracking_Id?                 EventTrackingId       = null,
                            TimeSpan?                         RequestTimeout        = null)
 
         {
@@ -4146,9 +4140,6 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
             if (!Timestamp.HasValue)
                 Timestamp = DateTime.UtcNow;
-
-            if (!CancellationToken.HasValue)
-                CancellationToken = new CancellationTokenSource().Token;
 
             if (EventTrackingId == null)
                 EventTrackingId = EventTracking_Id.New;
@@ -4323,13 +4314,13 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
             AuthorizeStop(ChargingSession_Id                SessionId,
                           LocalAuthentication               LocalAuthentication,
-                          ChargingLocation                  ChargingLocation      = null,
+                          ChargingLocation?                 ChargingLocation      = null,
                           ChargingSession_Id?               CPOPartnerSessionId   = null,
                           WWCP.ChargingStationOperator_Id?  OperatorId            = null,
 
                           DateTime?                         Timestamp             = null,
-                          CancellationToken?                CancellationToken     = null,
-                          EventTracking_Id                  EventTrackingId       = null,
+                          CancellationToken                 CancellationToken     = default,
+                          EventTracking_Id?                 EventTrackingId       = null,
                           TimeSpan?                         RequestTimeout        = null)
         {
 
@@ -4341,9 +4332,6 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
             if (!Timestamp.HasValue)
                 Timestamp = DateTime.UtcNow;
-
-            if (!CancellationToken.HasValue)
-                CancellationToken = new CancellationTokenSource().Token;
 
             if (EventTrackingId == null)
                 EventTrackingId = EventTracking_Id.New;
@@ -4511,8 +4499,8 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                     TransmissionTypes                TransmissionType    = TransmissionTypes.Enqueue,
 
                                     DateTime?                        Timestamp           = null,
-                                    CancellationToken?               CancellationToken   = null,
-                                    EventTracking_Id                 EventTrackingId     = null,
+                                    CancellationToken                CancellationToken   = default,
+                                    EventTracking_Id?                EventTrackingId     = null,
                                     TimeSpan?                        RequestTimeout      = null)
 
         {
@@ -4525,9 +4513,6 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
             if (!Timestamp.HasValue)
                 Timestamp = DateTime.UtcNow;
-
-            if (!CancellationToken.HasValue)
-                CancellationToken = new CancellationTokenSource().Token;
 
             if (EventTrackingId == null)
                 EventTrackingId = EventTracking_Id.New;

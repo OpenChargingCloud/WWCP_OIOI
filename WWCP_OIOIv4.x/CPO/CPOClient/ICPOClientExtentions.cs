@@ -54,7 +54,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                         Partner_Id?         PartnerId           = null,
 
                         DateTime?           Timestamp           = null,
-                        CancellationToken?  CancellationToken   = null,
+                        CancellationToken   CancellationToken   = default,
                         EventTracking_Id    EventTrackingId     = null,
                         TimeSpan?           RequestTimeout      = null)
 
@@ -83,14 +83,14 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         public static Task<HTTPResponse<ConnectorPostStatusResponse>>
 
-            ConnectorPostStatus(this ICPOClient      ICPOClient,
-                                ConnectorStatus      ConnectorStatus,
-                                Partner_Id?          PartnerId              = null,
+            ConnectorPostStatus(this ICPOClient    ICPOClient,
+                                ConnectorStatus    ConnectorStatus,
+                                Partner_Id?        PartnerId           = null,
 
-                                DateTime?            Timestamp              = null,
-                                CancellationToken?   CancellationToken      = null,
-                                EventTracking_Id     EventTrackingId        = null,
-                                TimeSpan?            RequestTimeout         = null)
+                                DateTime?          Timestamp           = null,
+                                CancellationToken  CancellationToken   = default,
+                                EventTracking_Id?  EventTrackingId     = null,
+                                TimeSpan?          RequestTimeout      = null)
 
             => ICPOClient.ConnectorPostStatus(new ConnectorPostStatusRequest(ConnectorStatus,
                                                                              PartnerId ?? ICPOClient.ConnectorIdPartnerIdSelector(ConnectorStatus.Id),
@@ -123,7 +123,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                 Partner_Id?           PartnerId              = null,
 
                                 DateTime?             Timestamp              = null,
-                                CancellationToken?    CancellationToken      = null,
+                                CancellationToken     CancellationToken      = default,
                                 EventTracking_Id      EventTrackingId        = null,
                                 TimeSpan?             RequestTimeout         = null)
 
@@ -152,13 +152,13 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         public static Task<HTTPResponse<RFIDVerifyResponse>>
 
-            RFIDVerify(this ICPOClient      ICPOClient,
-                       RFID_Id              RFIDId,
+            RFIDVerify(this ICPOClient    ICPOClient,
+                       RFID_Id            RFIDId,
 
-                       DateTime?            Timestamp           = null,
-                       CancellationToken?   CancellationToken   = null,
-                       EventTracking_Id     EventTrackingId     = null,
-                       TimeSpan?            RequestTimeout      = null)
+                       DateTime?          Timestamp           = null,
+                       CancellationToken  CancellationToken   = default,
+                       EventTracking_Id?  EventTrackingId     = null,
+                       TimeSpan?          RequestTimeout      = null)
 
 
             => ICPOClient.RFIDVerify(new RFIDVerifyRequest(RFIDId,
@@ -183,13 +183,13 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         public static Task<HTTPResponse<SessionPostResponse>>
 
-            SessionPost(this ICPOClient      ICPOClient,
-                        Session              Session,
+            SessionPost(this ICPOClient    ICPOClient,
+                        Session            Session,
 
-                        DateTime?            Timestamp           = null,
-                        CancellationToken?   CancellationToken   = null,
-                        EventTracking_Id     EventTrackingId     = null,
-                        TimeSpan?            RequestTimeout      = null)
+                        DateTime?          Timestamp           = null,
+                        CancellationToken  CancellationToken   = default,
+                        EventTracking_Id?  EventTrackingId     = null,
+                        TimeSpan?          RequestTimeout      = null)
 
 
             => ICPOClient.SessionPost(new SessionPostRequest(Session,

@@ -17,9 +17,6 @@
 
 #region Usings
 
-using System;
-using System.Threading;
-
 using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
@@ -75,19 +72,19 @@ namespace cloud.charging.open.protocols.OIOIv4_x
         /// Create a new generic OIOI request message.
         /// </summary>
         /// <param name="Timestamp">The optional timestamp of the request.</param>
-        /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
+        /// <param name="CancellationToken">An optional token to cancel this request.</param>
         public ARequest(DateTime?           Timestamp           = null,
-                        CancellationToken?  CancellationToken   = null,
                         EventTracking_Id?   EventTrackingId     = null,
-                        TimeSpan?           RequestTimeout      = null)
+                        TimeSpan?           RequestTimeout      = null,
+                        CancellationToken   CancellationToken   = default)
         {
 
-            this.Timestamp          = Timestamp.        HasValue ? Timestamp            : org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
-            this.CancellationToken  = CancellationToken.HasValue ? CancellationToken    : new CancellationTokenSource().Token;
+            this.Timestamp          = Timestamp       ?? org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
             this.EventTrackingId    = EventTrackingId ?? EventTracking_Id.New;
-            this.RequestTimeout     = RequestTimeout.   HasValue ? RequestTimeout.Value : DefaultRequestTimeout;
+            this.RequestTimeout     = RequestTimeout  ?? DefaultRequestTimeout;
+            this.CancellationToken  = CancellationToken;
 
         }
 
