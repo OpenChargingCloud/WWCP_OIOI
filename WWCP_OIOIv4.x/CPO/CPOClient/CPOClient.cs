@@ -497,11 +497,11 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                          IncludeConnectorIdDelegate           IncludeConnectorId           = null,
                          IncludeConnectorStatusTypesDelegate  IncludeConnectorStatusType   = null,
                          IncludeConnectorStatusDelegate       IncludeConnectorStatus       = null,
-                         Boolean                              DisableLogging               = false,
-                         String                               LoggingPath                  = null,
-                         String                               LoggingContext               = null,
-                         LogfileCreatorDelegate               LogfileCreator               = null,
-                         DNSClient                            DNSClient                    = null)
+                         Boolean?                             DisableLogging               = false,
+                         String?                              LoggingPath                  = null,
+                         String?                              LoggingContext               = null,
+                         LogfileCreatorDelegate?              LogfileCreator               = null,
+                         DNSClient?                           DNSClient                    = null)
 
 
             : base(RemoteURL                  ?? DefaultRemoteURL,
@@ -516,6 +516,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                    RequestTimeout,
                    TransmissionRetryDelay,
                    MaxNumberOfRetries,
+                   DisableLogging,
                    DNSClient)
 
         {
@@ -537,7 +538,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
             this.IncludeConnectorStatusType    = IncludeConnectorStatusType       ?? (connectorstatustype => true);
             this.IncludeConnectorStatus        = IncludeConnectorStatus           ?? (connectorstatus     => true);
 
-            base.HTTPLogger                    = DisableLogging == false
+            base.HTTPLogger                    = this.DisableLogging == false
                                                      ? new Logger(this,
                                                                   LoggingPath,
                                                                   LoggingContext,
@@ -638,6 +639,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                                                 RequestTimeout,
                                                                 TransmissionRetryDelay,
                                                                 MaxNumberOfRetries,
+                                                                DisableLogging,
                                                                 DNSClient))
                         {
 
@@ -887,6 +889,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                                             RequestTimeout,
                                                             TransmissionRetryDelay,
                                                             MaxNumberOfRetries,
+                                                            DisableLogging,
                                                             DNSClient))
                     {
 
@@ -1115,6 +1118,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                                         RequestTimeout,
                                                         TransmissionRetryDelay,
                                                         MaxNumberOfRetries,
+                                                        DisableLogging,
                                                         DNSClient))
                 {
 
@@ -1328,6 +1332,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                                         RequestTimeout,
                                                         TransmissionRetryDelay,
                                                         MaxNumberOfRetries,
+                                                        DisableLogging,
                                                         DNSClient))
                 {
 

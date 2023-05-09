@@ -298,7 +298,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.WebAPI
 
 
             // Logging
-            this.DisableLogging                     = DisableLogging ?? false;
+            this.DisableLogging                     = this.DisableLogging == false;
             this.LoggingPath                        = LoggingPath    ?? Path.Combine(AppContext.BaseDirectory, "OIOIWebAPI");
 
             if (this.LoggingPath[^1] != Path.DirectorySeparatorChar)

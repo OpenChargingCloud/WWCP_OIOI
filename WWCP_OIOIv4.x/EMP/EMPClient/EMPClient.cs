@@ -354,11 +354,11 @@ namespace cloud.charging.open.protocols.OIOIv4_x.EMP
                          TimeSpan?                            RequestTimeout               = null,
                          TransmissionRetryDelayDelegate       TransmissionRetryDelay       = null,
                          UInt16?                              MaxNumberOfRetries           = DefaultMaxNumberOfRetries,
-                         Boolean                              DisableLogging               = false,
-                         String                               LoggingPath                  = null,
-                         String                               LoggingContext               = null,
-                         LogfileCreatorDelegate               LogfileCreator               = null,
-                         DNSClient                            DNSClient                    = null)
+                         Boolean?                             DisableLogging               = false,
+                         String?                              LoggingPath                  = null,
+                         String?                              LoggingContext               = null,
+                         LogfileCreatorDelegate?              LogfileCreator               = null,
+                         DNSClient?                           DNSClient                    = null)
 
 
             : base(RemoteURL                  ?? DefaultRemoteURL,
@@ -373,6 +373,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.EMP
                    RequestTimeout,
                    TransmissionRetryDelay,
                    MaxNumberOfRetries,
+                   DisableLogging,
                    DNSClient)
 
         {
@@ -386,7 +387,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.EMP
 
             this.APIKey      = APIKey;
 
-            base.HTTPLogger  = DisableLogging == false
+            base.HTTPLogger  = this.DisableLogging == false
                                    ? new Logger(this,
                                                 LoggingPath,
                                                 LoggingContext,
@@ -466,6 +467,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.EMP
                                                     RequestTimeout,
                                                     TransmissionRetryDelay,
                                                     MaxNumberOfRetries,
+                                                    DisableLogging,
                                                     DNSClient))
             {
 
@@ -655,6 +657,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.EMP
                                                     RequestTimeout,
                                                     TransmissionRetryDelay,
                                                     MaxNumberOfRetries,
+                                                    DisableLogging,
                                                     DNSClient))
             {
 
@@ -840,6 +843,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.EMP
                                                     RequestTimeout,
                                                     TransmissionRetryDelay,
                                                     MaxNumberOfRetries,
+                                                    DisableLogging,
                                                     DNSClient))
             {
 
