@@ -72,9 +72,9 @@ namespace cloud.charging.open.protocols.OIOIv4_x.UnitTests
                                                                    I18NString.Create(Languages.de, "GraphDefined"),
                                                                    InitialAdminStatus: ChargingStationOperatorAdminStatusTypes.Operational).Result.ChargingStationOperator;
 
-            CP01   = CSOP01.CreateChargingPool   (ChargingPool_Id.   Parse("DE*GEF*P123456")).    Result.ChargingPool;
-            CS01   = CP01.  CreateChargingStation(ChargingStation_Id.Parse("DE*GEF*S123456*A")).  Result.ChargingStation;
-            EVSE01 = CS01.  CreateEVSE           (EVSE_Id.           Parse("DE*GEF*E123456*A*1")).Result.EVSE;
+            CP01   = CSOP01.AddChargingPool   (ChargingPool_Id.   Parse("DE*GEF*P123456")).    Result.ChargingPool;
+            CS01   = CP01.  AddChargingStation(ChargingStation_Id.Parse("DE*GEF*S123456*A")).  Result.ChargingStation;
+            EVSE01 = CS01.  AddEVSE           (EVSE_Id.           Parse("DE*GEF*E123456*A*1")).Result.EVSE;
 
         }
 
