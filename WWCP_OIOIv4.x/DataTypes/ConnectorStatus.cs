@@ -78,7 +78,8 @@ namespace cloud.charging.open.protocols.OIOIv4_x
                                UserDefinedDictionary?  InternalData   = null)
 
             : base(CustomData,
-                   InternalData)
+                   InternalData,
+                   Timestamp ?? org.GraphDefined.Vanaheimr.Illias.Timestamp.Now)
 
         {
 
