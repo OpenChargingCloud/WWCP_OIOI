@@ -135,7 +135,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x
             var MatchCollection = ConnectorId_RegEx.Matches(Text);
 
             if (MatchCollection.Count != 1)
-                throw new ArgumentException("Illegal text representation of a connector identification: '" + Text + "'!",
+                throw new ArgumentException("Illegal text representation of a connector identification: '{Text}'!",
                                             nameof(Text));
 
             ChargingStationOperator_Id _OperatorId;

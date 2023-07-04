@@ -62,7 +62,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x
         /// The length of the RFID identification.
         /// </summary>
         public UInt64 Length
-            => (UInt64) InternalId.Length;
+            => (UInt64) (InternalId?.Length ?? 0);
 
         #endregion
 
@@ -99,7 +99,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x
             var MatchCollection = UID_RegEx.Matches(Text);
 
             if (MatchCollection.Count != 1)
-                throw new ArgumentException("Illegal text representation of a RFID identification: '" + Text + "'!", nameof(Text));
+                throw new ArgumentException("Illegal text representation of a RFID identification: '{Text}'!", nameof(Text));
 
             return new RFID_Id(Text);
 
@@ -146,7 +146,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x
 
 #pragma warning disable RCS1075  // Avoid empty catch clause that catches System.Exception.
 #pragma warning disable RECS0022 // A catch clause that catches System.Exception and has an empty body
-            catch (Exception)
+            catch
 #pragma warning restore RECS0022 // A catch clause that catches System.Exception and has an empty body
 #pragma warning restore RCS1075  // Avoid empty catch clause that catches System.Exception.
             { }

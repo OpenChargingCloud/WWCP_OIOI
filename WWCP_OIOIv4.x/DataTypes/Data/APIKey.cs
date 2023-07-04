@@ -95,7 +95,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x
             if (TryParse(Text, out APIKey apiKey))
                 return apiKey;
 
-            throw new ArgumentException("Invalid text representation of an API key: '" + Text + "'!", nameof(Text));
+            throw new ArgumentException($"Invalid text representation of an API key: '" + Text + "'!", nameof(Text));
 
         }
 
@@ -150,7 +150,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x
 
 #pragma warning disable RCS1075  // Avoid empty catch clause that catches System.Exception.
 #pragma warning disable RECS0022 // A catch clause that catches System.Exception and has an empty body
-            catch (Exception)
+            catch
 #pragma warning restore RECS0022 // A catch clause that catches System.Exception and has an empty body
 #pragma warning restore RCS1075  // Avoid empty catch clause that catches System.Exception.
             { }

@@ -174,7 +174,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x
             if (TryParse(Text, out eMobilityProvider_Id providerId))
                 return providerId;
 
-            throw new ArgumentException("Unknown country code in the given text representation of an e-mobility provider identification: '" + Text + "'!",
+            throw new ArgumentException("Unknown country code in the given text representation of an e-mobility provider identification: '{Text}'!",
                                         nameof(Text));
 
         }
@@ -294,7 +294,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x
 
             }
 
-            catch (Exception)
+            catch
             { }
 
             return false;

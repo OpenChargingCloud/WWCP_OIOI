@@ -4924,7 +4924,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                        StationsToAddResult.Warnings);
 
                     }
-                    catch (Exception)
+                    catch
                     { }
                 }
 
@@ -4962,7 +4962,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                            StationsToUpdateResult.Warnings);
 
                         }
-                        catch (Exception)
+                        catch
                         { }
                     }
 
@@ -4996,7 +4996,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                        StationsStatusChangesResult.Warnings);
 
                     }
-                    catch (Exception)
+                    catch
                     { }
                 }
 
