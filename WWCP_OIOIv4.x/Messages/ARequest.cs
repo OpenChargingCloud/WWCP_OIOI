@@ -47,22 +47,22 @@ namespace cloud.charging.open.protocols.OIOIv4_x
         /// <summary>
         /// The optional timestamp of the request.
         /// </summary>
-        public DateTime?           Timestamp           { get; }
+        public DateTime?          Timestamp            { get; }
 
         /// <summary>
         /// An optional token to cancel this request.
         /// </summary>
-        public CancellationToken?  CancellationToken   { get; }
+        public CancellationToken  CancellationToken    { get; }
 
         /// <summary>
         /// An optional event tracking identification for correlating this request with other events.
         /// </summary>
-        public EventTracking_Id    EventTrackingId     { get; }
+        public EventTracking_Id   EventTrackingId      { get; }
 
         /// <summary>
         /// An optional timeout for this request.
         /// </summary>
-        public TimeSpan?           RequestTimeout      { get; }
+        public TimeSpan?          RequestTimeout       { get; }
 
         #endregion
 
