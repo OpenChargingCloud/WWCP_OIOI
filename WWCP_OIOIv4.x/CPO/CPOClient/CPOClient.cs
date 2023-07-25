@@ -32,6 +32,7 @@ using org.GraphDefined.Vanaheimr.Hermod.JSON;
 using org.GraphDefined.Vanaheimr.Hermod.SOAP;
 using System.Linq;
 using org.GraphDefined.Vanaheimr.Hermod.Logging;
+using System.Security.Authentication;
 
 #endregion
 
@@ -150,22 +151,22 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <summary>
         /// An event fired whenever a request posting a charging station will be send.
         /// </summary>
-        public event OnStationPostRequestDelegate   OnStationPostRequest;
+        public event OnStationPostRequestDelegate?   OnStationPostRequest;
 
         /// <summary>
         /// An event fired whenever a HTTP request posting a charging station will be send.
         /// </summary>
-        public event ClientRequestLogHandler        OnStationPostHTTPRequest;
+        public event ClientRequestLogHandler?        OnStationPostHTTPRequest;
 
         /// <summary>
         /// An event fired whenever a HTTP response to a charging station post request had been received.
         /// </summary>
-        public event ClientResponseLogHandler       OnStationPostHTTPResponse;
+        public event ClientResponseLogHandler?       OnStationPostHTTPResponse;
 
         /// <summary>
         /// An event fired whenever a response to a charging station post request had been received.
         /// </summary>
-        public event OnStationPostResponseDelegate  OnStationPostResponse;
+        public event OnStationPostResponseDelegate?  OnStationPostResponse;
 
         #endregion
 
@@ -174,22 +175,22 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <summary>
         /// An event fired whenever a request posting a charging connector status will be send.
         /// </summary>
-        public event OnConnectorPostStatusRequestDelegate   OnConnectorPostStatusRequest;
+        public event OnConnectorPostStatusRequestDelegate?   OnConnectorPostStatusRequest;
 
         /// <summary>
         /// An event fired whenever a HTTP request posting a charging connector status will be send.
         /// </summary>
-        public event ClientRequestLogHandler                OnConnectorPostStatusHTTPRequest;
+        public event ClientRequestLogHandler?                OnConnectorPostStatusHTTPRequest;
 
         /// <summary>
         /// An event fired whenever a HTTP response to a charging connector status post HTTP request had been received.
         /// </summary>
-        public event ClientResponseLogHandler               OnConnectorPostStatusHTTPResponse;
+        public event ClientResponseLogHandler?               OnConnectorPostStatusHTTPResponse;
 
         /// <summary>
         /// An event fired whenever a response to a charging connector status post HTTP request had been received.
         /// </summary>
-        public event OnConnectorPostStatusResponseDelegate  OnConnectorPostStatusResponse;
+        public event OnConnectorPostStatusResponseDelegate?  OnConnectorPostStatusResponse;
 
         #endregion
 
@@ -198,22 +199,22 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <summary>
         /// An event fired whenever a request verifying a RFID identification will be send.
         /// </summary>
-        public event OnRFIDVerifyRequestDelegate   OnRFIDVerifyRequest;
+        public event OnRFIDVerifyRequestDelegate?   OnRFIDVerifyRequest;
 
         /// <summary>
         /// An event fired whenever a HTTP request verifying a RFID identification will be send.
         /// </summary>
-        public event ClientRequestLogHandler       OnRFIDVerifyHTTPRequest;
+        public event ClientRequestLogHandler?       OnRFIDVerifyHTTPRequest;
 
         /// <summary>
         /// An event fired whenever a HTTP response to a RFID identification verification request had been received.
         /// </summary>
-        public event ClientResponseLogHandler      OnRFIDVerifyHTTPResponse;
+        public event ClientResponseLogHandler?      OnRFIDVerifyHTTPResponse;
 
         /// <summary>
         /// An event fired whenever a response to a RFID identification verification request had been received.
         /// </summary>
-        public event OnRFIDVerifyResponseDelegate  OnRFIDVerifyResponse;
+        public event OnRFIDVerifyResponseDelegate?  OnRFIDVerifyResponse;
 
         #endregion
 
@@ -222,22 +223,22 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <summary>
         /// An event fired whenever a charging session post request will be send.
         /// </summary>
-        public event OnSessionPostRequestDelegate   OnSessionPostRequest;
+        public event OnSessionPostRequestDelegate?   OnSessionPostRequest;
 
         /// <summary>
         /// An event fired whenever a HTTP request posting charging session will be send.
         /// </summary>
-        public event ClientRequestLogHandler        OnSessionPostHTTPRequest;
+        public event ClientRequestLogHandler?        OnSessionPostHTTPRequest;
 
         /// <summary>
         /// An event fired whenever a HTTP response to a charging session post request had been received.
         /// </summary>
-        public event ClientResponseLogHandler       OnSessionPostHTTPResponse;
+        public event ClientResponseLogHandler?       OnSessionPostHTTPResponse;
 
         /// <summary>
         /// An event fired whenever a response to a charging session post request had been received.
         /// </summary>
-        public event OnSessionPostResponseDelegate  OnSessionPostResponse;
+        public event OnSessionPostResponseDelegate?  OnSessionPostResponse;
 
         #endregion
 
@@ -291,7 +292,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
         #endregion
 
-        public CustomMapperDelegate<StationPostResponse, StationPostResponse.Builder> CustomStationPostResponseMapper { get; set; }
+        public CustomMapperDelegate<StationPostResponse, StationPostResponse.Builder>?  CustomStationPostResponseMapper    { get; set; }
 
         #endregion
 
@@ -341,7 +342,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
         #endregion
 
-        public CustomMapperDelegate<ConnectorPostStatusResponse, ConnectorPostStatusResponse.Builder> CustomConnectorPostStatusResponseMapper { get; set; }
+        public CustomMapperDelegate<ConnectorPostStatusResponse, ConnectorPostStatusResponse.Builder>?  CustomConnectorPostStatusResponseMapper    { get; set; }
 
         #endregion
 
@@ -392,7 +393,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
         #endregion
 
-        public CustomMapperDelegate<RFIDVerifyResponse, RFIDVerifyResponse.Builder> CustomRFIDVerifyResponseMapper { get; set; }
+        public CustomMapperDelegate<RFIDVerifyResponse, RFIDVerifyResponse.Builder>?  CustomRFIDVerifyResponseMapper    { get; set; }
 
         #endregion
 
@@ -442,18 +443,18 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
         #endregion
 
-        public CustomMapperDelegate<SessionPostResponse, SessionPostResponse.Builder> CustomSessionPostResponseMapper { get; set; }
+        public CustomMapperDelegate<SessionPostResponse, SessionPostResponse.Builder>?  CustomSessionPostResponseMapper    { get; set; }
 
         #endregion
 
 
-        public CustomJObjectSerializerDelegate<StationPostRequest> CustomStationPostRequestSerializer   { get; set; }
-        public CustomJObjectSerializerDelegate<Station>            CustomStationSerializer              { get; set; }
-        public CustomJObjectSerializerDelegate<Address>            CustomAddressSerializer              { get; set; }
-        public CustomJObjectSerializerDelegate<Connector>          CustomConnectorSerializer            { get; set; }
+        public CustomJObjectSerializerDelegate<StationPostRequest>?  CustomStationPostRequestSerializer    { get; set; }
+        public CustomJObjectSerializerDelegate<Station>?             CustomStationSerializer               { get; set; }
+        public CustomJObjectSerializerDelegate<Address>?             CustomAddressSerializer               { get; set; }
+        public CustomJObjectSerializerDelegate<Connector>?           CustomConnectorSerializer             { get; set; }
 
-        public CustomJObjectSerializerDelegate<SessionPostRequest> CustomSessionPostRequestSerializer   { get; set; }
-        public CustomJObjectSerializerDelegate<Session>            CustomSessionSerializer              { get; set; }
+        public CustomJObjectSerializerDelegate<SessionPostRequest>?  CustomSessionPostRequestSerializer    { get; set; }
+        public CustomJObjectSerializerDelegate<Session>?             CustomSessionSerializer               { get; set; }
 
         #endregion
 
@@ -468,54 +469,61 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="ConnectorStatusPartnerIdSelector">A delegate to select a partner identification based on the given charging connector status.</param>
         /// <param name="VirtualHostname">An optional HTTP virtual hostname.</param>
         /// <param name="Description">An optional description of this CPO client.</param>
+        /// <param name="PreferIPv4">Prefer IPv4 instead of IPv6.</param>
         /// <param name="RemoteCertificateValidator">The remote SSL/TLS certificate validator.</param>
         /// <param name="ClientCertificateSelector">A delegate to select a TLS client certificate.</param>
         /// <param name="ClientCert">The SSL/TLS client certificate to use of HTTP authentication.</param>
+        /// <param name="TLSProtocol">The TLS protocol to use.</param>
         /// <param name="HTTPUserAgent">The HTTP user agent identification.</param>
         /// <param name="RequestTimeout">An optional request timeout.</param>
         /// <param name="TransmissionRetryDelay">The delay between transmission retries.</param>
         /// <param name="MaxNumberOfRetries">The maximum number of transmission retries for HTTP request.</param>
+        /// <param name="InternalBufferSize">An optional size of the internal buffers.</param>
         /// <param name="DisableLogging">Disable all logging.</param>
         /// <param name="LoggingContext">An optional context for logging.</param>
         /// <param name="LogfileCreator">A delegate to create a log file from the given context and log file name.</param>
         /// <param name="DNSClient">The DNS client to use.</param>
-        public CPOClient(APIKey                               APIKey,
-                         PartnerIdForStationDelegate          StationPartnerIdSelector,
-                         PartnerIdForConnectorIdDelegate      ConnectorStatusPartnerIdSelector,
-                         URL?                                 RemoteURL                    = null,
-                         HTTPHostname?                        VirtualHostname              = null,
-                         String                               Description                  = null,
-                         RemoteCertificateValidationCallback  RemoteCertificateValidator   = null,
-                         LocalCertificateSelectionCallback    ClientCertificateSelector    = null,
-                         X509Certificate                      ClientCert                   = null,
-                         String                               HTTPUserAgent                = DefaultHTTPUserAgent,
-                         TimeSpan?                            RequestTimeout               = null,
-                         TransmissionRetryDelayDelegate       TransmissionRetryDelay       = null,
-                         UInt16?                              MaxNumberOfRetries           = DefaultMaxNumberOfRetries,
-                         IncludeStationDelegate               IncludeStation               = null,
-                         IncludeStationIdDelegate             IncludeStationId             = null,
-                         IncludeConnectorIdDelegate           IncludeConnectorId           = null,
-                         IncludeConnectorStatusTypesDelegate  IncludeConnectorStatusType   = null,
-                         IncludeConnectorStatusDelegate       IncludeConnectorStatus       = null,
-                         Boolean?                             DisableLogging               = false,
-                         String?                              LoggingPath                  = null,
-                         String?                              LoggingContext               = null,
-                         LogfileCreatorDelegate?              LogfileCreator               = null,
-                         DNSClient?                           DNSClient                    = null)
+        public CPOClient(APIKey                                APIKey,
+                         PartnerIdForStationDelegate           StationPartnerIdSelector,
+                         PartnerIdForConnectorIdDelegate       ConnectorStatusPartnerIdSelector,
+                         URL?                                  RemoteURL                    = null,
+                         HTTPHostname?                         VirtualHostname              = null,
+                         String?                               Description                  = null,
+                         Boolean?                              PreferIPv4                   = null,
+                         RemoteCertificateValidationCallback?  RemoteCertificateValidator   = null,
+                         LocalCertificateSelectionCallback?    ClientCertificateSelector    = null,
+                         X509Certificate?                      ClientCert                   = null,
+                         SslProtocols?                         TLSProtocol                  = null,
+                         String                                HTTPUserAgent                = DefaultHTTPUserAgent,
+                         TimeSpan?                             RequestTimeout               = null,
+                         TransmissionRetryDelayDelegate?       TransmissionRetryDelay       = null,
+                         UInt16?                               MaxNumberOfRetries           = null,
+                         UInt32?                               InternalBufferSize           = null,
+                         IncludeStationDelegate?               IncludeStation               = null,
+                         IncludeStationIdDelegate?             IncludeStationId             = null,
+                         IncludeConnectorIdDelegate?           IncludeConnectorId           = null,
+                         IncludeConnectorStatusTypesDelegate?  IncludeConnectorStatusType   = null,
+                         IncludeConnectorStatusDelegate?       IncludeConnectorStatus       = null,
+                         Boolean?                              DisableLogging               = false,
+                         String?                               LoggingPath                  = null,
+                         String?                               LoggingContext               = null,
+                         LogfileCreatorDelegate?               LogfileCreator               = null,
+                         DNSClient?                            DNSClient                    = null)
 
 
             : base(RemoteURL                  ?? DefaultRemoteURL,
                    VirtualHostname,
                    Description,
+                   PreferIPv4,
                    RemoteCertificateValidator ?? ((sender, certificate, chain, sslPolicyErrors) => true),
                    ClientCertificateSelector,
                    ClientCert,
-                   null,
-                   null,
+                   TLSProtocol,
                    HTTPUserAgent,
                    RequestTimeout,
                    TransmissionRetryDelay,
                    MaxNumberOfRetries,
+                   InternalBufferSize,
                    DisableLogging,
                    DNSClient)
 
@@ -626,24 +634,24 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                     do
                     {
 
-                        using (var _JSONClient = new JSONClient(RemoteURL,
-                                                                VirtualHostname,
-                                                                Description,
-                                                                RemoteCertificateValidator,
-                                                                ClientCertificateSelector,
-                                                                ClientCert,
-                                                                null,
-                                                                null,
-                                                                HTTPUserAgent,
-                                                                //URLPathPrefix,
-                                                                RequestTimeout,
-                                                                TransmissionRetryDelay,
-                                                                MaxNumberOfRetries,
-                                                                DisableLogging,
-                                                                DNSClient))
+                        using (var jsonClient = new JSONClient(RemoteURL,
+                                                               VirtualHostname,
+                                                               Description,
+                                                               PreferIPv4,
+                                                               RemoteCertificateValidator,
+                                                               ClientCertificateSelector,
+                                                               ClientCert,
+                                                               TLSProtocol,
+                                                               HTTPUserAgent,
+                                                               RequestTimeout,
+                                                               TransmissionRetryDelay,
+                                                               MaxNumberOfRetries,
+                                                               InternalBufferSize,
+                                                               DisableLogging,
+                                                               DNSClient))
                         {
 
-                            result = await _JSONClient.Query(_CustomStationPostJSONRequestMapper(Request,
+                            result = await jsonClient.Query(_CustomStationPostJSONRequestMapper(Request,
                                                                                                  Request.ToJSON(CustomStationPostRequestSerializer,
                                                                                                                 CustomStationSerializer,
                                                                                                                 CustomAddressSerializer,
@@ -876,24 +884,24 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                 do
                 {
 
-                    using (var _JSONClient = new JSONClient(RemoteURL,
-                                                            VirtualHostname,
-                                                            Description,
-                                                            RemoteCertificateValidator,
-                                                            ClientCertificateSelector,
-                                                            ClientCert,
-                                                            null,
-                                                            null,
-                                                            HTTPUserAgent,
-                                                            //URLPathPrefix,
-                                                            RequestTimeout,
-                                                            TransmissionRetryDelay,
-                                                            MaxNumberOfRetries,
-                                                            DisableLogging,
-                                                            DNSClient))
+                    using (var jsonClient = new JSONClient(RemoteURL,
+                                                           VirtualHostname,
+                                                           Description,
+                                                           PreferIPv4,
+                                                           RemoteCertificateValidator,
+                                                           ClientCertificateSelector,
+                                                           ClientCert,
+                                                           TLSProtocol,
+                                                           HTTPUserAgent,
+                                                           RequestTimeout,
+                                                           TransmissionRetryDelay,
+                                                           MaxNumberOfRetries,
+                                                           InternalBufferSize,
+                                                           DisableLogging,
+                                                           DNSClient))
                     {
 
-                        result = await _JSONClient.Query(_CustomConnectorPostStatusJSONRequestMapper(Request,
+                        result = await jsonClient.Query(_CustomConnectorPostStatusJSONRequestMapper(Request,
                                                                                                      Request.ToJSON()),
                                                          HTTPRequestBuilder:   request => request.Set("Authorization", "key=" + APIKey),
                                                          RequestLogDelegate:   OnConnectorPostStatusHTTPRequest,
@@ -1105,24 +1113,24 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
             do
             {
 
-                using (var _JSONClient = new JSONClient(RemoteURL,
-                                                        VirtualHostname,
-                                                        Description,
-                                                        RemoteCertificateValidator,
-                                                        ClientCertificateSelector,
-                                                        ClientCert,
-                                                        null,
-                                                        null,
-                                                        HTTPUserAgent,
-                                                        //URLPathPrefix,
-                                                        RequestTimeout,
-                                                        TransmissionRetryDelay,
-                                                        MaxNumberOfRetries,
-                                                        DisableLogging,
-                                                        DNSClient))
+                using (var jsonClient = new JSONClient(RemoteURL,
+                                                       VirtualHostname,
+                                                       Description,
+                                                       PreferIPv4,
+                                                       RemoteCertificateValidator,
+                                                       ClientCertificateSelector,
+                                                       ClientCert,
+                                                       TLSProtocol,
+                                                       HTTPUserAgent,
+                                                       RequestTimeout,
+                                                       TransmissionRetryDelay,
+                                                       MaxNumberOfRetries,
+                                                       InternalBufferSize,
+                                                       DisableLogging,
+                                                       DNSClient))
                 {
 
-                    result = await _JSONClient.Query(_CustomRFIDVerifyJSONRequestMapper(Request,
+                    result = await jsonClient.Query(_CustomRFIDVerifyJSONRequestMapper(Request,
                                                                                         Request.ToJSON()),
                                                      HTTPRequestBuilder:   request => request.Set("Authorization", "key=" + APIKey),
                                                      RequestLogDelegate:   OnRFIDVerifyHTTPRequest,
@@ -1319,24 +1327,24 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
             do
             {
 
-                using (var _JSONClient = new JSONClient(RemoteURL,
-                                                        VirtualHostname,
-                                                        Description,
-                                                        RemoteCertificateValidator,
-                                                        ClientCertificateSelector,
-                                                        ClientCert,
-                                                        null,
-                                                        null,
-                                                        HTTPUserAgent,
-                                                        //URLPathPrefix,
-                                                        RequestTimeout,
-                                                        TransmissionRetryDelay,
-                                                        MaxNumberOfRetries,
-                                                        DisableLogging,
-                                                        DNSClient))
+                using (var jsonClient = new JSONClient(RemoteURL,
+                                                       VirtualHostname,
+                                                       Description,
+                                                       PreferIPv4,
+                                                       RemoteCertificateValidator,
+                                                       ClientCertificateSelector,
+                                                       ClientCert,
+                                                       TLSProtocol,
+                                                       HTTPUserAgent,
+                                                       RequestTimeout,
+                                                       TransmissionRetryDelay,
+                                                       MaxNumberOfRetries,
+                                                       InternalBufferSize,
+                                                       DisableLogging,
+                                                       DNSClient))
                 {
 
-                    result = await _JSONClient.Query(_CustomSessionPostJSONRequestMapper(Request,
+                    result = await jsonClient.Query(_CustomSessionPostJSONRequestMapper(Request,
                                                                                          Request.ToJSON(CustomSessionPostRequestSerializer,
                                                                                                         CustomSessionSerializer)),
                                                      HTTPRequestBuilder:   request => request.Set("Authorization", "key=" + APIKey),

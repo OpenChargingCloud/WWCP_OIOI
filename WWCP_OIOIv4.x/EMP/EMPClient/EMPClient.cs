@@ -17,22 +17,16 @@
 
 #region Usings
 
-using System;
-using System.Linq;
-using System.Threading;
 using System.Net.Security;
-using System.Threading.Tasks;
-using System.Collections.Generic;
+using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 
 using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
-using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Hermod.DNS;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Hermod.JSON;
-using org.GraphDefined.Vanaheimr.Hermod.SOAP;
 using org.GraphDefined.Vanaheimr.Hermod.Logging;
 
 #endregion
@@ -332,6 +326,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.EMP
         /// <param name="APIKey">The PlugSurfing API key.</param>
         /// <param name="VirtualHostname">An optional HTTP virtual hostname.</param>
         /// <param name="Description">An optional description of this EMP client.</param>
+        /// <param name="PreferIPv4">Prefer IPv4 instead of IPv6.</param>
         /// <param name="RemoteCertificateValidator">The remote SSL/TLS certificate validator.</param>
         /// <param name="ClientCertificateSelector">A delegate to select a TLS client certificate.</param>
         /// <param name="ClientCert">The SSL/TLS client certificate to use of HTTP authentication.</param>
@@ -339,40 +334,45 @@ namespace cloud.charging.open.protocols.OIOIv4_x.EMP
         /// <param name="RequestTimeout">An optional request timeout.</param>
         /// <param name="TransmissionRetryDelay">The delay between transmission retries.</param>
         /// <param name="MaxNumberOfRetries">The maximum number of transmission retries for HTTP request.</param>
+        /// <param name="InternalBufferSize">An optional size of the internal buffers.</param>
         /// <param name="DisableLogging">Disable all logging.</param>
         /// <param name="LoggingContext">An optional context for logging.</param>
         /// <param name="LogfileCreator">A delegate to create a log file from the given context and log file name.</param>
         /// <param name="DNSClient">The DNS client to use.</param>
-        public EMPClient(APIKey                               APIKey,
-                         URL?                                 RemoteURL                    = null,
-                         HTTPHostname?                        VirtualHostname              = null,
-                         String                               Description                  = null,
-                         RemoteCertificateValidationCallback  RemoteCertificateValidator   = null,
-                         LocalCertificateSelectionCallback    ClientCertificateSelector    = null,
-                         X509Certificate                      ClientCert                   = null,
-                         String                               HTTPUserAgent                = DefaultHTTPUserAgent,
-                         TimeSpan?                            RequestTimeout               = null,
-                         TransmissionRetryDelayDelegate       TransmissionRetryDelay       = null,
-                         UInt16?                              MaxNumberOfRetries           = DefaultMaxNumberOfRetries,
-                         Boolean?                             DisableLogging               = false,
-                         String?                              LoggingPath                  = null,
-                         String?                              LoggingContext               = null,
-                         LogfileCreatorDelegate?              LogfileCreator               = null,
-                         DNSClient?                           DNSClient                    = null)
+        public EMPClient(APIKey                                APIKey,
+                         URL?                                  RemoteURL                    = null,
+                         HTTPHostname?                         VirtualHostname              = null,
+                         String?                               Description                  = null,
+                         Boolean?                              PreferIPv4                   = null,
+                         RemoteCertificateValidationCallback?  RemoteCertificateValidator   = null,
+                         LocalCertificateSelectionCallback?    ClientCertificateSelector    = null,
+                         X509Certificate?                      ClientCert                   = null,
+                         SslProtocols?                         TLSProtocol                  = null,
+                         String                                HTTPUserAgent                = DefaultHTTPUserAgent,
+                         TimeSpan?                             RequestTimeout               = null,
+                         TransmissionRetryDelayDelegate?       TransmissionRetryDelay       = null,
+                         UInt16?                               MaxNumberOfRetries           = null,
+                         UInt32?                               InternalBufferSize           = null,
+                         Boolean?                              DisableLogging               = false,
+                         String?                               LoggingPath                  = null,
+                         String?                               LoggingContext               = null,
+                         LogfileCreatorDelegate?               LogfileCreator               = null,
+                         DNSClient?                            DNSClient                    = null)
 
 
             : base(RemoteURL                  ?? DefaultRemoteURL,
                    VirtualHostname,
                    Description,
+                   PreferIPv4,
                    RemoteCertificateValidator ?? ((sender, certificate, chain, sslPolicyErrors) => true),
                    ClientCertificateSelector,
                    ClientCert,
-                   null,
-                   null,
+                   TLSProtocol,
                    HTTPUserAgent,
                    RequestTimeout,
                    TransmissionRetryDelay,
                    MaxNumberOfRetries,
+                   InternalBufferSize,
                    DisableLogging,
                    DNSClient)
 
@@ -454,24 +454,24 @@ namespace cloud.charging.open.protocols.OIOIv4_x.EMP
             #endregion
 
 
-            using (var _JSONClient = new JSONClient(RemoteURL,
-                                                    VirtualHostname,
-                                                    Description,
-                                                    RemoteCertificateValidator,
-                                                    ClientCertificateSelector,
-                                                    ClientCert,
-                                                    null,
-                                                    null,
-                                                    HTTPUserAgent,
-                                                    //URLPathPrefix,
-                                                    RequestTimeout,
-                                                    TransmissionRetryDelay,
-                                                    MaxNumberOfRetries,
-                                                    DisableLogging,
-                                                    DNSClient))
+            using (var jsonClient = new JSONClient(RemoteURL,
+                                                   VirtualHostname,
+                                                   Description,
+                                                   PreferIPv4,
+                                                   RemoteCertificateValidator,
+                                                   ClientCertificateSelector,
+                                                   ClientCert,
+                                                   TLSProtocol,
+                                                   HTTPUserAgent,
+                                                   RequestTimeout,
+                                                   TransmissionRetryDelay,
+                                                   MaxNumberOfRetries,
+                                                   InternalBufferSize,
+                                                   DisableLogging,
+                                                   DNSClient))
             {
 
-                result = await _JSONClient.Query(_CustomStationGetSurfaceJSONRequestMapper(Request,
+                result = await jsonClient.Query(_CustomStationGetSurfaceJSONRequestMapper(Request,
                                                                                            Request.ToJSON()),
                                                  HTTPRequestBuilder:   request => request.Set("Authorization", "key=" + APIKey),
                                                  RequestLogDelegate:   OnStationGetSurfaceHTTPRequest,
@@ -644,24 +644,24 @@ namespace cloud.charging.open.protocols.OIOIv4_x.EMP
             #endregion
 
 
-            using (var _JSONClient = new JSONClient(RemoteURL,
-                                                    VirtualHostname,
-                                                    Description,
-                                                    RemoteCertificateValidator,
-                                                    ClientCertificateSelector,
-                                                    ClientCert,
-                                                    null,
-                                                    null,
-                                                    HTTPUserAgent,
-                                                    //URLPathPrefix,
-                                                    RequestTimeout,
-                                                    TransmissionRetryDelay,
-                                                    MaxNumberOfRetries,
-                                                    DisableLogging,
-                                                    DNSClient))
+            using (var jsonClient = new JSONClient(RemoteURL,
+                                                   VirtualHostname,
+                                                   Description,
+                                                   PreferIPv4,
+                                                   RemoteCertificateValidator,
+                                                   ClientCertificateSelector,
+                                                   ClientCert,
+                                                   TLSProtocol,
+                                                   HTTPUserAgent,
+                                                   RequestTimeout,
+                                                   TransmissionRetryDelay,
+                                                   MaxNumberOfRetries,
+                                                   InternalBufferSize,
+                                                   DisableLogging,
+                                                   DNSClient))
             {
 
-                result = await _JSONClient.Query(_CustomSessionStartJSONRequestMapper(Request,
+                result = await jsonClient.Query(_CustomSessionStartJSONRequestMapper(Request,
                                                                                       Request.ToJSON()),
                                                  HTTPRequestBuilder:   request => request.Set("Authorization", "key=" + APIKey),
                                                  RequestLogDelegate:   OnSessionStartHTTPRequest,
@@ -830,24 +830,24 @@ namespace cloud.charging.open.protocols.OIOIv4_x.EMP
             #endregion
 
 
-            using (var _JSONClient = new JSONClient(RemoteURL,
-                                                    VirtualHostname,
-                                                    Description,
-                                                    RemoteCertificateValidator,
-                                                    ClientCertificateSelector,
-                                                    ClientCert,
-                                                    null,
-                                                    null,
-                                                    HTTPUserAgent,
-                                                    //URLPathPrefix,
-                                                    RequestTimeout,
-                                                    TransmissionRetryDelay,
-                                                    MaxNumberOfRetries,
-                                                    DisableLogging,
-                                                    DNSClient))
+            using (var jsonClient = new JSONClient(RemoteURL,
+                                                   VirtualHostname,
+                                                   Description,
+                                                   PreferIPv4,
+                                                   RemoteCertificateValidator,
+                                                   ClientCertificateSelector,
+                                                   ClientCert,
+                                                   TLSProtocol,
+                                                   HTTPUserAgent,
+                                                   RequestTimeout,
+                                                   TransmissionRetryDelay,
+                                                   MaxNumberOfRetries,
+                                                   InternalBufferSize,
+                                                   DisableLogging,
+                                                   DNSClient))
             {
 
-                result = await _JSONClient.Query(_CustomSessionStopJSONRequestMapper(Request,
+                result = await jsonClient.Query(_CustomSessionStopJSONRequestMapper(Request,
                                                                                      Request.ToJSON()),
                                                  HTTPRequestBuilder:   request => request.Set("Authorization", "key=" + APIKey),
                                                  RequestLogDelegate:   OnSessionStopHTTPRequest,
