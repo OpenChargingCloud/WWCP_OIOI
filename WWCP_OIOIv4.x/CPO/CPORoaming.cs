@@ -17,15 +17,14 @@
 
 #region Usings
 
-using System.Net.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 
 using Newtonsoft.Json.Linq;
 
+using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Hermod.DNS;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
-using System.Security.Authentication;
 
 #endregion
 
@@ -63,7 +62,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <summary>
         /// An optional description of this CPO client.
         /// </summary>
-        String                               IHTTPClient.Description
+        String?                              IHTTPClient.Description
         {
 
             get
@@ -81,13 +80,13 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <summary>
         /// The remote SSL/TLS certificate validator.
         /// </summary>
-        RemoteCertificateValidationCallback  IHTTPClient.RemoteCertificateValidator
+        RemoteCertificateValidationHandler?  IHTTPClient.RemoteCertificateValidator
             => CPOClient.RemoteCertificateValidator;
 
         /// <summary>
         /// The SSL/TLS client certificate to use of HTTP authentication.
         /// </summary>
-        X509Certificate                      IHTTPClient.ClientCert
+        X509Certificate?                     IHTTPClient.ClientCert
             => CPOClient.ClientCert;
 
         /// <summary>
@@ -169,34 +168,19 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// The API key for all requests.
         /// </summary>
         public APIKey           APIKey
-        {
-            get
-            {
-                return CPOClient.APIKey;
-            }
-        }
+            => CPOClient.APIKey;
 
         /// <summary>
         /// A delegate to select a partner identification based on the given charging station.
         /// </summary>
         public PartnerIdForStationDelegate StationPartnerIdSelector
-        {
-            get
-            {
-                return CPOClient.StationPartnerIdSelector;
-            }
-        }
+            => CPOClient.StationPartnerIdSelector;
 
         /// <summary>
         /// A delegate to select a partner identification based on the given connector.
         /// </summary>
         public PartnerIdForConnectorIdDelegate ConnectorIdPartnerIdSelector
-        {
-            get
-            {
-                return CPOClient.ConnectorIdPartnerIdSelector;
-            }
-        }
+            => CPOClient.ConnectorIdPartnerIdSelector;
 
         #endregion
 

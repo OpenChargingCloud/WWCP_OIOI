@@ -72,7 +72,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.UnitTests
             {
 
                 HTTPAPI = new HTTPServer(
-                              TCPPort:            RemotePort,
+                              HTTPPort:           RemotePort,
                               DefaultServerName:  "GraphDefined OIOI Unit Tests",
                               DNSClient:          _DNSClient
                           );

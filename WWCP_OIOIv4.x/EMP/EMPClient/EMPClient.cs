@@ -28,6 +28,7 @@ using org.GraphDefined.Vanaheimr.Hermod.DNS;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Hermod.JSON;
 using org.GraphDefined.Vanaheimr.Hermod.Logging;
+using org.GraphDefined.Vanaheimr.Hermod;
 
 #endregion
 
@@ -339,36 +340,38 @@ namespace cloud.charging.open.protocols.OIOIv4_x.EMP
         /// <param name="LoggingContext">An optional context for logging.</param>
         /// <param name="LogfileCreator">A delegate to create a log file from the given context and log file name.</param>
         /// <param name="DNSClient">The DNS client to use.</param>
-        public EMPClient(APIKey                                APIKey,
-                         URL?                                  RemoteURL                    = null,
-                         HTTPHostname?                         VirtualHostname              = null,
-                         String?                               Description                  = null,
-                         Boolean?                              PreferIPv4                   = null,
-                         RemoteCertificateValidationCallback?  RemoteCertificateValidator   = null,
-                         LocalCertificateSelectionCallback?    ClientCertificateSelector    = null,
-                         X509Certificate?                      ClientCert                   = null,
-                         SslProtocols?                         TLSProtocol                  = null,
-                         String                                HTTPUserAgent                = DefaultHTTPUserAgent,
-                         TimeSpan?                             RequestTimeout               = null,
-                         TransmissionRetryDelayDelegate?       TransmissionRetryDelay       = null,
-                         UInt16?                               MaxNumberOfRetries           = null,
-                         UInt32?                               InternalBufferSize           = null,
-                         Boolean?                              DisableLogging               = false,
-                         String?                               LoggingPath                  = null,
-                         String?                               LoggingContext               = null,
-                         LogfileCreatorDelegate?               LogfileCreator               = null,
-                         DNSClient?                            DNSClient                    = null)
+        public EMPClient(APIKey                               APIKey,
+                         URL?                                 RemoteURL                    = null,
+                         HTTPHostname?                        VirtualHostname              = null,
+                         String?                              Description                  = null,
+                         Boolean?                             PreferIPv4                   = null,
+                         RemoteCertificateValidationHandler?  RemoteCertificateValidator   = null,
+                         LocalCertificateSelectionHandler?    ClientCertificateSelector    = null,
+                         X509Certificate?                     ClientCert                   = null,
+                         SslProtocols?                        TLSProtocol                  = null,
+                         String                               HTTPUserAgent                = DefaultHTTPUserAgent,
+                         IHTTPAuthentication?                 HTTPAuthentication           = null,
+                         TimeSpan?                            RequestTimeout               = null,
+                         TransmissionRetryDelayDelegate?      TransmissionRetryDelay       = null,
+                         UInt16?                              MaxNumberOfRetries           = null,
+                         UInt32?                              InternalBufferSize           = null,
+                         Boolean?                             DisableLogging               = false,
+                         String?                              LoggingPath                  = null,
+                         String?                              LoggingContext               = null,
+                         LogfileCreatorDelegate?              LogfileCreator               = null,
+                         DNSClient?                           DNSClient                    = null)
 
 
             : base(RemoteURL                  ?? DefaultRemoteURL,
                    VirtualHostname,
                    Description,
                    PreferIPv4,
-                   RemoteCertificateValidator ?? ((sender, certificate, chain, sslPolicyErrors) => true),
+                   RemoteCertificateValidator ?? ((sender, certificate, chain, sslPolicyErrors) => (true, Array.Empty<String>())),
                    ClientCertificateSelector,
                    ClientCert,
                    TLSProtocol,
                    HTTPUserAgent,
+                   HTTPAuthentication,
                    RequestTimeout,
                    TransmissionRetryDelay,
                    MaxNumberOfRetries,
@@ -463,6 +466,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.EMP
                                                    ClientCert,
                                                    TLSProtocol,
                                                    HTTPUserAgent,
+                                                   HTTPAuthentication,
                                                    RequestTimeout,
                                                    TransmissionRetryDelay,
                                                    MaxNumberOfRetries,
@@ -653,6 +657,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.EMP
                                                    ClientCert,
                                                    TLSProtocol,
                                                    HTTPUserAgent,
+                                                   HTTPAuthentication,
                                                    RequestTimeout,
                                                    TransmissionRetryDelay,
                                                    MaxNumberOfRetries,
@@ -839,6 +844,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.EMP
                                                    ClientCert,
                                                    TLSProtocol,
                                                    HTTPUserAgent,
+                                                   HTTPAuthentication,
                                                    RequestTimeout,
                                                    TransmissionRetryDelay,
                                                    MaxNumberOfRetries,

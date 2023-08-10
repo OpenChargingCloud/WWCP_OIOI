@@ -55,7 +55,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <summary>
         /// The default HTTP server URI prefix.
         /// </summary>
-        public     static readonly HTTPPath   DefaultURLPathPrefix       = HTTPPath.Parse("/api/v4/request");
+        public     static readonly HTTPPath  DefaultURLPathPrefix   = HTTPPath.Parse("/api/v4/request");
 
         /// <summary>
         /// The default query timeout.
@@ -220,43 +220,54 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         public CPOServer(String                               DefaultServerName                  = DefaultHTTPServerName,
                          HTTPHostname?                        HTTPHostname                       = null,
                          IPPort?                              HTTPServerPort                     = null,
-                         String                               ServiceName                        = null,
-                         ServerCertificateSelectorDelegate    ServerCertificateSelector          = null,
-                         RemoteCertificateValidationCallback  ClientCertificateValidator         = null,
-                         LocalCertificateSelectionCallback    ClientCertificateSelector          = null,
-                         SslProtocols                         AllowedTLSProtocols                = SslProtocols.Tls12,
+                         String?                              ServiceName                        = null,
+
+                         ServerCertificateSelectorDelegate?   ServerCertificateSelector          = null,
+                         RemoteCertificateValidationHandler?  ClientCertificateValidator         = null,
+                         LocalCertificateSelectionHandler?    ClientCertificateSelector          = null,
+                         SslProtocols?                        AllowedTLSProtocols                = null,
+                         Boolean?                             ClientCertificateRequired          = null,
+                         Boolean?                             CheckCertificateRevocation         = null,
+
+                         ServerThreadNameCreatorDelegate?     ServerThreadNameCreator            = null,
+                         ServerThreadPriorityDelegate?        ServerThreadPrioritySetter         = null,
+                         Boolean?                             ServerThreadIsBackground           = null,
+                         ConnectionIdBuilder?                 ConnectionIdBuilder                = null,
+                         TimeSpan?                            ConnectionTimeout                  = null,
+                         UInt32?                              MaxClientConnections               = null,
+
                          HTTPPath?                            URLPathPrefix                      = null,
-                         ServerAPIKeyValidatorDelegate        APIKeyValidator                    = null,
-                         HTTPContentType                      ServerContentType                  = null,
+                         ServerAPIKeyValidatorDelegate?       APIKeyValidator                    = null,
+                         HTTPContentType?                     ServerContentType                  = null,
                          Boolean                              ServerRegisterHTTPRootService      = true,
 
-                         String                               ServerThreadName                   = null,
-                         ThreadPriority                       ServerThreadPriority               = ThreadPriority.AboveNormal,
-                         Boolean                              ServerThreadIsBackground           = true,
-                         ConnectionIdBuilder                  ConnectionIdBuilder                = null,
-                         TimeSpan?                            ConnectionTimeout                  = null,
-                         UInt32                               MaxClientConnections               = TCPServer.__DefaultMaxClientConnections,
-
-                         DNSClient                            DNSClient                          = null,
+                         DNSClient?                           DNSClient                          = null,
                          Boolean                              Autostart                          = false)
 
-            : this(new HTTPServer(HTTPServerPort ?? DefaultHTTPServerPort,
-                                  DefaultServerName.IsNotNullOrEmpty() ? DefaultServerName : DefaultHTTPServerName,
-                                  ServiceName    ?? "OIOI " + Version.Number + " " + nameof(CPOServer),
-                                  ServerCertificateSelector,
-                                  ClientCertificateSelector,
-                                  ClientCertificateValidator,
-                                  AllowedTLSProtocols,
-                                  null,
-                                  null,
-                                  ServerThreadName,
-                                  ServerThreadPriority,
-                                  ServerThreadIsBackground,
-                                  ConnectionIdBuilder,
-                                  ConnectionTimeout,
-                                  MaxClientConnections,
-                                  DNSClient ?? new DNSClient(),
-                                  false),
+            : this(new HTTPServer(
+
+                       HTTPServerPort ?? DefaultHTTPServerPort,
+                       DefaultServerName.IsNotNullOrEmpty() ? DefaultServerName : DefaultHTTPServerName,
+                       ServiceName    ?? "OIOI " + Version.Number + " " + nameof(CPOServer),
+
+                       ServerCertificateSelector,
+                       ClientCertificateValidator,
+                       ClientCertificateSelector,
+                       AllowedTLSProtocols,
+                       ClientCertificateRequired,
+                       CheckCertificateRevocation,
+
+                       ServerThreadNameCreator,
+                       ServerThreadPrioritySetter,
+                       ServerThreadIsBackground,
+                       ConnectionIdBuilder,
+                       ConnectionTimeout,
+                       MaxClientConnections,
+
+                       DNSClient,
+                       false
+
+                   ),
                    HTTPHostname,
                    URLPathPrefix ?? DefaultURLPathPrefix,
                    APIKeyValidator,
@@ -312,18 +323,18 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="HTTPServer">An existing HTTP server.</param>
         /// <param name="HTTPHostname">An optional HTTP hostname.</param>
         /// <param name="URLPathPrefix">The URI prefix for all incoming HTTP requests.</param>
-        public CPOServer(HTTPServer                     HTTPServer,
-                         HTTPHostname?                  HTTPHostname                    = null,
-                         HTTPPath?                      URLPathPrefix                   = null,
-                         ServerAPIKeyValidatorDelegate  APIKeyValidator                 = null,
-                         HTTPContentType                ServerContentType               = null,
-                         Boolean                        ServerRegisterHTTPRootService   = true)
+        public CPOServer(HTTPServer                      HTTPServer,
+                         HTTPHostname?                   HTTPHostname                    = null,
+                         HTTPPath?                       URLPathPrefix                   = null,
+                         ServerAPIKeyValidatorDelegate?  APIKeyValidator                 = null,
+                         HTTPContentType?                ServerContentType               = null,
+                         Boolean                         ServerRegisterHTTPRootService   = true)
         {
 
             this.HTTPServer         = HTTPServer        ?? throw new ArgumentNullException(nameof(HTTPServer), "The given HTTP server must not be null!");
             this.HTTPHostname       = HTTPHostname      ?? org.GraphDefined.Vanaheimr.Hermod.HTTP.HTTPHostname.Any;
             this.URLPathPrefix      = URLPathPrefix     ?? DefaultURLPathPrefix;
-            this.APIKeyValidator    = APIKeyValidator;
+            this.APIKeyValidator    = APIKeyValidator   ?? (apiKey => false);
             this.DNSClient          = HTTPServer.DNSClient;
             this.ServerContentType  = ServerContentType ?? HTTPContentType.JSON_UTF8;
 
