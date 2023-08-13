@@ -54,7 +54,7 @@ namespace cloud.charging.open.protocols.WWCP
         /// 
         /// <param name="OIOIConfigurator">An optional delegate to configure the new OIOI roaming provider after its creation.</param>
         /// <param name="Configurator">An optional delegate to configure the new roaming provider after its creation.</param>
-        public static WWCPCPOAdapter
+        public static CPOAdapter
 
             CreateOIOIv4_x_CPORoamingProvider(this RoamingNetwork                                          RoamingNetwork,
                                               EMPRoamingProvider_Id                                        Id,
@@ -88,7 +88,7 @@ namespace cloud.charging.open.protocols.WWCP
                                               Boolean                                                      DisableAuthentication                           = false,
                                               Boolean                                                      DisableSendChargeDetailRecords                  = false,
 
-                                              Action<WWCPCPOAdapter>                                       OIOIConfigurator                                = null,
+                                              Action<CPOAdapter>                                       OIOIConfigurator                                = null,
                                               Action<IEMPRoamingProvider>                                  Configurator                                    = null,
 
                                               String                                                       EllipticCurve                                   = "P-256",
@@ -113,7 +113,7 @@ namespace cloud.charging.open.protocols.WWCP
 
             #endregion
 
-            var NewRoamingProvider = new WWCPCPOAdapter(Id,
+            var NewRoamingProvider = new CPOAdapter(Id,
                                                         Name,
                                                         Description,
                                                         RoamingNetwork,
@@ -153,7 +153,7 @@ namespace cloud.charging.open.protocols.WWCP
 
             return RoamingNetwork.
                        CreateEMPRoamingProvider(NewRoamingProvider,
-                                                Configurator) as WWCPCPOAdapter;
+                                                Configurator) as CPOAdapter;
 
         }
 

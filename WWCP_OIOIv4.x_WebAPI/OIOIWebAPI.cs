@@ -215,9 +215,9 @@ namespace cloud.charging.open.protocols.OIOIv4_x.WebAPI
 
 
 
-        private readonly List<WWCPCPOAdapter> _CPOAdapters;
+        private readonly List<CPOAdapter> _CPOAdapters;
 
-        public IEnumerable<WWCPCPOAdapter> CPOAdapters
+        public IEnumerable<CPOAdapter> CPOAdapters
             => _CPOAdapters;
 
         #endregion
@@ -289,7 +289,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.WebAPI
             //this.EVSEStatusRecord2XML               = EVSEStatusRecord2XML;
             this.XMLPostProcessing                  = XMLPostProcessing;
 
-            this._CPOAdapters                       = new List<WWCPCPOAdapter>();
+            this._CPOAdapters                       = new List<CPOAdapter>();
 
             // Link HTTP events...
             HTTPServer.RequestLog   += (HTTPProcessor, ServerTimestamp, Request)                                 => RequestLog. WhenAll(HTTPProcessor, ServerTimestamp, Request);
@@ -345,7 +345,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.WebAPI
 
 
 
-        public void Add(WWCPCPOAdapter CPOAdapter)
+        public void Add(CPOAdapter CPOAdapter)
         {
 
             _CPOAdapters.Add(CPOAdapter);

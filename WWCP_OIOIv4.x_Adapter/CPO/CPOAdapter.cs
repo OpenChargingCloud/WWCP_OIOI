@@ -35,11 +35,11 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
     /// A WWCP wrapper for the OIOI CPO Roaming client which maps
     /// WWCP data structures onto OIOI data structures and vice versa.
     /// </summary>
-    public class WWCPCPOAdapter : AWWCPEMPAdapter<Session>,
-                                  IEMPRoamingProvider,
-                                  IEquatable <WWCPCPOAdapter>,
-                                  IComparable<WWCPCPOAdapter>,
-                                  IComparable
+    public class CPOAdapter : AWWCP__CSOAdapter<Session>,
+                              IEMPRoamingProvider,
+                              IEquatable <CPOAdapter>,
+                              IComparable<CPOAdapter>,
+                              IComparable
     {
 
         #region Data
@@ -204,7 +204,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         #region OnWWCPCPOAdapterException
 
         public delegate Task OnWWCPCPOAdapterExceptionDelegate(DateTime        Timestamp,
-                                                               WWCPCPOAdapter  Sender,
+                                                               CPOAdapter  Sender,
                                                                Exception       Exception);
 
         public event OnWWCPCPOAdapterExceptionDelegate OnWWCPCPOAdapterException;
@@ -212,7 +212,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         #endregion
 
 
-        public delegate void FlushServiceQueuesDelegate(WWCPCPOAdapter Sender, TimeSpan Every);
+        public delegate void FlushServiceQueuesDelegate(CPOAdapter Sender, TimeSpan Every);
 
         public event FlushServiceQueuesDelegate FlushServiceQueuesEvent;
 
@@ -247,7 +247,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="DisablePushStatus">This service can be disabled, e.g. for debugging reasons.</param>
         /// <param name="DisableAuthentication">This service can be disabled, e.g. for debugging reasons.</param>
         /// <param name="DisableSendChargeDetailRecords">This service can be disabled, e.g. for debugging reasons.</param>
-        public WWCPCPOAdapter(EMPRoamingProvider_Id                            Id,
+        public CPOAdapter(EMPRoamingProvider_Id                            Id,
                               I18NString                                       Name,
                               I18NString                                       Description,
                               RoamingNetwork                                   RoamingNetwork,
@@ -709,7 +709,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
             }
             catch (Exception e)
             {
-                DebugX.LogException(e, nameof(WWCPCPOAdapter) + "." + nameof(OnStationPostWWCPRequest));
+                DebugX.LogException(e, nameof(CPOAdapter) + "." + nameof(OnStationPostWWCPRequest));
             }
 
             #endregion
@@ -849,7 +849,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
             }
             catch (Exception e)
             {
-                DebugX.LogException(e, nameof(WWCPCPOAdapter) + "." + nameof(OnStationPostWWCPResponse));
+                DebugX.LogException(e, nameof(CPOAdapter) + "." + nameof(OnStationPostWWCPResponse));
             }
 
             #endregion
@@ -964,7 +964,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
             }
             catch (Exception e)
             {
-                DebugX.LogException(e, nameof(WWCPCPOAdapter) + "." + nameof(OnConnectorStatusPostRequest));
+                DebugX.LogException(e, nameof(CPOAdapter) + "." + nameof(OnConnectorStatusPostRequest));
             }
 
             #endregion
@@ -1081,7 +1081,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
             }
             catch (Exception e)
             {
-                DebugX.LogException(e, nameof(WWCPCPOAdapter) + "." + nameof(OnConnectorStatusPostResponse));
+                DebugX.LogException(e, nameof(CPOAdapter) + "." + nameof(OnConnectorStatusPostResponse));
             }
 
             #endregion
@@ -2638,7 +2638,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
             }
             catch (Exception e)
             {
-                DebugX.LogException(e, nameof(WWCPCPOAdapter) + "." + nameof(OnAuthorizeStartRequest));
+                DebugX.LogException(e, nameof(CPOAdapter) + "." + nameof(OnAuthorizeStartRequest));
             }
 
             #endregion
@@ -2746,7 +2746,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
             }
             catch (Exception e)
             {
-                DebugX.LogException(e, nameof(WWCPCPOAdapter) + "." + nameof(OnAuthorizeStartResponse));
+                DebugX.LogException(e, nameof(CPOAdapter) + "." + nameof(OnAuthorizeStartResponse));
             }
 
             #endregion
@@ -2828,7 +2828,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
             }
             catch (Exception e)
             {
-                DebugX.LogException(e, nameof(WWCPCPOAdapter) + "." + nameof(OnAuthorizeStopRequest));
+                DebugX.LogException(e, nameof(CPOAdapter) + "." + nameof(OnAuthorizeStopRequest));
             }
 
             #endregion
@@ -2931,7 +2931,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
             }
             catch (Exception e)
             {
-                DebugX.LogException(e, nameof(WWCPCPOAdapter) + "." + nameof(OnAuthorizeStopResponse));
+                DebugX.LogException(e, nameof(CPOAdapter) + "." + nameof(OnAuthorizeStopResponse));
             }
 
             #endregion
@@ -3028,7 +3028,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
             }
             catch (Exception e)
             {
-                DebugX.LogException(e, nameof(WWCPCPOAdapter) + "." + nameof(OnSendCDRsRequest));
+                DebugX.LogException(e, nameof(CPOAdapter) + "." + nameof(OnSendCDRsRequest));
             }
 
             #endregion
@@ -3087,7 +3087,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                             }
                             catch (Exception e)
                             {
-                                DebugX.LogException(e, nameof(WWCPCPOAdapter) + "." + nameof(OnSendCDRsRequest));
+                                DebugX.LogException(e, nameof(CPOAdapter) + "." + nameof(OnSendCDRsRequest));
                             }
 
                             #endregion
@@ -3278,7 +3278,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
             }
             catch (Exception e)
             {
-                DebugX.LogException(e, nameof(WWCPCPOAdapter) + "." + nameof(OnSendCDRsResponse));
+                DebugX.LogException(e, nameof(CPOAdapter) + "." + nameof(OnSendCDRsResponse));
             }
 
             #endregion
@@ -3381,7 +3381,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                     {
 
                         SendOnWarnings(DateTime.UtcNow,
-                                       nameof(WWCPCPOAdapter) + Id,
+                                       nameof(CPOAdapter) + Id,
                                        nameof(StationsToAddResult),
                                        StationsToAddResult.Warnings);
 
@@ -3419,7 +3419,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                         {
 
                             SendOnWarnings(DateTime.UtcNow,
-                                           nameof(WWCPCPOAdapter) + Id,
+                                           nameof(CPOAdapter) + Id,
                                            nameof(StationsToUpdateResult),
                                            StationsToUpdateResult.Warnings);
 
@@ -3453,7 +3453,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                     {
 
                         SendOnWarnings(DateTime.UtcNow,
-                                       nameof(WWCPCPOAdapter) + Id,
+                                       nameof(CPOAdapter) + Id,
                                        nameof(StationsStatusChangesResult),
                                        StationsStatusChangesResult.Warnings);
 
@@ -3563,7 +3563,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                 {
 
                     SendOnWarnings(DateTime.UtcNow,
-                                   nameof(WWCPCPOAdapter) + Id,
+                                   nameof(CPOAdapter) + Id,
                                    nameof(ConnectorsPostStatusResult),
                                    ConnectorsPostStatusResult.Warnings);
 
@@ -3652,7 +3652,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="WWCPCPOAdapter1">A WWCPCPOAdapter.</param>
         /// <param name="WWCPCPOAdapter2">Another WWCPCPOAdapter.</param>
         /// <returns>True if both match; False otherwise.</returns>
-        public static Boolean operator == (WWCPCPOAdapter WWCPCPOAdapter1, WWCPCPOAdapter WWCPCPOAdapter2)
+        public static Boolean operator == (CPOAdapter WWCPCPOAdapter1, CPOAdapter WWCPCPOAdapter2)
         {
 
             // If both are null, or both are same instance, return true.
@@ -3677,7 +3677,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="WWCPCPOAdapter1">A WWCPCPOAdapter.</param>
         /// <param name="WWCPCPOAdapter2">Another WWCPCPOAdapter.</param>
         /// <returns>False if both match; True otherwise.</returns>
-        public static Boolean operator != (WWCPCPOAdapter WWCPCPOAdapter1, WWCPCPOAdapter WWCPCPOAdapter2)
+        public static Boolean operator != (CPOAdapter WWCPCPOAdapter1, CPOAdapter WWCPCPOAdapter2)
             => !(WWCPCPOAdapter1 == WWCPCPOAdapter2);
 
         #endregion
@@ -3690,7 +3690,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="WWCPCPOAdapter1">A WWCPCPOAdapter.</param>
         /// <param name="WWCPCPOAdapter2">Another WWCPCPOAdapter.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator < (WWCPCPOAdapter  WWCPCPOAdapter1, WWCPCPOAdapter  WWCPCPOAdapter2)
+        public static Boolean operator < (CPOAdapter  WWCPCPOAdapter1, CPOAdapter  WWCPCPOAdapter2)
         {
 
             if (WWCPCPOAdapter1 is null)
@@ -3710,7 +3710,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="WWCPCPOAdapter1">A WWCPCPOAdapter.</param>
         /// <param name="WWCPCPOAdapter2">Another WWCPCPOAdapter.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator <= (WWCPCPOAdapter WWCPCPOAdapter1, WWCPCPOAdapter WWCPCPOAdapter2)
+        public static Boolean operator <= (CPOAdapter WWCPCPOAdapter1, CPOAdapter WWCPCPOAdapter2)
             => !(WWCPCPOAdapter1 > WWCPCPOAdapter2);
 
         #endregion
@@ -3723,7 +3723,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="WWCPCPOAdapter1">A WWCPCPOAdapter.</param>
         /// <param name="WWCPCPOAdapter2">Another WWCPCPOAdapter.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator > (WWCPCPOAdapter WWCPCPOAdapter1, WWCPCPOAdapter WWCPCPOAdapter2)
+        public static Boolean operator > (CPOAdapter WWCPCPOAdapter1, CPOAdapter WWCPCPOAdapter2)
         {
 
             if (WWCPCPOAdapter1 is null)
@@ -3743,7 +3743,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="WWCPCPOAdapter1">A WWCPCPOAdapter.</param>
         /// <param name="WWCPCPOAdapter2">Another WWCPCPOAdapter.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator >= (WWCPCPOAdapter WWCPCPOAdapter1, WWCPCPOAdapter WWCPCPOAdapter2)
+        public static Boolean operator >= (CPOAdapter WWCPCPOAdapter1, CPOAdapter WWCPCPOAdapter2)
             => !(WWCPCPOAdapter1 < WWCPCPOAdapter2);
 
         #endregion
@@ -3764,7 +3764,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
             if (Object == null)
                 throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
 
-            if (!(Object is WWCPCPOAdapter WWCPCPOAdapter))
+            if (!(Object is CPOAdapter WWCPCPOAdapter))
                 throw new ArgumentException("The given object is not an WWCPCPOAdapter!", nameof(Object));
 
             return CompareTo(WWCPCPOAdapter);
@@ -3779,7 +3779,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// Compares two instances of this object.
         /// </summary>
         /// <param name="WWCPCPOAdapter">An WWCPCPOAdapter object to compare with.</param>
-        public Int32 CompareTo(WWCPCPOAdapter WWCPCPOAdapter)
+        public Int32 CompareTo(CPOAdapter WWCPCPOAdapter)
         {
 
             if (WWCPCPOAdapter is null)
@@ -3808,7 +3808,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
             if (Object == null)
                 return false;
 
-            if (!(Object is WWCPCPOAdapter WWCPCPOAdapter))
+            if (!(Object is CPOAdapter WWCPCPOAdapter))
                 return false;
 
             return Equals(WWCPCPOAdapter);
@@ -3824,7 +3824,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// </summary>
         /// <param name="WWCPCPOAdapter">An WWCPCPOAdapter to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
-        public Boolean Equals(WWCPCPOAdapter WWCPCPOAdapter)
+        public Boolean Equals(CPOAdapter WWCPCPOAdapter)
         {
 
             if (WWCPCPOAdapter is null)
