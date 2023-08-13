@@ -1109,7 +1109,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<PushEVSEDataResult>
 
-            IPushPOIData.AddEVSE(IEVSE               EVSE,
+            ISendPOIData.AddEVSE(IEVSE               EVSE,
                                  TransmissionTypes   TransmissionType,
 
                                  DateTime?           Timestamp,
@@ -1202,7 +1202,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         async Task<PushEVSEDataResult>
 
-            IPushPOIData.AddOrUpdateEVSE(IEVSE               EVSE,
+            ISendPOIData.AddOrUpdateEVSE(IEVSE               EVSE,
                                          TransmissionTypes   TransmissionType,
 
                                          DateTime?           Timestamp,
@@ -1299,7 +1299,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         async Task<PushEVSEDataResult>
 
-            IPushPOIData.UpdateEVSE(IEVSE               EVSE,
+            ISendPOIData.UpdateEVSE(IEVSE               EVSE,
                                     String              PropertyName,
                                     Object?             NewValue,
                                     Object?             OldValue,
@@ -1403,7 +1403,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         async Task<PushEVSEDataResult>
 
-            IPushPOIData.DeleteEVSE(IEVSE               EVSE,
+            ISendPOIData.DeleteEVSE(IEVSE               EVSE,
                                     TransmissionTypes   TransmissionType,
 
                                     DateTime?           Timestamp,
@@ -1503,7 +1503,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         async Task<PushEVSEDataResult>
 
-            IPushPOIData.AddEVSEs(IEnumerable<IEVSE>  EVSEs,
+            ISendPOIData.AddEVSEs(IEnumerable<IEVSE>  EVSEs,
                                   TransmissionTypes   TransmissionType,
 
                                   DateTime?           Timestamp,
@@ -1548,7 +1548,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         async Task<PushEVSEDataResult>
 
-            IPushPOIData.AddOrUpdateEVSEs(IEnumerable<IEVSE>  EVSEs,
+            ISendPOIData.AddOrUpdateEVSEs(IEnumerable<IEVSE>  EVSEs,
                                           TransmissionTypes   TransmissionType,
 
                                           DateTime?           Timestamp,
@@ -1593,7 +1593,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         async Task<PushEVSEDataResult>
 
-            IPushPOIData.UpdateEVSEs(IEnumerable<IEVSE>  EVSEs,
+            ISendPOIData.UpdateEVSEs(IEnumerable<IEVSE>  EVSEs,
                                      TransmissionTypes   TransmissionType,
 
                                      DateTime?           Timestamp,
@@ -1638,7 +1638,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         async Task<PushEVSEDataResult>
 
-            IPushPOIData.DeleteEVSEs(IEnumerable<IEVSE>  EVSEs,
+            ISendPOIData.DeleteEVSEs(IEnumerable<IEVSE>  EVSEs,
                                      TransmissionTypes   TransmissionType,
 
                                      DateTime?           Timestamp,
@@ -1815,7 +1815,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         async Task<PushChargingStationDataResult>
 
-            IPushPOIData.AddChargingStation(IChargingStation    ChargingStation,
+            ISendPOIData.AddChargingStation(IChargingStation    ChargingStation,
                                             TransmissionTypes   TransmissionType,
 
                                             DateTime?           Timestamp,
@@ -1920,7 +1920,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         async Task<PushChargingStationDataResult>
 
-            IPushPOIData.AddOrUpdateChargingStation(IChargingStation    ChargingStation,
+            ISendPOIData.AddOrUpdateChargingStation(IChargingStation    ChargingStation,
                                                     TransmissionTypes   TransmissionType,
 
                                                     DateTime?           Timestamp,
@@ -2028,7 +2028,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         async Task<PushChargingStationDataResult>
 
-            IPushPOIData.DeleteChargingStation(IChargingStation    ChargingStation,
+            ISendPOIData.DeleteChargingStation(IChargingStation    ChargingStation,
                                                TransmissionTypes   TransmissionType,
 
                                                DateTime?           Timestamp,
@@ -2134,7 +2134,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         async Task<PushChargingStationDataResult>
 
-            IPushPOIData.AddChargingStations(IEnumerable<IChargingStation>  ChargingStations,
+            ISendPOIData.AddChargingStations(IEnumerable<IChargingStation>  ChargingStations,
                                              TransmissionTypes              TransmissionType,
 
 
@@ -2244,7 +2244,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         async Task<PushChargingStationDataResult>
 
-            IPushPOIData.AddOrUpdateChargingStations(IEnumerable<IChargingStation>  ChargingStations,
+            ISendPOIData.AddOrUpdateChargingStations(IEnumerable<IChargingStation>  ChargingStations,
                                                      TransmissionTypes              TransmissionType,
 
                                                      DateTime?                      Timestamp,
@@ -2353,7 +2353,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         async Task<PushChargingStationDataResult>
 
-            IPushPOIData.UpdateChargingStations(IEnumerable<IChargingStation>  ChargingStations,
+            ISendPOIData.UpdateChargingStations(IEnumerable<IChargingStation>  ChargingStations,
                                                 TransmissionTypes              TransmissionType,
 
                                                 DateTime?                      Timestamp,
@@ -2462,7 +2462,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         async Task<PushChargingStationDataResult>
 
-            IPushPOIData.DeleteChargingStations(IEnumerable<IChargingStation>  ChargingStations,
+            ISendPOIData.DeleteChargingStations(IEnumerable<IChargingStation>  ChargingStations,
                                                 TransmissionTypes              TransmissionType,
 
                                                 DateTime?                      Timestamp,
