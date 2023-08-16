@@ -17,10 +17,9 @@
 
 #region Usings
 
-using System;
-using System.Collections.Generic;
-using cloud.charging.open.protocols.WWCP;
 using org.GraphDefined.Vanaheimr.Illias;
+
+using cloud.charging.open.protocols.WWCP;
 
 #endregion
 
@@ -108,7 +107,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                                            UInt64                                          NumberOfStations,
                                                            IEnumerable<Tuple<IChargingStation, Station>>   Stations,
                                                            TimeSpan?                                       RequestTimeout,
-                                                           PushChargingStationDataResult                   Result,
+                                                           AddOrUpdateChargingStationsResult               Result,
                                                            TimeSpan                                        Runtime);
 
 

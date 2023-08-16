@@ -25,6 +25,8 @@ using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 
 using cloud.charging.open.protocols.WWCP;
+using Telegram.Bot.Types;
+using System.Linq;
 
 #endregion
 
@@ -35,7 +37,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
     /// A WWCP wrapper for the OIOI CPO Roaming client which maps
     /// WWCP data structures onto OIOI data structures and vice versa.
     /// </summary>
-    public class CPOAdapter : AWWCP__CSOAdapter<Session>,
+    public class CPOAdapter : AWWCPCSOAdapter<Session>,
                               IEMPRoamingProvider,
                               IEquatable <CPOAdapter>,
                               IComparable<CPOAdapter>,
@@ -623,86 +625,80 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="ChargingStations">An enumeration of ChargingStations.</param>
         /// 
         /// <param name="Timestamp">The optional timestamp of the request.</param>
-        /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        private async Task<PushChargingStationDataResult>
+        /// <param name="CancellationToken">An optional token to cancel this request.</param>
+        private async Task<AddOrUpdateChargingStationsResult>
 
             StationsPost(IEnumerable<IChargingStation>  ChargingStations,
 
                          DateTime?                      Timestamp           = null,
-                         CancellationToken              CancellationToken   = default,
                          EventTracking_Id?              EventTrackingId     = null,
-                         TimeSpan?                      RequestTimeout      = null)
+                         TimeSpan?                      RequestTimeout      = null,
+                         CancellationToken              CancellationToken   = default)
 
         {
 
             #region Initial checks
 
-            if (ChargingStations == null)
-                throw new ArgumentNullException(nameof(ChargingStations), "The given enumeration of charging stations must not be null!");
-
-
-            if (!Timestamp.HasValue)
-                Timestamp = DateTime.UtcNow;
-
-            if (EventTrackingId == null)
-                EventTrackingId = EventTracking_Id.New;
-
-            if (!RequestTimeout.HasValue)
-                RequestTimeout = CPORoaming.CPOClient.RequestTimeout;
+            Timestamp       ??= org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
+            EventTrackingId ??= EventTracking_Id.New;
+            RequestTimeout  ??= CPORoaming.CPOClient.RequestTimeout;
 
             #endregion
 
             #region Get effective number of stations to upload
 
-            var warnings      = new List<Warning>();
+            var warnings       = new List<Warning>();
 
-            var wwcpStations  = new Dictionary<Station_Id, IChargingStation>();
+            var wwcpStations   = new Dictionary<Station_Id, IChargingStation>();
 
-            var stations      = ChargingStations.Where (station => station != null && IncludeChargingStations(station)).
-                                                 Select(station => {
+            var stationTuples  = ChargingStations.Where (chargingStation => chargingStation is not null && IncludeChargingStations(chargingStation)).
+                                                  Select(chargingStation => {
 
-                                                     try
-                                                     {
+                                                      try
+                                                      {
 
-                                                         wwcpStations.Add(station.Id.ToOIOI(), station);
+                                                          wwcpStations.Add(chargingStation.Id.ToOIOI(), chargingStation);
 
-                                                         return new Tuple<IChargingStation, Station>(station,
-                                                                                                     station.ToOIOI(CustomOperatorIdMapper,
-                                                                                                                    CustomEVSEIdMapper,
-                                                                                                                    ChargingStation2Station));
+                                                          var oioiStation = chargingStation.ToOIOI(CustomOperatorIdMapper,
+                                                                                                   CustomEVSEIdMapper,
+                                                                                                   ChargingStation2Station);
 
-                                                     }
-                                                     catch (Exception e)
-                                                     {
-                                                         DebugX.  Log(e.Message);
-                                                         warnings.Add(Warning.Create(I18NString.Create(Languages.en, e.Message), station));
-                                                     }
+                                                          if (oioiStation is not null)
+                                                              return new Tuple<IChargingStation, Station>(chargingStation,
+                                                                                                          oioiStation);
 
-                                                     return null;
+                                                      }
+                                                      catch (Exception e)
+                                                      {
+                                                          warnings.Add(Warning.Create(e.Message.ToI18NString(), chargingStation));
+                                                      }
 
-                                                 }).
-                                                 Where(station => station != null).
-                                                 ToArray();
+                                                      return null;
+
+                                                  }).
+                                                  Where(stationTuple => stationTuple is not null).
+                                                  Cast<Tuple<IChargingStation, Station>>().
+                                                  ToArray() ?? Array.Empty<Tuple<IChargingStation, Station>>();
 
             #endregion
 
             #region Send OnStationPostWWCPRequest event
 
-            var StartTime = DateTime.UtcNow;
+            var startTime = org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
 
             try
             {
 
-                OnStationPostWWCPRequest?.Invoke(StartTime,
+                OnStationPostWWCPRequest?.Invoke(startTime,
                                                  Timestamp.Value,
                                                  this,
                                                  Id,
                                                  EventTrackingId,
                                                  RoamingNetwork.Id,
-                                                 stations.ULongCount(),
-                                                 stations,
+                                                 stationTuples.ULongCount(),
+                                                 stationTuples,
                                                  warnings.Where(warning => warning.IsNeitherNullNorEmpty()),
                                                  RequestTimeout);
 
@@ -715,49 +711,56 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
             #endregion
 
 
-            DateTime                       Endtime;
-            TimeSpan                       Runtime;
-            PushChargingStationDataResult  result;
+            DateTime                            endtime;
+            TimeSpan                            runtime;
+            AddOrUpdateChargingStationsResult?  result   = null;
 
             if (DisablePushData)
             {
 
-                Endtime  = DateTime.UtcNow;
-                Runtime  = Endtime - StartTime;
-                result   = PushChargingStationDataResult.AdminDown(Id,
-                                                                   this,
-                                                                   ChargingStations,
-                                                                   Warnings: warnings);
+                endtime  = org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
+                runtime  = endtime - startTime;
+                result   = AddOrUpdateChargingStationsResult.AdminDown(
+                               ChargingStations,
+                               Id,
+                               this,
+                               EventTrackingId,
+                               Warnings: warnings
+                           );
 
             }
 
-            else if (stations.Length == 0)
+            else if (stationTuples.Length == 0)
             {
 
-                Endtime  = DateTime.UtcNow;
-                Runtime  = Endtime - StartTime;
-                result   = PushChargingStationDataResult.NoOperation(Id,
-                                                                     this,
-                                                                     ChargingStations,
-                                                                     Warnings: warnings);
+                endtime  = org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
+                runtime  = endtime - startTime;
+                result   = AddOrUpdateChargingStationsResult.NoOperation(
+                               ChargingStations,
+                               Id,
+                               this,
+                               EventTrackingId,
+                               Warnings: warnings
+                           );
 
             }
 
             else
             {
 
+                // Plugsurfing does not like too many concurrent requests
                 var semaphore  = new SemaphoreSlim(_maxDegreeOfParallelism,
                                                    _maxDegreeOfParallelism);
 
-                var tasks      = stations.Select(async station => {
+                var tasks      = stationTuples.Select(async chargingStationTuple => {
 
                     await semaphore.WaitAsync().ConfigureAwait(false);
 
                     try
                     {
 
-                        return await CPORoaming.StationPost(station.Item2,
-                                                            CPORoaming.CPOClient.StationPartnerIdSelector(station.Item2),
+                        return await CPORoaming.StationPost(chargingStationTuple.Item2,
+                                                            CPORoaming.CPOClient.StationPartnerIdSelector(chargingStationTuple.Item2),
 
                                                             Timestamp,
                                                             CancellationToken,
@@ -778,52 +781,85 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
                 var results = tasks.Select((task) => {
 
-                                        if (task.Result.HTTPStatusCode == HTTPStatusCode.OK &&
-                                            task.Result.Content        != null)
-                                        {
+                                  if (task.Result.HTTPStatusCode == HTTPStatusCode.OK &&
+                                      task.Result.Content is not null)
+                                  {
 
-                                            if (task.Result.Content.Code == ResponseCodes.Success)
-                                                return new PushSingleChargingStationDataResult(wwcpStations[task.Result.Content.Request.Station.Id],
-                                                                                               PushSingleDataResultTypes.Success,
-                                                                                               new Warning[] { Warning.Create(I18NString.Create(Languages.en, task.Result.Content.Message)) });
+                                      if (task.Result.Content.Code == ResponseCodes.Success)
+                                          return new AddOrUpdateChargingStationResult(
+                                                     wwcpStations[task.Result.Content.Request.Station.Id],
+                                                     org.GraphDefined.Vanaheimr.Hermod.PushDataResultTypes.Success,
+                                                     EventTrackingId,
+                                                     Id,
+                                                     this,
+                                                     null,
+                                                     org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.Add,
+                                                     null,
+                                                     new[] {
+                                                         Warning.Create(task.Result.Content.Message)
+                                                     }
+                                                 );
 
-                                            else
-                                                return new PushSingleChargingStationDataResult(wwcpStations[task.Result.Content.Request.Station.Id],
-                                                                                               PushSingleDataResultTypes.Error,
-                                                                                               new Warning[] { Warning.Create(I18NString.Create(Languages.en, task.Result.Content.Message)) });
+                                      else
+                                          return new AddOrUpdateChargingStationResult(
+                                                     wwcpStations[task.Result.Content.Request.Station.Id],
+                                                     org.GraphDefined.Vanaheimr.Hermod.PushDataResultTypes.Error,
+                                                     EventTrackingId,
+                                                     Id,
+                                                     this,
+                                                     null,
+                                                     org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.Failed,
+                                                     null,
+                                                     new[] {
+                                                         Warning.Create(task.Result.Content.Message)
+                                                     }
+                                                 );
 
-                                        }
-                                        else
-                                            return new PushSingleChargingStationDataResult(wwcpStations[task.Result.Content.Request.Station.Id],
-                                                                                           PushSingleDataResultTypes.Error,
-                                                                                           new Warning[] {
-                                                                                               Warning.Create(I18NString.Create(Languages.en, task.Result.HTTPStatusCode.ToString()))
-                                                                                           }.Concat(
-                                                                                               task.Result.HTTPBody != null
-                                                                                                   ? warnings.AddAndReturnList(I18NString.Create(Languages.en, task.Result.HTTPBody.ToUTF8String()))
-                                                                                                   : warnings.AddAndReturnList(I18NString.Create(Languages.en, "No HTTP body received!"))
-                                                                                           ));
+                                  }
+                                  else
+                                      return new AddOrUpdateChargingStationResult(
+                                                 wwcpStations[task.Result.Content.Request.Station.Id],
+                                                 org.GraphDefined.Vanaheimr.Hermod.PushDataResultTypes.Error,
+                                                 EventTrackingId,
+                                                 Id,
+                                                 this,
+                                                 null,
+                                                 org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.Failed,
+                                                 null,
+                                                 new[] {
+                                                     Warning.Create(task.Result.HTTPStatusCode.ToString())
+                                                 }.Concat(
+                                                     task.Result.HTTPBody is not null
+                                                         ? warnings.AddAndReturnList(Warning.Create(task.Result.HTTPBody.ToUTF8String()))
+                                                         : warnings.AddAndReturnList(Warning.Create("No HTTP body received!"))
+                                                 ));
 
                 });
 
-                Endtime  = DateTime.UtcNow;
-                Runtime  = Endtime - StartTime;
+                endtime  = org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
+                runtime  = endtime - startTime;
 
-                result   = results.All(_ => _.Result == PushSingleDataResultTypes.Success)
+                result   = results.All(result => result.Result == org.GraphDefined.Vanaheimr.Hermod.PushDataResultTypes.Success)
 
-                               ? PushChargingStationDataResult.Success(Id,
-                                                                       this,
-                                                                       ChargingStations,
-                                                                       null,
-                                                                       warnings,
-                                                                       Runtime)
+                               ? AddOrUpdateChargingStationsResult.Added(
+                                     ChargingStations,
+                                     Id,
+                                     this,
+                                     EventTrackingId,
+                                     null,
+                                     warnings,
+                                     runtime)
 
-                               : PushChargingStationDataResult.Error  (Id,
-                                                                       this,
-                                                                       results.Where(_ => _.Result != PushSingleDataResultTypes.Success),
-                                                                       null,
-                                                                       warnings,
-                                                                       Runtime);
+                               : AddOrUpdateChargingStationsResult.Error(
+                                     ChargingStations,
+                                     //results.Where(_ => _.Result != PushSingleDataResultTypes.Success),
+                                     "".ToI18NString(),
+                                     EventTrackingId,
+                                     Id,
+                                     this,
+                                     warnings,
+                                     runtime
+                                 );
 
 
             }
@@ -834,17 +870,17 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
             try
             {
 
-                OnStationPostWWCPResponse?.Invoke(Endtime,
+                OnStationPostWWCPResponse?.Invoke(endtime,
                                                   Timestamp.Value,
                                                   this,
                                                   Id,
                                                   EventTrackingId,
                                                   RoamingNetwork.Id,
-                                                  stations.ULongCount(),
-                                                  stations,
+                                                  stationTuples.ULongCount(),
+                                                  stationTuples,
                                                   RequestTimeout,
                                                   result,
-                                                  Runtime);
+                                                  runtime);
 
             }
             catch (Exception e)
@@ -889,7 +925,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
 
             if (!Timestamp.HasValue)
-                Timestamp = DateTime.UtcNow;
+                Timestamp = org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
 
             if (EventTrackingId == null)
                 EventTrackingId = EventTracking_Id.New;
@@ -945,7 +981,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
             #region Send OnEVSEStatusPush event
 
-            var StartTime = DateTime.UtcNow;
+            var StartTime = org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
 
             try
             {
@@ -976,7 +1012,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
             if (DisableSendStatus)
             {
-                Endtime = DateTime.UtcNow;
+                Endtime = org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
                 Runtime = Endtime - StartTime;
                 result  = PushEVSEStatusResult.NoOperation(Id, this);  //AuthStartChargingStationResult.OutOfService(Id, SessionId, Runtime);
             }
@@ -1024,7 +1060,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                 //                                       ToArray()).
                 //                                       ConfigureAwait(false);
 
-                Endtime = DateTime.UtcNow;
+                Endtime = org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
                 Runtime = Endtime - StartTime;
 
                 result = PushEVSEStatusResult.NoOperation(Id, this);
@@ -1095,7 +1131,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
         #region (Set/Add/Update/Delete) EVSE(s)...
 
-        #region AddEVSE          (EVSE, TransmissionType = Enqueue, ...)
+        #region AddEVSE         (EVSE, TransmissionType = Enqueue, ...)
 
         /// <summary>
         /// Add the given EVSE to the static EVSE data at the OIOI server.
@@ -1107,17 +1143,31 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushEVSEDataResult>
+        public override async Task<AddEVSEResult>
 
-            ISendPOIData.AddEVSE(IEVSE               EVSE,
-                                 TransmissionTypes   TransmissionType,
+            AddEVSE(IEVSE               EVSE,
+                    TransmissionTypes   TransmissionType    = TransmissionTypes.Enqueue,
 
-                                 DateTime?           Timestamp,
-                                 EventTracking_Id?   EventTrackingId,
-                                 TimeSpan?           RequestTimeout,
-                                 CancellationToken   CancellationToken)
+                    DateTime?           Timestamp           = null,
+                    EventTracking_Id?   EventTrackingId     = null,
+                    TimeSpan?           RequestTimeout      = null,
+                    CancellationToken   CancellationToken   = default)
 
         {
+
+            #region Initital checks
+
+            if (EVSE.ChargingStation is null)
+                return AddEVSEResult.ArgumentError(
+                           EVSE,
+                           I18NString.Create(Languages.en, "The given EVSE must reference a charging station!"),
+                           EventTrackingId,
+                           Id,
+                           this,
+                           EVSE.ChargingStation
+                       );
+
+            #endregion
 
             #region Enqueue, if requested...
 
@@ -1129,7 +1179,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                 //try
                 //{
 
-                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.UtcNow,
+                //    OnEnqueueSendCDRRequest?.Invoke(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                 //                                    Timestamp.Value,
                 //                                    this,
                 //                                    EventTrackingId,
@@ -1145,20 +1195,29 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
                 #endregion
 
-                await DataAndStatusLock.WaitAsync();
+                await DataAndStatusLock.WaitAsync(CancellationToken);
 
                 try
                 {
 
-                    if (IncludeChargingStations == null ||
-                       (IncludeChargingStations != null && IncludeChargingStations(EVSE.ChargingStation)))
+                    if (IncludeChargingStations is     null ||
+                       (IncludeChargingStations is not null && IncludeChargingStations(EVSE.ChargingStation)))
                     {
 
                         StationsToAddQueue.Add(EVSE.ChargingStation);
 
-                        FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery, TimeSpan.FromMilliseconds(-1));
+                        FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery,
+                                                           TimeSpan.FromMilliseconds(-1));
 
                     }
+
+                    return AddEVSEResult.Enqueued(
+                               EVSE,
+                               EventTrackingId,
+                               Id,
+                               this,
+                               EVSE.ChargingStation
+                           );
 
                 }
                 finally
@@ -1166,23 +1225,29 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                     DataAndStatusLock.Release();
                 }
 
-                return PushEVSEDataResult.Enqueued(Id, this, null);
-
             }
 
             #endregion
 
 
-            return (await StationsPost(new[] { EVSE.ChargingStation },
+            var result = await StationsPost(new[] { EVSE.ChargingStation },
 
-                                       Timestamp,
-                                       CancellationToken,
-                                       EventTrackingId,
-                                       RequestTimeout).
+                                            Timestamp,
+                                            EventTrackingId,
+                                            RequestTimeout,
+                                            CancellationToken);
 
-                          ConfigureAwait(false)).
-
-                          ToPushEVSEDataResult();
+            return new AddEVSEResult(
+                       EVSE,
+                       result.Result,
+                       result.EventTrackingId,
+                       result.AuthId,
+                       result.SendPOIData,
+                       EVSE.ChargingStation,
+                       result.Description,
+                       result.Warnings,
+                       result.Runtime
+                   );
 
         }
 
@@ -1200,17 +1265,31 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
-        async Task<PushEVSEDataResult>
+        public override async Task<AddOrUpdateEVSEResult>
 
-            ISendPOIData.AddOrUpdateEVSE(IEVSE               EVSE,
-                                         TransmissionTypes   TransmissionType,
+            AddOrUpdateEVSE(IEVSE               EVSE,
+                            TransmissionTypes   TransmissionType    = TransmissionTypes.Enqueue,
 
-                                         DateTime?           Timestamp,
-                                         EventTracking_Id?   EventTrackingId,
-                                         TimeSpan?           RequestTimeout,
-                                         CancellationToken   CancellationToken)
+                            DateTime?           Timestamp           = null,
+                            EventTracking_Id?   EventTrackingId     = null,
+                            TimeSpan?           RequestTimeout      = null,
+                            CancellationToken   CancellationToken   = default)
 
         {
+
+            #region Initital checks
+
+            if (EVSE.ChargingStation is null)
+                return AddOrUpdateEVSEResult.ArgumentError(
+                           EVSE,
+                           I18NString.Create(Languages.en, "The given EVSE must reference a charging station!"),
+                           EventTrackingId,
+                           Id,
+                           this,
+                           EVSE.ChargingStation
+                       );
+
+            #endregion
 
             #region Enqueue, if requested...
 
@@ -1222,7 +1301,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                 //try
                 //{
 
-                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.UtcNow,
+                //    OnEnqueueSendCDRRequest?.Invoke(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                 //                                    Timestamp.Value,
                 //                                    this,
                 //                                    EventTrackingId,
@@ -1238,20 +1317,29 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
                 #endregion
 
-                await DataAndStatusLock.WaitAsync();
+                await DataAndStatusLock.WaitAsync(CancellationToken);
 
                 try
                 {
 
-                    if (IncludeChargingStations == null ||
-                       (IncludeChargingStations != null && IncludeChargingStations(EVSE.ChargingStation)))
+                    if (IncludeChargingStations is     null ||
+                       (IncludeChargingStations is not null && IncludeChargingStations(EVSE.ChargingStation)))
                     {
 
                         StationsToAddQueue.Add(EVSE.ChargingStation);
 
-                        FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery, TimeSpan.FromMilliseconds(-1));
+                        FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery,
+                                                           TimeSpan.FromMilliseconds(-1));
 
                     }
+
+                    return AddOrUpdateEVSEResult.Enqueued(
+                               EVSE,
+                               EventTrackingId,
+                               Id,
+                               this,
+                               EVSE.ChargingStation
+                           );
 
                 }
                 finally
@@ -1259,23 +1347,30 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                     DataAndStatusLock.Release();
                 }
 
-                return PushEVSEDataResult.Enqueued(Id, this, null);
-
             }
 
             #endregion
 
 
-            return (await StationsPost(new[] { EVSE.ChargingStation },
+            var result = await StationsPost(new[] { EVSE.ChargingStation },
 
-                                       Timestamp,
-                                       CancellationToken,
-                                       EventTrackingId,
-                                       RequestTimeout).
+                                            Timestamp,
+                                            EventTrackingId,
+                                            RequestTimeout,
+                                            CancellationToken);
 
-                          ConfigureAwait(false)).
-
-                          ToPushEVSEDataResult();
+            return new AddOrUpdateEVSEResult(
+                       EVSE,
+                       result.Result,
+                       result.EventTrackingId,
+                       result.AuthId,
+                       result.SendPOIData,
+                       EVSE.ChargingStation,
+                       org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.Add,
+                       result.Description,
+                       result.Warnings,
+                       result.Runtime
+                   );
 
         }
 
@@ -1297,26 +1392,33 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        async Task<PushEVSEDataResult>
+        public override async Task<UpdateEVSEResult>
 
-            ISendPOIData.UpdateEVSE(IEVSE               EVSE,
-                                    String              PropertyName,
-                                    Object?             NewValue,
-                                    Object?             OldValue,
-                                    Context?            DataSource,
-                                    TransmissionTypes   TransmissionType,
+            UpdateEVSE(IEVSE               EVSE,
+                       String              PropertyName,
+                       Object?             NewValue,
+                       Object?             OldValue,
+                       Context?            DataSource,
+                       TransmissionTypes   TransmissionType    = TransmissionTypes.Enqueue,
 
-                                    DateTime?           Timestamp,
-                                    EventTracking_Id    EventTrackingId,
-                                    TimeSpan?           RequestTimeout,
-                                    CancellationToken   CancellationToken)
+                       DateTime?           Timestamp           = null,
+                       EventTracking_Id?   EventTrackingId     = null,
+                       TimeSpan?           RequestTimeout      = null,
+                       CancellationToken   CancellationToken   = default)
 
         {
 
             #region Initial checks
 
-            if (EVSE == null)
-                throw new ArgumentNullException(nameof(EVSE), "The given EVSE must not be null!");
+            if (EVSE.ChargingStation is null)
+                return UpdateEVSEResult.ArgumentError(
+                           EVSE,
+                           I18NString.Create(Languages.en, "The given EVSE must reference a charging station!"),
+                           EventTrackingId,
+                           Id,
+                           this,
+                           EVSE.ChargingStation
+                       );
 
             #endregion
 
@@ -1330,7 +1432,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                 //try
                 //{
 
-                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.UtcNow,
+                //    OnEnqueueSendCDRRequest?.Invoke(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                 //                                    Timestamp.Value,
                 //                                    this,
                 //                                    EventTrackingId,
@@ -1346,20 +1448,29 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
                 #endregion
 
-                await DataAndStatusLock.WaitAsync();
+                await DataAndStatusLock.WaitAsync(CancellationToken);
 
                 try
                 {
 
-                    if (IncludeChargingStations == null ||
-                       (IncludeChargingStations != null && IncludeChargingStations(EVSE.ChargingStation)))
+                    if (IncludeChargingStations is     null ||
+                       (IncludeChargingStations is not null && IncludeChargingStations(EVSE.ChargingStation)))
                     {
 
                         StationsToUpdateQueue.Add(EVSE.ChargingStation);
 
-                        FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery, TimeSpan.FromMilliseconds(-1));
+                        FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery,
+                                                           TimeSpan.FromMilliseconds(-1));
 
                     }
+
+                    return UpdateEVSEResult.Enqueued(
+                               EVSE,
+                               EventTrackingId,
+                               Id,
+                               this,
+                               EVSE.ChargingStation
+                           );
 
                 }
                 finally
@@ -1367,23 +1478,29 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                     DataAndStatusLock.Release();
                 }
 
-                return PushEVSEDataResult.Enqueued(Id, this, null);
-
             }
 
             #endregion
 
 
-            return (await StationsPost(new[] { EVSE.ChargingStation },
+            var result = await StationsPost(new[] { EVSE.ChargingStation },
 
-                                       Timestamp,
-                                       CancellationToken,
-                                       EventTrackingId,
-                                       RequestTimeout).
+                                            Timestamp,
+                                            EventTrackingId,
+                                            RequestTimeout,
+                                            CancellationToken);
 
-                          ConfigureAwait(false)).
-
-                          ToPushEVSEDataResult();
+            return new UpdateEVSEResult(
+                       EVSE,
+                       result.Result,
+                       result.EventTrackingId,
+                       result.AuthId,
+                       result.SendPOIData,
+                       EVSE.ChargingStation,
+                       result.Description,
+                       result.Warnings,
+                       result.Runtime
+                   );
 
         }
 
@@ -1401,22 +1518,29 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
-        async Task<PushEVSEDataResult>
+        public override async Task<DeleteEVSEResult>
 
-            ISendPOIData.DeleteEVSE(IEVSE               EVSE,
-                                    TransmissionTypes   TransmissionType,
+            DeleteEVSE(IEVSE               EVSE,
+                       TransmissionTypes   TransmissionType    = TransmissionTypes.Enqueue,
 
-                                    DateTime?           Timestamp,
-                                    EventTracking_Id    EventTrackingId,
-                                    TimeSpan?           RequestTimeout,
-                                    CancellationToken   CancellationToken)
+                       DateTime?           Timestamp           = null,
+                       EventTracking_Id?   EventTrackingId     = null,
+                       TimeSpan?           RequestTimeout      = null,
+                       CancellationToken   CancellationToken   = default)
 
         {
 
             #region Initial checks
 
-            if (EVSE == null)
-                throw new ArgumentNullException(nameof(EVSE), "The given EVSE must not be null!");
+            if (EVSE.ChargingStation is null)
+                return DeleteEVSEResult.ArgumentError(
+                           EVSE,
+                           I18NString.Create(Languages.en, "The given EVSE must reference a charging station!"),
+                           EventTrackingId,
+                           Id,
+                           this,
+                           EVSE.ChargingStation
+                       );
 
             #endregion
 
@@ -1430,7 +1554,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                 //try
                 //{
 
-                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.UtcNow,
+                //    OnEnqueueSendCDRRequest?.Invoke(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                 //                                    Timestamp.Value,
                 //                                    this,
                 //                                    EventTrackingId,
@@ -1446,20 +1570,29 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
                 #endregion
 
-                await DataAndStatusLock.WaitAsync();
+                await DataAndStatusLock.WaitAsync(CancellationToken);
 
                 try
                 {
 
-                    if (IncludeChargingStations == null ||
-                       (IncludeChargingStations != null && IncludeChargingStations(EVSE.ChargingStation)))
+                    if (IncludeChargingStations is     null ||
+                       (IncludeChargingStations is not null && IncludeChargingStations(EVSE.ChargingStation)))
                     {
 
                         StationsToUpdateQueue.Add(EVSE.ChargingStation);
 
-                        FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery, TimeSpan.FromMilliseconds(-1));
+                        FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery,
+                                                           TimeSpan.FromMilliseconds(-1));
 
                     }
+
+                    return DeleteEVSEResult.Enqueued(
+                               EVSE,
+                               EventTrackingId,
+                               Id,
+                               this,
+                               EVSE.ChargingStation
+                           );
 
                 }
                 finally
@@ -1467,30 +1600,36 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                     DataAndStatusLock.Release();
                 }
 
-                return PushEVSEDataResult.Enqueued(Id, this, null);
-
             }
 
             #endregion
 
 
-            return (await StationsPost(new[] { EVSE.ChargingStation },
+            var result = await StationsPost(new[] { EVSE.ChargingStation },
 
-                                       Timestamp,
-                                       CancellationToken,
-                                       EventTrackingId,
-                                       RequestTimeout).
+                                            Timestamp,
+                                            EventTrackingId,
+                                            RequestTimeout,
+                                            CancellationToken);
 
-                          ConfigureAwait(false)).
-
-                          ToPushEVSEDataResult();
+            return new DeleteEVSEResult(
+                       EVSE,
+                       result.Result,
+                       result.EventTrackingId,
+                       result.AuthId,
+                       result.SendPOIData,
+                       EVSE.ChargingStation,
+                       result.Description,
+                       result.Warnings,
+                       result.Runtime
+                   );
 
         }
 
         #endregion
 
 
-        #region AddStaticData   (EVSEs, ...)
+        #region AddEVSEs        (EVSEs, ...)
 
         /// <summary>
         /// Add the given enumeration of EVSEs to the static EVSE data at the OIOI server.
@@ -1501,35 +1640,119 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
-        async Task<PushEVSEDataResult>
+        public override async Task<AddEVSEsResult>
 
-            ISendPOIData.AddEVSEs(IEnumerable<IEVSE>  EVSEs,
-                                  TransmissionTypes   TransmissionType,
+            AddEVSEs(IEnumerable<IEVSE>  EVSEs,
+                     TransmissionTypes   TransmissionType    = TransmissionTypes.Enqueue,
 
-                                  DateTime?           Timestamp,
-                                  EventTracking_Id    EventTrackingId,
-                                  TimeSpan?           RequestTimeout,
-                                  CancellationToken   CancellationToken)
+                     DateTime?           Timestamp           = null,
+                     EventTracking_Id?   EventTrackingId     = null,
+                     TimeSpan?           RequestTimeout      = null,
+                     CancellationToken   CancellationToken   = default)
 
         {
 
             #region Initial checks
 
-            if (EVSEs == null)
-                throw new ArgumentNullException(nameof(EVSEs), "The given enumeration of EVSEs must not be null!");
+            if (!EVSEs.Any())
+                return AddEVSEsResult.NoOperation(
+                           EVSEs,
+                           Id,
+                           this,
+                           EventTrackingId
+                       );
 
             #endregion
 
-            return (await StationsPost(EVSEs.Select(evse => evse.ChargingStation).Distinct(),
+            #region Enqueue, if requested...
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+            if (TransmissionType == TransmissionTypes.Enqueue)
+            {
 
-                          ConfigureAwait(false)).
+                #region Send OnEnqueueSendCDRRequest event
 
-                          ToPushEVSEDataResult();
+                //try
+                //{
+
+                //    OnEnqueueSendCDRRequest?.Invoke(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
+                //                                    Timestamp.Value,
+                //                                    this,
+                //                                    EventTrackingId,
+                //                                    RoamingNetwork.Id,
+                //                                    ChargeDetailRecord,
+                //                                    RequestTimeout);
+
+                //}
+                //catch (Exception e)
+                //{
+                //    DebugX.LogException(e, nameof(WWCPCPOAdapter) + "." + nameof(OnSendCDRRequest));
+                //}
+
+                #endregion
+
+                await DataAndStatusLock.WaitAsync(CancellationToken);
+
+                try
+                {
+
+                    foreach (var evse in EVSEs)
+                    {
+                        if (evse.ChargingStation is not null)
+                        {
+
+                            if (IncludeChargingStations is     null ||
+                               (IncludeChargingStations is not null && IncludeChargingStations(evse.ChargingStation)))
+                            {
+
+                                StationsToAddQueue.Add(evse.ChargingStation);
+
+                                FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery,
+                                                                   TimeSpan.FromMilliseconds(-1));
+
+                            }
+
+                        }
+                    }
+
+                    return AddEVSEsResult.Enqueued(
+                               EVSEs,
+                               Id,
+                               this,
+                               EventTrackingId
+                           );
+
+                }
+                finally
+                {
+                    DataAndStatusLock.Release();
+                }
+
+            }
+
+            #endregion
+
+
+            var result = await StationsPost(EVSEs.Select(evse            => evse.ChargingStation).
+                                                  Where (chargingStation => chargingStation is not null).
+                                                  Cast<ChargingStation>().
+                                                  Distinct(),
+
+                                            Timestamp,
+                                            EventTrackingId,
+                                            RequestTimeout,
+                                            CancellationToken);
+
+            return new AddEVSEsResult(
+                       result.Result,
+                       result.SuccessfulItems.SelectMany(res => res.ChargingStation!.EVSEs).Intersect(EVSEs).Select(evse => new AddEVSEResult(evse, org.GraphDefined.Vanaheimr.Hermod.PushDataResultTypes.Success)),
+                       result.RejectedItems.  SelectMany(res => res.ChargingStation!.EVSEs).Intersect(EVSEs).Select(evse => new AddEVSEResult(evse, org.GraphDefined.Vanaheimr.Hermod.PushDataResultTypes.Error)),
+                       result.AuthId,
+                       result.SendPOIData,
+                       result.EventTrackingId,
+                       result.Description,
+                       result.Warnings,
+                       result.Runtime
+                   );
 
         }
 
@@ -1546,35 +1769,119 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
-        async Task<PushEVSEDataResult>
+        public override async Task<AddOrUpdateEVSEsResult>
 
-            ISendPOIData.AddOrUpdateEVSEs(IEnumerable<IEVSE>  EVSEs,
-                                          TransmissionTypes   TransmissionType,
+            AddOrUpdateEVSEs(IEnumerable<IEVSE>  EVSEs,
+                             TransmissionTypes   TransmissionType    = TransmissionTypes.Enqueue,
 
-                                          DateTime?           Timestamp,
-                                          EventTracking_Id    EventTrackingId,
-                                          TimeSpan?           RequestTimeout,
-                                          CancellationToken   CancellationToken)
+                             DateTime?           Timestamp           = null,
+                             EventTracking_Id?   EventTrackingId     = null,
+                             TimeSpan?           RequestTimeout      = null,
+                             CancellationToken   CancellationToken   = default)
 
         {
 
             #region Initial checks
 
-            if (EVSEs == null)
-                throw new ArgumentNullException(nameof(EVSEs), "The given enumeration of EVSEs must not be null!");
+            if (!EVSEs.Any())
+                return AddOrUpdateEVSEsResult.NoOperation(
+                           EVSEs,
+                           Id,
+                           this,
+                           EventTrackingId
+                       );
 
             #endregion
 
-            return (await StationsPost(EVSEs.Select(evse => evse.ChargingStation).Distinct(),
+            #region Enqueue, if requested...
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+            if (TransmissionType == TransmissionTypes.Enqueue)
+            {
 
-                          ConfigureAwait(false)).
+                #region Send OnEnqueueSendCDRRequest event
 
-                          ToPushEVSEDataResult();
+                //try
+                //{
+
+                //    OnEnqueueSendCDRRequest?.Invoke(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
+                //                                    Timestamp.Value,
+                //                                    this,
+                //                                    EventTrackingId,
+                //                                    RoamingNetwork.Id,
+                //                                    ChargeDetailRecord,
+                //                                    RequestTimeout);
+
+                //}
+                //catch (Exception e)
+                //{
+                //    DebugX.LogException(e, nameof(WWCPCPOAdapter) + "." + nameof(OnSendCDRRequest));
+                //}
+
+                #endregion
+
+                await DataAndStatusLock.WaitAsync(CancellationToken);
+
+                try
+                {
+
+                    foreach (var evse in EVSEs)
+                    {
+                        if (evse.ChargingStation is not null)
+                        {
+
+                            if (IncludeChargingStations is     null ||
+                               (IncludeChargingStations is not null && IncludeChargingStations(evse.ChargingStation)))
+                            {
+
+                                StationsToAddQueue.Add(evse.ChargingStation);
+
+                                FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery,
+                                                                   TimeSpan.FromMilliseconds(-1));
+
+                            }
+
+                        }
+                    }
+
+                    return AddOrUpdateEVSEsResult.Enqueued(
+                               EVSEs,
+                               Id,
+                               this,
+                               EventTrackingId
+                           );
+
+                }
+                finally
+                {
+                    DataAndStatusLock.Release();
+                }
+
+            }
+
+            #endregion
+
+
+            var result = await StationsPost(EVSEs.Select(evse            => evse.ChargingStation).
+                                                  Where (chargingStation => chargingStation is not null).
+                                                  Cast<ChargingStation>().
+                                                  Distinct(),
+
+                                            Timestamp,
+                                            EventTrackingId,
+                                            RequestTimeout,
+                                            CancellationToken);
+
+            return new AddOrUpdateEVSEsResult(
+                       result.Result,
+                       result.SuccessfulItems.SelectMany(res => res.ChargingStation!.EVSEs).Intersect(EVSEs).Select(evse => new AddOrUpdateEVSEResult(evse, org.GraphDefined.Vanaheimr.Hermod.PushDataResultTypes.Success)),
+                       result.RejectedItems.  SelectMany(res => res.ChargingStation!.EVSEs).Intersect(EVSEs).Select(evse => new AddOrUpdateEVSEResult(evse, org.GraphDefined.Vanaheimr.Hermod.PushDataResultTypes.Error)),
+                       result.AuthId,
+                       result.SendPOIData,
+                       result.EventTrackingId,
+                       result.Description,
+                       result.Warnings,
+                       result.Runtime
+                   );
 
         }
 
@@ -1591,80 +1898,119 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
-        async Task<PushEVSEDataResult>
+        public override async Task<UpdateEVSEsResult>
 
-            ISendPOIData.UpdateEVSEs(IEnumerable<IEVSE>  EVSEs,
-                                     TransmissionTypes   TransmissionType,
+            UpdateEVSEs(IEnumerable<IEVSE>  EVSEs,
+                        TransmissionTypes   TransmissionType    = TransmissionTypes.Enqueue,
 
-                                     DateTime?           Timestamp,
-                                     EventTracking_Id    EventTrackingId,
-                                     TimeSpan?           RequestTimeout,
-                                     CancellationToken   CancellationToken)
-
-        {
-
-            #region Initial checks
-
-            if (EVSEs == null)
-                throw new ArgumentNullException(nameof(EVSEs), "The given enumeration of EVSEs must not be null!");
-
-            #endregion
-
-            return (await StationsPost(EVSEs.Select(evse => evse.ChargingStation).Distinct(),
-
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
-
-                          ConfigureAwait(false)).
-
-                          ToPushEVSEDataResult();
-
-        }
-
-        #endregion
-
-        #region DeleteEVSEs     (EVSEs, ...)
-
-        /// <summary>
-        /// Delete the given enumeration of EVSEs from the static EVSE data at the OIOI server.
-        /// </summary>
-        /// <param name="EVSEs">An enumeration of EVSEs.</param>
-        /// 
-        /// <param name="Timestamp">The optional timestamp of the request.</param>
-        /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
-        /// <param name="RequestTimeout">An optional timeout for this request.</param>
-        /// <param name="CancellationToken">An optional token to cancel this request.</param>
-        async Task<PushEVSEDataResult>
-
-            ISendPOIData.DeleteEVSEs(IEnumerable<IEVSE>  EVSEs,
-                                     TransmissionTypes   TransmissionType,
-
-                                     DateTime?           Timestamp,
-                                     EventTracking_Id    EventTrackingId,
-                                     TimeSpan?           RequestTimeout,
-                                     CancellationToken   CancellationToken)
+                        DateTime?           Timestamp           = null,
+                        EventTracking_Id?   EventTrackingId     = null,
+                        TimeSpan?           RequestTimeout      = null,
+                        CancellationToken   CancellationToken   = default)
 
         {
 
             #region Initial checks
 
-            if (EVSEs == null)
-                throw new ArgumentNullException(nameof(EVSEs), "The given enumeration of EVSEs must not be null!");
+            if (!EVSEs.Any())
+                return UpdateEVSEsResult.NoOperation(
+                           EVSEs,
+                           Id,
+                           this,
+                           EventTrackingId
+                       );
 
             #endregion
 
-            return (await StationsPost(EVSEs.Select(evse => evse.ChargingStation).Distinct(),
+            #region Enqueue, if requested...
 
-                                      Timestamp,
-                                      CancellationToken,
-                                      EventTrackingId,
-                                      RequestTimeout).
+            if (TransmissionType == TransmissionTypes.Enqueue)
+            {
 
-                          ConfigureAwait(false)).
+                #region Send OnEnqueueSendCDRRequest event
 
-                          ToPushEVSEDataResult();
+                //try
+                //{
+
+                //    OnEnqueueSendCDRRequest?.Invoke(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
+                //                                    Timestamp.Value,
+                //                                    this,
+                //                                    EventTrackingId,
+                //                                    RoamingNetwork.Id,
+                //                                    ChargeDetailRecord,
+                //                                    RequestTimeout);
+
+                //}
+                //catch (Exception e)
+                //{
+                //    DebugX.LogException(e, nameof(WWCPCPOAdapter) + "." + nameof(OnSendCDRRequest));
+                //}
+
+                #endregion
+
+                await DataAndStatusLock.WaitAsync(CancellationToken);
+
+                try
+                {
+
+                    foreach (var evse in EVSEs)
+                    {
+                        if (evse.ChargingStation is not null)
+                        {
+
+                            if (IncludeChargingStations is     null ||
+                               (IncludeChargingStations is not null && IncludeChargingStations(evse.ChargingStation)))
+                            {
+
+                                StationsToAddQueue.Add(evse.ChargingStation);
+
+                                FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery,
+                                                                   TimeSpan.FromMilliseconds(-1));
+
+                            }
+
+                        }
+                    }
+
+                    return UpdateEVSEsResult.Enqueued(
+                               EVSEs,
+                               Id,
+                               this,
+                               EventTrackingId
+                           );
+
+                }
+                finally
+                {
+                    DataAndStatusLock.Release();
+                }
+
+            }
+
+            #endregion
+
+
+            var result = await StationsPost(EVSEs.Select(evse            => evse.ChargingStation).
+                                                  Where (chargingStation => chargingStation is not null).
+                                                  Cast<ChargingStation>().
+                                                  Distinct(),
+
+                                            Timestamp,
+                                            EventTrackingId,
+                                            RequestTimeout,
+                                            CancellationToken);
+
+            return new UpdateEVSEsResult(
+                       result.Result,
+                       result.SuccessfulItems.SelectMany(res => res.ChargingStation!.EVSEs).Intersect(EVSEs).Select(evse => new UpdateEVSEResult(evse, org.GraphDefined.Vanaheimr.Hermod.PushDataResultTypes.Success)),
+                       result.RejectedItems.  SelectMany(res => res.ChargingStation!.EVSEs).Intersect(EVSEs).Select(evse => new UpdateEVSEResult(evse, org.GraphDefined.Vanaheimr.Hermod.PushDataResultTypes.Error)),
+                       result.AuthId,
+                       result.SendPOIData,
+                       result.EventTrackingId,
+                       result.Description,
+                       result.Warnings,
+                       result.Runtime
+                   );
 
         }
 
@@ -1714,7 +2060,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                 //try
                 //{
 
-                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.UtcNow,
+                //    OnEnqueueSendCDRRequest?.Invoke(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                 //                                    Timestamp.Value,
                 //                                    this,
                 //                                    EventTrackingId,
@@ -1801,7 +2147,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
         #region (Set/Add/Update/Delete) Charging station(s)...
 
-        #region AddChargingStation        (ChargingStation, TransmissionType = Enqueue, ...)
+        #region AddChargingStation         (ChargingStation, TransmissionType = Enqueue, ...)
 
         /// <summary>
         /// Add the EVSE data of the given charging station to the static EVSE data at the OIOI server.
@@ -1813,15 +2159,15 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
-        async Task<PushChargingStationDataResult>
+        public override async Task<AddChargingStationResult>
 
-            ISendPOIData.AddChargingStation(IChargingStation    ChargingStation,
-                                            TransmissionTypes   TransmissionType,
+            AddChargingStation(IChargingStation    ChargingStation,
+                               TransmissionTypes   TransmissionType    = TransmissionTypes.Enqueue,
 
-                                            DateTime?           Timestamp,
-                                            EventTracking_Id?   EventTrackingId,
-                                            TimeSpan?           RequestTimeout,
-                                            CancellationToken   CancellationToken)
+                               DateTime?           Timestamp           = null,
+                               EventTracking_Id?   EventTrackingId     = null,
+                               TimeSpan?           RequestTimeout      = null,
+                               CancellationToken   CancellationToken   = default)
 
         {
 
@@ -1835,7 +2181,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                 //try
                 //{
 
-                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.UtcNow,
+                //    OnEnqueueSendCDRRequest?.Invoke(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                 //                                    Timestamp.Value,
                 //                                    this,
                 //                                    EventTrackingId,
@@ -1856,15 +2202,23 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                 try
                 {
 
-                    if (IncludeChargingStations is null ||
+                    if (IncludeChargingStations is     null ||
                        (IncludeChargingStations is not null && IncludeChargingStations(ChargingStation)))
                     {
 
                         StationsToAddQueue.Add(ChargingStation);
 
-                        FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery, TimeSpan.FromMilliseconds(-1));
+                        FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery,
+                                                           TimeSpan.FromMilliseconds(-1));
 
                     }
+
+                    return AddChargingStationResult.Enqueued(
+                               ChargingStation,
+                               EventTrackingId,
+                               Id,
+                               this
+                           );
 
                 }
                 finally
@@ -1872,31 +2226,25 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                     DataAndStatusLock.Release();
                 }
 
-                return PushChargingStationDataResult.Enqueued(
-                           Id,
-                           this,
-                           new IChargingStation[] {
-                               ChargingStation
-                           }
-                       );
-
             }
 
             #endregion
 
+
             var result = await StationsPost(new[] { ChargingStation },
 
                                             Timestamp,
-                                            CancellationToken,
                                             EventTrackingId,
-                                            RequestTimeout);
+                                            RequestTimeout,
+                                            CancellationToken);
 
-            return new PushChargingStationDataResult(
-                       result.Id,
-                       this,
+            return new AddChargingStationResult(
+                       ChargingStation,
                        result.Result,
-                       Array.Empty<PushSingleChargingStationDataResult>(),
-                       Array.Empty<PushSingleChargingStationDataResult>(),
+                       result.EventTrackingId,
+                       result.AuthId,
+                       result.SendPOIData,
+                       null,
                        result.Description,
                        result.Warnings,
                        result.Runtime
@@ -1918,15 +2266,15 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
-        async Task<PushChargingStationDataResult>
+        public override async Task<AddOrUpdateChargingStationResult>
 
-            ISendPOIData.AddOrUpdateChargingStation(IChargingStation    ChargingStation,
-                                                    TransmissionTypes   TransmissionType,
+            AddOrUpdateChargingStation(IChargingStation    ChargingStation,
+                                       TransmissionTypes   TransmissionType    = TransmissionTypes.Enqueue,
 
-                                                    DateTime?           Timestamp,
-                                                    EventTracking_Id?   EventTrackingId,
-                                                    TimeSpan?           RequestTimeout,
-                                                    CancellationToken   CancellationToken)
+                                       DateTime?           Timestamp           = null,
+                                       EventTracking_Id?   EventTrackingId     = null,
+                                       TimeSpan?           RequestTimeout      = null,
+                                       CancellationToken   CancellationToken   = default)
 
         {
 
@@ -1940,7 +2288,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                 //try
                 //{
 
-                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.UtcNow,
+                //    OnEnqueueSendCDRRequest?.Invoke(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                 //                                    Timestamp.Value,
                 //                                    this,
                 //                                    EventTrackingId,
@@ -1972,37 +2320,39 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
                     }
 
+                    return AddOrUpdateChargingStationResult.Enqueued(
+                               ChargingStation,
+                               EventTrackingId,
+                               Id,
+                               this
+                           );
+
                 }
                 finally
                 {
                     DataAndStatusLock.Release();
                 }
 
-                return PushChargingStationDataResult.Enqueued(
-                           Id,
-                           this,
-                           new IChargingStation [] {
-                               ChargingStation
-                           }
-                       );
-
             }
 
             #endregion
 
+
             var result = await StationsPost(new[] { ChargingStation },
 
                                             Timestamp,
-                                            CancellationToken,
                                             EventTrackingId,
-                                            RequestTimeout);
+                                            RequestTimeout,
+                                            CancellationToken);
 
-            return new PushChargingStationDataResult(
-                       result.Id,
-                       this,
+            return new AddOrUpdateChargingStationResult(
+                       ChargingStation,
                        result.Result,
-                       Array.Empty<PushSingleChargingStationDataResult>(),
-                       Array.Empty<PushSingleChargingStationDataResult>(),
+                       result.EventTrackingId,
+                       result.AuthId,
+                       result.SendPOIData,
+                       null,
+                       org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.Add,
                        result.Description,
                        result.Warnings,
                        result.Runtime
@@ -2012,29 +2362,35 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
         #endregion
 
-        // UpdateChargingStation ???
-
-        #region DeleteChargingStation       (ChargingStation, TransmissionType = Enqueue, ...)
+        #region UpdateChargingStation      (ChargingStation,  PropertyName, NewValue, OldValue = null, DataSource = null, TransmissionType = Enqueue, ...)
 
         /// <summary>
-        /// Delete the EVSE data of the given charging station from the static EVSE data at the OIOI server.
+        /// Add the EVSE data of the given charging station to the static EVSE data at the OIOI server.
         /// </summary>
-        /// <param name="ChargingStation">A charging station.</param>
-        /// <param name="TransmissionType">Whether to send the charging pool update directly or enqueue it for a while.</param>
+        /// <param name="ChargingStation">A charging station to update.</param>
+        /// <param name="PropertyName">The name of the charging station property to update.</param>
+        /// <param name="NewValue">The new value of the charging station property to update.</param>
+        /// <param name="OldValue">The optional old value of the charging station property to update.</param>
+        /// <param name="DataSource">An optional data source or context for the charging station property update.</param>
+        /// <param name="TransmissionType">Whether to send the charging station update directly or enqueue it for a while.</param>
         /// 
         /// <param name="Timestamp">The optional timestamp of the request.</param>
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
-        async Task<PushChargingStationDataResult>
+        public override async Task<UpdateChargingStationResult>
 
-            ISendPOIData.DeleteChargingStation(IChargingStation    ChargingStation,
-                                               TransmissionTypes   TransmissionType,
+            UpdateChargingStation(IChargingStation   ChargingStation,
+                                  String             PropertyName,
+                                  Object?            NewValue,
+                                  Object?            OldValue            = null,
+                                  Context?           DataSource          = null,
+                                  TransmissionTypes  TransmissionType    = TransmissionTypes.Enqueue,
 
-                                               DateTime?           Timestamp,
-                                               EventTracking_Id?   EventTrackingId,
-                                               TimeSpan?           RequestTimeout,
-                                               CancellationToken   CancellationToken)
+                                  DateTime?          Timestamp           = null,
+                                  EventTracking_Id?  EventTrackingId     = null,
+                                  TimeSpan?          RequestTimeout      = null,
+                                  CancellationToken  CancellationToken   = default)
 
         {
 
@@ -2048,7 +2404,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                 //try
                 //{
 
-                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.UtcNow,
+                //    OnEnqueueSendCDRRequest?.Invoke(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                 //                                    Timestamp.Value,
                 //                                    this,
                 //                                    EventTrackingId,
@@ -2064,20 +2420,28 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
                 #endregion
 
-                await DataAndStatusLock.WaitAsync();
+                await DataAndStatusLock.WaitAsync(CancellationToken);
 
                 try
                 {
 
-                    if (IncludeChargingStations == null ||
-                       (IncludeChargingStations != null && IncludeChargingStations(ChargingStation)))
+                    if (IncludeChargingStations is     null ||
+                       (IncludeChargingStations is not null && IncludeChargingStations(ChargingStation)))
                     {
 
-                        StationsToUpdateQueue.Add(ChargingStation);
+                        StationsToAddQueue.Add(ChargingStation);
 
-                        FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery, TimeSpan.FromMilliseconds(-1));
+                        FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery,
+                                                           TimeSpan.FromMilliseconds(-1));
 
                     }
+
+                    return UpdateChargingStationResult.Enqueued(
+                               ChargingStation,
+                               EventTrackingId,
+                               Id,
+                               this
+                           );
 
                 }
                 finally
@@ -2085,31 +2449,132 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                     DataAndStatusLock.Release();
                 }
 
-                return PushChargingStationDataResult.Enqueued(
-                           Id,
-                           this,
-                           new IChargingStation[] {
-                               ChargingStation
-                           }
-                       );
+            }
+
+            #endregion
+
+
+            var result = await StationsPost(new[] { ChargingStation },
+
+                                            Timestamp,
+                                            EventTrackingId,
+                                            RequestTimeout,
+                                            CancellationToken);
+
+            return new UpdateChargingStationResult(
+                       ChargingStation,
+                       result.Result,
+                       result.EventTrackingId,
+                       result.AuthId,
+                       result.SendPOIData,
+                       null,
+                       result.Description,
+                       result.Warnings,
+                       result.Runtime
+                   );
+
+        }
+
+        #endregion
+
+        #region DeleteChargingStation      (ChargingStation, TransmissionType = Enqueue, ...)
+
+        /// <summary>
+        /// Delete the EVSE data of the given charging station from the static EVSE data at the OIOI server.
+        /// </summary>
+        /// <param name="ChargingStation">A charging station.</param>
+        /// <param name="TransmissionType">Whether to send the charging pool update directly or enqueue it for a while.</param>
+        /// 
+        /// <param name="Timestamp">The optional timestamp of the request.</param>
+        /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
+        /// <param name="RequestTimeout">An optional timeout for this request.</param>
+        /// <param name="CancellationToken">An optional token to cancel this request.</param>
+        public override async Task<DeleteChargingStationResult>
+
+            DeleteChargingStation(IChargingStation    ChargingStation,
+                                  TransmissionTypes   TransmissionType    = TransmissionTypes.Enqueue,
+
+                                  DateTime?           Timestamp           = null,
+                                  EventTracking_Id?   EventTrackingId     = null,
+                                  TimeSpan?           RequestTimeout      = null,
+                                  CancellationToken   CancellationToken   = default)
+
+        {
+
+            #region Enqueue, if requested...
+
+            if (TransmissionType == TransmissionTypes.Enqueue)
+            {
+
+                #region Send OnEnqueueSendCDRRequest event
+
+                //try
+                //{
+
+                //    OnEnqueueSendCDRRequest?.Invoke(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
+                //                                    Timestamp.Value,
+                //                                    this,
+                //                                    EventTrackingId,
+                //                                    RoamingNetwork.Id,
+                //                                    ChargeDetailRecord,
+                //                                    RequestTimeout);
+
+                //}
+                //catch (Exception e)
+                //{
+                //    DebugX.LogException(e, nameof(WWCPCPOAdapter) + "." + nameof(OnSendCDRRequest));
+                //}
+
+                #endregion
+
+                await DataAndStatusLock.WaitAsync(CancellationToken);
+
+                try
+                {
+
+                    if (IncludeChargingStations is     null ||
+                       (IncludeChargingStations is not null && IncludeChargingStations(ChargingStation)))
+                    {
+
+                        StationsToAddQueue.Add(ChargingStation);
+
+                        FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery,
+                                                           TimeSpan.FromMilliseconds(-1));
+
+                    }
+
+                    return DeleteChargingStationResult.Enqueued(
+                               ChargingStation,
+                               EventTrackingId,
+                               Id,
+                               this
+                           );
+
+                }
+                finally
+                {
+                    DataAndStatusLock.Release();
+                }
 
             }
 
             #endregion
 
-            var result = await StationsPost(new IChargingStation[] { ChargingStation },
+
+            var result = await StationsPost(new[] { ChargingStation },
 
                                             Timestamp,
-                                            CancellationToken,
                                             EventTrackingId,
-                                            RequestTimeout);
+                                            RequestTimeout,
+                                            CancellationToken);
 
-            return new PushChargingStationDataResult(
-                       result.Id,
-                       this,
+            return new DeleteChargingStationResult(
+                       ChargingStation,
                        result.Result,
-                       Array.Empty<PushSingleChargingStationDataResult>(),
-                       Array.Empty<PushSingleChargingStationDataResult>(),
+                       result.EventTrackingId,
+                       result.AuthId,
+                       result.SendPOIData,
+                       null,
                        result.Description,
                        result.Warnings,
                        result.Runtime
@@ -2132,18 +2597,29 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
-        async Task<PushChargingStationDataResult>
+        public override async Task<AddChargingStationsResult>
 
-            ISendPOIData.AddChargingStations(IEnumerable<IChargingStation>  ChargingStations,
-                                             TransmissionTypes              TransmissionType,
+            AddChargingStations(IEnumerable<IChargingStation>  ChargingStations,
+                                TransmissionTypes              TransmissionType    = TransmissionTypes.Enqueue,
 
-
-                                             DateTime?                      Timestamp,
-                                             EventTracking_Id?              EventTrackingId,
-                                             TimeSpan?                      RequestTimeout,
-                                             CancellationToken              CancellationToken)
+                                DateTime?                      Timestamp           = null,
+                                EventTracking_Id?              EventTrackingId     = null,
+                                TimeSpan?                      RequestTimeout      = null,
+                                CancellationToken              CancellationToken   = default)
 
         {
+
+            #region Initial checks
+
+            if (!ChargingStations.Any())
+                return AddChargingStationsResult.NoOperation(
+                           ChargingStations,
+                           Id,
+                           this,
+                           EventTrackingId
+                       );
+
+            #endregion
 
             #region Enqueue, if requested...
 
@@ -2155,7 +2631,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                 //try
                 //{
 
-                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.UtcNow,
+                //    OnEnqueueSendCDRRequest?.Invoke(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                 //                                    Timestamp.Value,
                 //                                    this,
                 //                                    EventTrackingId,
@@ -2179,11 +2655,11 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                     foreach (var chargingStation in ChargingStations)
                     {
 
-                        if (IncludeChargingStations is null ||
+                        if (IncludeChargingStations is     null ||
                            (IncludeChargingStations is not null && IncludeChargingStations(chargingStation)))
                         {
 
-                            StationsToUpdateQueue.Add(chargingStation);
+                            StationsToAddQueue.Add(chargingStation);
 
                             FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery,
                                                                TimeSpan.FromMilliseconds(-1));
@@ -2192,35 +2668,38 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
                     }
 
+                    return AddChargingStationsResult.Enqueued(
+                               ChargingStations,
+                               Id,
+                               this,
+                               EventTrackingId
+                           );
+
                 }
                 finally
                 {
                     DataAndStatusLock.Release();
                 }
 
-                return PushChargingStationDataResult.Enqueued(
-                           Id,
-                           this,
-                           ChargingStations
-                       );
-
             }
 
             #endregion
 
+
             var result = await StationsPost(ChargingStations,
 
                                             Timestamp,
-                                            CancellationToken,
                                             EventTrackingId,
-                                            RequestTimeout);
+                                            RequestTimeout,
+                                            CancellationToken);
 
-            return new PushChargingStationDataResult(
-                       result.Id,
-                       this,
+            return new AddChargingStationsResult(
                        result.Result,
-                       Array.Empty<PushSingleChargingStationDataResult>(),
-                       Array.Empty<PushSingleChargingStationDataResult>(),
+                       result.SuccessfulItems.Select(res => new AddChargingStationResult(res.ChargingStation!, org.GraphDefined.Vanaheimr.Hermod.PushDataResultTypes.Success)),
+                       result.RejectedItems.  Select(res => new AddChargingStationResult(res.ChargingStation!, org.GraphDefined.Vanaheimr.Hermod.PushDataResultTypes.Error)),
+                       result.AuthId,
+                       result.SendPOIData,
+                       result.EventTrackingId,
                        result.Description,
                        result.Warnings,
                        result.Runtime
@@ -2242,17 +2721,29 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
-        async Task<PushChargingStationDataResult>
+        public override async Task<AddOrUpdateChargingStationsResult>
 
-            ISendPOIData.AddOrUpdateChargingStations(IEnumerable<IChargingStation>  ChargingStations,
-                                                     TransmissionTypes              TransmissionType,
+            AddOrUpdateChargingStations(IEnumerable<IChargingStation>  ChargingStations,
+                                        TransmissionTypes              TransmissionType    = TransmissionTypes.Enqueue,
 
-                                                     DateTime?                      Timestamp,
-                                                     EventTracking_Id?              EventTrackingId,
-                                                     TimeSpan?                      RequestTimeout,
-                                                     CancellationToken              CancellationToken)
+                                        DateTime?                      Timestamp           = null,
+                                        EventTracking_Id?              EventTrackingId     = null,
+                                        TimeSpan?                      RequestTimeout      = null,
+                                        CancellationToken              CancellationToken   = default)
 
         {
+
+            #region Initial checks
+
+            if (!ChargingStations.Any())
+                return AddOrUpdateChargingStationsResult.NoOperation(
+                           ChargingStations,
+                           Id,
+                           this,
+                           EventTrackingId
+                       );
+
+            #endregion
 
             #region Enqueue, if requested...
 
@@ -2264,7 +2755,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                 //try
                 //{
 
-                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.UtcNow,
+                //    OnEnqueueSendCDRRequest?.Invoke(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                 //                                    Timestamp.Value,
                 //                                    this,
                 //                                    EventTrackingId,
@@ -2288,11 +2779,11 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                     foreach (var chargingStation in ChargingStations)
                     {
 
-                        if (IncludeChargingStations is null ||
+                        if (IncludeChargingStations is     null ||
                            (IncludeChargingStations is not null && IncludeChargingStations(chargingStation)))
                         {
 
-                            StationsToUpdateQueue.Add(chargingStation);
+                            StationsToAddQueue.Add(chargingStation);
 
                             FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery,
                                                                TimeSpan.FromMilliseconds(-1));
@@ -2301,35 +2792,38 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
                     }
 
+                    return AddOrUpdateChargingStationsResult.Enqueued(
+                               ChargingStations,
+                               Id,
+                               this,
+                               EventTrackingId
+                           );
+
                 }
                 finally
                 {
                     DataAndStatusLock.Release();
                 }
 
-                return PushChargingStationDataResult.Enqueued(
-                           Id,
-                           this,
-                           ChargingStations
-                       );
-
             }
 
             #endregion
 
+
             var result = await StationsPost(ChargingStations,
 
                                             Timestamp,
-                                            CancellationToken,
                                             EventTrackingId,
-                                            RequestTimeout);
+                                            RequestTimeout,
+                                            CancellationToken);
 
-            return new PushChargingStationDataResult(
-                       result.Id,
-                       this,
+            return new AddOrUpdateChargingStationsResult(
                        result.Result,
-                       Array.Empty<PushSingleChargingStationDataResult>(),
-                       Array.Empty<PushSingleChargingStationDataResult>(),
+                       result.SuccessfulItems,
+                       result.RejectedItems,
+                       result.AuthId,
+                       result.SendPOIData,
+                       result.EventTrackingId,
                        result.Description,
                        result.Warnings,
                        result.Runtime
@@ -2351,17 +2845,29 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
-        async Task<PushChargingStationDataResult>
+        public override async Task<UpdateChargingStationsResult>
 
-            ISendPOIData.UpdateChargingStations(IEnumerable<IChargingStation>  ChargingStations,
-                                                TransmissionTypes              TransmissionType,
+            UpdateChargingStations(IEnumerable<IChargingStation>  ChargingStations,
+                                   TransmissionTypes              TransmissionType    = TransmissionTypes.Enqueue,
 
-                                                DateTime?                      Timestamp,
-                                                EventTracking_Id?              EventTrackingId,
-                                                TimeSpan?                      RequestTimeout,
-                                                CancellationToken              CancellationToken)
+                                   DateTime?                      Timestamp           = null,
+                                   EventTracking_Id?              EventTrackingId     = null,
+                                   TimeSpan?                      RequestTimeout      = null,
+                                   CancellationToken              CancellationToken   = default)
 
         {
+
+            #region Initial checks
+
+            if (!ChargingStations.Any())
+                return UpdateChargingStationsResult.NoOperation(
+                           ChargingStations,
+                           Id,
+                           this,
+                           EventTrackingId
+                       );
+
+            #endregion
 
             #region Enqueue, if requested...
 
@@ -2373,7 +2879,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                 //try
                 //{
 
-                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.UtcNow,
+                //    OnEnqueueSendCDRRequest?.Invoke(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                 //                                    Timestamp.Value,
                 //                                    this,
                 //                                    EventTrackingId,
@@ -2397,11 +2903,11 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                     foreach (var chargingStation in ChargingStations)
                     {
 
-                        if (IncludeChargingStations is null ||
+                        if (IncludeChargingStations is     null ||
                            (IncludeChargingStations is not null && IncludeChargingStations(chargingStation)))
                         {
 
-                            StationsToUpdateQueue.Add(chargingStation);
+                            StationsToAddQueue.Add(chargingStation);
 
                             FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery,
                                                                TimeSpan.FromMilliseconds(-1));
@@ -2410,35 +2916,38 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
                     }
 
+                    return UpdateChargingStationsResult.Enqueued(
+                               ChargingStations,
+                               Id,
+                               this,
+                               EventTrackingId
+                           );
+
                 }
                 finally
                 {
                     DataAndStatusLock.Release();
                 }
 
-                return PushChargingStationDataResult.Enqueued(
-                           Id,
-                           this,
-                           ChargingStations
-                       );
-
             }
 
             #endregion
 
+
             var result = await StationsPost(ChargingStations,
 
                                             Timestamp,
-                                            CancellationToken,
                                             EventTrackingId,
-                                            RequestTimeout);
+                                            RequestTimeout,
+                                            CancellationToken);
 
-            return new PushChargingStationDataResult(
-                       result.Id,
-                       this,
+            return new UpdateChargingStationsResult(
                        result.Result,
-                       Array.Empty<PushSingleChargingStationDataResult>(),
-                       Array.Empty<PushSingleChargingStationDataResult>(),
+                       result.SuccessfulItems.Select(res => new UpdateChargingStationResult(res.ChargingStation!, org.GraphDefined.Vanaheimr.Hermod.PushDataResultTypes.Success)),
+                       result.RejectedItems.  Select(res => new UpdateChargingStationResult(res.ChargingStation!, org.GraphDefined.Vanaheimr.Hermod.PushDataResultTypes.Error)),
+                       result.AuthId,
+                       result.SendPOIData,
+                       result.EventTrackingId,
                        result.Description,
                        result.Warnings,
                        result.Runtime
@@ -2460,17 +2969,29 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="EventTrackingId">An optional event tracking identification for correlating this request with other events.</param>
         /// <param name="RequestTimeout">An optional timeout for this request.</param>
         /// <param name="CancellationToken">An optional token to cancel this request.</param>
-        async Task<PushChargingStationDataResult>
+        public override async Task<DeleteChargingStationsResult>
 
-            ISendPOIData.DeleteChargingStations(IEnumerable<IChargingStation>  ChargingStations,
-                                                TransmissionTypes              TransmissionType,
+            DeleteChargingStations(IEnumerable<IChargingStation>  ChargingStations,
+                                   TransmissionTypes              TransmissionType    = TransmissionTypes.Enqueue,
 
-                                                DateTime?                      Timestamp,
-                                                EventTracking_Id?              EventTrackingId,
-                                                TimeSpan?                      RequestTimeout,
-                                                CancellationToken              CancellationToken)
+                                   DateTime?                      Timestamp           = null,
+                                   EventTracking_Id?              EventTrackingId     = null,
+                                   TimeSpan?                      RequestTimeout      = null,
+                                   CancellationToken              CancellationToken   = default)
 
         {
+
+            #region Initial checks
+
+            if (!ChargingStations.Any())
+                return DeleteChargingStationsResult.NoOperation(
+                           ChargingStations,
+                           Id,
+                           this,
+                           EventTrackingId
+                       );
+
+            #endregion
 
             #region Enqueue, if requested...
 
@@ -2482,7 +3003,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                 //try
                 //{
 
-                //    OnEnqueueSendCDRRequest?.Invoke(DateTime.UtcNow,
+                //    OnEnqueueSendCDRRequest?.Invoke(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                 //                                    Timestamp.Value,
                 //                                    this,
                 //                                    EventTrackingId,
@@ -2506,11 +3027,11 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                     foreach (var chargingStation in ChargingStations)
                     {
 
-                        if (IncludeChargingStations is null ||
+                        if (IncludeChargingStations is     null ||
                            (IncludeChargingStations is not null && IncludeChargingStations(chargingStation)))
                         {
 
-                            StationsToUpdateQueue.Add(chargingStation);
+                            StationsToAddQueue.Add(chargingStation);
 
                             FlushEVSEDataAndStatusTimer.Change(FlushEVSEDataAndStatusEvery,
                                                                TimeSpan.FromMilliseconds(-1));
@@ -2519,35 +3040,38 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
                     }
 
+                    return DeleteChargingStationsResult.Enqueued(
+                               ChargingStations,
+                               Id,
+                               this,
+                               EventTrackingId
+                           );
+
                 }
                 finally
                 {
                     DataAndStatusLock.Release();
                 }
 
-                return PushChargingStationDataResult.Enqueued(
-                           Id,
-                           this,
-                           ChargingStations
-                       );
-
             }
 
             #endregion
 
+
             var result = await StationsPost(ChargingStations,
 
                                             Timestamp,
-                                            CancellationToken,
                                             EventTrackingId,
-                                            RequestTimeout);
+                                            RequestTimeout,
+                                            CancellationToken);
 
-            return new PushChargingStationDataResult(
-                       result.Id,
-                       this,
+            return new DeleteChargingStationsResult(
                        result.Result,
-                       Array.Empty<PushSingleChargingStationDataResult>(),
-                       Array.Empty<PushSingleChargingStationDataResult>(),
+                       result.SuccessfulItems.Select(res => new DeleteChargingStationResult(res.ChargingStation!, org.GraphDefined.Vanaheimr.Hermod.PushDataResultTypes.Success)),
+                       result.RejectedItems.  Select(res => new DeleteChargingStationResult(res.ChargingStation!, org.GraphDefined.Vanaheimr.Hermod.PushDataResultTypes.Error)),
+                       result.AuthId,
+                       result.SendPOIData,
+                       result.EventTrackingId,
                        result.Description,
                        result.Warnings,
                        result.Runtime
@@ -2601,7 +3125,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
 
             if (!Timestamp.HasValue)
-                Timestamp = DateTime.UtcNow;
+                Timestamp = org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
 
             if (EventTrackingId == null)
                 EventTrackingId = EventTracking_Id.New;
@@ -2613,7 +3137,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
             #region Send OnAuthorizeStartRequest event
 
-            var StartTime = DateTime.UtcNow;
+            var StartTime = org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
 
             try
             {
@@ -2651,7 +3175,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
             if (DisableAuthentication)
             {
 
-                Endtime  = DateTime.UtcNow;
+                Endtime  = org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
                 Runtime  = Endtime - StartTime;
                 result   = AuthStartResult.AdminDown(Id,
                                                      this,
@@ -2664,7 +3188,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                      !LocalAuthentication.AuthToken.ToOIOI().HasValue)
             {
 
-                Endtime  = DateTime.UtcNow;
+                Endtime  = org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
                 Runtime  = Endtime - StartTime;
 
                 result   = AuthStartResult.NotAuthorized(
@@ -2689,7 +3213,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                                     RequestTimeout);
 
 
-                Endtime  = DateTime.UtcNow;
+                Endtime  = org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
                 Runtime  = Endtime - StartTime;
 
                 if (response?.HTTPStatusCode == HTTPStatusCode.OK &&
@@ -2793,7 +3317,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
 
             if (!Timestamp.HasValue)
-                Timestamp = DateTime.UtcNow;
+                Timestamp = org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
 
             if (EventTrackingId == null)
                 EventTrackingId = EventTracking_Id.New;
@@ -2805,7 +3329,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
             #region Send OnAuthorizeStopRequest event
 
-            var StartTime = DateTime.UtcNow;
+            var StartTime = org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
 
             try
             {
@@ -2840,7 +3364,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
             if (DisableAuthentication)
             {
-                Endtime  = DateTime.UtcNow;
+                Endtime  = org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
                 Runtime  = Endtime - StartTime;
                 result   = AuthStopResult.AdminDown(Id,
                                                     this,
@@ -2852,7 +3376,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                      !LocalAuthentication.AuthToken.ToOIOI().HasValue)
             {
 
-                Endtime  = DateTime.UtcNow;
+                Endtime  = org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
                 Runtime  = Endtime - StartTime;
 
                 result   = AuthStopResult.NotAuthorized(
@@ -2877,7 +3401,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                                     RequestTimeout).ConfigureAwait(false);
 
 
-                Endtime  = DateTime.UtcNow;
+                Endtime  = org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
                 Runtime  = Endtime - StartTime;
 
                 if (response?.HTTPStatusCode == HTTPStatusCode.OK &&
@@ -2974,7 +3498,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
 
             if (!Timestamp.HasValue)
-                Timestamp = DateTime.UtcNow;
+                Timestamp = org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
 
             if (EventTrackingId == null)
                 EventTrackingId = EventTracking_Id.New;
@@ -3001,7 +3525,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                     ForwardedCDRs.Add(cdr);
 
                 else
-                    FilteredCDRs.Add(SendCDRResult.Filtered(DateTime.UtcNow,
+                    FilteredCDRs.Add(SendCDRResult.Filtered(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                                                             cdr,
                                                             Warning: Warning.Create(I18NString.Create(Languages.en, "This charge detail record was filtered!"))));
 
@@ -3011,7 +3535,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
             #region Send OnSendCDRsRequest event
 
-            var StartTime = DateTime.UtcNow;
+            var StartTime = org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
 
             try
             {
@@ -3039,9 +3563,9 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
             if (DisableSendChargeDetailRecords)
             {
 
-                Endtime  = DateTime.UtcNow;
+                Endtime  = org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
                 Runtime  = Endtime - StartTime;
-                results   = SendCDRsResult.AdminDown(DateTime.UtcNow,
+                results   = SendCDRsResult.AdminDown(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                                                      Id,
                                                      this,
                                                      ChargeDetailRecords,
@@ -3075,7 +3599,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                             try
                             {
 
-                                OnEnqueueSendCDRsRequest?.Invoke(DateTime.UtcNow,
+                                OnEnqueueSendCDRsRequest?.Invoke(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                                                                  Timestamp.Value,
                                                                  this,
                                                                  Id.ToString(),
@@ -3106,28 +3630,28 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                                                                                CustomEVSEIdMapper,
                                                                                                CustomChargeDetailRecord2Session));
 
-                                        SendCDRsResults.Add(SendCDRResult.Enqueued(DateTime.UtcNow,
+                                        SendCDRsResults.Add(SendCDRResult.Enqueued(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                                                                                    ChargeDetailRecord));
 
                                     }
                                     else
-                                        SendCDRsResults.Add(SendCDRResult.CouldNotConvertCDRFormat(DateTime.UtcNow,
+                                        SendCDRsResults.Add(SendCDRResult.CouldNotConvertCDRFormat(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                                                                                                    ChargeDetailRecord,
                                                                                                    Warning: Warning.Create(I18NString.Create(Languages.en, "Could not parse connector identification!"))));
 
                                 }
                                 catch (Exception e)
                                 {
-                                    SendCDRsResults.Add(SendCDRResult.CouldNotConvertCDRFormat(DateTime.UtcNow,
+                                    SendCDRsResults.Add(SendCDRResult.CouldNotConvertCDRFormat(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                                                                                                ChargeDetailRecord,
                                                                                                Warning: Warning.Create(I18NString.Create(Languages.en, e.Message))));
                                 }
 
                             }
 
-                            Endtime      = DateTime.UtcNow;
+                            Endtime      = org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
                             Runtime      = Endtime - StartTime;
-                            results      = SendCDRsResult.Enqueued(DateTime.UtcNow,
+                            results      = SendCDRsResult.Enqueued(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                                                                    Id,
                                                                    this,
                                                                    ChargeDetailRecords,
@@ -3173,26 +3697,26 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                             response.Content.Code   == ResponseCodes.Success)
                                         {
 
-                                            result = SendCDRResult.Success(DateTime.UtcNow,
+                                            result = SendCDRResult.Success(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                                                                            chargeDetailRecord);
 
                                         }
 
                                         else
-                                            result = SendCDRResult.Error(DateTime.UtcNow,
+                                            result = SendCDRResult.Error(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                                                                          chargeDetailRecord,
                                                                          Warning.Create(I18NString.Create(Languages.en, response.HTTPBodyAsUTF8String)));
 
                                     }
                                     else
-                                        result = SendCDRResult.CouldNotConvertCDRFormat(DateTime.UtcNow,
+                                        result = SendCDRResult.CouldNotConvertCDRFormat(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                                                                                         chargeDetailRecord,
                                                                                         Warning.Create(I18NString.Create(Languages.en, "Could not parse connector identification!")));
 
                                 }
                                 catch (Exception e)
                                 {
-                                    result = SendCDRResult.CouldNotConvertCDRFormat(DateTime.UtcNow,
+                                    result = SendCDRResult.CouldNotConvertCDRFormat(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                                                                                     chargeDetailRecord,
                                                                                     Warning.Create(I18NString.Create(Languages.en, e.Message)));
                                 }
@@ -3202,18 +3726,18 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
                             }
 
-                            Endtime  = DateTime.UtcNow;
+                            Endtime  = org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
                             Runtime  = Endtime - StartTime;
 
                             if (SendCDRsResults.All(cdrresult => cdrresult.Result == SendCDRResultTypes.Success))
-                                results = SendCDRsResult.Success(DateTime.UtcNow,
+                                results = SendCDRsResult.Success(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                                                                  Id,
                                                                  this,
                                                                  ChargeDetailRecords,
                                                                  Runtime: Runtime);
 
                             else
-                                results = SendCDRsResult.Error(DateTime.UtcNow,
+                                results = SendCDRsResult.Error(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                                                                Id,
                                                                this,
                                                                SendCDRsResults.
@@ -3232,9 +3756,9 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                     else
                     {
 
-                        Endtime  = DateTime.UtcNow;
+                        Endtime  = org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
                         Runtime  = Endtime - StartTime;
-                        results  = SendCDRsResult.Timeout(DateTime.UtcNow,
+                        results  = SendCDRsResult.Timeout(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                                                           Id,
                                                           this,
                                                           ChargeDetailRecords,
@@ -3380,7 +3904,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                     try
                     {
 
-                        SendOnWarnings(DateTime.UtcNow,
+                        SendOnWarnings(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                                        nameof(CPOAdapter) + Id,
                                        nameof(StationsToAddResult),
                                        StationsToAddResult.Warnings);
@@ -3418,7 +3942,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                         try
                         {
 
-                            SendOnWarnings(DateTime.UtcNow,
+                            SendOnWarnings(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                                            nameof(CPOAdapter) + Id,
                                            nameof(StationsToUpdateResult),
                                            StationsToUpdateResult.Warnings);
@@ -3452,7 +3976,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                     try
                     {
 
-                        SendOnWarnings(DateTime.UtcNow,
+                        SendOnWarnings(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                                        nameof(CPOAdapter) + Id,
                                        nameof(StationsStatusChangesResult),
                                        StationsStatusChangesResult.Warnings);
@@ -3485,7 +4009,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
             //        if (EVSEsToRemoveTask.Result.Warnings.Any())
             //        {
 
-            //            SendOnWarnings(DateTime.UtcNow,
+            //            SendOnWarnings(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
             //                           nameof(WWCPCPOAdapter) + Id,
             //                           "EVSEsToRemoveTask",
             //                           EVSEsToRemoveTask.Result.Warnings);
@@ -3553,7 +4077,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
             {
 
                 var ConnectorsPostStatusResult = await ConnectorsPostStatus(EVSEStatusFastQueueCopy,
-                                                                            DateTime.UtcNow,
+                                                                            org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                                                                             new CancellationTokenSource().Token,
                                                                             EventTracking_Id.New,
                                                                             DefaultRequestTimeout).
@@ -3562,7 +4086,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                 if (ConnectorsPostStatusResult.Warnings.Any())
                 {
 
-                    SendOnWarnings(DateTime.UtcNow,
+                    SendOnWarnings(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                                    nameof(CPOAdapter) + Id,
                                    nameof(ConnectorsPostStatusResult),
                                    ConnectorsPostStatusResult.Warnings);
@@ -3596,7 +4120,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
                     response = await CPORoaming.SessionPost(chargingSession,
 
-                                                            DateTime.UtcNow,
+                                                            org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                                                             new CancellationTokenSource().Token,
                                                             EventTracking_Id.New,
                                                             DefaultRequestTimeout).
@@ -3607,14 +4131,14 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                         response.Content.Code   == 0)
                     {
 
-                        result = SendCDRResult.Success(DateTime.UtcNow,
+                        result = SendCDRResult.Success(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                                                        chargingSession.GetInternalDataAs<ChargeDetailRecord>(OIOIMapper.WWCP_CDR),
                                                        Runtime: response.Runtime);
 
                     }
 
                     else
-                        result = SendCDRResult.Error(DateTime.UtcNow,
+                        result = SendCDRResult.Error(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                                                      chargingSession.GetInternalDataAs<ChargeDetailRecord>(OIOIMapper.WWCP_CDR),
                                                      Warning.Create(I18NString.Create(Languages.en, response.HTTPBodyAsUTF8String)),
                                                      Runtime: response.Runtime);
@@ -3622,7 +4146,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                 }
                 catch (Exception e)
                 {
-                    result = SendCDRResult.Error(DateTime.UtcNow,
+                    result = SendCDRResult.Error(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                                                  chargingSession.GetInternalDataAs<ChargeDetailRecord>(OIOIMapper.WWCP_CDR),
                                                  Warning.Create(I18NString.Create(Languages.en, e.Message)),
                                                  Runtime: TimeSpan.Zero);
@@ -3854,6 +4378,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// Return a text representation of this object.
         /// </summary>
         public override String ToString()
+
             => "OIOI " + Version.Number + " CPO Adapter " + Id;
 
         #endregion
