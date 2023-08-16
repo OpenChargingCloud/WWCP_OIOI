@@ -788,7 +788,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                       if (task.Result.Content.Code == ResponseCodes.Success)
                                           return new AddOrUpdateChargingStationResult(
                                                      wwcpStations[task.Result.Content.Request.Station.Id],
-                                                     org.GraphDefined.Vanaheimr.Hermod.PushDataResultTypes.Success,
+                                                     org.GraphDefined.Vanaheimr.Hermod.CommandResult.Success,
                                                      EventTrackingId,
                                                      Id,
                                                      this,
@@ -803,7 +803,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                       else
                                           return new AddOrUpdateChargingStationResult(
                                                      wwcpStations[task.Result.Content.Request.Station.Id],
-                                                     org.GraphDefined.Vanaheimr.Hermod.PushDataResultTypes.Error,
+                                                     org.GraphDefined.Vanaheimr.Hermod.CommandResult.Error,
                                                      EventTrackingId,
                                                      Id,
                                                      this,
@@ -819,7 +819,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                   else
                                       return new AddOrUpdateChargingStationResult(
                                                  wwcpStations[task.Result.Content.Request.Station.Id],
-                                                 org.GraphDefined.Vanaheimr.Hermod.PushDataResultTypes.Error,
+                                                 org.GraphDefined.Vanaheimr.Hermod.CommandResult.Error,
                                                  EventTrackingId,
                                                  Id,
                                                  this,
@@ -839,7 +839,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                 endtime  = org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
                 runtime  = endtime - startTime;
 
-                result   = results.All(result => result.Result == org.GraphDefined.Vanaheimr.Hermod.PushDataResultTypes.Success)
+                result   = results.All(result => result.Result == org.GraphDefined.Vanaheimr.Hermod.CommandResult.Success)
 
                                ? AddOrUpdateChargingStationsResult.Added(
                                      ChargingStations,
@@ -1744,8 +1744,8 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
             return new AddEVSEsResult(
                        result.Result,
-                       result.SuccessfulItems.SelectMany(res => res.ChargingStation!.EVSEs).Intersect(EVSEs).Select(evse => new AddEVSEResult(evse, org.GraphDefined.Vanaheimr.Hermod.PushDataResultTypes.Success)),
-                       result.RejectedItems.  SelectMany(res => res.ChargingStation!.EVSEs).Intersect(EVSEs).Select(evse => new AddEVSEResult(evse, org.GraphDefined.Vanaheimr.Hermod.PushDataResultTypes.Error)),
+                       result.SuccessfulItems.SelectMany(res => res.ChargingStation!.EVSEs).Intersect(EVSEs).Select(evse => new AddEVSEResult(evse, org.GraphDefined.Vanaheimr.Hermod.CommandResult.Success)),
+                       result.RejectedItems.  SelectMany(res => res.ChargingStation!.EVSEs).Intersect(EVSEs).Select(evse => new AddEVSEResult(evse, org.GraphDefined.Vanaheimr.Hermod.CommandResult.Error)),
                        result.AuthId,
                        result.SendPOIData,
                        result.EventTrackingId,
@@ -1873,8 +1873,8 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
             return new AddOrUpdateEVSEsResult(
                        result.Result,
-                       result.SuccessfulItems.SelectMany(res => res.ChargingStation!.EVSEs).Intersect(EVSEs).Select(evse => new AddOrUpdateEVSEResult(evse, org.GraphDefined.Vanaheimr.Hermod.PushDataResultTypes.Success)),
-                       result.RejectedItems.  SelectMany(res => res.ChargingStation!.EVSEs).Intersect(EVSEs).Select(evse => new AddOrUpdateEVSEResult(evse, org.GraphDefined.Vanaheimr.Hermod.PushDataResultTypes.Error)),
+                       result.SuccessfulItems.SelectMany(res => res.ChargingStation!.EVSEs).Intersect(EVSEs).Select(evse => new AddOrUpdateEVSEResult(evse, org.GraphDefined.Vanaheimr.Hermod.CommandResult.Success)),
+                       result.RejectedItems.  SelectMany(res => res.ChargingStation!.EVSEs).Intersect(EVSEs).Select(evse => new AddOrUpdateEVSEResult(evse, org.GraphDefined.Vanaheimr.Hermod.CommandResult.Error)),
                        result.AuthId,
                        result.SendPOIData,
                        result.EventTrackingId,
@@ -2002,8 +2002,8 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
             return new UpdateEVSEsResult(
                        result.Result,
-                       result.SuccessfulItems.SelectMany(res => res.ChargingStation!.EVSEs).Intersect(EVSEs).Select(evse => new UpdateEVSEResult(evse, org.GraphDefined.Vanaheimr.Hermod.PushDataResultTypes.Success)),
-                       result.RejectedItems.  SelectMany(res => res.ChargingStation!.EVSEs).Intersect(EVSEs).Select(evse => new UpdateEVSEResult(evse, org.GraphDefined.Vanaheimr.Hermod.PushDataResultTypes.Error)),
+                       result.SuccessfulItems.SelectMany(res => res.ChargingStation!.EVSEs).Intersect(EVSEs).Select(evse => new UpdateEVSEResult(evse, org.GraphDefined.Vanaheimr.Hermod.CommandResult.Success)),
+                       result.RejectedItems.  SelectMany(res => res.ChargingStation!.EVSEs).Intersect(EVSEs).Select(evse => new UpdateEVSEResult(evse, org.GraphDefined.Vanaheimr.Hermod.CommandResult.Error)),
                        result.AuthId,
                        result.SendPOIData,
                        result.EventTrackingId,
@@ -2695,8 +2695,8 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
             return new AddChargingStationsResult(
                        result.Result,
-                       result.SuccessfulItems.Select(res => new AddChargingStationResult(res.ChargingStation!, org.GraphDefined.Vanaheimr.Hermod.PushDataResultTypes.Success)),
-                       result.RejectedItems.  Select(res => new AddChargingStationResult(res.ChargingStation!, org.GraphDefined.Vanaheimr.Hermod.PushDataResultTypes.Error)),
+                       result.SuccessfulItems.Select(res => new AddChargingStationResult(res.ChargingStation!, org.GraphDefined.Vanaheimr.Hermod.CommandResult.Success)),
+                       result.RejectedItems.  Select(res => new AddChargingStationResult(res.ChargingStation!, org.GraphDefined.Vanaheimr.Hermod.CommandResult.Error)),
                        result.AuthId,
                        result.SendPOIData,
                        result.EventTrackingId,
@@ -2943,8 +2943,8 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
             return new UpdateChargingStationsResult(
                        result.Result,
-                       result.SuccessfulItems.Select(res => new UpdateChargingStationResult(res.ChargingStation!, org.GraphDefined.Vanaheimr.Hermod.PushDataResultTypes.Success)),
-                       result.RejectedItems.  Select(res => new UpdateChargingStationResult(res.ChargingStation!, org.GraphDefined.Vanaheimr.Hermod.PushDataResultTypes.Error)),
+                       result.SuccessfulItems.Select(res => new UpdateChargingStationResult(res.ChargingStation!, org.GraphDefined.Vanaheimr.Hermod.CommandResult.Success)),
+                       result.RejectedItems.  Select(res => new UpdateChargingStationResult(res.ChargingStation!, org.GraphDefined.Vanaheimr.Hermod.CommandResult.Error)),
                        result.AuthId,
                        result.SendPOIData,
                        result.EventTrackingId,
@@ -3067,8 +3067,8 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
             return new DeleteChargingStationsResult(
                        result.Result,
-                       result.SuccessfulItems.Select(res => new DeleteChargingStationResult(res.ChargingStation!, org.GraphDefined.Vanaheimr.Hermod.PushDataResultTypes.Success)),
-                       result.RejectedItems.  Select(res => new DeleteChargingStationResult(res.ChargingStation!, org.GraphDefined.Vanaheimr.Hermod.PushDataResultTypes.Error)),
+                       result.SuccessfulItems.Select(res => new DeleteChargingStationResult(res.ChargingStation!, org.GraphDefined.Vanaheimr.Hermod.CommandResult.Success)),
+                       result.RejectedItems.  Select(res => new DeleteChargingStationResult(res.ChargingStation!, org.GraphDefined.Vanaheimr.Hermod.CommandResult.Error)),
                        result.AuthId,
                        result.SendPOIData,
                        result.EventTrackingId,
