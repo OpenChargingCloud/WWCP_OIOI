@@ -38,7 +38,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
     /// WWCP data structures onto OIOI data structures and vice versa.
     /// </summary>
     public class CPOAdapter : AWWCPCSOAdapter<Session>,
-                              IEMPRoamingProvider,
+                              ICSORoamingProvider,
                               IEquatable <CPOAdapter>,
                               IComparable<CPOAdapter>,
                               IComparable
@@ -249,41 +249,41 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
         /// <param name="DisablePushStatus">This service can be disabled, e.g. for debugging reasons.</param>
         /// <param name="DisableAuthentication">This service can be disabled, e.g. for debugging reasons.</param>
         /// <param name="DisableSendChargeDetailRecords">This service can be disabled, e.g. for debugging reasons.</param>
-        public CPOAdapter(EMPRoamingProvider_Id                            Id,
-                              I18NString                                       Name,
-                              I18NString                                       Description,
-                              RoamingNetwork                                   RoamingNetwork,
-                              CPORoaming                                       CPORoaming,
+        public CPOAdapter(CSORoamingProvider_Id                            Id,
+                          I18NString                                       Name,
+                          I18NString                                       Description,
+                          RoamingNetwork                                   RoamingNetwork,
+                          CPORoaming                                       CPORoaming,
 
-                              ChargingStation2StationDelegate?                 ChargingStation2Station                  = null,
-                              EVSEStatusUpdate2ConnectorStatusUpdateDelegate?  EVSEStatusUpdate2ConnectorStatusUpdate   = null,
-                              ChargeDetailRecord2SessionDelegate?              ChargeDetailRecord2Session               = null,
-                              Station2JSONDelegate?                            Station2JSON                             = null,
-                              ConnectorStatus2JSONDelegate?                    ConnectorStatus2JSON                     = null,
-                              Session2JSONDelegate?                            Session2JSON                             = null,
+                          ChargingStation2StationDelegate?                 ChargingStation2Station                  = null,
+                          EVSEStatusUpdate2ConnectorStatusUpdateDelegate?  EVSEStatusUpdate2ConnectorStatusUpdate   = null,
+                          ChargeDetailRecord2SessionDelegate?              ChargeDetailRecord2Session               = null,
+                          Station2JSONDelegate?                            Station2JSON                             = null,
+                          ConnectorStatus2JSONDelegate?                    ConnectorStatus2JSON                     = null,
+                          Session2JSONDelegate?                            Session2JSON                             = null,
 
-                              IncludeEVSEIdDelegate?                           IncludeEVSEIds                           = null,
-                              IncludeEVSEDelegate?                             IncludeEVSEs                             = null,
-                              IncludeChargingStationIdDelegate?                IncludeChargingStationIds                = null,
-                              IncludeChargingStationDelegate?                  IncludeChargingStations                  = null,
-                              ChargeDetailRecordFilterDelegate?                ChargeDetailRecordFilter                 = null,
-                              CustomOperatorIdMapperDelegate?                  CustomOperatorIdMapper                   = null,
-                              CustomEVSEIdMapperDelegate?                      CustomEVSEIdMapper                       = null,
-                              CustomConnectorIdMapperDelegate?                 CustomConnectorIdMapper                  = null,
+                          IncludeEVSEIdDelegate?                           IncludeEVSEIds                           = null,
+                          IncludeEVSEDelegate?                             IncludeEVSEs                             = null,
+                          IncludeChargingStationIdDelegate?                IncludeChargingStationIds                = null,
+                          IncludeChargingStationDelegate?                  IncludeChargingStations                  = null,
+                          ChargeDetailRecordFilterDelegate?                ChargeDetailRecordFilter                 = null,
+                          CustomOperatorIdMapperDelegate?                  CustomOperatorIdMapper                   = null,
+                          CustomEVSEIdMapperDelegate?                      CustomEVSEIdMapper                       = null,
+                          CustomConnectorIdMapperDelegate?                 CustomConnectorIdMapper                  = null,
 
-                              TimeSpan?                                        ServiceCheckEvery                        = null,
-                              TimeSpan?                                        StatusCheckEvery                         = null,
-                              TimeSpan?                                        CDRCheckEvery                            = null,
+                          TimeSpan?                                        ServiceCheckEvery                        = null,
+                          TimeSpan?                                        StatusCheckEvery                         = null,
+                          TimeSpan?                                        CDRCheckEvery                            = null,
 
-                              Boolean                                          DisablePushData                          = false,
-                              Boolean                                          DisablePushAdminStatus                   = true,
-                              Boolean                                          DisablePushStatus                        = false,
-                              Boolean                                          DisableAuthentication                    = false,
-                              Boolean                                          DisableSendChargeDetailRecords           = false,
+                          Boolean                                          DisablePushData                          = false,
+                          Boolean                                          DisablePushAdminStatus                   = true,
+                          Boolean                                          DisablePushStatus                        = false,
+                          Boolean                                          DisableAuthentication                    = false,
+                          Boolean                                          DisableSendChargeDetailRecords           = false,
 
-                              String                                           EllipticCurve                            = "P-256",
-                              ECPrivateKeyParameters?                          PrivateKey                               = null,
-                              PublicKeyCertificates?                           PublicKeyCertificates                    = null)
+                          String                                           EllipticCurve                            = "P-256",
+                          ECPrivateKeyParameters?                          PrivateKey                               = null,
+                          PublicKeyCertificates?                           PublicKeyCertificates                    = null)
 
             : base(Id,
                    RoamingNetwork,
@@ -353,7 +353,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                                                EventTrackingId,
                                                                RequestTimeout) => {
 
-                RemoteStartResult response = null;
+                RemoteStartResult? response = null;
 
                 var EVSEId   = ConnectorId.ToWWCP(CustomConnectorIdMapper);
 
@@ -362,10 +362,10 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
                 else
                     response = await RoamingNetwork.
-                                         RemoteStart(EMPRoamingProvider:    this,
+                                         RemoteStart(CSORoamingProvider:    this,
                                                      ChargingLocation:      ChargingLocation.FromEVSEId(EVSEId),
                                                      RemoteAuthentication:  RemoteAuthentication.FromRemoteIdentification(WWCP.EMobilityAccount_Id.Parse(eMAId.ToString())),
-                                                     SessionId:             ChargingSession_Id.NewRandom,
+                                                     SessionId:             ChargingSession_Id.NewRandom(),
                                                      ProviderId:            WWCP.EMobilityProvider_Id.Parse(eMAId.ProviderId.ToString()),
 
                                                      Timestamp:             Timestamp,
@@ -511,7 +511,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                                               EventTrackingId,
                                                               RequestTimeout) => {
 
-                var response = await RoamingNetwork.RemoteStop(EMPRoamingProvider:    this,
+                var response = await RoamingNetwork.RemoteStop(CSORoamingProvider:    this,
                                                                SessionId:             SessionId. ToWWCP(),
                                                                //EVSEId:                ConnectorId.ToWWCP(),
                                                                RemoteAuthentication:  RemoteAuthentication.FromRemoteIdentification(WWCP.EMobilityAccount_Id.Parse(eMAId.ToString())),
@@ -525,7 +525,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                                     ConfigureAwait(false);
 
 
-                Result SessionStopResult = null;
+                Result? SessionStopResult = null;
 
                 switch (response.Result)
                 {
@@ -788,12 +788,12 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                       if (task.Result.Content.Code == ResponseCodes.Success)
                                           return new AddOrUpdateChargingStationResult(
                                                      wwcpStations[task.Result.Content.Request.Station.Id],
-                                                     org.GraphDefined.Vanaheimr.Hermod.CommandResult.Success,
+                                                     CommandResult.Success,
                                                      EventTrackingId,
                                                      Id,
                                                      this,
                                                      null,
-                                                     org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.Add,
+                                                     AddedOrUpdated.Add,
                                                      null,
                                                      new[] {
                                                          Warning.Create(task.Result.Content.Message)
@@ -803,12 +803,12 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                       else
                                           return new AddOrUpdateChargingStationResult(
                                                      wwcpStations[task.Result.Content.Request.Station.Id],
-                                                     org.GraphDefined.Vanaheimr.Hermod.CommandResult.Error,
+                                                     CommandResult.Error,
                                                      EventTrackingId,
                                                      Id,
                                                      this,
                                                      null,
-                                                     org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.Failed,
+                                                     AddedOrUpdated.Failed,
                                                      null,
                                                      new[] {
                                                          Warning.Create(task.Result.Content.Message)
@@ -819,12 +819,12 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                                   else
                                       return new AddOrUpdateChargingStationResult(
                                                  wwcpStations[task.Result.Content.Request.Station.Id],
-                                                 org.GraphDefined.Vanaheimr.Hermod.CommandResult.Error,
+                                                 CommandResult.Error,
                                                  EventTrackingId,
                                                  Id,
                                                  this,
                                                  null,
-                                                 org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.Failed,
+                                                 AddedOrUpdated.Failed,
                                                  null,
                                                  new[] {
                                                      Warning.Create(task.Result.HTTPStatusCode.ToString())
@@ -839,7 +839,7 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                 endtime  = org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
                 runtime  = endtime - startTime;
 
-                result   = results.All(result => result.Result == org.GraphDefined.Vanaheimr.Hermod.CommandResult.Success)
+                result   = results.All(result => result.Result == CommandResult.Success)
 
                                ? AddOrUpdateChargingStationsResult.Added(
                                      ChargingStations,
@@ -1241,8 +1241,8 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                        EVSE,
                        result.Result,
                        result.EventTrackingId,
-                       result.AuthId,
-                       result.SendPOIData,
+                       result.SenderId,
+                       result.Sender,
                        EVSE.ChargingStation,
                        result.Description,
                        result.Warnings,
@@ -1363,10 +1363,10 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                        EVSE,
                        result.Result,
                        result.EventTrackingId,
-                       result.AuthId,
-                       result.SendPOIData,
+                       result.SenderId,
+                       result.Sender,
                        EVSE.ChargingStation,
-                       org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.Add,
+                       AddedOrUpdated.Add,
                        result.Description,
                        result.Warnings,
                        result.Runtime
@@ -1494,8 +1494,8 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                        EVSE,
                        result.Result,
                        result.EventTrackingId,
-                       result.AuthId,
-                       result.SendPOIData,
+                       result.SenderId,
+                       result.Sender,
                        EVSE.ChargingStation,
                        result.Description,
                        result.Warnings,
@@ -1616,8 +1616,8 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                        EVSE,
                        result.Result,
                        result.EventTrackingId,
-                       result.AuthId,
-                       result.SendPOIData,
+                       result.SenderId,
+                       result.Sender,
                        EVSE.ChargingStation,
                        result.Description,
                        result.Warnings,
@@ -1744,10 +1744,10 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
             return new AddEVSEsResult(
                        result.Result,
-                       result.SuccessfulItems.SelectMany(res => res.ChargingStation!.EVSEs).Intersect(EVSEs).Select(evse => new AddEVSEResult(evse, org.GraphDefined.Vanaheimr.Hermod.CommandResult.Success)),
-                       result.RejectedItems.  SelectMany(res => res.ChargingStation!.EVSEs).Intersect(EVSEs).Select(evse => new AddEVSEResult(evse, org.GraphDefined.Vanaheimr.Hermod.CommandResult.Error)),
-                       result.AuthId,
-                       result.SendPOIData,
+                       result.SuccessfulItems.SelectMany(res => res.ChargingStation!.EVSEs).Intersect(EVSEs).Select(evse => new AddEVSEResult(evse, CommandResult.Success)),
+                       result.RejectedItems.  SelectMany(res => res.ChargingStation!.EVSEs).Intersect(EVSEs).Select(evse => new AddEVSEResult(evse, CommandResult.Error)),
+                       result.SenderId,
+                       result.Sender,
                        result.EventTrackingId,
                        result.Description,
                        result.Warnings,
@@ -1873,10 +1873,10 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
             return new AddOrUpdateEVSEsResult(
                        result.Result,
-                       result.SuccessfulItems.SelectMany(res => res.ChargingStation!.EVSEs).Intersect(EVSEs).Select(evse => new AddOrUpdateEVSEResult(evse, org.GraphDefined.Vanaheimr.Hermod.CommandResult.Success)),
-                       result.RejectedItems.  SelectMany(res => res.ChargingStation!.EVSEs).Intersect(EVSEs).Select(evse => new AddOrUpdateEVSEResult(evse, org.GraphDefined.Vanaheimr.Hermod.CommandResult.Error)),
-                       result.AuthId,
-                       result.SendPOIData,
+                       result.SuccessfulItems.SelectMany(res => res.ChargingStation!.EVSEs).Intersect(EVSEs).Select(evse => new AddOrUpdateEVSEResult(evse, CommandResult.Success)),
+                       result.RejectedItems.  SelectMany(res => res.ChargingStation!.EVSEs).Intersect(EVSEs).Select(evse => new AddOrUpdateEVSEResult(evse, CommandResult.Error)),
+                       result.SenderId,
+                       result.Sender,
                        result.EventTrackingId,
                        result.Description,
                        result.Warnings,
@@ -2002,10 +2002,10 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
             return new UpdateEVSEsResult(
                        result.Result,
-                       result.SuccessfulItems.SelectMany(res => res.ChargingStation!.EVSEs).Intersect(EVSEs).Select(evse => new UpdateEVSEResult(evse, org.GraphDefined.Vanaheimr.Hermod.CommandResult.Success)),
-                       result.RejectedItems.  SelectMany(res => res.ChargingStation!.EVSEs).Intersect(EVSEs).Select(evse => new UpdateEVSEResult(evse, org.GraphDefined.Vanaheimr.Hermod.CommandResult.Error)),
-                       result.AuthId,
-                       result.SendPOIData,
+                       result.SuccessfulItems.SelectMany(res => res.ChargingStation!.EVSEs).Intersect(EVSEs).Select(evse => new UpdateEVSEResult(evse, CommandResult.Success)),
+                       result.RejectedItems.  SelectMany(res => res.ChargingStation!.EVSEs).Intersect(EVSEs).Select(evse => new UpdateEVSEResult(evse, CommandResult.Error)),
+                       result.SenderId,
+                       result.Sender,
                        result.EventTrackingId,
                        result.Description,
                        result.Warnings,
@@ -2242,8 +2242,8 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                        ChargingStation,
                        result.Result,
                        result.EventTrackingId,
-                       result.AuthId,
-                       result.SendPOIData,
+                       result.SenderId,
+                       result.Sender,
                        null,
                        result.Description,
                        result.Warnings,
@@ -2349,10 +2349,10 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                        ChargingStation,
                        result.Result,
                        result.EventTrackingId,
-                       result.AuthId,
-                       result.SendPOIData,
+                       result.SenderId,
+                       result.Sender,
                        null,
-                       org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.Add,
+                       AddedOrUpdated.Add,
                        result.Description,
                        result.Warnings,
                        result.Runtime
@@ -2465,8 +2465,8 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                        ChargingStation,
                        result.Result,
                        result.EventTrackingId,
-                       result.AuthId,
-                       result.SendPOIData,
+                       result.SenderId,
+                       result.Sender,
                        null,
                        result.Description,
                        result.Warnings,
@@ -2572,8 +2572,8 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                        ChargingStation,
                        result.Result,
                        result.EventTrackingId,
-                       result.AuthId,
-                       result.SendPOIData,
+                       result.SenderId,
+                       result.Sender,
                        null,
                        result.Description,
                        result.Warnings,
@@ -2695,10 +2695,10 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
             return new AddChargingStationsResult(
                        result.Result,
-                       result.SuccessfulItems.Select(res => new AddChargingStationResult(res.ChargingStation!, org.GraphDefined.Vanaheimr.Hermod.CommandResult.Success)),
-                       result.RejectedItems.  Select(res => new AddChargingStationResult(res.ChargingStation!, org.GraphDefined.Vanaheimr.Hermod.CommandResult.Error)),
-                       result.AuthId,
-                       result.SendPOIData,
+                       result.SuccessfulItems.Select(res => new AddChargingStationResult(res.ChargingStation!, CommandResult.Success)),
+                       result.RejectedItems.  Select(res => new AddChargingStationResult(res.ChargingStation!, CommandResult.Error)),
+                       result.SenderId,
+                       result.Sender,
                        result.EventTrackingId,
                        result.Description,
                        result.Warnings,
@@ -2821,8 +2821,8 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
                        result.Result,
                        result.SuccessfulItems,
                        result.RejectedItems,
-                       result.AuthId,
-                       result.SendPOIData,
+                       result.SenderId,
+                       result.Sender,
                        result.EventTrackingId,
                        result.Description,
                        result.Warnings,
@@ -2943,10 +2943,10 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
             return new UpdateChargingStationsResult(
                        result.Result,
-                       result.SuccessfulItems.Select(res => new UpdateChargingStationResult(res.ChargingStation!, org.GraphDefined.Vanaheimr.Hermod.CommandResult.Success)),
-                       result.RejectedItems.  Select(res => new UpdateChargingStationResult(res.ChargingStation!, org.GraphDefined.Vanaheimr.Hermod.CommandResult.Error)),
-                       result.AuthId,
-                       result.SendPOIData,
+                       result.SuccessfulItems.Select(res => new UpdateChargingStationResult(res.ChargingStation!, CommandResult.Success)),
+                       result.RejectedItems.  Select(res => new UpdateChargingStationResult(res.ChargingStation!, CommandResult.Error)),
+                       result.SenderId,
+                       result.Sender,
                        result.EventTrackingId,
                        result.Description,
                        result.Warnings,
@@ -3067,10 +3067,10 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
             return new DeleteChargingStationsResult(
                        result.Result,
-                       result.SuccessfulItems.Select(res => new DeleteChargingStationResult(res.ChargingStation!, org.GraphDefined.Vanaheimr.Hermod.CommandResult.Success)),
-                       result.RejectedItems.  Select(res => new DeleteChargingStationResult(res.ChargingStation!, org.GraphDefined.Vanaheimr.Hermod.CommandResult.Error)),
-                       result.AuthId,
-                       result.SendPOIData,
+                       result.SuccessfulItems.Select(res => new DeleteChargingStationResult(res.ChargingStation!, CommandResult.Success)),
+                       result.RejectedItems.  Select(res => new DeleteChargingStationResult(res.ChargingStation!, CommandResult.Error)),
+                       result.SenderId,
+                       result.Sender,
                        result.EventTrackingId,
                        result.Description,
                        result.Warnings,

@@ -368,19 +368,19 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
                                              HTTPResponse _HTTPResponse = null;
 
-                                             if (!request.TryParseJObjectRequestBody(out JObject JSONBody, out HTTPResponse.Builder HTTPResponse))
+                                             if (!request.TryParseJSONObjectRequestBody(out var json, out var httpResponseBuilder) || json is null)
                                                  return CreateResponse(request,
                                                                        HTTPStatusCode.BadRequest,
                                                                        Result.Error(140, "Invalid HTTP body!"));
 
                                              #region Parse Session Start [optional]
 
-                                             if (JSONBody.ParseOptional("session-start",
+                                             if (json.ParseOptional("session-start",
                                                                         "session-start",
                                                                         HTTPServer.DefaultServerName,
                                                                         out JObject JSONObj,
                                                                         request,
-                                                                        out HTTPResponse))
+                                                                        out httpResponseBuilder))
                                              {
 
                                                  // ---------------------------------------------------------
@@ -725,12 +725,12 @@ namespace cloud.charging.open.protocols.OIOIv4_x.CPO
 
                                              #region Parse Session Stop  [optional]
 
-                                             else if (JSONBody.ParseOptional("session-stop",
+                                             else if (json.ParseOptional("session-stop",
                                                                              "session-stop",
                                                                              HTTPServer.DefaultServerName,
                                                                              out JSONObj,
                                                                              request,
-                                                                             out HTTPResponse))
+                                                                             out httpResponseBuilder))
                                              {
 
                                                  // ---------------------------------------------------------

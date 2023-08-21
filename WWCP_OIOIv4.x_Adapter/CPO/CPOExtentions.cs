@@ -57,7 +57,7 @@ namespace cloud.charging.open.protocols.WWCP
         public static CPOAdapter
 
             CreateOIOIv4_x_CPORoamingProvider(this RoamingNetwork                                          RoamingNetwork,
-                                              EMPRoamingProvider_Id                                        Id,
+                                              CSORoamingProvider_Id                                        Id,
                                               I18NString                                                   Name,
                                               I18NString                                                   Description,
                                               CPORoaming                                                   CPORoaming,
@@ -88,8 +88,8 @@ namespace cloud.charging.open.protocols.WWCP
                                               Boolean                                                      DisableAuthentication                           = false,
                                               Boolean                                                      DisableSendChargeDetailRecords                  = false,
 
-                                              Action<CPOAdapter>                                       OIOIConfigurator                                = null,
-                                              Action<IEMPRoamingProvider>                                  Configurator                                    = null,
+                                              Action<CPOAdapter>                                           OIOIConfigurator                                = null,
+                                              Action<ICSORoamingProvider>                                  Configurator                                    = null,
 
                                               String                                                       EllipticCurve                                   = "P-256",
                                               ECPrivateKeyParameters                                       PrivateKey                                      = null,
@@ -114,45 +114,45 @@ namespace cloud.charging.open.protocols.WWCP
             #endregion
 
             var NewRoamingProvider = new CPOAdapter(Id,
-                                                        Name,
-                                                        Description,
-                                                        RoamingNetwork,
-                                                        CPORoaming,
+                                                    Name,
+                                                    Description,
+                                                    RoamingNetwork,
+                                                    CPORoaming,
 
-                                                        ChargingStation2Station,
-                                                        EVSEStatusUpdate2ConnectorStatusUpdate,
-                                                        ChargeDetailRecord2Session,
-                                                        Station2JSON,
-                                                        ConnectorStatus2JSON,
-                                                        Session2JSON,
+                                                    ChargingStation2Station,
+                                                    EVSEStatusUpdate2ConnectorStatusUpdate,
+                                                    ChargeDetailRecord2Session,
+                                                    Station2JSON,
+                                                    ConnectorStatus2JSON,
+                                                    Session2JSON,
 
-                                                        IncludeEVSEIds,
-                                                        IncludeEVSEs,
-                                                        IncludeChargingStationIds,
-                                                        IncludeChargingStations,
-                                                        ChargeDetailRecordFilter,
-                                                        CustomOperatorIdMapper,
-                                                        CustomEVSEIdMapper,
-                                                        CustomConnectorIdMapper,
+                                                    IncludeEVSEIds,
+                                                    IncludeEVSEs,
+                                                    IncludeChargingStationIds,
+                                                    IncludeChargingStations,
+                                                    ChargeDetailRecordFilter,
+                                                    CustomOperatorIdMapper,
+                                                    CustomEVSEIdMapper,
+                                                    CustomConnectorIdMapper,
 
-                                                        ServiceCheckEvery,
-                                                        StatusCheckEvery,
-                                                        CDRCheckEvery,
+                                                    ServiceCheckEvery,
+                                                    StatusCheckEvery,
+                                                    CDRCheckEvery,
 
-                                                        DisablePushData,
-                                                        DisablePushAdminStatus,
-                                                        DisablePushStatus,
-                                                        DisableAuthentication,
-                                                        DisableSendChargeDetailRecords,
+                                                    DisablePushData,
+                                                    DisablePushAdminStatus,
+                                                    DisablePushStatus,
+                                                    DisableAuthentication,
+                                                    DisableSendChargeDetailRecords,
 
-                                                        EllipticCurve,
-                                                        PrivateKey,
-                                                        PublicKeyCertificates);
+                                                    EllipticCurve,
+                                                    PrivateKey,
+                                                    PublicKeyCertificates);
 
             OIOIConfigurator?.Invoke(NewRoamingProvider);
 
             return RoamingNetwork.
-                       CreateEMPRoamingProvider(NewRoamingProvider,
+                       CreateCSORoamingProvider(NewRoamingProvider,
                                                 Configurator) as CPOAdapter;
 
         }
