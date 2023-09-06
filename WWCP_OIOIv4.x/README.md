@@ -17,7 +17,7 @@ For every api call you will need an api-key. You can obtain yours via an e-mail 
 
 ### Charge Point Operators
 
-First create a CPO client and choose a appropriate level of paranoia for validating the SSL/TLS certificate.
+First create a CPO client and choose a appropriate level of paranoia for validating the TLS certificate.
 
 ```csharp
 

@@ -1,6 +1,6 @@
 
 ##Errata
-  - https://docs.plugsurfing.com has a broken SSL/TLS-certificate
+  - https://docs.plugsurfing.com has a broken TLS-certificate
   - Station name and description should be multi-language
   - "street-number" in example http://docs.plugsurfing.com/en/latest/calls/station_post.html#calls-stationpost-docs should be string not number!
   - "notes" is in example http://docs.plugsurfing.com/en/latest/calls/station_post.html#calls-stationpost-docs of type BOOLEAN, but STRING according to the docs!
