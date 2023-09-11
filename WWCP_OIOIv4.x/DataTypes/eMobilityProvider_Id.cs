@@ -67,9 +67,9 @@ namespace cloud.charging.open.protocols.OIOIv4_x
     /// <summary>
     /// The unique identification of an e-mobility provider.
     /// </summary>
-    public struct eMobilityProvider_Id : IId,
-                                         IEquatable<eMobilityProvider_Id>,
-                                         IComparable<eMobilityProvider_Id>
+    public readonly struct eMobilityProvider_Id : IId,
+                                                  IEquatable<eMobilityProvider_Id>,
+                                                  IComparable<eMobilityProvider_Id>
 
     {
 
@@ -107,27 +107,24 @@ namespace cloud.charging.open.protocols.OIOIv4_x
             => Suffix.IsNullOrEmpty();
 
         /// <summary>
+        /// Indicates whether this identification is NOT null or empty.
+        /// </summary>
+        public Boolean IsNotNullOrEmpty
+            => Suffix.IsNotNullOrEmpty();
+
+        /// <summary>
         /// Returns the length of the identification.
         /// </summary>
         public UInt64 Length
         {
             get
             {
-
-                switch (Format)
-                {
-
-                    case ProviderIdFormats.DIN_STAR:
-                        return (UInt64) (CountryCode.Alpha2Code.Length + 1 + Suffix.Length);
-
-                    case ProviderIdFormats.ISO:
-                        return (UInt64) (CountryCode.Alpha2Code.Length     + Suffix.Length);
-
-                    default: // ISO_HYPHEN
-                        return (UInt64) (CountryCode.Alpha2Code.Length + 1 + Suffix.Length);
-
-                }
-
+                return Format switch {
+                    ProviderIdFormats.DIN_STAR  => (UInt64) (CountryCode.Alpha2Code.Length + 1 + Suffix.Length),
+                    ProviderIdFormats.ISO       => (UInt64) (CountryCode.Alpha2Code.Length +     Suffix.Length),
+                    // ISO_HYPHEN
+                    _                           => (UInt64) (CountryCode.Alpha2Code.Length + 1 + Suffix.Length),
+                };
             }
         }
 

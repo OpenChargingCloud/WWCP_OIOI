@@ -17,8 +17,6 @@
 
 #region Usings
 
-using System;
-
 using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
@@ -29,9 +27,9 @@ namespace cloud.charging.open.protocols.OIOIv4_x
     /// <summary>
     /// The unique identification of an OIOI Payment Reference.
     /// </summary>
-    public struct PaymentReference : IId,
-                                     IEquatable<PaymentReference>,
-                                     IComparable<PaymentReference>
+    public readonly struct PaymentReference : IId,
+                                              IEquatable<PaymentReference>,
+                                              IComparable<PaymentReference>
 
     {
 
@@ -51,6 +49,12 @@ namespace cloud.charging.open.protocols.OIOIv4_x
         /// </summary>
         public Boolean IsNullOrEmpty
             => InternalId.IsNullOrEmpty();
+
+        /// <summary>
+        /// Indicates whether this identification is NOT null or empty.
+        /// </summary>
+        public Boolean IsNotNullOrEmpty
+            => InternalId.IsNotNullOrEmpty();
 
         /// <summary>
         /// The length of the partner identificator.

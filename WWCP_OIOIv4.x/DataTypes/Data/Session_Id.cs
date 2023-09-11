@@ -17,8 +17,6 @@
 
 #region Usings
 
-using System;
-
 using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
@@ -29,9 +27,9 @@ namespace cloud.charging.open.protocols.OIOIv4_x
     /// <summary>
     /// The unique identification of an OIOI Session.
     /// </summary>
-    public struct Session_Id : IId,
-                               IEquatable<Session_Id>,
-                               IComparable<Session_Id>
+    public readonly struct Session_Id : IId,
+                                        IEquatable<Session_Id>,
+                                        IComparable<Session_Id>
 
     {
 
@@ -51,6 +49,12 @@ namespace cloud.charging.open.protocols.OIOIv4_x
         /// </summary>
         public Boolean IsNullOrEmpty
             => InternalId.IsNullOrEmpty();
+
+        /// <summary>
+        /// Indicates whether this identification is NOT null or empty.
+        /// </summary>
+        public Boolean IsNotNullOrEmpty
+            => InternalId.IsNotNullOrEmpty();
 
         /// <summary>
         /// The length of the partner identificator.

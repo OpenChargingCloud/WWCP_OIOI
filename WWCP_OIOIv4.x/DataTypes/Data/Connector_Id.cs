@@ -29,9 +29,9 @@ namespace cloud.charging.open.protocols.OIOIv4_x
     /// <summary>
     /// The unique identification of a connector.
     /// </summary>
-    public struct Connector_Id : IId,
-                                 IEquatable<Connector_Id>,
-                                 IComparable<Connector_Id>
+    public readonly struct Connector_Id : IId,
+                                          IEquatable<Connector_Id>,
+                                          IComparable<Connector_Id>
 
     {
 
@@ -62,6 +62,12 @@ namespace cloud.charging.open.protocols.OIOIv4_x
         /// </summary>
         public Boolean IsNullOrEmpty
             => Suffix.IsNullOrEmpty();
+
+        /// <summary>
+        /// Indicates whether this identification is NOT null or empty.
+        /// </summary>
+        public Boolean IsNotNullOrEmpty
+            => Suffix.IsNotNullOrEmpty();
 
         /// <summary>
         /// Returns the length of the identification.

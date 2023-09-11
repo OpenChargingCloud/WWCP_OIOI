@@ -17,7 +17,6 @@
 
 #region Usings
 
-using System;
 using System.Text.RegularExpressions;
 
 using org.GraphDefined.Vanaheimr.Illias;
@@ -30,9 +29,9 @@ namespace cloud.charging.open.protocols.OIOIv4_x
     /// <summary>
     /// A RFID identification.
     /// </summary>
-    public struct RFID_Id : IId,
-                            IEquatable<RFID_Id>,
-                            IComparable<RFID_Id>
+    public readonly struct RFID_Id : IId,
+                                     IEquatable<RFID_Id>,
+                                     IComparable<RFID_Id>
     {
 
         #region Data
@@ -57,6 +56,12 @@ namespace cloud.charging.open.protocols.OIOIv4_x
         /// </summary>
         public Boolean IsNullOrEmpty
             => InternalId.IsNullOrEmpty();
+
+        /// <summary>
+        /// Indicates whether this identification is NOT null or empty.
+        /// </summary>
+        public Boolean IsNotNullOrEmpty
+            => InternalId.IsNotNullOrEmpty();
 
         /// <summary>
         /// The length of the RFID identification.
